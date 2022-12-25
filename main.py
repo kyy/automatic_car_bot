@@ -5,8 +5,6 @@ import urllib.request
 import shutil
 
 
-
-
 def parse(urls):
     r = requests.get(urls)
     r = r.content
@@ -44,12 +42,20 @@ for key in base:
         for link in img:
             src = url+link.get('src')  # ссылка на картинку
             img = urllib.request.urlopen(src).read()
-            with open(f'{i}.jpg', "wb") as f_obj:
-                f_obj.write(img)
-                f_obj.close
             target_folder = Path.cwd() / file
             source_folder = Path.cwd() / f'{i}.jpg'
-            shutil.move(source_folder, target_folder)
+            target_folder_file = target_folder / f'{i}.jpg'
+            print(target_folder_file)
+            if Path.exists(target_folder_file):
+                print(f'пропуск, файл уже на своем месте --- {target_folder_file}')
+            else:
+                with open(f'{i}.jpg', "wb") as f_obj:
+                    f_obj.write(img)
+                    f_obj.close
+                    print(f'скачан --- {source_folder}')
+                shutil.move(source_folder, target_folder)
+                print(f'перемещен --- {target_folder_file}')
+
           
      
     
