@@ -29,7 +29,6 @@ def start_browser():
         pass
     return res
 
-
 def get_brands():       # парсим все бренды авто и записывем в файл 'brands.txt'
     driver = start_browser()
 
@@ -59,7 +58,8 @@ def get_brands():       # парсим все бренды авто и запи�
     except Exception as e:
         print('ERROR--запись файл', e)
 
-get_cars_input = 'audi a7 d a 1990 2022 3000 35000 1600 3000'
+
+get_cars_input = 'audi - b a 1990 2022 3000 55000 1600 5000'
 
 def car_parturl():       # парсим все бренды авто и записывем в файл 'brands.txt'
 
@@ -84,20 +84,30 @@ def car_parturl():       # парсим все бренды авто и запи
             new_part.append(str(key)+str(car_input[key]))
     new_part_url = '&'.join(new_part[2:])
 
+    if car_input['brands[0][model]='] == '-':
+        car_input['brands[0][model]='] = ''
+
     driver = start_browser()
     driver.get(f"https://cars.av.by/{car_input['brands[0][brand]=']}/{car_input['brands[0][model]=']}")
     time.sleep(5)
     cost_1 = driver.find_element(By.XPATH, '//*[@id="p-9-price_usd"]').send_keys('1')     # устанавливаем минимальную цену - '1' - для получения url
-    time.sleep(0.5)
-    click_show = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # жмем кнопу фильтра
-    time.sleep(0.5)
+    time.sleep(2)
+    try:
+        click_show = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # жмем кнопу фильтра
+    except Exception as e:
+        print(10*'ОШИБКА**', f'\n{e}\nКнопка не нажалась, жмем по другому локтору.')
+        click_show = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # если не прожалась - жмем кнопу фильтра еще раз
+
+
+    time.sleep(2)
     link = driver.current_url       # получаем ссылку с ввода в браузер
     current_car = '&'.join(link.replace('https://cars.av.by/filter?', '').split('&')[0:2])      # чистим ссылку и получаем get-запроc на нашу машину
 
-    time.sleep(0.5)
+    if car_input['brands[0][model]='] == '-':
+        current_car = '&'.join(link.replace('https://cars.av.by/filter?', '').split('&')[0:1])
+
     driver.get(f"https://cars.av.by/filter?{current_car}"+f"&{new_part_url}")
-    print(f"https://cars.av.by/filter?{current_car}"+f"&{new_part_url}")
-    time.sleep(100)
+    time.sleep(15)
 
 if __name__ == '__main__':
     car_parturl()
