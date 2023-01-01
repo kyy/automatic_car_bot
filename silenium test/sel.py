@@ -19,7 +19,7 @@ def start_browser():
     try:
         options = webdriver.ChromeOptions()
         options.add_argument("--no-sandbox")
-        #options.add_argument('headless')  # закомментируй, если хочется видеть браузер
+        options.add_argument('headless')  # закомментируй, если хочется видеть браузер
         options.add_argument('--verbose')
         options.add_argument("--disable-dev-shm-usage")
         driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
@@ -58,10 +58,10 @@ def get_brands():       # парсим все бренды авто и запи�
     except Exception as e:
         print('ERROR--запись файл', e)
 
+# бренд модель топливо коробка год_от год_до цена_от цена_до объем_от объем_до (пропустть параметр можно '-')
+get_cars_input = 'citroen c4-picasso d a 2016 - 9000 15009 1400 2000'
 
-get_cars_input = 'audi - b a 1990 2022 3000 55000 1600 5000'
-
-def car_parturl():       # парсим все бренды авто и записывем в файл 'brands.txt'
+def car_parturl():       # фильр авто по запросу 'get_cars_input'
 
     list_param_input = ['brands[0][brand]=', 'brands[0][model]=', 'engine_type[0]=', 'transmission_type=', 'year[min]=', 'year[max]=', 'price_usd[min]=', 'price_usd[max]=',
                         'engine_capacity[min]', 'engine_capacity[max]']
@@ -89,14 +89,16 @@ def car_parturl():       # парсим все бренды авто и запи
 
     driver = start_browser()
     driver.get(f"https://cars.av.by/{car_input['brands[0][brand]=']}/{car_input['brands[0][model]=']}")
-    time.sleep(5)
-    cost_1 = driver.find_element(By.XPATH, '//*[@id="p-9-price_usd"]').send_keys('1')     # устанавливаем минимальную цену - '1' - для получения url
+    time.sleep(3)
+    click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
+
+    input_cost_1 = driver.find_element(By.XPATH, '//*[@id="p-9-price_usd"]').send_keys('1')     # устанавливаем минимальную цену - '1' - для получения url
     time.sleep(2)
     try:
-        click_show = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # жмем кнопу фильтра
+        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # жмем кнопу фильтра
     except Exception as e:
-        print(10*'ОШИБКА**', f'\n{e}\nКнопка не нажалась, жмем по другому локтору.')
-        click_show = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # если не прожалась - жмем кнопу фильтра еще раз
+        print(20*'ОШИБКА**', f'\n{e}\nКнопка не нажалась, жмем по другому локтору.')
+        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # если не прожалась - жмем кнопу фильтра еще раз
 
 
     time.sleep(2)
@@ -107,7 +109,8 @@ def car_parturl():       # парсим все бренды авто и запи
         current_car = '&'.join(link.replace('https://cars.av.by/filter?', '').split('&')[0:1])
 
     driver.get(f"https://cars.av.by/filter?{current_car}"+f"&{new_part_url}")
-    time.sleep(15)
+    print(20*'OK**')
+    time.sleep(5)
 
 if __name__ == '__main__':
     car_parturl()
