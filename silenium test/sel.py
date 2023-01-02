@@ -19,7 +19,7 @@ def start_browser():
     try:
         options = webdriver.ChromeOptions()
         options.add_argument("--no-sandbox")
-        options.add_argument('headless')  # закомментируй, если хочется видеть браузер
+        #options.add_argument('headless')  # закомментируй, если хочется видеть браузер
         options.add_argument('--verbose')
         options.add_argument("--disable-dev-shm-usage")
         driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
@@ -33,30 +33,29 @@ def get_brands():       # парсим все бренды авто и запи�
     driver = start_browser()
 
     driver.get("https://cars.av.by/")
-
-    time.sleep(5)
-    brands_all_show = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[2]/p/button').click()     # раскрываем списко всех брендов авто
     time.sleep(1)
-    brands = driver.find_elements(By.CLASS_NAME, 'catalog__title')      # находим все имена брендов
-    brands_list = []
+    click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
 
+    time.sleep(0.5)
+    brands_all_show = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[2]/p/button').click()     # раскрываем списко всех брендов авто
+    time.sleep(0.5)
+    brands = driver.find_elements(By.CLASS_NAME, 'catalog__link')      # находим все имена брендов
+
+    brands_list = {}
     try:
         for brand in brands:
-            name = brand.text   # извлекаем имена брендов
-            brands_list.append(name)    # добавляем в пустой список
-        brands_list.sort()      # сортируем спискок
+            link = brand.get_attribute('href')   # извлекаем ссылки брендов
+            name = brand.get_attribute('title')   # извлекаем имена брендов
+            brands_list.update({name: link})    # добавляем в пустой список имена + ссылки
+
+        np.save('brands.npy',  brands_list)  # сохраняем все в файл
+        brands_dict = np.load('brands.npy', allow_pickle=True).item()  # ссылаемся на файл
         print('OK--парсинг брендов')
     except Exception as e:
         print('ERROR--парсинг брендов', e)
+    print(brands_list)
 
-    try:
-        for brand in brands_list:
-            with open("brands.txt", "a") as file:
-                file.write(f"\n{brand}")    # записываем в файл все бренды построчно
-                file.close()
-        print('OK--запись файл')
-    except Exception as e:
-        print('ERROR--запись файл', e)
+
 
 # бренд модель топливо коробка год_от год_до цена_от цена_до объем_от объем_до (пропустть параметр можно '-')
 get_cars_input = 'citroen c4-picasso d a 2016 - 9000 15009 1400 2000'
@@ -89,17 +88,16 @@ def car_parturl():       # фильр авто по запросу 'get_cars_inp
 
     driver = start_browser()
     driver.get(f"https://cars.av.by/{car_input['brands[0][brand]=']}/{car_input['brands[0][model]=']}")
-    time.sleep(3)
+    time.sleep(2)
     click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
-
     input_cost_1 = driver.find_element(By.XPATH, '//*[@id="p-9-price_usd"]').send_keys('1')     # устанавливаем минимальную цену - '1' - для получения url
     time.sleep(2)
+
     try:
         click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # жмем кнопу фильтра
     except Exception as e:
-        print(20*'ОШИБКА**', f'\n{e}\nКнопка не нажалась, жмем по другому локтору.')
+        print(20*'ОШИБКА**', f'\n{e}\nКнопка не нажалась, жмем по другому локатору.')
         click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # если не прожалась - жмем кнопу фильтра еще раз
-
 
     time.sleep(2)
     link = driver.current_url       # получаем ссылку с ввода в браузер
@@ -110,10 +108,15 @@ def car_parturl():       # фильр авто по запросу 'get_cars_inp
 
     driver.get(f"https://cars.av.by/filter?{current_car}"+f"&{new_part_url}")
     print(20*'OK**')
-    time.sleep(5)
+    time.sleep(2)
+
+
+
+
+
 
 if __name__ == '__main__':
-    car_parturl()
+    get_brands()
 
 
 

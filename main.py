@@ -6,7 +6,7 @@ import shutil
 import numpy as np
 
 
-def count_lines(filename, chunk_size=1<<13):    # подсчет строк в файле
+def count_lines(filename, chunk_size=1 << 13):    # подсчет строк в файле
     with open(filename) as file:
         return sum(chunk.count('\n')
                    for chunk in iter(lambda: file.read(chunk_size), ''))
@@ -31,7 +31,7 @@ def base():     # база книг со сслыками
             text: link
             })
     np.save('my_file.npy', base)    # сохраняем все в файл
-    links = np.load('my_file.npy', allow_pickle=True).item()    # сохраняем все в файл
+    links = np.load('my_file.npy', allow_pickle=True).item()    # ссылаемся на файл
     return links
 
 def run():
