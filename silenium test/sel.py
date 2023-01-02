@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 import time
 from webdriver_manager.chrome import ChromeDriverManager
+from tqdm import tqdm
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -19,7 +20,7 @@ def start_browser():
     try:
         options = webdriver.ChromeOptions()
         options.add_argument("--no-sandbox")
-        #options.add_argument('headless')  # закомментируй, если хочется видеть браузер
+        options.add_argument('headless')  # закомментируй, если хочется видеть браузер
         options.add_argument('--verbose')
         options.add_argument("--disable-dev-shm-usage")
         driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
@@ -29,13 +30,26 @@ def start_browser():
         pass
     return res
 
-def get_brands():       # парсим все бренды авто и записывем в файл 'brands.txt'
-    driver = start_browser()
 
+def clicking(driver):
+    try:
+        click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
+    except: pass
+    time.sleep(0.25)
+    input_cost_1 = driver.find_element(By.XPATH, '//*[@id="p-9-price_usd"]').send_keys('1')  # устанавливаем минимальную цену - '1' - для получения url
+    time.sleep(1)
+
+    try:
+        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()  # жмем кнопу фильтра
+    except Exception as e:
+        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()  # если не прожалась - жмем кнопу фильтра еще раз
+
+
+def get_brands():       # парсим все бренды авто и записывем в файл 'brands.npy'
+    driver = start_browser()
     driver.get("https://cars.av.by/")
     time.sleep(1)
     click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
-
     time.sleep(0.5)
     brands_all_show = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[2]/p/button').click()     # раскрываем списко всех брендов авто
     time.sleep(0.5)
@@ -47,20 +61,34 @@ def get_brands():       # парсим все бренды авто и запи�
             link = brand.get_attribute('href')   # извлекаем ссылки брендов
             name = brand.get_attribute('title')   # извлекаем имена брендов
             brands_list.update({name: link})    # добавляем в пустой список имена + ссылки
-
         np.save('brands.npy',  brands_list)  # сохраняем все в файл
-        brands_dict = np.load('brands.npy', allow_pickle=True).item()  # ссылаемся на файл
         print('OK--парсинг брендов')
     except Exception as e:
         print('ERROR--парсинг брендов', e)
     print(brands_list)
 
+def get_brands_part_url():      # Парсим номера для определения брендов авто
+    brands_dict = np.load('brands.npy', allow_pickle=True).item()  # ссылаемся на файл
+    driver = start_browser()
+
+    brands_list_digits = {}
+    for key in tqdm(brands_dict):
+        driver.get(brands_dict[key])
+        time.sleep(5)
+        clicking(driver)    # Прокликиваем куки/вбиваем цену/жмем кнопку фильтра
+        time.sleep(0.5)
+        element = WebDriverWait(driver, 5).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div/h1'), 'Автомобили')) # явное ожидание загрузки страницы (хз работает ли как надо)
+        link = driver.current_url   # получаем ссылку с ввода в браузер
+        current_brand = '&'.join(link.replace('https://cars.av.by/filter?brands[0][brand]=', '').split('&')[0:1])
+        brands_list_digits.update({key: current_brand})  # добавляем в пустой список имена + цифры
+        time.sleep(0.25)
+    np.save('brands_part_url.npy', brands_list_digits)  # сохраняем все в файл
 
 
-# бренд модель топливо коробка год_от год_до цена_от цена_до объем_от объем_до (пропустть параметр можно '-')
+# бренд модель топливо коробка год_от год_до цена_от цена_до объем_от объем_до (пропустить параметр -> '-')
 get_cars_input = 'citroen c4-picasso d a 2016 - 9000 15009 1400 2000'
 
-def car_parturl():       # фильр авто по запросу 'get_cars_input'
+def car_parturl():     # фильтр авто по запросу 'get_cars_input'. Определение запроса и использование налету
 
     list_param_input = ['brands[0][brand]=', 'brands[0][model]=', 'engine_type[0]=', 'transmission_type=', 'year[min]=', 'year[max]=', 'price_usd[min]=', 'price_usd[max]=',
                         'engine_capacity[min]', 'engine_capacity[max]']
@@ -89,17 +117,8 @@ def car_parturl():       # фильр авто по запросу 'get_cars_inp
     driver = start_browser()
     driver.get(f"https://cars.av.by/{car_input['brands[0][brand]=']}/{car_input['brands[0][model]=']}")
     time.sleep(2)
-    click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
-    input_cost_1 = driver.find_element(By.XPATH, '//*[@id="p-9-price_usd"]').send_keys('1')     # устанавливаем минимальную цену - '1' - для получения url
-    time.sleep(2)
-
-    try:
-        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # жмем кнопу фильтра
-    except Exception as e:
-        print(20*'ОШИБКА**', f'\n{e}\nКнопка не нажалась, жмем по другому локатору.')
-        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()     # если не прожалась - жмем кнопу фильтра еще раз
-
-    time.sleep(2)
+    clicking(driver)        # Прокликиваем куки/вбиваем цену/жмем кнопку фильтра
+    time.sleep(0.5)
     link = driver.current_url       # получаем ссылку с ввода в браузер
     current_car = '&'.join(link.replace('https://cars.av.by/filter?', '').split('&')[0:2])      # чистим ссылку и получаем get-запроc на нашу машину
 
@@ -110,13 +129,8 @@ def car_parturl():       # фильр авто по запросу 'get_cars_inp
     print(20*'OK**')
     time.sleep(2)
 
-
-
-
-
-
 if __name__ == '__main__':
-    get_brands()
+    pass
 
 
 
