@@ -13,6 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os.path
 
 
 def start_browser():
@@ -30,20 +31,21 @@ def start_browser():
         pass
     return res
 
-
 def clicking(driver):
     try:
         click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
     except: pass
     time.sleep(0.25)
-    input_cost_1 = driver.find_element(By.XPATH, '//*[@id="p-9-price_usd"]').send_keys('1')  # устанавливаем минимальную цену - '1' - для получения url
+    try:
+        input_cost_1 = driver.find_element(By.XPATH, '//*[@id="p-9-price_usd"]').send_keys('1')  # устанавливаем минимальную цену - '1' - для получения url
+    except:
+        input_cost_1 = driver.find_element(By.XPATH, '//*[@id="p-118-price_usd"]').send_keys('1') # изменилось на infinity)
     time.sleep(1)
 
     try:
         click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()  # жмем кнопу фильтра
     except Exception as e:
-        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()  # если не прожалась - жмем кнопу фильтра еще раз
-
+        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()  # иногда меняется верстка)
 
 def get_brands():       # парсим все бренды авто и записывем в файл 'brands.npy'
     driver = start_browser()
@@ -65,7 +67,6 @@ def get_brands():       # парсим все бренды авто и запи�
         print('OK--парсинг брендов')
     except Exception as e:
         print('ERROR--парсинг брендов', e)
-    print(brands_list)
 
 def get_brands_part_url():      # Парсим номера для определения брендов авто
     brands_dict = np.load('brands.npy', allow_pickle=True).item()  # ссылаемся на файл
@@ -83,6 +84,49 @@ def get_brands_part_url():      # Парсим номера для опреде�
         brands_list_digits.update({key: current_brand})  # добавляем в пустой список имена + цифры
         time.sleep(0.25)
     np.save('brands_part_url.npy', brands_list_digits)  # сохраняем все в файл
+
+def get_models(): # парсим модели
+    brands_dict = np.load('brands.npy', allow_pickle=True).item()
+    driver = start_browser()
+    try:
+        click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
+    except: pass
+
+    for key in tqdm(brands_dict):
+        driver.get(brands_dict[key])
+        time.sleep(7)
+        models = driver.find_elements(By.CLASS_NAME, 'catalog__link')  # находим все имена моделей
+        model_list = {}
+        try:
+            for model in tqdm(models):
+                link = model.get_attribute('href')  # извлекаем ссылки брендов
+                name = model.get_attribute('title')  # извлекаем имена брендов
+                model_list.update({name: link})  # добавляем в пустой список имена + ссылки
+            np.save(f'models/{key}.npy', model_list)  # сохраняем все в файл
+        except Exception as e:
+            print(f'ERROR--{key}', e)
+
+def get_models_part_url(): # парсим номера для гет запросов
+    brands_dict = np.load('brands.npy', allow_pickle=True).item()
+    driver = start_browser()
+
+    for brand in tqdm(brands_dict):
+        models_file = np.load(f'models/{brand}.npy', allow_pickle=True).item()
+        model_list_digits = {}
+        if not os.path.exists(f'models_part_url/{brand}.npy'):
+            for model in tqdm(models_file):
+                driver.get(models_file[model])
+                time.sleep(5)
+                clicking(driver)  # Прокликиваем куки/вбиваем цену/жмем кнопку фильтра
+                time.sleep(0.5)
+                element = WebDriverWait(driver, 5).until(
+                    EC.text_to_be_present_in_element((By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[1]'),
+                                                     'Поиск по параметрам'))  # явное ожидание загрузки страницы (хз работает ли как надо)
+                link = driver.current_url  # получаем ссылку с ввода в браузер
+                current_model = ('&'.join(link.replace('https://cars.av.by/filter?brands[0][brand]=', '').split('&')[1:2])).replace('brands[0][model]=', '')
+                model_list_digits.update({model: current_model})  # добавляем в пустой список имена + цифры
+                time.sleep(0.25)
+            np.save(f'models_part_url/{brand}.npy', model_list_digits)  # сохраняем все в файл
 
 
 # бренд модель топливо коробка год_от год_до цена_от цена_до объем_от объем_до (пропустить параметр -> '-')
@@ -131,6 +175,8 @@ def car_parturl():     # фильтр авто по запросу 'get_cars_inp
 
 if __name__ == '__main__':
     pass
+
+
 
 
 
