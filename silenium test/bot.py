@@ -1,0 +1,48 @@
+import numpy as np
+from aiogram import Bot, types
+from aiogram.dispatcher import Dispatcher
+from aiogram.utils import executor
+from config import token
+
+
+bot = Bot(token=token)
+dp = Dispatcher(bot)
+
+
+@dp.message_handler(commands=['start'])
+async def process_start_command(message: types.Message):
+    await message.reply("Привет!\nПроверка!")
+
+# Входные параметры
+car_input = 'Москвич 400 d a 1920 - 1000 15009 1400 2000'
+param_input = ['brands[0][brand]=', 'brands[0][model]=', 'engine_type[0]=', 'transmission_type=', 'year[min]=', 'year[max]=', 'price_usd[min]=', 'price_usd[max]=',
+                        'engine_capacity[min]=', 'engine_capacity[max]=']
+
+# База данных
+car_input = dict(zip(param_input, car_input.split(' ')))
+transmission = {'a': '1', 'm': '2'}
+motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
+brands = np.load('brands_part_url.npy', allow_pickle=True).item()
+models = np.load(f'models_part_url/{car_input["brands[0][brand]="]}.npy', allow_pickle=True).item()
+
+# Корректируем данные для гет-запроса
+if car_input['brands[0][model]='] in models:
+    car_input['brands[0][model]='] = models[car_input['brands[0][model]=']]
+if car_input['brands[0][brand]='] in brands:
+    car_input['brands[0][brand]='] = brands[car_input['brands[0][brand]=']]
+if car_input['engine_type[0]='] in motor:
+    car_input['engine_type[0]='] = motor[car_input['engine_type[0]=']]
+if car_input['transmission_type='] in transmission:
+    car_input['transmission_type='] = transmission[car_input['transmission_type=']]
+
+new_part = []
+for key in car_input:
+    if car_input[key] != '-':
+        new_part.append(str(key)+str(car_input[key]))
+new_part_url = '&'.join(new_part)
+full_url = f'https://cars.av.by/filter?{new_part_url}'
+
+
+if __name__ == '__main__':
+    #executor.start_polling(dp)
+    print(full_url)

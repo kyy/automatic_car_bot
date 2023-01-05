@@ -43,7 +43,7 @@ def clicking(driver):
     time.sleep(1)
 
     try:
-        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()  # жмем кнопу фильтра
+        click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[3]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()  # жмем кнопку фильтра
     except Exception as e:
         click_filter = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[4]/form/div/div[3]/div/div[3]/div[2]/div[2]/button/span').click()  # иногда меняется верстка)
 
@@ -78,7 +78,8 @@ def get_brands_part_url():      # Парсим номера для опреде�
         time.sleep(5)
         clicking(driver)    # Прокликиваем куки/вбиваем цену/жмем кнопку фильтра
         time.sleep(0.5)
-        element = WebDriverWait(driver, 5).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div/h1'), 'Автомобили')) # явное ожидание загрузки страницы (хз работает ли как надо)
+        element = WebDriverWait(driver, 5).until(EC.text_to_be_present_in_element((By.XPATH,
+        '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div/h1'), 'Автомобили')) # явное ожидание загрузки страницы (хз работает ли как надо)
         link = driver.current_url   # получаем ссылку с ввода в браузер
         current_brand = '&'.join(link.replace('https://cars.av.by/filter?brands[0][brand]=', '').split('&')[0:1])
         brands_list_digits.update({key: current_brand})  # добавляем в пустой список имена + цифры
@@ -135,7 +136,7 @@ get_cars_input = 'citroen c4-picasso d a 2016 - 9000 15009 1400 2000'
 def car_parturl():     # фильтр авто по запросу 'get_cars_input'. Определение запроса и использование налету
 
     list_param_input = ['brands[0][brand]=', 'brands[0][model]=', 'engine_type[0]=', 'transmission_type=', 'year[min]=', 'year[max]=', 'price_usd[min]=', 'price_usd[max]=',
-                        'engine_capacity[min]', 'engine_capacity[max]']
+                        'engine_capacity[min]=', 'engine_capacity[max]=']
     car_input = dict(zip(list_param_input, get_cars_input.split(' ')))
     transmission = {'a': '1', 'm': '2'}
     motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
