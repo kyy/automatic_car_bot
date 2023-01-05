@@ -1,13 +1,6 @@
-from bs4 import BeautifulSoup
-from pathlib import Path
-import requests
-import urllib.request
-import shutil
 import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.common.keys import Keys
 import time
 from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
