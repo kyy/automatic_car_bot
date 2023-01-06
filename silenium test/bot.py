@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import logging
 from aiogram import Bot, types, Dispatcher
 from aiogram.utils import executor
@@ -7,6 +8,9 @@ import numpy as np
 from bs4 import BeautifulSoup
 import requests
 import time
+from datetime import datetime
+from fpdf import FPDF
+import os
 
 
 bot = Bot(token=token)
@@ -44,26 +48,53 @@ def filter(car_input):
     return full_url
 
 
-def parse_cars(car):
-    r = requests.get(car)
-    r = r.content
-    html = BeautifulSoup(r, 'lxml')
-    links = html.select('.listing-item__link')
-    image = html.select('.listing-item__photo img')
-    link_list = []
-    image_list =[]
-    for l in links:
-        link = l.get('href')
-        link_list.append('https://cars.av.by/'+link)
-    for i in image:
-        image = i.get('data-src')
-        image_list.append(image)
-    return dict(zip(link_list, image_list))
+def parse_cars(car_link):
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/103.0.0.0 Safari/537.36',
+        'accept': '*/*'}
+    r = requests.get(car_link)
+    status_code = r.status_code
+    if status_code == 200:
+        r = r.content
+        html = BeautifulSoup(r, "html.parser")
+        links = html.select('.listing-item__link', headers=HEADERS)
+        image = html.select('.listing-item__photo img')
+        link_list = []
+        image_list = []
+        for l in links:
+            link = l.get('href')
+            link_list.append('https://cars.av.by'+link)
+        for i in image:
+            image = i.get('data-src')
+            image_list.append(image)
+        return dict(zip(link_list, image_list))
+    else:
+        print('неудача при попытке парсинга')
+        print(status_code)
+        if status_code == 503:
+            time.sleep(7)
+            parse_cars(car_link)
 
+
+def pdf(dict, name):
+    pdf = FPDF()
+    pdf.add_page()
+    for key in dict:
+        pdf.image(f'{dict[key]}', x=None, y=None, w=190, h=0, type='', link=f'{key}')
+    pdf.add_page()
+    return pdf.output(f"{name}.pdf")
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
-    await message.reply("Привет!\nПример ввода\nМосквич 400 d a 1920 - 1000 15009 1400 2000")
+    await message.reply("Привет!\nПример ввода\nМосквич 400 d a 1920 - 1000 15009 1400 2000\n команда в момощь - /brand")
+
+@dp.message_handler(commands=['brand'])
+async def process_start_command(message: types.Message):
+    brands = np.load('brands_part_url.npy', allow_pickle=True).item()
+    list = []
+    for brand in brands:
+        list.append(brand)
+    await message.reply(f"{list}")
 
 
 @dp.message_handler()
@@ -71,8 +102,16 @@ async def cmd_test1(message: types.Message):
     cars = message.text
     car_link = filter(cars)
     dict = parse_cars(car_link)
-    await message.reply(dict)
-
+    if len(dict) == 0:
+        await message.reply("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.\n"
+                            "Если это сообщение появилось почти сразу, попробуйте повтоорить, время поиска занимает около 10 сек.")
+    else:
+        await message.reply(f"Найдено {len(dict)} автомобилей\nОжидайте .PDF файл")
+        name_pdf_ = (str(datetime.now())).replace(':', '_').replace(' ', '_').replace('-', '_')
+        pdf(dict=dict, name=name_pdf_)
+        await bot.send_document(chat_id=message.chat.id, document=open(f'{name_pdf_}.pdf', 'rb'))
+        time.sleep(1)
+        os.remove(f'{name_pdf_}.pdf')
 
 if __name__ == '__main__':
     executor.start_polling(dp)
