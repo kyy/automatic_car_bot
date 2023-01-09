@@ -91,27 +91,34 @@ async def process_start_command(message: types.Message):
 @dp.message_handler(commands=['brand'])
 async def process_start_command(message: types.Message):
     brands = np.load('brands_part_url.npy', allow_pickle=True).item()
-    list = []
+    brands_out = []
     for brand in brands:
-        list.append(brand)
-    await message.reply(f"{list}")
-
+        brands_out.append(brand)
+    brands_out.sort()
+    brands_out = '   '.join(brands_out)
+    await message.reply(brands_out)
 
 @dp.message_handler()
 async def cmd_test1(message: types.Message):
-    cars = message.text
-    car_link = filter(cars)
-    dict = parse_cars(car_link)
-    if len(dict) == 0:
-        await message.reply("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.\n"
-                            "Если это сообщение появилось почти сразу, попробуйте повтоорить, время поиска занимает около 10 сек.")
-    else:
-        await message.reply(f"Найдено {len(dict)} автомобилей\nОжидайте .PDF файл")
-        name_pdf_ = (str(datetime.now())).replace(':', '_').replace(' ', '_').replace('-', '_')
-        pdf(dict=dict, name=name_pdf_)
-        await bot.send_document(chat_id=message.chat.id, document=open(f'{name_pdf_}.pdf', 'rb'))
-        time.sleep(1)
-        os.remove(f'{name_pdf_}.pdf')
+    try:
+        cars = message.text
+        car_link = filter(cars)
+        dict = parse_cars(car_link)
+        if len(dict) == 0:
+            await message.reply("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.\n"
+                                "Если это сообщение появилось почти сразу, попробуйте повтоорить, время поиска занимает около 10 сек.")
+        else:
+            await message.reply(f"Найдено {len(dict)} автомобилей\nОжидайте .PDF файл")
+            name_pdf_ = (str(datetime.now())).replace(':', '-')
+            pdf(dict=dict, name=name_pdf_)
+            await bot.send_document(chat_id=message.chat.id, document=open(f'{name_pdf_}.pdf', 'rb'))
+            time.sleep(1)
+            os.remove(f'{name_pdf_}.pdf')
+    except Exception as error:
+        await message.reply(f"Не удалось сформировать .PDF файл")
+        print(error)
+
+
 
 if __name__ == '__main__':
     executor.start_polling(dp)
