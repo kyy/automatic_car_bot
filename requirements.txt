@@ -1,5 +1,5 @@
 fpdf
-aiogram
+-U --pre aiogram
 beautifulsoup4
 lxml
 numpy
