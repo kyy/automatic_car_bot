@@ -1,3 +1,5 @@
+from aiogram.fsm import context
+
 from config_reader import config
 import asyncio
 import logging
@@ -35,21 +37,22 @@ dp = Dispatcher()
 async def input_pars(message: types.Message):
     cars = message.text
     car_link = get_url(cars)
-    dict = parse_cars(car_link)
-    if len(dict) == 0:
+    dicts = parse_cars(car_link)
+    if len(dicts) == 0:
         await message.reply("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.")
     else:
         try:
             await message.reply("Запрос принят")
-            await message.reply(f"Найдено позиций - {len(dict)}\nОжидайте .PDF файл")
+            await message.reply(f"Найдено позиций - {len(dicts)}\nОжидайте .PDF файл")
             name_pdf_ = (str(datetime.now())).replace(':', '-')
-            do_pdf(dict_=dict, name=name_pdf_)
-            pdf = open(f'{name_pdf_}.pdf', 'rb')
-            await bot.send_document(message.chat.id, pdf)
+            do_pdf(dict_=dicts, name=name_pdf_)
+            file = FSInputFile(f'{name_pdf_}.pdf')
+            await bot.send_document(message.chat.id, document=file)
             os.remove(f'{name_pdf_}.pdf')
         except Exception as error:
             await message.reply(f"Не удалось отправить .PDF файл")
             print(str(error))
+
 
 async def main():
     await dp.start_polling(bot)

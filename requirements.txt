@@ -1,5 +1,6 @@
-fpdf
--U --pre aiogram
+fpdf2
+aiogram==3.0.0b6
+pydantic[dotenv]
 beautifulsoup4
 lxml
 numpy

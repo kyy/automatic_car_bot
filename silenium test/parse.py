@@ -12,7 +12,7 @@ def parse_cars(car_link):
     status_code = r.status_code
     if status_code == 200:
         r = r.content
-        html = BeautifulSoup(r, "html.parser",)
+        html = BeautifulSoup(r, "lxml",)
         links = html.select('.listing-item__link')
         image = html.select('.listing-item__photo img')
         link_list = []
