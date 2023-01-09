@@ -69,12 +69,11 @@ def parse_cars(car_link):
             image_list.append(image)
         return dict(zip(link_list, image_list))
     else:
-        print('неудача при попытке парсинга')
+        print('Неудача при попытке парсинга\nПовторная попытка через 7 сек...')
         print(status_code)
         if status_code == 503:
             time.sleep(7)
             parse_cars(car_link)
-
 
 def pdf(dict, name):
     pdf = FPDF()
@@ -86,7 +85,7 @@ def pdf(dict, name):
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
-    await message.reply("Привет!\nПример ввода\nМосквич 400 d a 1920 - 1000 15009 1400 2000\n команда в момощь - /brand")
+    await message.reply("Привет!\nПример ввода\nМосквич 400 d a 1920 - 1000 15009 1400 2000\n показать бренды - /brand\n показать модели - /model\nввести фильтр - /car")
 
 @dp.message_handler(commands=['brand'])
 async def process_start_command(message: types.Message):
@@ -100,26 +99,29 @@ async def process_start_command(message: types.Message):
 
 @dp.message_handler()
 async def cmd_test1(message: types.Message):
+    cars = message.text
+    car_link = filter(cars)
     try:
-        cars = message.text
-        car_link = filter(cars)
         dict = parse_cars(car_link)
-        if len(dict) == 0:
-            await message.reply("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.\n"
-                                "Если это сообщение появилось почти сразу, попробуйте повтоорить, время поиска занимает около 10 сек.")
-        else:
+    except Exception as error:
+        await message.reply(f"Не удалось получить данные об автомобилях.")
+        print(error)
+    if len(dict) == 0:
+        await message.reply("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.\n"
+                            "Если это сообщение появилось почти сразу, попробуйте повторить, время поиска межет занимать около 10 сек.")
+    else:
+        try:
             await message.reply(f"Найдено {len(dict)} автомобилей\nОжидайте .PDF файл")
             name_pdf_ = (str(datetime.now())).replace(':', '-')
             pdf(dict=dict, name=name_pdf_)
             await bot.send_document(chat_id=message.chat.id, document=open(f'{name_pdf_}.pdf', 'rb'))
             time.sleep(1)
             os.remove(f'{name_pdf_}.pdf')
-    except Exception as error:
-        await message.reply(f"Не удалось сформировать .PDF файл")
-        print(error)
-
+        except Exception as error:
+            await message.reply(f"Не удалось сформировать .PDF файл")
+            print(error)
 
 
 if __name__ == '__main__':
-    executor.start_polling(dp)
+    executor.start_polling(dp, skip_updates=True)
 
