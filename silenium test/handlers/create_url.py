@@ -4,24 +4,25 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
-from .kbd_simple_row import single_row_keyboard, multi_row_keyboard
-from pathlib import Path
+from .kbd_simple_row import multi_row_keyboard
 
 
 router = Router()
 
-available_food_sizes = ["Маленькую", "Среднюю", "Большую"]
-brands_npy = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
 
-brands = []
-for item in brands_npy:
-    brands.append(item)
-brands.sort()
+def get_brands():
+    brands_npy = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
+    brands = []
+    # noinspection PyTypeChecker
+    for item in brands_npy:
+        brands.append(item)
+    brands.sort()
+    return brands
 
 
+# noinspection PyTypeChecker
 def get_models(brand):
-    path = Path(Path.cwd(), 'base_data_av_by', 'models_part_url', f'{brand}.npy')
-    models_npy = np.load(path, allow_pickle=True).item()
+    models_npy = np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item()
     models = []
     for model in models_npy:
         models.append(model)
@@ -39,17 +40,16 @@ class CreateCar(StatesGroup):
     dimension_choosing = State()
 
 
-
 @router.message(Command(commands=["car"]))
 async def brand_chosen(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите бренд автомобиля:",
-        reply_markup=multi_row_keyboard(brands)
+        reply_markup=multi_row_keyboard(get_brands())
     )
     await state.set_state(CreateCar.brand_choosing)
 
 
-@router.message(CreateCar.brand_choosing, F.text.in_(brands))
+@router.message(CreateCar.brand_choosing, F.text.in_(get_brands()))
 async def model_chosen(message: Message, state: FSMContext):
     await state.update_data(chosen_brand=message.text)
     brand = message.text
@@ -65,22 +65,21 @@ async def brand_chosen_incorrectly(message: Message):
     await message.answer(
         text="Я не знаю такого бренда.\n"
              "Пожалуйста, выберите одно из названий из списка ниже:",
-        reply_markup=multi_row_keyboard(brands)
+        reply_markup=multi_row_keyboard(get_brands())
     )
 
-@router.message(CreateCar.model_choosing) #добавить фильтр
-async def food_size_chosen(message: Message, state: FSMContext):
-    user_data = await state.get_data()
-    await message.answer(
-        text=f"Вы выбрали {user_data['chosen_brand']} {message.text}.\n",
-        reply_markup=ReplyKeyboardRemove()
-    )
 
 @router.message(CreateCar.model_choosing)
-async def food_size_chosen_incorrectly(message: Message, state: FSMContext):
+async def brand_model_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
-    await message.answer(
-        text="Я не знаю такого размера порции.\n"
-             "Пожалуйста, выберите один из вариантов из списка ниже:",
-        reply_markup=multi_row_keyboard(get_models(user_data['chosen_brand']))
-    )
+    if message.text in (get_models(user_data['chosen_brand'])):
+        await message.answer(
+            text=f"Вы выбрали {user_data['chosen_brand']} {message.text}.\n",
+            reply_markup=ReplyKeyboardRemove()
+                            )
+    else:
+        await message.answer(
+            text="Я не знаю такой модели.\n"
+                 "Пожалуйста, выберите один из вариантов из списка ниже:",
+            reply_markup=multi_row_keyboard(get_models(user_data['chosen_brand']))
+                            )
