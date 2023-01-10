@@ -3,57 +3,55 @@ import logging
 from aiogram import Bot, types, Dispatcher
 from aiogram.types import FSInputFile
 from aiogram.filters import Command
-from aiogram.fsm import context
-from aiogram.dispatcher.router import Router
 from config_reader import config
 from do_pdf import do_pdf
 from get_url import get_url
 from parse import parse_cars
 from datetime import datetime
+from handlers import common
 import numpy as np
 import os
-import time
 
 
 async def main():
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", )
     bot = Bot(token=config.bot_token.get_secret_value())
     dp = Dispatcher()
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",)
+    dp.include_router(common.router)
 
-    @dp.message(Command(commands=['start']))
-    async def command_start_handler(message: types.Message):
-        await message.answer(
-            f"Привет, {message.from_user.full_name}!\nПример ввода\nAudi/A6/d/a/2000/2023/0/50000/1400/5000\n показать бренды и модели - /brand")
 
-    @dp.message(Command(commands=['brand']))
-    async def process_brand_command(message: types.Message):
-        brands = np.load('brands_part_url.npy', allow_pickle=True).item()
-        brands_out = []
-        for brand in brands:
-            brands_out.append(brand)
-        brands_out.sort()
-        brands_out = '   '.join(brands_out)
-        await message.answer(brands_out)
 
-    @dp.message()
-    async def input_pars(message: types.Message):
-        cars = message.text
-        car_link = get_url(cars)
-        dicts = parse_cars(car_link)
-        if len(dicts) == 0:
-            await message.reply("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.")
-        else:
-            try:
-                await message.reply("Запрос принят")
-                await message.reply(f"Найдено позиций - {len(dicts)}\nОжидайте .PDF файл")
-                name_pdf_ = (str(datetime.now())).replace(':', '-')
-                do_pdf(dict_=dicts, name=name_pdf_)
-                file = FSInputFile(f'{name_pdf_}.pdf')
-                await bot.send_document(message.chat.id, document=file)
-                os.remove(f'{name_pdf_}.pdf')
-            except Exception as error:
-                await message.reply(f"Не удалось отправить .PDF файл")
-                print(str(error))
+    # @dp.message(Command(commands=['brand']))
+    # async def process_brand_command(message: types.Message):
+    #     brands = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
+    #     brands_out = []
+    #     for brand in brands:
+    #         brands_out.append(brand)
+    #     brands_out.sort()
+    #     brands_out = '   '.join(brands_out)
+    #     await message.answer(brands_out)
+    #
+
+
+    # @dp.message()
+    # async def input_pars(message: types.Message):
+    #     cars = message.text
+    #     car_link = get_url(cars)
+    #     dicts = parse_cars(car_link)
+    #     if len(dicts) == 0:
+    #         await message.reply("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.")
+    #     else:
+    #         try:
+    #             await message.reply("Запрос принят")
+    #             await message.reply(f"Найдено позиций - {len(dicts)}\nОжидайте .PDF файл")
+    #             name_pdf_ = (str(datetime.now())).replace(':', '-')
+    #             do_pdf(dict_=dicts, name=name_pdf_)
+    #             file = FSInputFile(f'{name_pdf_}.pdf')
+    #             await bot.send_document(message.chat.id, document=file)
+    #             os.remove(f'{name_pdf_}.pdf')
+    #         except Exception as error:
+    #             await message.reply(f"Не удалось отправить .PDF файл")
+    #             print(str(error))
 
 
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())

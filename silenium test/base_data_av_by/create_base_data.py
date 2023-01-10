@@ -56,13 +56,13 @@ def get_brands():       # парсим все бренды авто и запи�
             link = brand.get_attribute('href')   # извлекаем ссылки брендов
             name = brand.get_attribute('title')   # извлекаем имена брендов
             brands_list.update({name: link})    # добавляем в пустой список имена + ссылки
-        np.save('brands.npy',  brands_list)  # сохраняем все в файл
+        np.save('base_data_av_by/brands.npy', brands_list)  # сохраняем все в файл
         print('OK--парсинг брендов')
     except Exception as e:
         print('ERROR--парсинг брендов', e)
 
 def get_brands_part_url():      # Парсим номера для определения брендов авто
-    brands_dict = np.load('brands.npy', allow_pickle=True).item()  # ссылаемся на файл
+    brands_dict = np.load('base_data_av_by/brands.npy', allow_pickle=True).item()  # ссылаемся на файл
     driver = start_browser()
 
     brands_list_digits = {}
@@ -77,10 +77,10 @@ def get_brands_part_url():      # Парсим номера для опреде�
         current_brand = '&'.join(link.replace('https://cars.av.by/filter?brands[0][brand]=', '').split('&')[0:1])
         brands_list_digits.update({key: current_brand})  # добавляем в пустой список имена + цифры
         time.sleep(0.25)
-    np.save('brands_part_url.npy', brands_list_digits)  # сохраняем все в файл
+    np.save('base_data_av_by/brands_part_url.npy', brands_list_digits)  # сохраняем все в файл
 
 def get_models(): # парсим модели
-    brands_dict = np.load('brands.npy', allow_pickle=True).item()
+    brands_dict = np.load('base_data_av_by/brands.npy', allow_pickle=True).item()
     driver = start_browser()
     try:
         click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
@@ -96,16 +96,16 @@ def get_models(): # парсим модели
                 link = model.get_attribute('href')  # извлекаем ссылки брендов
                 name = model.get_attribute('title')  # извлекаем имена брендов
                 model_list.update({name: link})  # добавляем в пустой список имена + ссылки
-            np.save(f'models/{key}.npy', model_list)  # сохраняем все в файл
+            np.save(f'base_data_av_by/models/{key}.npy', model_list)  # сохраняем все в файл
         except Exception as e:
             print(f'ERROR--{key}', e)
 
 def get_models_part_url(): # парсим номера для гет запросов
-    brands_dict = np.load('brands.npy', allow_pickle=True).item()
+    brands_dict = np.load('base_data_av_by/brands.npy', allow_pickle=True).item()
     driver = start_browser()
 
     for brand in tqdm(brands_dict):
-        models_file = np.load(f'models/{brand}.npy', allow_pickle=True).item()
+        models_file = np.load(f'base_data_av_by/models/{brand}.npy', allow_pickle=True).item()
         model_list_digits = {}
         if not os.path.exists(f'models_part_url/{brand}.npy'):
             for model in tqdm(models_file):

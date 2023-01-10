@@ -11,8 +11,8 @@ def get_url(car_input):
     car_input = dict(zip(param_input, car_input.split('/')))
     transmission = {'a': '1', 'm': '2'}
     motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
-    brands = np.load('brands_part_url.npy', allow_pickle=True).item()
-    models = np.load(f'models_part_url/{car_input["brands[0][brand]="]}.npy', allow_pickle=True).item()
+    brands = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
+    models = np.load(f'base_data_av_by/models_part_url/{car_input["brands[0][brand]="]}.npy', allow_pickle=True).item()
 
     # Корректируем данные для гет-запроса
     if car_input['brands[0][model]='] in models:
