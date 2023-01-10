@@ -1,14 +1,16 @@
 import asyncio
 import logging
 from aiogram import Bot, types, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.strategy import FSMStrategy
 from aiogram.types import FSInputFile
 from aiogram.filters import Command
 from config_reader import config
-from do_pdf import do_pdf
-from get_url import get_url
-from parse import parse_cars
+from b_logic.do_pdf import do_pdf
+from b_logic.get_url import get_url
+from b_logic.parse import parse_cars
 from datetime import datetime
-from handlers import common
+from handlers import common, create_url
 import numpy as np
 import os
 
@@ -16,9 +18,9 @@ import os
 async def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", )
     bot = Bot(token=config.bot_token.get_secret_value())
-    dp = Dispatcher()
+    dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
     dp.include_router(common.router)
-
+    dp.include_router(create_url.router)
 
 
     # @dp.message(Command(commands=['brand']))
