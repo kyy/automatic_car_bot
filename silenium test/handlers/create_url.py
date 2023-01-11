@@ -4,12 +4,28 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
-from .kbd_simple_row import multi_row_keyboard
+from .keyboards import multi_row_keyboard
+import datetime
 
 
 router = Router()
 
 
+def get_years(from_year=2000, to_year=datetime.datetime.now().year):
+    years = [i for i in range(from_year, to_year+1)]
+    return years
+
+def get_dimension(from_dim=1000, to_dim=9000):
+    dim = [i/1000 for i in range(from_dim, to_dim+100, 100)]
+    return dim
+
+def get_cost(from_cost=5000, to_cost=35000, step=2500):
+    cost = [i for i in range(from_cost, to_cost+2500, step)]
+    return cost
+
+
+motor = ['Бензин', 'Дизель', 'Электро']
+transmission = ['Автомат', 'Механика']
 def get_brands():
     brands_npy = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
     brands = []
@@ -73,12 +89,14 @@ async def brand_chosen_incorrectly(message: Message):
 
 
 @router.message(CreateCar.model_choosing)
-async def brand_model_chosen(message: Message, state: FSMContext):
+async def motor_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
     if message.text in (get_models(user_data['chosen_brand'])):
+        await state.update_data(chosen_model=message.text)
         await message.answer(
-            text=f"Вы выбрали {user_data['chosen_brand']} {message.text}.\n",
-            reply_markup=ReplyKeyboardRemove()
+            text="Теперь, выберите тип топлива:",
+            reply_markup=multi_row_keyboard(motor,
+                                            input_field_placeholder='тип топлива')
         )
     else:
         await message.answer(
@@ -87,3 +105,49 @@ async def brand_model_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_keyboard(get_models(user_data['chosen_brand']),
                                             input_field_placeholder='имя модели')
         )
+    await state.set_state(CreateCar.motor_choosing)
+
+
+@router.message(CreateCar.motor_choosing, F.text.in_(motor))
+async def transmission_chosen(message: Message, state: FSMContext):
+    await state.update_data(chosen_motor=message.text)
+    await message.answer(
+        text="Теперь, выберите тип трансмиссии:",
+        reply_markup=multi_row_keyboard(transmission,
+                                        input_field_placeholder='тип трансмиссии')
+
+    )
+    await state.set_state(CreateCar.transmission_choosing)
+
+
+@router.message(CreateCar.motor_choosing)
+async def motor_chosen_incorrectly(message: Message):
+    await message.answer(
+        text="Я не знаю такого топлива.\n"
+             "Пожалуйста, выберите одно из названий из списка ниже:",
+        reply_markup=multi_row_keyboard(motor,
+                                        input_field_placeholder='тип топлива')
+    )
+
+
+@router.message(CreateCar.transmission_choosing, F.text.in_(transmission))
+async def year_chosen(message: Message, state: FSMContext):
+    await state.update_data(chosen_transmission=message.text)
+    await message.answer(
+        text="Теперь, выберите с какого года:",
+        reply_markup=multi_row_keyboard(get_years(),
+                                        input_field_placeholder='год от',
+                                        columns=8
+                                        )
+    )
+    await state.set_state(CreateCar.cost_choosing)
+
+@router.message(CreateCar.transmission_choosing)
+async def transmission_chosen_incorrectly(message: Message):
+    await message.answer(
+        text="Я не знаю такой трансмиссии.\n"
+             "Пожалуйста, выберите одно из названий из списка ниже:",
+        reply_markup=multi_row_keyboard(transmission,
+                                        input_field_placeholder='тип трансмиссии 555 ')
+    )
+
