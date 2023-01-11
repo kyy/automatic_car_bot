@@ -44,7 +44,8 @@ class CreateCar(StatesGroup):
 async def brand_chosen(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите бренд автомобиля:",
-        reply_markup=multi_row_keyboard(get_brands())
+        reply_markup=multi_row_keyboard(get_brands(),
+                                        input_field_placeholder='имя бренда')
     )
     await state.set_state(CreateCar.brand_choosing)
 
@@ -55,7 +56,8 @@ async def model_chosen(message: Message, state: FSMContext):
     brand = message.text
     await message.answer(
         text="Теперь, выберите модель:",
-        reply_markup=multi_row_keyboard(get_models(brand))
+        reply_markup=multi_row_keyboard(get_models(brand),
+                                        input_field_placeholder='имя модели')
     )
     await state.set_state(CreateCar.model_choosing)
 
@@ -65,7 +67,8 @@ async def brand_chosen_incorrectly(message: Message):
     await message.answer(
         text="Я не знаю такого бренда.\n"
              "Пожалуйста, выберите одно из названий из списка ниже:",
-        reply_markup=multi_row_keyboard(get_brands())
+        reply_markup=multi_row_keyboard(get_brands(),
+                                        input_field_placeholder='имя бренда')
     )
 
 
@@ -76,10 +79,11 @@ async def brand_model_chosen(message: Message, state: FSMContext):
         await message.answer(
             text=f"Вы выбрали {user_data['chosen_brand']} {message.text}.\n",
             reply_markup=ReplyKeyboardRemove()
-                            )
+        )
     else:
         await message.answer(
             text="Я не знаю такой модели.\n"
                  "Пожалуйста, выберите один из вариантов из списка ниже:",
-            reply_markup=multi_row_keyboard(get_models(user_data['chosen_brand']))
-                            )
+            reply_markup=multi_row_keyboard(get_models(user_data['chosen_brand']),
+                                            input_field_placeholder='имя модели')
+        )
