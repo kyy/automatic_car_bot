@@ -12,20 +12,22 @@ router = Router()
 
 
 def get_years(from_year=2000, to_year=datetime.datetime.now().year):
-    years = [i for i in range(from_year, to_year+1)]
+    years = [str(i) for i in range(from_year, to_year+1)]
     return years
 
 def get_dimension(from_dim=1000, to_dim=9000):
-    dim = [i/1000 for i in range(from_dim, to_dim+100, 100)]
+    dim = [str(i/1000) for i in range(from_dim, to_dim+100, 100)]
     return dim
 
 def get_cost(from_cost=5000, to_cost=35000, step=2500):
-    cost = [i for i in range(from_cost, to_cost+2500, step)]
+    cost = [str(i) for i in range(from_cost, to_cost+2500, step)]
     return cost
 
 
 motor = ['Бензин', 'Дизель', 'Электро']
+
 transmission = ['Автомат', 'Механика']
+
 def get_brands():
     brands_npy = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
     brands = []
@@ -105,6 +107,7 @@ async def motor_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_keyboard(get_models(user_data['chosen_brand']),
                                             input_field_placeholder='имя модели')
         )
+        return motor_chosen
     await state.set_state(CreateCar.motor_choosing)
 
 
@@ -131,7 +134,7 @@ async def motor_chosen_incorrectly(message: Message):
 
 
 @router.message(CreateCar.transmission_choosing, F.text.in_(transmission))
-async def year_chosen(message: Message, state: FSMContext):
+async def from_year_chosen(message: Message, state: FSMContext):
     await state.update_data(chosen_transmission=message.text)
     await message.answer(
         text="Теперь, выберите с какого года:",
@@ -140,7 +143,8 @@ async def year_chosen(message: Message, state: FSMContext):
                                         columns=8
                                         )
     )
-    await state.set_state(CreateCar.cost_choosing)
+    await state.set_state(CreateCar.year_choosing)
+
 
 @router.message(CreateCar.transmission_choosing)
 async def transmission_chosen_incorrectly(message: Message):
@@ -148,6 +152,19 @@ async def transmission_chosen_incorrectly(message: Message):
         text="Я не знаю такой трансмиссии.\n"
              "Пожалуйста, выберите одно из названий из списка ниже:",
         reply_markup=multi_row_keyboard(transmission,
-                                        input_field_placeholder='тип трансмиссии 555 ')
+                                        input_field_placeholder='тип трансмиссии')
     )
 
+
+@router.message(CreateCar.year_choosing, F.text.in_(get_years()))
+async def year_chosen(message: Message, state: FSMContext):
+    await state.update_data(chosen_year_from=message.text)
+    year_from = message.text
+    await message.answer(
+        text="Теперь, выберите по какой год:",
+        reply_markup=multi_row_keyboard(get_years(from_year=int(year_from)),
+                                        input_field_placeholder='год по',
+                                        columns=8
+                                        )
+    )
+    await state.set_state(CreateCar.cost_choosing)
