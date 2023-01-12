@@ -16,18 +16,19 @@ columns_years = 5
 columns_cost = 5
 
 
-def get_years(from_year=2000, to_year=datetime.datetime.now().year):
+def get_years(from_year=1990, to_year=datetime.datetime.now().year):
     years = [str(i) for i in range(from_year, to_year+1)]
     return years
 
 
-def get_dimension(from_dim=1000, to_dim=9000):
-    dim = [str(i/1000) for i in range(from_dim, to_dim+100, 100)]
+def get_dimension(from_dim=0.1, to_dim=9, step=0.1):
+    dim = [str(round(i, 1)) for i in np.arange(from_dim, to_dim+step, step)]
     return dim
 
 
-def get_cost(from_cost=5000, to_cost=35000, step=2500):
-    cost = [str(i) for i in range(from_cost, to_cost+step, step)]
+def get_cost(from_cost=500, to_cost=100000, step=2500):
+    cost = [str(i) for i in range(from_cost, to_cost-step, step)]
+    cost.append('999999')
     return cost
 
 
@@ -269,7 +270,7 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_dimension_min=message.text)
         await message.answer(
             text="Теперь, выберите максимальный объем двигателя:",
-            reply_markup=multi_row_keyboard(get_dimension(from_dim=int(float(message.text)*1000)),
+            reply_markup=multi_row_keyboard(get_dimension(from_dim=float(message.text)),
                                             input_field_placeholder='объем двигателя до',)
         )
     else:
@@ -286,7 +287,7 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.finish_choosing)
 async def finish_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
-    if message.text in get_dimension(from_dim=int(float(user_data['chosen_dimension_min'])*1000)):
+    if message.text in get_dimension(from_dim=float(user_data['chosen_dimension_min'])):
         await state.update_data(chosen_dimension_max=message.text)
         choice = []
         user_data_up = await state.get_data()
@@ -301,7 +302,7 @@ async def finish_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Объем введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(get_dimension(from_dim=int(float(user_data['chosen_dimension_min'])*1000)),
+            reply_markup=multi_row_keyboard(get_dimension(from_dim=float(user_data['chosen_dimension_min'])),
                                             input_field_placeholder='объем до',)
         )
         return finish_chosen
