@@ -11,7 +11,7 @@ async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         text=f"Привет, {message.from_user.full_name}!"
-             "\nПример ввода\nAudi/A6/d/a/2000/2023/0/50000/1400/5000\n показать бренды и модели - /brand",
+             "\nСписок доступных команд: /car    /cancel",
         reply_markup=ReplyKeyboardRemove()
     )
 
