@@ -17,9 +17,11 @@ columns_cost = 5
 columns_dimension = 8
 
 # source of data
-motor = ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
+skip_button = '-'
 
-transmission = ['автомат', 'механика']
+motor = [skip_button] + ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
+
+transmission = [skip_button] + ['автомат', 'механика']
 
 
 def get_brands() -> list[str]:
@@ -27,19 +29,19 @@ def get_brands() -> list[str]:
 
 
 def get_models(brand: str) -> list[str]:
-    return sorted(np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item())
+    return [skip_button] + sorted(np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item())
 
 
 def get_years(from_year: int = 1990, to_year=datetime.datetime.now().year) -> list[str]:
-    return [str(i) for i in range(from_year, to_year+1)]
+    return [skip_button] + [str(i) for i in range(from_year, to_year+1)]
 
 
 def get_dimension(from_dim: float = 1, to_dim: float = 9, step: float = 0.1) -> list[str]:
-    return [str(round(i, 1)) for i in np.arange(from_dim, to_dim+step, step)]
+    return [skip_button] + [str(round(i, 1)) for i in np.arange(from_dim, to_dim+step, step)]
 
 
 def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> list[str]:
-    return [str(i) for i in range(from_cost, to_cost-step, step)]
+    return [skip_button] + [str(i) for i in range(from_cost, to_cost-step, step)]
 
 
 class CreateCar(StatesGroup):
@@ -156,10 +158,11 @@ async def from_year_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.year_choosing)
 async def to_year_chosen(message: Message, state: FSMContext):
     if message.text in get_years():
+        year = get_years()[1] if message.text == skip_button else message.text
         await state.update_data(chosen_year_from=message.text)
         await message.answer(
             text="Теперь, выберите по какой год:",
-            reply_markup=multi_row_keyboard(get_years(from_year=int(message.text)),
+            reply_markup=multi_row_keyboard(get_years(from_year=int(year)),
                                             input_field_placeholder='год по',
                                             columns=columns_years,
                                             )
@@ -180,7 +183,8 @@ async def to_year_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.yearm_choosing)
 async def min_cost_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
-    if message.text in get_years(from_year=int(user_data['chosen_year_from'])):
+    year = get_years()[1] if skip_button == user_data['chosen_year_from'] else user_data['chosen_year_from']
+    if message.text in get_years(from_year=int(year)):
         await state.update_data(chosen_year_to=message.text)
         await message.answer(
             text="Теперь, выберите начальную цену:",
@@ -193,7 +197,7 @@ async def min_cost_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Год до введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(get_years(from_year=int(user_data['chosen_year_from'])),
+            reply_markup=multi_row_keyboard(get_years(from_year=int(year)),
                                             input_field_placeholder='год по',
                                             columns=columns_years,
                                             )
@@ -205,10 +209,11 @@ async def min_cost_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.cost_choosing)
 async def max_cost_chosen(message: Message, state: FSMContext):
     if message.text in get_cost():
+        cost = get_cost()[1] if message.text == skip_button else message.text
         await state.update_data(chosen_cost_min=message.text)
         await message.answer(
             text="Теперь, выберите максимальную цену:",
-            reply_markup=multi_row_keyboard(get_cost(from_cost=int(message.text)),
+            reply_markup=multi_row_keyboard(get_cost(from_cost=int(cost)),
                                             input_field_placeholder='стоимость до',
                                             columns=columns_cost,
                                             )
@@ -229,7 +234,8 @@ async def max_cost_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.dimension_choosing)
 async def min_dimension_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
-    if message.text in get_cost(from_cost=int(user_data['chosen_cost_min'])):
+    cost = get_cost()[1] if skip_button == user_data['chosen_cost_min'] else user_data['chosen_cost_min']
+    if message.text in get_cost(from_cost=int(cost)):
         await state.update_data(chosen_cost_max=message.text)
         await message.answer(
             text="Теперь, выберите минимальный объем двигателя:",
@@ -254,10 +260,11 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.dimensionm_choosing)
 async def max_dimension_chosen(message: Message, state: FSMContext):
     if message.text in get_dimension():
+        dimension = get_dimension()[1] if message.text == skip_button else message.text
         await state.update_data(chosen_dimension_min=message.text)
         await message.answer(
             text="Теперь, выберите максимальный объем двигателя:",
-            reply_markup=multi_row_keyboard(get_dimension(from_dim=float(message.text)),
+            reply_markup=multi_row_keyboard(get_dimension(from_dim=float(dimension)),
                                             input_field_placeholder='объем двигателя до',
                                             columns=columns_dimension,
                                             )
@@ -278,7 +285,8 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.finish_choosing)
 async def finish_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
-    if message.text in get_dimension(from_dim=float(user_data['chosen_dimension_min'])):
+    dimension = get_dimension()[1] if skip_button == user_data['chosen_dimension_min'] else user_data['chosen_dimension_min']
+    if message.text in get_dimension(from_dim=float(dimension)):
         await state.update_data(chosen_dimension_max=message.text)
         choice = []
         user_data_up = await state.get_data()
