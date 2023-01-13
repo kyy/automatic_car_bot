@@ -10,51 +10,36 @@ import datetime
 
 router = Router()
 
-
+# constants of columns:keyboards: max = 8, default = 4
 columns_motor = 3
 columns_years = 5
 columns_cost = 5
+columns_dimension = 8
 
-
-def get_years(from_year=1990, to_year=datetime.datetime.now().year):
-    years = [str(i) for i in range(from_year, to_year+1)]
-    return years
-
-
-def get_dimension(from_dim=0.1, to_dim=9, step=0.1):
-    dim = [str(round(i, 1)) for i in np.arange(from_dim, to_dim+step, step)]
-    return dim
-
-
-def get_cost(from_cost=500, to_cost=100000, step=2500):
-    cost = [str(i) for i in range(from_cost, to_cost-step, step)]
-    cost.append('999999')
-    return cost
-
-
+# source of data
 motor = ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
 
 transmission = ['автомат', 'механика']
 
 
-def get_brands():
-    brands_npy = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
-    brands = []
-    # noinspection PyTypeChecker
-    for item in brands_npy:
-        brands.append(item)
-    brands.sort()
-    return brands
+def get_brands() -> list[str]:
+    return sorted(np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item())
 
 
-# noinspection PyTypeChecker
-def get_models(brand):
-    models_npy = np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item()
-    models = []
-    for model in models_npy:
-        models.append(model)
-    models.sort()
-    return models
+def get_models(brand: str) -> list[str]:
+    return sorted(np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item())
+
+
+def get_years(from_year: int = 1990, to_year=datetime.datetime.now().year) -> list[str]:
+    return [str(i) for i in range(from_year, to_year+1)]
+
+
+def get_dimension(from_dim: float = 1, to_dim: float = 9, step: float = 0.1) -> list[str]:
+    return [str(round(i, 1)) for i in np.arange(from_dim, to_dim+step, step)]
+
+
+def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> list[str]:
+    return [str(i) for i in range(from_cost, to_cost-step, step)]
 
 
 class CreateCar(StatesGroup):
@@ -249,7 +234,9 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Теперь, выберите минимальный объем двигателя:",
             reply_markup=multi_row_keyboard(get_dimension(),
-                                            input_field_placeholder='объем двигателя от',)
+                                            input_field_placeholder='объем двигателя от',
+                                            columns=columns_dimension,
+                                            )
         )
     else:
         await message.answer(
@@ -271,14 +258,18 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Теперь, выберите максимальный объем двигателя:",
             reply_markup=multi_row_keyboard(get_dimension(from_dim=float(message.text)),
-                                            input_field_placeholder='объем двигателя до',)
+                                            input_field_placeholder='объем двигателя до',
+                                            columns=columns_dimension,
+                                            )
         )
     else:
         await message.answer(
             text="Объем введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
             reply_markup=multi_row_keyboard(get_dimension(),
-                                            input_field_placeholder='объем двигателя от',)
+                                            input_field_placeholder='объем двигателя от',
+                                            columns=columns_dimension,
+                                            )
         )
         return max_dimension_chosen
     await state.set_state(CreateCar.finish_choosing)
