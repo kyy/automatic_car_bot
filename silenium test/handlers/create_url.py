@@ -1,15 +1,12 @@
-import logging
 import numpy as np
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
-from aiogram.filters import Command, Text
-from aiogram.types import CallbackQuery
-
-
+from aiogram.filters import Command
 from .keyboards import multi_row_keyboard
 import datetime
+#from keyboa import Keyboa
 
 
 router = Router()
@@ -26,7 +23,10 @@ skip_button = '-'
 
 skipall_button = 'skipall'
 
-motor = [skip_button] + ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
+upper_keyboard = [skip_button, 'cancel', skipall_button]
+
+motor = [skip_button] + \
+        ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
 
 transmission = [skip_button] + ['автомат', 'механика']
 
@@ -40,15 +40,15 @@ def get_models(brand: str) -> list[str]:
 
 
 def get_years(from_year: int = 1990, to_year=datetime.datetime.now().year) -> list[str]:
-    return [skip_button] + [str(i) for i in range(from_year, to_year+1)]
+    return [skip_button] + [str(i) for i in range(from_year, to_year + 1)]
 
 
 def get_dimension(from_dim: float = 1, to_dim: float = 9, step: float = 0.1) -> list[str]:
-    return [skip_button] + [str(round(i, 1)) for i in np.arange(from_dim, to_dim+step, step)]
+    return [skip_button] + [str(round(i, 1)) for i in np.arange(from_dim, to_dim + step, step)]
 
 
 def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> list[str]:
-    return [skip_button] + [str(i) for i in range(from_cost, to_cost-step, step)]
+    return [skip_button] + [str(i) for i in range(from_cost, to_cost - step, step)]
 
 
 class CreateCar(StatesGroup):
@@ -63,23 +63,30 @@ class CreateCar(StatesGroup):
     dimension_choosing = State()
     dimensionm_choosing = State()
     finish_choosing = State()
-    result = State()
 
-@router.message(Command(commands=["skipall"]))
-@router.message(F.text.casefold() == "skipall")
+
+@router.message(Command(commands=["search"]))
+@router.message(F.text.casefold() == "search")
 async def get_rusult(message: Message, state: FSMContext):
     data = await state.get_data()
     choice = []
     for item in data:
         choice.append(data[item])
-    choice = ' '.join(choice)
-    await message.answer(
-        text=f"Вы выбрали - {choice} ",
-        reply_markup=ReplyKeyboardRemove()
-    )
+    choice = '|'.join(choice)
+    if len(choice) > 0:
+        await message.answer(
+            text=f"Вы выбрали - {choice} ",
+            reply_markup=ReplyKeyboardRemove()
+        )
+    else:
+        await message.answer(
+            text=f"Фильтр пуст. Воспользуйтесь командой /car",
+            reply_markup=ReplyKeyboardRemove()
+        )
 
 
 @router.message(Command(commands=["car"]))
+@router.message(F.text.casefold() == "car")
 async def brand_chosen(message: Message, state: FSMContext):
     await state.update_data(chosen_brand=skip_button,
                             chosen_model=skip_button,
@@ -95,7 +102,9 @@ async def brand_chosen(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_keyboard(get_brands(),
-                                        input_field_placeholder='имя бренда')
+                                        items_header=upper_keyboard,
+                                        input_field_placeholder='имя бренда',
+                                        )
     )
     await state.set_state(CreateCar.brand_choosing)
 
@@ -317,22 +326,16 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.finish_choosing)
 async def finish_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
-    dimension = get_dimension()[1] if skip_button == user_data['chosen_dimension_min'] else user_data['chosen_dimension_min']
+    dimension = get_dimension()[1] if skip_button == user_data['chosen_dimension_min'] \
+        else user_data['chosen_dimension_min']
     if message.text in get_dimension(from_dim=float(dimension)):
-        data = await state.update_data(chosen_dimension_max=message.text)
+        await state.update_data(chosen_dimension_max=message.text)
     else:
         await message.answer(
             text="Объем введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
             reply_markup=multi_row_keyboard(get_dimension(from_dim=float(user_data['chosen_dimension_min'])),
-                                            input_field_placeholder='объем до',)
+                                            input_field_placeholder='объем до', )
         )
         return finish_chosen
     await get_rusult(message=message, state=state)
-
-
-
-
-
-
-

@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot, types, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
-from aiogram.types import FSInputFile
+from aiogram.types import FSInputFile, BotCommand
 from aiogram.filters import Command
 from config_reader import config
 from b_logic.do_pdf import do_pdf
@@ -15,10 +15,22 @@ import numpy as np
 import os
 
 
+commands = [
+        BotCommand(command="car", description="Фильтр поиска"),
+        BotCommand(command="cancel", description="Прервать | Очистить выбранные шаги"),
+        BotCommand(command='search', description='Пропустить шаги | Повторить поиск'),
+        ]
+
+
+async def set_commands(bot: Bot):
+    await bot.set_my_commands(commands)
+
+
 async def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", )
     bot = Bot(token=config.bot_token.get_secret_value())
     dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
+    await set_commands(bot)
     dp.include_router(common.router)
     dp.include_router(create_url.router)
 
