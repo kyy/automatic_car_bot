@@ -6,7 +6,6 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
 from .keyboards import multi_row_keyboard
 import datetime
-#from keyboa import Keyboa
 
 
 router = Router()
@@ -21,10 +20,6 @@ columns_dimension = 8
 # make '' for delete button
 skip_button = '-'
 
-skipall_button = 'skipall'
-
-upper_keyboard = [skip_button, 'cancel', skipall_button]
-
 motor = [skip_button] + \
         ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
 
@@ -36,7 +31,7 @@ def get_brands() -> list[str]:
 
 
 def get_models(brand: str) -> list[str]:
-    return sorted(np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item())
+    return [skip_button] + sorted(np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item())
 
 
 def get_years(from_year: int = 1990, to_year=datetime.datetime.now().year) -> list[str]:
@@ -69,13 +64,17 @@ class CreateCar(StatesGroup):
 @router.message(F.text.casefold() == "search")
 async def get_rusult(message: Message, state: FSMContext):
     data = await state.get_data()
-    choice = []
+    c = []
     for item in data:
-        choice.append(data[item])
-    choice = '|'.join(choice)
-    if len(choice) > 0:
+        c.append(data[item])
+    choice_pars = '|'.join(c)
+    if len(c) > 0 and c[0] != '-':
         await message.answer(
-            text=f"Вы выбрали - {choice} ",
+            text=f"{c[0].replace('-', '<все бренды>')} {c[1].replace('-', '<все модели>')}\n"
+                 f"{c[2].replace('-', '<все типы двигателей>')} {c[3].replace('-', '<все типы трансмиссий>')}\n"
+                 f"с {c[4].replace('-', get_years()[1])}  по {c[5].replace('-', str(datetime.datetime.now().year))} г\n"
+                 f"от {c[6].replace('-', get_cost()[1])}  до {c[7].replace('-', str(get_cost()[-1]))} $\n"
+                 f"от {c[8].replace('-', get_dimension()[1])}  до {c[9].replace('-', str(get_dimension()[-1]))} л",
             reply_markup=ReplyKeyboardRemove()
         )
     else:
@@ -102,7 +101,6 @@ async def brand_chosen(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_keyboard(get_brands(),
-                                        items_header=upper_keyboard,
                                         input_field_placeholder='имя бренда',
                                         )
     )

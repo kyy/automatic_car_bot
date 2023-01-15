@@ -17,8 +17,8 @@ import os
 
 commands = [
         BotCommand(command="car", description="Фильтр поиска"),
-        BotCommand(command="cancel", description="Прервать | Очистить выбранные шаги"),
         BotCommand(command='search', description='Пропустить шаги | Повторить поиск'),
+        BotCommand(command="cancel", description="Прервать | Очистить фильтр"),
         ]
 
 

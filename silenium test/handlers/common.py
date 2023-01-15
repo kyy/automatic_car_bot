@@ -9,11 +9,13 @@ router = Router()
 
 
 @router.message(Command(commands=["start"]))
+@router.message(F.text.casefold() == "start")
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         text=f"Привет, {message.from_user.full_name}!"
-             "\nСписок доступных команд: /car    /cancel",
+             "\nЭто бот может искать объявления автомобилей."
+             "\nНачать - /car.",
         reply_markup=ReplyKeyboardRemove()
     )
 
