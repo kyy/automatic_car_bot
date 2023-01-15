@@ -31,9 +31,26 @@ async def cancel_handler(message: Message, state: FSMContext) -> None:
         return
 
     logging.info("Cancelling state %r", current_state)
+
+    await message.answer(
+        "Отмена",
+        reply_markup=ReplyKeyboardRemove(),
+    )\
+
+@router.message(Command(commands=["clear"]))
+@router.message(F.text.casefold() == "clear")
+async def cancel_handler(message: Message, state: FSMContext) -> None:
+    """
+    Allow user to cancel any action
+    """
+    current_state = await state.get_state()
+    if current_state is None:
+        return
+
+    logging.info("Cancelling state %r", current_state)
     await state.clear()
     await message.answer(
-        "Cancelled.",
+        "Отмена и сброс фильтра",
         reply_markup=ReplyKeyboardRemove(),
     )
 

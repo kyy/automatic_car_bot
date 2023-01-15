@@ -1,4 +1,21 @@
 import numpy as np
+from aiogram.fsm.context import FSMContext
+
+
+async def get_context(state: FSMContext):
+    data = await state.get_data()
+    transmission = {'a': 'автомат', 'механика': '2'}
+    motor = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg', 'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
+    cc = []
+    for item in data:
+        cc.append(data[item])
+    if cc[2] in motor:
+        cc[2] = motor[cc[2]]
+    if cc[3] in transmission:
+        cc[3] = transmission[cc[3]]
+    cc[8] = str(int(cc[8])*1000)
+    cc[9] = str(int(cc[8])*1000)
+    return cc
 
 
 # av.by
@@ -8,7 +25,7 @@ def get_url(car_input):
                    'year[max]=', 'price_usd[min]=', 'price_usd[max]=', 'engine_capacity[min]=', 'engine_capacity[max]=']
 
     # База данных
-    car_input = dict(zip(param_input, car_input.split('/')))
+    car_input = dict(zip(param_input, car_input.split('|')))
     transmission = {'a': '1', 'm': '2'}
     motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
     brands = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
