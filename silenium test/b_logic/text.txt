@@ -1,8 +1,8 @@
 №,Город,Area (sq km),Population,Population,Population,Population
 Algeria,Algiers,2381740,33770000,123,123,123
-Algededddddddddddddddddddddddddddddfssssssria,Algiers,2381740,33770000,123,123,123
+Algededdssssria,Algiers,2381740,33770000,123,123,123
 Algeria,Algiers,2381740,33770000,123,123,123
 Algeria,Algiers,2381740,33770000,123,123,123
-Algeria,Algiers,23817ddddddddddddddddddddddddddddddddddddddddd40,33770000,123,123,123
+Algeria,Algiers,23817dddddddddddd40,33770000,123,123,123
 Algeria,Algiers,2381740,33770000,123,123,123
 Algeria,Algiers,2381740,33770000,123,123,123

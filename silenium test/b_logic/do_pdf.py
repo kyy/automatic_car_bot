@@ -4,15 +4,16 @@ import csv
 
 
 class PDF(FPDF):
+
     def header(self):
         # Rendering logo:
-        self.image("logo.png", 10, 8, 15,
+        self.image("static/logo.png", 10, 8, 15,
                    link="https://t.me/AutomaticCarBot",
                    title='@AutomaticCarBot',
                    alt_text='@AutomaticCarBot')
 
         # Setting font: helvetica bold 15
-        self.set_font("helvetica", "B", 12)
+        self.set_font("DejaVuSansCondensed", "", 12)
         # Moving cursor to the right:
         self.cell(80)
         # Printing title:
@@ -24,24 +25,23 @@ class PDF(FPDF):
         # Position cursor at 1.5 cm from bottom:
         self.set_y(-15)
         # Setting font: helvetica italic 8
-        self.set_font("helvetica", "I", 9)
+        self.set_font("DejaVuSansCondensed", "", 12)
         # Printing page number:
         self.cell(0, 10, f"Page {self.page_no()}/{{nb}}", align="C")
 
     def colored_table(self, headings, rows, col_widths=(40, 40, 40, 40, 40, 40, 36)):
         # Colors, line width and bold font:
+        self.set_font("DejaVuSansCondensed", "", 12)
         self.set_fill_color(60, 60, 60)
         self.set_text_color(240, 240, 240)
         self.set_draw_color(180, 180, 180)
         self.set_line_width(0.1)
-        self.set_font(style="B")
         for col_width, heading in zip(col_widths, headings):
             self.cell(col_width, 5, heading, border=1, align="C", fill=True)
         self.ln()
         # Color and font restoration:
         self.set_fill_color(240, 240, 240)
         self.set_text_color(0)
-        self.set_font()
         fill = False
         for row in rows:
             self.cell(col_widths[0], 10, row[0], border="LR", align="L", fill=fill)
@@ -70,12 +70,11 @@ def load_data_from_csv(csv_filepath):
 def do_pdf(dict_=None, name=666):
     col_names, data = load_data_from_csv('text.txt')
     pdf = PDF(orientation="L", unit="mm", format="A4")
+    pdf.add_font(fname='static/DejaVuSansCondensed.ttf')
+    pdf.set_font('DejaVuSansCondensed', size=14)
+    pdf.add_page()
     pdf.set_title("Title")
     pdf.set_author("Jules Verne")
-    pdf.add_font("Ubuntu-L", style="", fname="Ubuntu-L.ttf", uni=True)
-    pdf.set_font("Ubuntu-L", size=12)
-    pdf.set_title('Cars')
-    pdf.add_page()
     pdf.colored_table(col_names, data)
 
     # for key in dict_:

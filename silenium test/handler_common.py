@@ -30,7 +30,8 @@ async def cancel_handler(message: Message, state: FSMContext) -> None:
     await message.answer(
         "Отмена",
         reply_markup=ReplyKeyboardRemove(),
-    )\
+    )
+
 
 @router.message(Command(commands=["clear"]))
 @router.message(F.text.casefold() == "clear")
