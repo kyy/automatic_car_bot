@@ -1,14 +1,21 @@
+import os
 import numpy as np
 from aiogram import Router, F
+from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 from aiogram.filters import Command
 from keyboards import multi_row_keyboard
+from datetime import datetime as datatime_datatime
 import datetime
-
+from b_logic.get_url import get_url
+from b_logic.parse import parse_cars
+from b_logic.do_pdf import do_pdf
+from config_reader import config
 
 router = Router()
+bot = Bot(token=config.bot_token.get_secret_value())
 
 # constants of columns:keyboards: max = 8, default = 4
 columns_motor = 3
@@ -16,7 +23,7 @@ columns_years = 5
 columns_cost = 5
 columns_dimension = 8
 
-# source of data
+# source of data for buttons
 # make '' for delete button
 skip_button = '-'
 
@@ -60,9 +67,32 @@ class CreateCar(StatesGroup):
     finish_choosing = State()
 
 
+@router.message(F.text.startswith('filter='))
+async def cooking_pdf(message: Message, ):
+    if message.text[0:7] == 'filter=':
+        cars = message.text.replace('filter=', '')
+        car_link = get_url(cars)
+        dicts = parse_cars(car_link)
+        if len(dicts) == 0:
+            await message.answer("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.")
+        else:
+            try:
+                await message.answer("Запрос принят", reply_markup=ReplyKeyboardRemove())
+                await message.reply(f"Найдено позиций - {len(dicts)}\nОжидайте .PDF файл")
+                name_pdf_ = (str(datatime_datatime.now())).replace(':', '-')
+                do_pdf(dict_=dicts, name=name_pdf_)
+                file = FSInputFile(f'{name_pdf_}.pdf')
+                await bot.send_document(message.chat.id, document=file)
+                os.remove(f'{name_pdf_}.pdf')
+            except Exception as error:
+                await message.answer(f"Не удалось отправить .PDF файл")
+                print(str(error))
+
+
 @router.message(Command(commands=["search"]))
 @router.message(F.text.casefold() == "search")
 async def get_rusult(message: Message, state: FSMContext):
+    await state.set_state('finish_choosing')
     data = await state.get_data()
     c = []
     for item in data:
@@ -90,7 +120,8 @@ async def get_rusult(message: Message, state: FSMContext):
                  f"от {c[8].replace('-', get_dimension()[1])}  до {c[9].replace('-', str(get_dimension()[-1]))} л",
             reply_markup=ReplyKeyboardRemove()
         )
-        await message.answer(cc)
+        await message.answer(text='фильтр-запрс:', reply_markup=multi_row_keyboard([cc, ]))
+        await cooking_pdf(message=message)
     else:
         await message.answer(
             text=f"Фильтр пуст. Воспользуйтесь командой /car",
