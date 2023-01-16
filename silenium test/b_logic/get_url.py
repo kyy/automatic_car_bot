@@ -1,21 +1,4 @@
 import numpy as np
-from aiogram.fsm.context import FSMContext
-
-
-async def get_context(state: FSMContext):
-    data = await state.get_data()
-    transmission = {'a': 'автомат', 'механика': '2'}
-    motor = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg', 'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
-    cc = []
-    for item in data:
-        cc.append(data[item])
-    if cc[2] in motor:
-        cc[2] = motor[cc[2]]
-    if cc[3] in transmission:
-        cc[3] = transmission[cc[3]]
-    cc[8] = str(int(cc[8])*1000)
-    cc[9] = str(int(cc[8])*1000)
-    return cc
 
 
 # av.by

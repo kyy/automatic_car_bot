@@ -1,14 +1,10 @@
-import time
 import numpy as np
 from aiogram import Router, F
-from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-from .keyboards import multi_row_keyboard
+from keyboards import multi_row_keyboard
 import datetime
 
 
@@ -64,7 +60,6 @@ class CreateCar(StatesGroup):
     finish_choosing = State()
 
 
-
 @router.message(Command(commands=["search"]))
 @router.message(F.text.casefold() == "search")
 async def get_rusult(message: Message, state: FSMContext):
@@ -82,9 +77,9 @@ async def get_rusult(message: Message, state: FSMContext):
         if cc[3] in transmission:
             cc[3] = transmission[cc[3]]
         if cc[8] != '-':
-            cc[8] = str(int(cc[8].replace('.', ''))*1000)
+            cc[8] = str(int(cc[8].replace('.', ''))*100)
         if cc[9] != '-':
-            cc[9] = str(int(cc[9].replace('.', ''))*1000)
+            cc[9] = str(int(cc[9].replace('.', ''))*100)
     cc = 'filter=' + '|'.join(cc)
     if len(c) > 0 and c[0] != '-':
         await message.answer(

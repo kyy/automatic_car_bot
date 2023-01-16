@@ -8,4 +8,6 @@ def single_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
 
 
 def multi_row_keyboard(items: list[str], columns: int = 4, **kwargs) -> ReplyKeyboardMarkup:
-    return ReplyKeyboardBuilder().row(*[KeyboardButton(text=item) for item in items]).adjust(columns).as_markup(**kwargs)
+    builder = ReplyKeyboardBuilder()
+    builder.row(*[KeyboardButton(text=item) for item in items]).adjust(columns)
+    return builder.as_markup(**kwargs)

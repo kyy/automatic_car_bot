@@ -1,22 +1,17 @@
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher, F, Router
-from aiogram.filters.callback_data import CallbackData
-from aiogram.fsm.context import FSMContext
-
+from aiogram import Bot, Dispatcher, F
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
-from aiogram.types import FSInputFile, BotCommand, Message, CallbackQuery
-from aiogram.filters import Command
+from aiogram.types import FSInputFile, BotCommand, Message
 from config_reader import config
 from b_logic.do_pdf import do_pdf
 from b_logic.get_url import get_url
 from b_logic.parse import parse_cars
 from datetime import datetime
-from handlers import common, create_filter
+import handler_common
+import handler_create_filter
 import os
-
-
 
 
 async def set_commands(bot: Bot):
@@ -34,11 +29,11 @@ async def main():
     bot = Bot(token=config.bot_token.get_secret_value())
     dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
     await set_commands(bot)
-    dp.include_router(common.router)
-    dp.include_router(create_filter.router)
+    dp.include_router(handler_common.router)
+    dp.include_router(handler_create_filter.router)
 
     @dp.message(F.text.startswith('filter='))
-    async def input_pars(message: Message, state: FSMContext):
+    async def input_pars(message: Message):
         cars = message.text.replace('filter=', '')
         car_link = get_url(cars)
         dicts = parse_cars(car_link)
