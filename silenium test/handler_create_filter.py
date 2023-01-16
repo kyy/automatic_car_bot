@@ -14,6 +14,7 @@ from b_logic.parse import parse_cars
 from b_logic.do_pdf import do_pdf
 from config_reader import config
 
+
 router = Router()
 bot = Bot(token=config.bot_token.get_secret_value())
 

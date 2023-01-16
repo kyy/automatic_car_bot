@@ -11,7 +11,7 @@ import handler_create_filter
 
 async def set_commands(bot: Bot):
     commands = [
-        BotCommand(command="car", description="Фильтр поиска"),
+        BotCommand(command="car", description="Создать фильтр"),
         BotCommand(command='search', description='Пропустить шаги | Повторить поиск'),
         BotCommand(command="cancel", description="Прервать"),
         BotCommand(command="clear", description="Прервать и очистить фильтр"),

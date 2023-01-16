@@ -105,7 +105,7 @@ def get_models_part_url(): # парсим номера для гет запро�
     driver = start_browser()
 
     for brand in tqdm(brands_dict):
-        models_file = np.load(f'base_data_av_by/models/{brand}.npy', allow_pickle=True).item()
+        models_file = np.load(f'models/{brand}.npy', allow_pickle=True).item()
         model_list_digits = {}
         if not os.path.exists(f'models_part_url/{brand}.npy'):
             for model in tqdm(models_file):
@@ -121,6 +121,13 @@ def get_models_part_url(): # парсим номера для гет запро�
                 model_list_digits.update({model: current_model})  # добавляем в пустой список имена + цифры
                 time.sleep(0.25)
             np.save(f'models_part_url/{brand}.npy', model_list_digits)  # сохраняем все в файл
+
+
+def corerection_models():
+    bmw = np.load('models_part_url/BMW.npy', allow_pickle=True).item()
+    bmw['X5'] = '5867'
+    np.save(f'models_part_url/BMW.npy', bmw)
+    print(np.load('models_part_url/BMW.npy', allow_pickle=True).item())
 
 
 # бренд модель топливо коробка год_от год_до цена_от цена_до объем_от объем_до (пропустить параметр -> '-')
