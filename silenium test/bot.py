@@ -14,7 +14,6 @@ from b_logic.get_url import get_url
 from b_logic.parse import parse_cars
 from datetime import datetime
 from handlers import common, create_filter
-from handlers.create_filter import MyCallback
 import os
 
 
@@ -41,9 +40,6 @@ async def main():
     @dp.message(F.text.startswith('filter='))
     async def input_pars(message: Message, state: FSMContext):
         cars = message.text.replace('filter=', '')
-        #data = await state.get_data()
-        #data = data['filter']
-        #print(data)
         car_link = get_url(cars)
         dicts = parse_cars(car_link)
         if len(dicts) == 0:

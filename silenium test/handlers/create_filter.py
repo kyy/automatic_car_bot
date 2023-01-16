@@ -63,9 +63,7 @@ class CreateCar(StatesGroup):
     dimensionm_choosing = State()
     finish_choosing = State()
 
-class MyCallback(CallbackData, prefix="my"):
-    foo: str
-    bar: str
+
 
 @router.message(Command(commands=["search"]))
 @router.message(F.text.casefold() == "search")
@@ -84,11 +82,10 @@ async def get_rusult(message: Message, state: FSMContext):
         if cc[3] in transmission:
             cc[3] = transmission[cc[3]]
         if cc[8] != '-':
-            cc[8] = str(int(cc[8][0])*1000)
+            cc[8] = str(int(cc[8].replace('.', ''))*1000)
         if cc[9] != '-':
-            cc[9] = str(int(cc[9][0])*1000)
+            cc[9] = str(int(cc[9].replace('.', ''))*1000)
     cc = 'filter=' + '|'.join(cc)
-    data.update(filter=cc)
     if len(c) > 0 and c[0] != '-':
         await message.answer(
             text=f"{c[0].replace('-', '<все бренды>')} {c[1].replace('-', '<все модели>')}\n"
@@ -98,15 +95,12 @@ async def get_rusult(message: Message, state: FSMContext):
                  f"от {c[8].replace('-', get_dimension()[1])}  до {c[9].replace('-', str(get_dimension()[-1]))} л",
             reply_markup=ReplyKeyboardRemove()
         )
-
-
         await message.answer(cc)
     else:
         await message.answer(
             text=f"Фильтр пуст. Воспользуйтесь командой /car",
             reply_markup=ReplyKeyboardRemove()
         )
-
 
 
 @router.message(Command(commands=["car"]))
