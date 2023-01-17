@@ -10,7 +10,7 @@ from keyboards import multi_row_keyboard
 from datetime import datetime as datatime_datatime
 import datetime
 from b_logic.get_url import get_url
-from b_logic.parse import parse_cars
+from b_logic.parse import parse_av_by
 from b_logic.do_pdf import do_pdf
 from config_reader import config
 
@@ -54,6 +54,18 @@ def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> l
     return [skip_button] + [str(i) for i in range(from_cost, to_cost - step, step)]
 
 
+def encode_filter_short(string: str = None, lists: list = None, sep: str = ',', get_years = get_years, get_cost = get_cost, get_dimension = get_dimension, datetime = datetime):
+    if lists == None: c = string.split(sep=sep)
+    if str == None: c = lists
+    return f"{c[0].replace('-', '<все бренды>')} {c[1].replace('-', '<все модели>')}\n" \
+           f"{c[2].replace('-', '<все типы двигателей>')} {c[3].replace('-', '<все типы трансмиссий>')}\n" \
+           f"с {c[4].replace('-', get_years()[1])}  по {c[5].replace('-', str(datetime.datetime.now().year))} г\n" \
+           f"от {c[6].replace('-', get_cost()[1])}  до {c[7].replace('-', str(get_cost()[-1]))} $\n" \
+           f"от {c[8].replace('-', get_dimension()[1])}  до {c[9].replace('-', str(get_dimension()[-1]))} л"
+
+
+
+
 class CreateCar(StatesGroup):
     brand_choosing = State()
     model_choosing = State()
@@ -69,24 +81,31 @@ class CreateCar(StatesGroup):
 
 
 @router.message(F.text.startswith('filter='))
-async def cooking_pdf(message: Message, ):
+async def cooking_pdf(message: Message):
     if message.text[0:7] == 'filter=':
         cars = message.text.replace('filter=', '')
         car_link = get_url(cars)
-        dicts = parse_cars(car_link)
+        dicts = parse_av_by(car_link)
         if len(dicts) == 0:
             await message.answer("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.")
         else:
             try:
                 await message.answer("Запрос принят", reply_markup=ReplyKeyboardRemove())
-                await message.reply(f"Найдено позиций - {len(dicts)}\nОжидайте .PDF файл")
+                await message.reply(f"Найдено позиций - {len(dicts)}\nГотовим pdf файл")
                 name_pdf_ = (str(datatime_datatime.now())).replace(':', '-')
-                do_pdf(dict_=dicts, name=name_pdf_)
-                file = FSInputFile(f'{name_pdf_}.pdf')
-                await bot.send_document(message.chat.id, document=file)
-                os.remove(f'{name_pdf_}.pdf')
+                try:
+                    do_pdf(data=dicts, name=name_pdf_, filter_full='dfsdf', filter_short=message.text)
+                except Exception as error:
+                    print(str(error), "<--> Ошибка при создании pdf")
+                    return await message.answer("Ошибка при создании pdf")
+                if os.path.exists(f'{name_pdf_}.pdf'):
+                    file = FSInputFile(f'{name_pdf_}.pdf')
+                    await bot.send_document(message.chat.id, document=file)
+                    os.remove(f'{name_pdf_}.pdf')
+                else:
+                    print(f'{name_pdf_}.pdf не найден')
             except Exception as error:
-                await message.answer(f"Не удалось отправить .PDF файл")
+                await message.answer(f"Не удалось отправить pdf файл")
                 print(str(error))
 
 
@@ -99,7 +118,7 @@ async def get_rusult(message: Message, state: FSMContext):
     for item in data:
         c.append(data[item])
     cc = c.copy()
-    transmission = {'a': 'автомат', 'механика': '2'}
+    transmission = {'автомат': 'a', 'механика': 'm'}
     motor = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
              'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
     if len(cc) > 0:
@@ -113,15 +132,8 @@ async def get_rusult(message: Message, state: FSMContext):
             cc[9] = str(int(cc[9].replace('.', ''))*100)
     cc = 'filter=' + '|'.join(cc)
     if len(c) > 0 and c[0] != '-':
-        await message.answer(
-            text=f"{c[0].replace('-', '<все бренды>')} {c[1].replace('-', '<все модели>')}\n"
-                 f"{c[2].replace('-', '<все типы двигателей>')} {c[3].replace('-', '<все типы трансмиссий>')}\n"
-                 f"с {c[4].replace('-', get_years()[1])}  по {c[5].replace('-', str(datetime.datetime.now().year))} г\n"
-                 f"от {c[6].replace('-', get_cost()[1])}  до {c[7].replace('-', str(get_cost()[-1]))} $\n"
-                 f"от {c[8].replace('-', get_dimension()[1])}  до {c[9].replace('-', str(get_dimension()[-1]))} л",
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await message.answer(text='фильтр-запрс:', reply_markup=multi_row_keyboard([cc, ]))
+        await message.answer(text=encode_filter_short(lists=c), reply_markup=ReplyKeyboardRemove())
+        await message.answer(text='фильтр-запрс:', reply_markup=multi_row_keyboard([cc,]))
         await cooking_pdf(message=message)
     else:
         await message.answer(
