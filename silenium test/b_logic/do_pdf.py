@@ -15,17 +15,19 @@ class PDF(FPDF):
 
     def header(self):
         # Rendering logo:
-        self.image("b_logic/static/logo.png", 10, 8, 15,
+        self.image("b_logic/static/logo.png", 10, 8, 8,
                    link="https://t.me/AutomaticCarBot",
                    title='@AutomaticCarBot',
                    alt_text='@AutomaticCarBot')
 
         # Moving cursor to the right:
-        self.cell(16)
-        self.set_font("DejaVuSansCondensed", "", 10)
+        self.cell(13)
+        self.set_font("DejaVuSansCondensed", "", 8)
         self.set_text_color(60, 60, 60)
-        self.cell(5, 6, f"{self.filter_full}     {self.filter_short}     {datetime.datetime.now()}", align="L")
-        self.ln(10)
+        self.cell(2, 1, f"{self.filter_full}     {datetime.datetime.now()}", align="L")
+        self.ln(4)
+        self.cell(10, 1, f"{self.filter_short}     ", align="L")
+        self.ln(5)
 
     def footer(self):
         self.set_y(-15)

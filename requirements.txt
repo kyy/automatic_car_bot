@@ -1,13 +1,14 @@
-fpdf2
+fpdf2==2.6.0
 aiogram==3.0.0b6
-pydantic[dotenv]
-beautifulsoup4
-lxml
-numpy
-outcome
-pandas
-python-worker
-requests
-selenium
-tqdm
+pydantic[dotenv]==1.10.4
+beautifulsoup4==4.11.1
+lxml==4.9.2
+numpy==1.24.1
+outcome==1.2.0
+pandas==1.5.2
+python-worker==2.1.1
+requests==2.28.1
+selenium==4.7.2
+webdriver-manager==3.8.5
+tqdm==4.64.1
 

@@ -31,6 +31,9 @@ skip_button = '-'
 motor = [skip_button] + \
         ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
 
+motor_dict = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
+             'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
+
 transmission = [skip_button] + ['автомат', 'механика']
 
 
@@ -54,16 +57,39 @@ def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> l
     return [skip_button] + [str(i) for i in range(from_cost, to_cost - step, step)]
 
 
-def encode_filter_short(string: str = None, lists: list = None, sep: str = ',', get_years = get_years, get_cost = get_cost, get_dimension = get_dimension, datetime = datetime):
-    if lists == None: c = string.split(sep=sep)
-    if str == None: c = lists
-    return f"{c[0].replace('-', '<все бренды>')} {c[1].replace('-', '<все модели>')}\n" \
+# encode from strings = 'Citroen|C4|b|a|-|-|-|-|-|-' or list to full description
+def decode_filter_short(string: str = None, lists: list = None, sep: str = '|', get_years = get_years, get_cost = get_cost, get_dimension = get_dimension, datetime = datetime):
+    motor_dict_reverse = dict(zip(motor_dict.values(), motor_dict.keys()))
+    if lists == None:
+        c = (string.split(sep=sep))
+        if c[2] in motor_dict_reverse:
+            c[2] = motor_dict_reverse[c[2]]
+        if c[8] != '-':
+            c[8] = str(int(c[8]) / 1000)
+        if c[9] != '-':
+            c[9] = str(int(c[9]) / 1000)
+        if c[3] != '-':
+            c[3] = 'автомат' if c[3] == 'a' else 'механика'
+    else:
+        c = lists
+    text = f"{c[0].replace('-', '<все бренды>')} {c[1].replace('-', '<все модели>')}\n" \
            f"{c[2].replace('-', '<все типы двигателей>')} {c[3].replace('-', '<все типы трансмиссий>')}\n" \
            f"с {c[4].replace('-', get_years()[1])}  по {c[5].replace('-', str(datetime.datetime.now().year))} г\n" \
            f"от {c[6].replace('-', get_cost()[1])}  до {c[7].replace('-', str(get_cost()[-1]))} $\n" \
            f"от {c[8].replace('-', get_dimension()[1])}  до {c[9].replace('-', str(get_dimension()[-1]))} л"
+    return text if lists else text.replace('\n', ' | ')
 
 
+# decode from lists of discription to 'filter=Citroen|C4|b|a|-|-|-|-|-|-'
+def code_filter_short(cc: list = None):
+    cc[3] = 'a' if cc[3] == 'автомат' else 'm'
+    if cc[2] in motor_dict:
+        cc[2] = motor_dict[cc[2]]
+    if cc[8] != '-':
+        cc[8] = str(int(cc[8].replace('.', '')) * 100)
+    if cc[9] != '-':
+        cc[9] = str(int(cc[9].replace('.', '')) * 100)
+    return 'filter=' + '|'.join(cc)
 
 
 class CreateCar(StatesGroup):
@@ -94,7 +120,7 @@ async def cooking_pdf(message: Message):
                 await message.reply(f"Найдено позиций - {len(dicts)}\nГотовим pdf файл")
                 name_pdf_ = (str(datatime_datatime.now())).replace(':', '-')
                 try:
-                    do_pdf(data=dicts, name=name_pdf_, filter_full='dfsdf', filter_short=message.text)
+                    do_pdf(data=dicts, name=name_pdf_, filter_full=decode_filter_short(cars), filter_short=message.text)
                 except Exception as error:
                     print(str(error), "<--> Ошибка при создании pdf")
                     return await message.answer("Ошибка при создании pdf")
@@ -118,22 +144,9 @@ async def get_rusult(message: Message, state: FSMContext):
     for item in data:
         c.append(data[item])
     cc = c.copy()
-    transmission = {'автомат': 'a', 'механика': 'm'}
-    motor = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
-             'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
-    if len(cc) > 0:
-        if cc[2] in motor:
-            cc[2] = motor[cc[2]]
-        if cc[3] in transmission:
-            cc[3] = transmission[cc[3]]
-        if cc[8] != '-':
-            cc[8] = str(int(cc[8].replace('.', ''))*100)
-        if cc[9] != '-':
-            cc[9] = str(int(cc[9].replace('.', ''))*100)
-    cc = 'filter=' + '|'.join(cc)
     if len(c) > 0 and c[0] != '-':
-        await message.answer(text=encode_filter_short(lists=c), reply_markup=ReplyKeyboardRemove())
-        await message.answer(text='фильтр-запрс:', reply_markup=multi_row_keyboard([cc,]))
+        await message.answer(text=decode_filter_short(lists=c), reply_markup=ReplyKeyboardRemove())
+        await message.answer(text='фильтр-запрс:', reply_markup=multi_row_keyboard([code_filter_short(cc),]))
         await cooking_pdf(message=message)
     else:
         await message.answer(
