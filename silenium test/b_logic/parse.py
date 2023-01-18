@@ -1,14 +1,11 @@
-import requests
-from bs4 import BeautifulSoup
 import numpy as np
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import time
 from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import os.path
+
 
 def start_browser():
     res = None
@@ -18,7 +15,7 @@ def start_browser():
         options.add_argument('headless')  # закомментируй, если хочется видеть браузер
         options.add_argument('--verbose')
         options.add_argument("--disable-dev-shm-usage")
-        driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         driver.set_page_load_timeout(60)
         res = driver
     except:
@@ -52,8 +49,6 @@ def parse_av_by(filter_link):
             cost = items.find_element(By.CSS_SELECTOR, 'div.listing-item__priceusd').text.replace('\u2009', '').replace('≈ ', '')
             info = items.find_element(By.CSS_SELECTOR, 'div.listing-item__params').text.replace('\u2009', '').replace('\n', ' ')
             full.append([i, model, cost, info, 'vin number', data, city, 'phone'])
-
-
         print('OK--av.by')
     except Exception as e:
         print('ERROR--av.by', e)
@@ -66,3 +61,4 @@ def parse_av_by(filter_link):
 link = 'https://cars.av.by/filter?brands[0][brand]=8&brands[0][model]=5867&year[min]=2015&year[max]=2022&price_usd[min]=1&price_usd[max]=100000&transmission_type=1'
 if __name__ == '__main__':
     parse_av_by(link)
+

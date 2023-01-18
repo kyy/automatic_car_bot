@@ -1,3 +1,5 @@
+import concurrent.futures
+import asyncio
 import os
 import numpy as np
 from aiogram import Router, F
@@ -112,18 +114,18 @@ async def cooking_pdf(message: Message):
     if message.text[0:7] == 'filter=':
         cars = message.text.replace('filter=', '')
         car_link = get_url(cars)
+        await message.answer("Фильтр принят", reply_markup=ReplyKeyboardRemove())
         dicts = parse_av_by(car_link)
         if len(dicts) == 0:
-            await message.answer("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен.")
+            return await message.answer("По вашему запросу ничего не найдено, или запрашиваемый сервер перегружен")
         else:
+            await message.reply(f"Найдено позиций - {len(dicts)}\nГотовим к отправке отчет")
             try:
-                await message.answer("Запрос принят", reply_markup=ReplyKeyboardRemove())
-                await message.reply(f"Найдено позиций - {len(dicts)}\nГотовим pdf файл")
                 name_pdf_ = (str(datatime_datatime.now())).replace(':', skip_button)
                 try:
                     do_pdf(data=dicts, name=name_pdf_, filter_full=decode_filter_short(cars), filter_short=message.text)
                 except Exception as error:
-                    print(str(error), "<--> Ошибка при создании pdf")
+                    print(str(error), "<--> Ошибка при формировании отчета")
                     return await message.answer("Ошибка при создании pdf")
                 if os.path.exists(f'{name_pdf_}.pdf'):
                     file = FSInputFile(f'{name_pdf_}.pdf')
@@ -132,7 +134,7 @@ async def cooking_pdf(message: Message):
                 else:
                     print(f'{name_pdf_}.pdf не найден')
             except Exception as error:
-                await message.answer(f"Не удалось отправить pdf файл")
+                await message.answer(f"Не удалось отправить отчет,\nпоторите попытку позже")
                 print(str(error))
 
 
@@ -147,7 +149,7 @@ async def get_rusult(message: Message, state: FSMContext):
     cc = c.copy()
     if len(c) > 0 and c[0] != skip_button:
         await message.answer(text=decode_filter_short(lists=c), reply_markup=ReplyKeyboardRemove())
-        await message.answer(text='фильтр-запрс:', reply_markup=multi_row_keyboard([code_filter_short(cc),]))
+        await message.answer(text='подтвердите фильтр:', reply_markup=multi_row_keyboard([code_filter_short(cc),]))
         await cooking_pdf(message=message)
     else:
         await message.answer(
