@@ -42,14 +42,18 @@ def parse_av_by(filter_link):
     marka_link = driver.find_elements(By.CLASS_NAME, 'listing-item__wrap')
     full = []
     try:
+        i = 0
         for items in tqdm(marka_link):
+            i += 1
             link = items.find_element(By.CSS_SELECTOR, 'a.listing-item__link').get_attribute('href')
             model = items.find_element(By.CSS_SELECTOR, 'span.link-text').text
             city = items.find_element(By.CSS_SELECTOR, 'div.listing-item__location').text
             data = items.find_element(By.CSS_SELECTOR, 'div.listing-item__date').text
             cost = items.find_element(By.CSS_SELECTOR, 'div.listing-item__priceusd').text.replace('\u2009', '').replace('≈ ', '')
             info = items.find_element(By.CSS_SELECTOR, 'div.listing-item__params').text.replace('\u2009', '').replace('\n', ' ')
-            full.append(['#', model, cost, info, 'vin number', data, city, 'phone'])
+            full.append([i, model, cost, info, 'vin number', data, city, 'phone'])
+
+
         print('OK--av.by')
     except Exception as e:
         print('ERROR--av.by', e)
@@ -59,10 +63,6 @@ def parse_av_by(filter_link):
     return full
 
 
-
-
-
-
 link = 'https://cars.av.by/filter?brands[0][brand]=8&brands[0][model]=5867&year[min]=2015&year[max]=2022&price_usd[min]=1&price_usd[max]=100000&transmission_type=1'
 if __name__ == '__main__':
-    pass
+    parse_av_by(link)

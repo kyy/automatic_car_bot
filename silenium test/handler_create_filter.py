@@ -64,30 +64,31 @@ def decode_filter_short(string: str = None, lists: list = None, sep: str = '|', 
         c = (string.split(sep=sep))
         if c[2] in motor_dict_reverse:
             c[2] = motor_dict_reverse[c[2]]
-        if c[8] != '-':
+        if c[8] != skip_button:
             c[8] = str(int(c[8]) / 1000)
-        if c[9] != '-':
+        if c[9] != skip_button:
             c[9] = str(int(c[9]) / 1000)
-        if c[3] != '-':
+        if c[3] != skip_button:
             c[3] = 'автомат' if c[3] == 'a' else 'механика'
     else:
         c = lists
-    text = f"{c[0].replace('-', '<все бренды>')} {c[1].replace('-', '<все модели>')}\n" \
-           f"{c[2].replace('-', '<все типы двигателей>')} {c[3].replace('-', '<все типы трансмиссий>')}\n" \
-           f"с {c[4].replace('-', get_years()[1])}  по {c[5].replace('-', str(datetime.datetime.now().year))} г\n" \
-           f"от {c[6].replace('-', get_cost()[1])}  до {c[7].replace('-', str(get_cost()[-1]))} $\n" \
-           f"от {c[8].replace('-', get_dimension()[1])}  до {c[9].replace('-', str(get_dimension()[-1]))} л"
+    text = f"{c[0].replace(skip_button, '<все бренды>')} {c[1].replace(skip_button, '<все модели>')}\n" \
+           f"{c[2].replace(skip_button, '<все типы двигателей>')} {c[3].replace(skip_button, '<все типы трансмиссий>')}\n" \
+           f"с {c[4].replace(skip_button, get_years()[1])}  по {c[5].replace(skip_button, str(datetime.datetime.now().year))} г\n" \
+           f"от {c[6].replace(skip_button, get_cost()[1])}  до {c[7].replace(skip_button, str(get_cost()[-1]))} $\n" \
+           f"от {c[8].replace(skip_button, get_dimension()[1])}  до {c[9].replace(skip_button, str(get_dimension()[-1]))} л"
     return text if lists else text.replace('\n', ' | ')
 
 
 # decode from lists of discription to 'filter=Citroen|C4|b|a|-|-|-|-|-|-'
 def code_filter_short(cc: list = None):
-    cc[3] = 'a' if cc[3] == 'автомат' else 'm'
+    if cc[3] != skip_button:
+        cc[3] = 'a' if cc[3] == 'автомат' else 'm'
     if cc[2] in motor_dict:
         cc[2] = motor_dict[cc[2]]
-    if cc[8] != '-':
+    if cc[8] != skip_button:
         cc[8] = str(int(cc[8].replace('.', '')) * 100)
-    if cc[9] != '-':
+    if cc[9] != skip_button:
         cc[9] = str(int(cc[9].replace('.', '')) * 100)
     return 'filter=' + '|'.join(cc)
 
@@ -118,7 +119,7 @@ async def cooking_pdf(message: Message):
             try:
                 await message.answer("Запрос принят", reply_markup=ReplyKeyboardRemove())
                 await message.reply(f"Найдено позиций - {len(dicts)}\nГотовим pdf файл")
-                name_pdf_ = (str(datatime_datatime.now())).replace(':', '-')
+                name_pdf_ = (str(datatime_datatime.now())).replace(':', skip_button)
                 try:
                     do_pdf(data=dicts, name=name_pdf_, filter_full=decode_filter_short(cars), filter_short=message.text)
                 except Exception as error:
@@ -144,7 +145,7 @@ async def get_rusult(message: Message, state: FSMContext):
     for item in data:
         c.append(data[item])
     cc = c.copy()
-    if len(c) > 0 and c[0] != '-':
+    if len(c) > 0 and c[0] != skip_button:
         await message.answer(text=decode_filter_short(lists=c), reply_markup=ReplyKeyboardRemove())
         await message.answer(text='фильтр-запрс:', reply_markup=multi_row_keyboard([code_filter_short(cc),]))
         await cooking_pdf(message=message)
