@@ -24,7 +24,7 @@ class PDF(FPDF):
 
         # Moving cursor to the right:
         self.cell(13)
-        self.set_font("DejaVuSansCondensed", "", 9)
+        self.set_font(size=9)
         self.set_text_color(60, 60, 60)
         self.cell(0, 0, f'{self.filter_short}', align="L")
         self.cell(0, 0, f'{datetime.datetime.now()}', align="R")
@@ -36,7 +36,7 @@ class PDF(FPDF):
     def footer(self):
         self.set_y(-15)
         self.set_text_color(60, 60, 60)
-        self.set_font("DejaVuSansCondensed", "", 9)
+        self.set_font(size=9)
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
@@ -68,7 +68,7 @@ class PDF(FPDF):
             self.ln(line_height)
 
     def render_table_header(self, headings, col_widths):
-        self.set_font("DejaVuSansCondensed", "", 9)
+        self.set_font(size=9)
         self.set_fill_color(60, 60, 60)
         self.set_text_color(240, 240, 240)
         self.set_draw_color(180, 180, 180)

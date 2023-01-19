@@ -3,20 +3,12 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
-from aiogram.types import BotCommand
 from config_reader import config
 import handler_common
 import handler_create_filter
+from handler_common import set_commands
 
 
-async def set_commands(bot: Bot):
-    commands = [
-        BotCommand(command="car", description="Создать новый фильтр"),
-        BotCommand(command='search', description='Отобразить текущий фильтр '),
-        BotCommand(command="cancel", description="Прервать действие"),
-        BotCommand(command="clear", description="Прервать и очистить фильтр"),
-    ]
-    await bot.set_my_commands(commands)
 
 
 async def main():
@@ -31,4 +23,7 @@ async def main():
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        print('Bot stopped')
