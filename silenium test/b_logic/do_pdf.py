@@ -6,16 +6,21 @@ import csv
 
 class PDF(FPDF):
 
-    def filters_names(self, filter_full, filter_short):
-        self.filter_full = filter_full
-        self.filter_short = filter_short
+    def filters_name(self):
+        self.filter_full = None
+        self.filter_short = None
 
     def header(self):
         # Rendering logo:
-        self.image("b_logic/static/logo.png", 10, 10, 8,
-                   link="https://t.me/AutomaticCarBot",
-                   title='@AutomaticCarBot',
-                   alt_text='@AutomaticCarBot')
+        self.image(
+            "b_logic/static/logo.png",
+            x=10,
+            y=10,
+            w=8,
+            link="https://t.me/AutomaticCarBot",
+            title='@AutomaticCarBot',
+            alt_text='@AutomaticCarBot',
+        )
 
         # Moving cursor to the right:
         self.cell(13)
@@ -34,6 +39,7 @@ class PDF(FPDF):
         self.set_font("DejaVuSansCondensed", "", 9)
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
+
     def colored_table(self, headings, rows, col_widths=(8, 45, 15, 80, 35, 35, 35, 25)):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 3
@@ -45,17 +51,18 @@ class PDF(FPDF):
                 self.render_table_header(headings=headings, col_widths=col_widths)
             i = 0
             for datum in row:
-                self.multi_cell(w=col_widths[i],
-                                h=line_height,
-                                txt=datum,
-                                align="L",
-                                border=1,
-                                new_x="RIGHT",
-                                new_y="TOP",
-                                max_line_height=self.font_size,
-                                link='',
-                                fill=fill
-                                )
+                self.multi_cell(
+                    w=col_widths[i],
+                    h=line_height,
+                    txt=datum,
+                    align="L",
+                    border=1,
+                    new_x="RIGHT",
+                    new_y="TOP",
+                    max_line_height=self.font_size,
+                    link='',
+                    fill=fill,
+                )
                 i += 1
             fill = not fill
             self.ln(line_height)
@@ -67,12 +74,14 @@ class PDF(FPDF):
         self.set_draw_color(180, 180, 180)
         self.set_line_width(0.1)
         for col_width, heading in zip(col_widths, headings):
-            self.cell(w=col_width,
-                      h=5,
-                      txt=heading,
-                      border=1,
-                      align="C",
-                      fill=True)
+            self.cell(
+                w=col_width,
+                h=5,
+                txt=heading,
+                border=1,
+                align="C",
+                fill=True,
+            )
         self.ln()
         # Color and font restoration:
         self.set_fill_color(240, 240, 240)
@@ -90,13 +99,14 @@ def load_data_from_csv(csv_filepath):
     return headings, rows
 
 
-def do_pdf(data=None, name=None, filter_full=None, filter_short=None):
+def do_pdf(data: [[str], ] = None, name=None, filter_full=None, filter_short=None):
     data = np.load('parse_av_by.npy')
     col_names = ['#', 'марка', 'цена', 'характеристики', 'VIN', 'опубликовано', 'город', 'телефон']
 
-    pdf = PDF(orientation="L",
-              unit="mm",
-              format="A4"
+    pdf = PDF(
+        orientation="L",
+        unit="mm",
+        format="A4"
               )
     pdf.page_mode = "FULL_SCREEN"
     pdf.viewer_preferences = ViewerPreferences(
@@ -117,6 +127,7 @@ def do_pdf(data=None, name=None, filter_full=None, filter_short=None):
     pdf.set_author("@AutomaticCar")
     pdf.colored_table(col_names, data)
     return pdf.output(f'{name}.pdf')
+
 
 if __name__ == '__main__':
     do_pdf()

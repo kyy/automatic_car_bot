@@ -25,11 +25,16 @@ def start_browser():
 # необходимо логинится
 def clicking(driver):
     try:
-        click_show_phone = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[3]/div[2]/div[2]/div[5]/button[2]').click()
+        click_show_phone = driver.find_element(
+            By.XPATH,
+            '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[3]/div[2]/div[2]/div[5]/button[2]').click()
         time.sleep(0.3)
-        click_show_vin = driver.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[3]/div[6]/div[1]/button/span/small').click()
+        click_show_vin = driver.find_element(
+            By.XPATH,
+            '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[3]/div[6]/div[1]/button/span/small').click()
         time.sleep(0.3)
-    except: pass
+    except:
+        pass
 
 
 def parse_av_by(filter_link):
