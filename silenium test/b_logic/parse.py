@@ -7,6 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
 
 
+
 def start_browser():
     res = None
     try:
@@ -63,7 +64,7 @@ def parse_av_by(filter_link):
     return full
 
 
-link = 'https://cars.av.by/filter?brands[0][brand]=8&brands[0][model]=5867&year[min]=2015&year[max]=2022&price_usd[min]=1&price_usd[max]=100000&transmission_type=1'
+link = 'https://cars.av.by/ford/focus'
 if __name__ == '__main__':
     parse_av_by(link)
 

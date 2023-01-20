@@ -4,9 +4,7 @@ from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
 import csv
-import pathlib
 
-current_dir = pathlib.Path.cwd()
 
 
 class PDF(FPDF):
@@ -22,15 +20,15 @@ class PDF(FPDF):
         self.image(
             img.get_image(),
             x=273,
-            y=2,
-            w=17,
+            y=3,
+            w=19,
             link=self.av_by_link,
             title='av.by',
             alt_text='av.by',
         )
         # Rendering logo:
         self.image(
-            f"{pathlib.Path.cwd()}/static/logo.png",
+            f"b_logic/static/logo.png",
             x=10,
             y=10,
             w=8,
@@ -59,21 +57,21 @@ class PDF(FPDF):
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
-    def colored_table(self, headings, rows, links, col_widths=(8, 45, 15, 80, 35, 35, 35, 25)):
+    def colored_table(self, headings, rows, links, col_widths=(8, 64, 16, 64, 35, 35, 35, 25)):
         self.render_table_header(headings=headings, col_widths=col_widths)
-        line_height = self.font_size * 3
+        line_height = self.font_size * 2.5
         self.set_fill_color(240, 240, 240)                                                                              # цвет заливки строки
         self.set_text_color(0)                                                                                          # цвет текста в заливке
         fill = False                                                                                                    # заливаем строку
-        k = 0
+        j = 0
         for row in rows:
             if self.will_page_break(line_height):
                 self.render_table_header(headings=headings, col_widths=col_widths)
             i = 0
-            link = links[k]
-            k += 1
+            link = links[j]
+            j += 1
             for datum in row:
-                link_to_car = link if i == 1 else ''                                                                    # созлдаем ссылку во 2 столбце
+                link_to_car = link if i == 1 else ''                                                                    # создаем ссылку во 2 столбце
                 self.multi_cell(
                     w=col_widths[i],
                     h=line_height,
@@ -82,7 +80,7 @@ class PDF(FPDF):
                     border=1,
                     new_x="RIGHT",
                     new_y="TOP",
-                    max_line_height=self.font_size,
+                    max_line_height=self.font_size+1.2,
                     link=link_to_car,
                     fill=fill,
                 )
@@ -145,7 +143,7 @@ def do_pdf(
         display_doc_title=True,
         non_full_screen_page_mode="USE_OUTLINES",
     )
-    pdf.add_font(fname=f'{pathlib.Path.cwd()}/static/DejaVuSansCondensed.ttf')
+    pdf.add_font(fname=f'b_logic/static/DejaVuSansCondensed.ttf')
     pdf.set_font('DejaVuSansCondensed', size=9)
     pdf.filter_full = str(filter_full)
     pdf.filter_short = str(filter_short)

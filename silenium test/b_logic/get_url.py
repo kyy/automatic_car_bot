@@ -1,5 +1,6 @@
 import numpy as np
 
+s_s = '+'    # split symbol in filter
 
 # av.by
 def get_url(car_input):
@@ -8,7 +9,7 @@ def get_url(car_input):
                    'year[max]=', 'price_usd[min]=', 'price_usd[max]=', 'engine_capacity[min]=', 'engine_capacity[max]=']
 
     # База данных
-    car_input = dict(zip(param_input, car_input.split('|')))
+    car_input = dict(zip(param_input, car_input.split(s_s)))
     transmission = {'a': '1', 'm': '2'}
     motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
     brands = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()

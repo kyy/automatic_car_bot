@@ -9,10 +9,11 @@ from aiogram.filters import Command
 from keyboards import multi_row_keyboard
 from datetime import datetime as datatime_datatime
 import datetime
-from b_logic.get_url import get_url
+from b_logic.get_url import get_url, s_s
 from b_logic.parse import parse_av_by
 from b_logic.do_pdf import do_pdf
 from config_reader import config
+
 
 
 router = Router()
@@ -30,7 +31,8 @@ columns_dimension = 8
 motor_dict = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
               'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
 
-s_b = '-'    # skip button on keyboards
+s_b = '.'    # skip button on keyboards
+
 
 motor = [s_b] + \
         ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
@@ -59,7 +61,7 @@ def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> l
 
 
 # encode from strings = 'Citroen|C4|b|a|-|-|-|-|-|-' or list to full description
-def decode_filter_short(string: str = None, lists: list = None, sep: str = '|'):
+def decode_filter_short(string: str = None, lists: list = None, sep: str = s_s):
     motor_dict_reverse = dict(zip(motor_dict.values(), motor_dict.keys()))
     if lists is None:
         c = (string.split(sep=sep))
@@ -91,7 +93,7 @@ def code_filter_short(cc: list = None):
         cc[8] = str(int(cc[8].replace('.', '')) * 100)
     if cc[9] != s_b:
         cc[9] = str(int(cc[9].replace('.', '')) * 100)
-    return 'filter=' + '|'.join(cc)
+    return 'filter=' + s_s.join(cc)
 
 
 class CreateCar(StatesGroup):
