@@ -26,14 +26,12 @@ def start_browser():
 # необходимо логинится
 def clicking(driver):
     try:
-        click_show_phone = driver.find_element(
-            By.XPATH,
-            '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[3]/div[2]/div[2]/div[5]/button[2]').click()
-        time.sleep(0.3)
-        click_show_vin = driver.find_element(
-            By.XPATH,
-            '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[3]/div[6]/div[1]/button/span/small').click()
-        time.sleep(0.3)
+        # click_show_phone = driver.find_element(
+        #     By.XPATH,
+        #     '//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[3]/div[2]/div[2]/div[5]/button[2]').click()
+        # time.sleep(0.3)
+        click_show_vin = driver.find_element(By.XPATH,'//*[@id="__next"]/div[2]/main/div/div/div[1]/div[2]/div[3]/div[6]/div[1]/button/span/small').click()
+        time.sleep(0.1)
     except:
         pass
 
@@ -44,6 +42,7 @@ def parse_av_by(filter_link):
     driver.get(filter_link)
     marka_link = driver.find_elements(By.CLASS_NAME, 'listing-item__wrap')
     full = []
+
     try:
         i = 0
         for items in tqdm(marka_link):
@@ -55,9 +54,22 @@ def parse_av_by(filter_link):
             cost = items.find_element(By.CSS_SELECTOR, 'div.listing-item__priceusd').text.replace('\u2009', '').replace('≈ ', '')
             info = items.find_element(By.CSS_SELECTOR, 'div.listing-item__params').text.replace('\u2009', '').replace('\n', ' ')
             full.append([link, i, model, cost, info, 'vin number', data, city, 'phone'])
-        print('OK--av.by')
+        print('OK--av.by--main--page')
     except Exception as e:
-        print('ERROR--av.by', e)
+        print('ERROR--av.by--main--page', e)
+    try:
+        for i in tqdm(range(len(full))):
+            url = full[i][0]
+            driver.get(url)
+            time.sleep(2)
+            clicking(driver)
+            time.sleep(0.1)
+            try:
+                full[i][5] = driver.find_element(By.CSS_SELECTOR, 'div.card__vin-number').text
+            except:
+                full[i][5] = 'None'
+    except Exception as e:
+        print('ERROR--av.by--cards--of--cars', e)
     end = time.time() - start
     print(f'Итоговое время парсинга: {end}')
     np.save(f'parse_av_by.npy', full)

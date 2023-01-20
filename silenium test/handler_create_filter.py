@@ -15,7 +15,6 @@ from b_logic.do_pdf import do_pdf
 from config_reader import config
 
 
-
 router = Router()
 bot = Bot(token=config.bot_token.get_secret_value())
 
@@ -126,7 +125,6 @@ async def cooking_pdf(message: Message):
                 name_pdf_ = (str(datatime_datatime.now())).replace(':', s_b)
                 try:
                     do_pdf(
-                        #data=dicts,
                         av_by_link=car_link,
                         name=name_pdf_,
                         filter_full=decode_filter_short(cars),

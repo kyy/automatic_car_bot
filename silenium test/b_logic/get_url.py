@@ -1,6 +1,6 @@
 import numpy as np
+from constant import s_s
 
-s_s = '+'    # split symbol in filter
 
 # av.by
 def get_url(car_input):

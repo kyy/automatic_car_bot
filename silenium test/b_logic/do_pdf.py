@@ -6,7 +6,6 @@ from datetime import datetime
 import csv
 
 
-
 class PDF(FPDF):
 
     def imports(self):
