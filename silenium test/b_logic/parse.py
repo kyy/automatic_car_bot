@@ -47,13 +47,13 @@ def parse_av_by(filter_link):
         i = 0
         for items in tqdm(marka_link):
             i += 1
-            link = items.find_element(By.CSS_SELECTOR, 'a.listing-item__link').get_attribute('href')
             model = items.find_element(By.CSS_SELECTOR, 'span.link-text').text
+            link = items.find_element(By.CSS_SELECTOR, 'a.listing-item__link').get_attribute('href')
             city = items.find_element(By.CSS_SELECTOR, 'div.listing-item__location').text
             data = items.find_element(By.CSS_SELECTOR, 'div.listing-item__date').text
             cost = items.find_element(By.CSS_SELECTOR, 'div.listing-item__priceusd').text.replace('\u2009', '').replace('≈ ', '')
             info = items.find_element(By.CSS_SELECTOR, 'div.listing-item__params').text.replace('\u2009', '').replace('\n', ' ')
-            full.append([i, model, cost, info, 'vin number', data, city, 'phone'])
+            full.append([link, i, model, cost, info, 'vin number', data, city, 'phone'])
         print('OK--av.by')
     except Exception as e:
         print('ERROR--av.by', e)

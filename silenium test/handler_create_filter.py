@@ -123,10 +123,12 @@ async def cooking_pdf(message: Message):
             try:
                 name_pdf_ = (str(datatime_datatime.now())).replace(':', s_b)
                 try:
-                    do_pdf(data=dicts,
-                           name=name_pdf_,
-                           filter_full=decode_filter_short(cars),
-                           filter_short=message.text)
+                    do_pdf(
+                        #data=dicts,
+                        av_by_link=car_link,
+                        name=name_pdf_,
+                        filter_full=decode_filter_short(cars),
+                        filter_short=message.text)
                 except Exception as error:
                     print(str(error), "<--> Ошибка при формировании отчета")
                     return await message.answer("Ошибка при создании pdf")

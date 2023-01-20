@@ -1,19 +1,36 @@
 import numpy as np
+import pandas as pd
 from fpdf import FPDF, ViewerPreferences
-import datetime
+import qrcode
+from datetime import datetime
 import csv
+import pathlib
+
+current_dir = pathlib.Path.cwd()
 
 
 class PDF(FPDF):
 
-    def filters_name(self):
+    def imports(self):
         self.filter_full = None
         self.filter_short = None
+        self.av_by_link = None
 
     def header(self):
+        # Rendering QRC:
+        img = qrcode.make(self.av_by_link)
+        self.image(
+            img.get_image(),
+            x=273,
+            y=2,
+            w=17,
+            link=self.av_by_link,
+            title='av.by',
+            alt_text='av.by',
+        )
         # Rendering logo:
         self.image(
-            "b_logic/static/logo.png",
+            f"{pathlib.Path.cwd()}/static/logo.png",
             x=10,
             y=10,
             w=8,
@@ -27,10 +44,12 @@ class PDF(FPDF):
         self.set_font(size=9)
         self.set_text_color(60, 60, 60)
         self.cell(0, 0, f'{self.filter_short}', align="L")
-        self.cell(0, 0, f'{datetime.datetime.now()}', align="R")
+        self.cell(-18, 0, f'{datetime.now().date()}', align="R")
+        self.ln(4)
+        self.cell(259, 0, f'{datetime.now().time().strftime("%H:%M")}', align="R")
         self.ln(4)
         self.cell(13)
-        self.cell(10, 3, f'{self.filter_full}', align="L")
+        self.cell(10, -8, f'{self.filter_full}', align="L")
         self.ln(5)
 
     def footer(self):
@@ -40,17 +59,21 @@ class PDF(FPDF):
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
-    def colored_table(self, headings, rows, col_widths=(8, 45, 15, 80, 35, 35, 35, 25)):
+    def colored_table(self, headings, rows, links, col_widths=(8, 45, 15, 80, 35, 35, 35, 25)):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 3
-        self.set_fill_color(240, 240, 240)
-        self.set_text_color(0)
-        fill = False
+        self.set_fill_color(240, 240, 240)                                                                              # цвет заливки строки
+        self.set_text_color(0)                                                                                          # цвет текста в заливке
+        fill = False                                                                                                    # заливаем строку
+        k = 0
         for row in rows:
             if self.will_page_break(line_height):
                 self.render_table_header(headings=headings, col_widths=col_widths)
             i = 0
+            link = links[k]
+            k += 1
             for datum in row:
+                link_to_car = link if i == 1 else ''                                                                    # созлдаем ссылку во 2 столбце
                 self.multi_cell(
                     w=col_widths[i],
                     h=line_height,
@@ -60,11 +83,11 @@ class PDF(FPDF):
                     new_x="RIGHT",
                     new_y="TOP",
                     max_line_height=self.font_size,
-                    link='',
+                    link=link_to_car,
                     fill=fill,
                 )
                 i += 1
-            fill = not fill
+            fill = not fill                                                                                             # убираем заливку строки
             self.ln(line_height)
 
     def render_table_header(self, headings, col_widths):
@@ -99,10 +122,14 @@ def load_data_from_csv(csv_filepath):
     return headings, rows
 
 
-def do_pdf(data: [[str], ] = None, name=None, filter_full=None, filter_short=None):
-    data = np.load('parse_av_by.npy')
-    col_names = ['#', 'марка', 'цена', 'характеристики', 'VIN', 'опубликовано', 'город', 'телефон']
-
+def do_pdf(
+        data: [[str], ] = None,
+        name=None,
+        filter_full='<filter full>',
+        filter_short='<filter code>',
+        av_by_link='<link_to_av_by_filter>'
+):
+    data, col_names, links = get_data()
     pdf = PDF(
         orientation="L",
         unit="mm",
@@ -118,16 +145,26 @@ def do_pdf(data: [[str], ] = None, name=None, filter_full=None, filter_short=Non
         display_doc_title=True,
         non_full_screen_page_mode="USE_OUTLINES",
     )
-    pdf.add_font(fname='b_logic/static/DejaVuSansCondensed.ttf')
+    pdf.add_font(fname=f'{pathlib.Path.cwd()}/static/DejaVuSansCondensed.ttf')
     pdf.set_font('DejaVuSansCondensed', size=9)
-    pdf.filter_full = f'{filter_full}'
-    pdf.filter_short = f'{filter_short}'
+    pdf.filter_full = str(filter_full)
+    pdf.filter_short = str(filter_short)
+    pdf.av_by_link = str(av_by_link)
     pdf.add_page()
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")
-    pdf.colored_table(col_names, data)
+    pdf.colored_table(col_names, data, links)
     return pdf.output(f'{name}.pdf')
+
+
+def get_data():
+    columns = ['#', 'марка', 'цена', 'характеристики', 'VIN', 'опубликовано', 'город', 'телефон']
+    dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
+    df = dataframe.iloc[0:, 1:].to_numpy()
+    links = dataframe.iloc[0:, 0].tolist()
+    return df, columns, links
 
 
 if __name__ == '__main__':
     do_pdf()
+
