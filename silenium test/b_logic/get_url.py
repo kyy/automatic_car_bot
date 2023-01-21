@@ -1,5 +1,5 @@
 import numpy as np
-from constant import s_s
+from .constant import s_s
 
 
 # av.by
