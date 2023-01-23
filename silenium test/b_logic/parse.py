@@ -73,8 +73,7 @@ def car_cards_parse(driver, filter_link):
     return full
 
 
-def retry(driver, url,  n=3):
-    t = 0
+def retry(driver, url,  n=3, t=0):
     while t < n:
         try:
             driver.get(url)
@@ -93,29 +92,29 @@ def from_card_parse(driver, full):
     for i in tqdm(range(len(full))):
         url = full[i][0]
         if retry(driver, url, 3) is True:
-            # try:
-            #     show_phone_number = driver.find_element(By.CSS_SELECTOR, 'button.button--secondary:nth-child(2)')
-            #     driver.execute_script("arguments[0].scrollIntoView();", show_phone_number)
-            #     time.sleep(0.3)
-            #     show_phone_number.click()
-            # except:
-            #     show_phone_number2 = driver.find_element(By.CSS_SELECTOR, '.card__contact > button:nth-child(1)')
-            #     driver.execute_script("arguments[0].scrollIntoView();", show_phone_number2)
-            #     time.sleep(0.3)
-            #     show_phone_number2.click()
-            # time.sleep(0.3)
-            # try:
-            #     full[i][10] = driver.find_element(By.CSS_SELECTOR, '.phones__list > li:nth-child(1)').text
-            # except:
-            #     full[i][10] = ''
-            #     print('не удалось получить телефон')
-            # time.sleep(0.15)
-            # try:
-            #     full[i][9] = driver.find_element(By.CSS_SELECTOR, '.phones__owner').text[0:35].title()
-            # except:
-            #     full[i][9] = ''
-            #     print('не удалось получить имя')
-            # time.sleep(0.15)
+            try:
+                show_phone_number = driver.find_element(By.CSS_SELECTOR, 'button.button--secondary:nth-child(2)')
+                driver.execute_script("arguments[0].scrollIntoView();", show_phone_number)
+                time.sleep(0.3)
+                show_phone_number.click()
+            except:
+                show_phone_number2 = driver.find_element(By.CSS_SELECTOR, '.card__contact > button:nth-child(1)')
+                driver.execute_script("arguments[0].scrollIntoView();", show_phone_number2)
+                time.sleep(0.3)
+                show_phone_number2.click()
+            time.sleep(0.3)
+            try:
+                full[i][10] = driver.find_element(By.CSS_SELECTOR, '.phones__list > li:nth-child(1)').text
+            except:
+                full[i][10] = ''
+                print('не удалось получить телефон')
+            time.sleep(0.15)
+            try:
+                full[i][9] = driver.find_element(By.CSS_SELECTOR, '.phones__owner').text[0:35].title()
+            except:
+                full[i][9] = ''
+                print('не удалось получить имя')
+            time.sleep(0.15)
             try:
                 full[i][1] = ''
                 comments = driver.find_elements(By.CLASS_NAME, 'card__comment-text')
@@ -126,7 +125,7 @@ def from_card_parse(driver, full):
                 print('не удалось получить комментарий')
             time.sleep(0.15)
             try:
-                full[i][3] = driver.find_element(By.CSS_SELECTOR, 'h4.card__exchange-title').text.replace('/', '').replace('\u2022', '')
+                full[i][3] = driver.find_element(By.CLASS_NAME, 'card__exchange-title').text.replace('/', '+').replace('\u2022', '-')
             except:
                 full[i][3] = ''
                 print('не удалось получить информацию об обмене')

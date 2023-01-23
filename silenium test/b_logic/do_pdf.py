@@ -68,11 +68,6 @@ class PDF(FPDF):
                 self.render_table_header(headings=headings, col_widths=col_widths)
             i = 0
             link = links[j]
-            self.text_annotation(
-                x=2,
-                y=27 + j * line_height,
-                text="This is a text annotation.",
-            )
             j += 1
             for datum in row:
                 link_to_car = link if i == 2 else ''                                                                    # создаем ссылку во 2 столбце
