@@ -11,10 +11,7 @@ from bs4 import BeautifulSoup
 
 source = 'https://habr.com/ru/post/319966/'
 root = 'https://av.by/'
-url = 'https://av.by/Ferrari'
-SLOW_DOWN = False
-
-
+url = 'https://cars.av.by/peugeot'
 
 
 def get_pages(url):
@@ -46,15 +43,13 @@ def get_pages(url):
 # if __name__ == "__main__":
 #     main()
 
-if __name__ == "__main__":
-    pass
+
 
 
 
 result = []
 
 total_checked = 0
-
 
 async def get_one(url, session):
     global total_checked
@@ -81,7 +76,7 @@ async def bound_fetch(sm, url, session):
 async def run(urls):
     tasks = []
     # Выбрал лок от балды. Можете поиграться.
-    sm = asyncio.Semaphore(50)
+    sm = asyncio.Semaphore(25)
     headers = {"User-Agent": "Mozilla/5.001 (windows; U; NT4.0; en-US; rv:1.0) Gecko/25250101"}
     # Опять же оставляем User-Agent, чтобы не получить ошибку от Metacritic
     async with ClientSession(
@@ -94,19 +89,12 @@ async def run(urls):
         await asyncio.gather(*tasks)
 
 
-def get_item(page_content, url_car):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/103.0.0.0 Safari/537.36',
-        'accept': '*/*'}
-    r = requests.get(url, headers=headers)
-    r = r.content
-    html = BeautifulSoup(r, "lxml", )
-    link_list = []
-
-    link = html.select('.listing-item__link')
-    for lin in link:
-        link = lin.get('href')
-        link_list.append('https://cars.av.by' + link)
+def get_item(content, url):
+    html = BeautifulSoup(content, "lxml", )
+    params = html.find('div', class_='card__params').text
+    return {'info':params,
+            'url':url
+    }
 
 
 def main():
@@ -118,4 +106,5 @@ def main():
     print(result)
     print('Over')
 
-
+if __name__ == "__main__":
+    main()
