@@ -56,7 +56,7 @@ class PDF(FPDF):
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
-    def colored_table(self, headings, rows, links, comments, col_widths=(7, 28, 41, 16, 80, 25, 25, 25, 32)):
+    def colored_table(self, headings, rows, links, col_widths=(7, 30, 15, 20, 10, 17, 22, 12, 25, 17, 16, 8, 28, 23, 30)):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 2.5
         self.set_fill_color(240, 240, 240)                                                                              # цвет заливки строки
@@ -70,7 +70,7 @@ class PDF(FPDF):
             link = links[j]
             j += 1
             for datum in row:
-                link_to_car = link if i == 2 else ''                                                                    # создаем ссылку во 2 столбце
+                link_to_car = link if i == 1 else ''                                                                    # создаем ссылку во 2 столбце
                 self.multi_cell(
                     w=col_widths[i],
                     h=line_height,
@@ -126,7 +126,7 @@ def do_pdf(
         filter_short='<filter code>',
         av_by_link='<link_to_av_by_filter>'
 ):
-    data, col_names, links, comments = get_data()
+    data, col_names, links = get_data()
     pdf = PDF(
         orientation="L",
         unit="mm",
@@ -150,19 +150,26 @@ def do_pdf(
     pdf.add_page()
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")
-    pdf.colored_table(col_names, data, links, comments)
+    pdf.colored_table(col_names, data, links)
     return pdf.output(f'{name}.pdf')
 
+def hui():
+    dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
+    dataframe.insert(2, '#', [i + 1 for i in range(len(dataframe))])
+    print(dataframe.head().to_string())
 
 def get_data():
-    columns = ['#', 'обмен', 'марка', 'цена', 'характеристики', 'дата', 'город', 'владелец', 'телефон']
+    columns = ['#', 'марка', 'цена', 'топливо', 'двигатель', 'коробка', 'пробег', 'год',
+               'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дата', 'город']
     dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
+    dataframe.sort_values(by=3)
+    dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()
     links = dataframe.iloc[0:, 0].tolist()
     comments = dataframe.iloc[0:, 1].tolist()
-    print(comments)
-    return df, columns, links, comments
+    return df, columns, links
 
 
 if __name__ == '__main__':
     do_pdf()
+

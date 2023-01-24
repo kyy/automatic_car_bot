@@ -11,6 +11,7 @@ from datetime import datetime as datatime_datatime
 import datetime
 from b_logic.get_url import get_url, s_s
 from b_logic.parse import parse_av_by
+from b_logic.parse_asynch import main
 from b_logic.do_pdf import do_pdf
 from config_reader import config
 
@@ -115,7 +116,7 @@ async def cooking_pdf(message: Message):
         cars = message.text.replace('filter=', '')
         car_link = get_url(cars)
         await message.answer("Фильтр принят", reply_markup=ReplyKeyboardRemove())
-        dicts = parse_av_by(car_link)
+        dicts = main()
         if len(dicts) == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
