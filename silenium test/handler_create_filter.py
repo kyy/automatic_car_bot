@@ -96,7 +96,6 @@ def code_filter_short(cc: list = None):
         cc[9] = str(int(cc[9].replace('.', '')) * 100)
     return 'filter=' + s_s.join(cc)
 
-print(code_filter_short(['Citroen','C4','b','a',s_b,s_b,s_b,s_b,'1000','1500']))
 
 class CreateCar(StatesGroup):
     brand_choosing = State()
@@ -120,9 +119,11 @@ async def cooking_pdf(message: Message):
                              "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
         car_link = get_url(cars)
         all_cars = count_cars(car_link)
-        await message.reply(f"Найдено позиций - {all_cars}\nПодготовка данных.\n"
+        await message.reply(f"Найдено позиций - {all_cars}\n{car_link}.\n"
                             f"Примерное время ожидания - ???? мин\n"
-                            f"Чем уже фильтр тем быстрее поиск")
+                            f"Чем уже фильтр тем быстрее поиск",
+                            disable_web_page_preview=True
+                            )
 
         if all_cars == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"

@@ -64,17 +64,23 @@ def show_all_cars(url):
         print('show_all_cars error')
 
 
-def count_cars(url):
+def bs_p(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/103.0.0.0 Safari/537.36',
         'accept': '*/*'}
     r = requests.get(url, headers=headers)
     r = r.content
     html = BeautifulSoup(r, "lxml", )
-    sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
+    return html
+
+
+def count_cars(url):
+    html = bs_p(url)
+    try:
+        sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
+    except:
+        sum_cars = 0
     return sum_cars
-
-
 
 
 def get_pages(url):
@@ -83,22 +89,12 @@ def get_pages(url):
     :param url: ссылка на страницу результата поиска
     :return: спиcок ссылок на машины
     """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/103.0.0.0 Safari/537.36',
-        'accept': '*/*'}
-    r = requests.get(url, headers=headers)
-    r = r.content
-    html = BeautifulSoup(r, "lxml", )
     link_list = []
-
-    try:
-        sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
-    except:
-        sum_cars = 0
+    sum_cars = count_cars(url)
+    html = bs_p(url)
     if sum_cars > 25:
-        body = show_all_cars(url)
-        r = body
-    html = BeautifulSoup(r, "lxml", )
+        r = show_all_cars(url)
+        html = BeautifulSoup(r, "lxml", )
     link = html.select('.listing-item__link')
     for lin in link:
         link = lin.get('href')
@@ -172,7 +168,7 @@ def parsing_car_pages(html, url):
     try:
         comment = html.find('div', class_='card__comment-text').text.strip().replace('• ', ' ')
     except Exception as e:
-        print(e, f'\n Ошибка при получении комментария- {url}')
+        print(e, f'\n комментарий не указан- {url}')
         comment = ''
     try:
         exchange = html.find('h4', class_='card__exchange-title').text.casefold().replace('обмен ', '').replace(' обмен', '')
@@ -211,7 +207,7 @@ async def get_one(url, session, result):
         page_content = await response.read()    # Ожидаем ответа и блокируем таск.
         item = parsing_car_pages(page_content, url)      # Получаем информацию об машине и сохраняем в лист.
         result.append(item)
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.1)
         print(url)
 
 
