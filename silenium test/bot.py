@@ -9,8 +9,6 @@ import handler_create_filter
 from handler_common import set_commands
 
 
-
-
 async def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", )
     bot = Bot(token=config.bot_token.get_secret_value())

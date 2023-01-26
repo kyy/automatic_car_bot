@@ -159,7 +159,7 @@ def hui():
     print(dataframe.head().to_string())
 
 def get_data():
-    columns = ['#', 'марка', 'цена', 'топливо', 'V, л', 'коробка', 'пробег, км', 'год',
+    columns = ['#', 'марка', 'цена', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дата', 'город']
     dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
     dataframe.sort_values(by=3)

@@ -1,4 +1,6 @@
 import os
+import time
+
 import numpy as np
 from aiogram import Router, F
 from aiogram import Bot
@@ -9,10 +11,9 @@ from aiogram.filters import Command
 from keyboards import multi_row_keyboard
 from datetime import datetime as datatime_datatime
 import datetime
-from b_logic.get_url import get_url, s_s
-from b_logic.parse import parse_av_by
-from b_logic.parse_asynch import count_cars
-from b_logic.parse_asynch import main
+from b_logic.get_url import get_url
+from b_logic.constant import s_s, s_b
+from b_logic.parse_asynch import count_cars, main
 from b_logic.do_pdf import do_pdf
 from config_reader import config
 
@@ -31,9 +32,6 @@ columns_dimension = 8
 
 motor_dict = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
               'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
-
-s_b = '?'    # skip button on keyboards
-
 
 motor = [s_b] + \
         ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
@@ -97,6 +95,12 @@ def code_filter_short(cc: list = None):
     return 'filter=' + s_s.join(cc)
 
 
+def time_data(number):
+    n = 3+(number/5) if number <= 25 else (number/25) * 17
+    return time.strftime("%M мин %S с", time.gmtime(n))
+
+
+
 class CreateCar(StatesGroup):
     brand_choosing = State()
     model_choosing = State()
@@ -119,10 +123,11 @@ async def cooking_pdf(message: Message):
                              "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
         car_link = get_url(cars)
         all_cars = count_cars(car_link)
-        await message.reply(f"Найдено позиций - {all_cars}\n{car_link}.\n"
-                            f"Примерное время ожидания - ???? мин\n"
-                            f"Чем уже фильтр тем быстрее поиск",
-                            disable_web_page_preview=True
+        await message.answer(f"Найдено: \n"
+                            f"<a href='{car_link}'>av.by</a> - {all_cars}.\n"
+                            f"Примерное время ожидания - {time_data(all_cars)}\n",
+                            disable_web_page_preview=True,
+                            parse_mode="HTML",
                             )
 
         if all_cars == 0:
@@ -130,7 +135,7 @@ async def cooking_pdf(message: Message):
                                         "или запрашиваемый сервер перегружен")
         else:
             main(car_link)
-            await message.reply(f"Сбор данных.")
+            await message.answer(f"Сбор данных.")
 
             try:
                 name_pdf_ = (str(datatime_datatime.now())).replace(':', '.')

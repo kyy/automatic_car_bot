@@ -1,5 +1,6 @@
 import numpy as np
-from .constant import s_s
+from .constant import s_s, s_b
+
 
 
 # av.by
@@ -27,7 +28,7 @@ def get_url(car_input):
 
     new_part = []
     for key in car_input:
-        if car_input[key] != '-':
+        if car_input[key] != s_b:
             new_part.append(str(key)+str(car_input[key]))
     new_part_url = '&'.join(new_part)
     full_url = f'https://cars.av.by/filter?{new_part_url}'
