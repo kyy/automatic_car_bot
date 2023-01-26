@@ -6,15 +6,23 @@ from multiprocessing import Pool
 from time import sleep
 from bs4 import BeautifulSoup
 import time
+import nest_asyncio
 
 
+nest_asyncio.apply()
 
+stoptask = 'https://www.cyberforum.ru/python-beginners/thread3009742.html'
 source = 'https://habr.com/ru/post/319966/'
 root = 'https://av.by/'
 url = 'https://cars.av.by/rover'
 
 
 def get_pages(url):
+    """
+    парсим ссылки на машины
+    :param url: ссылка на страницу результата поиска
+    :return: спимок ссылок на машины
+    """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/103.0.0.0 Safari/537.36',
         'accept': '*/*'}
@@ -44,57 +52,24 @@ def get_pages(url):
 #     main()
 
 
-result = []
-total_checked = 0
-
-async def get_one(url, session):
-    global total_checked
-    async with session.get(url) as response:
-        page_content = await response.read()    # Ожидаем ответа и блокируем таск.
-        item = get_item(page_content, url)      # Получаем информацию об машине и сохраняем в лист.
-        result.append(item)
-        total_checked += 1
-        print(50 * '-'+ 'Inserted: ' + url + '  - - - Total checked: ' + str(total_checked))
-
-
-async def bound_fetch(semaphore, url, session):
+def parsing_car_pages(html, url):
+    """
+    парсим описание машин
+    :param html: тело ссылки на машину
+    :param url: ссылка на машину
+    :return: список параметров машины
+    """
     try:
-        async with semaphore:
-            await get_one(url, session)
-    except Exception as e:
-        print(e)
-        # Блокируем все таски на <> секунд в случае ошибки 429.
-        sleep(0.05)
-
-
-async def run(urls):
-    tasks = []
-    # Выбрал лок от балды. Можете поиграться.
-    semaphore = asyncio.Semaphore(5)
-    headers = {"User-Agent": "Mozilla/5.001 (windows; U; NT4.0; en-US; rv:1.0) Gecko/25250101"}
-    # Опять же оставляем User-Agent, чтобы не получить ошибку от Metacritic
-    async with ClientSession(
-            headers=headers) as session:
-        for url in urls:
-            # Собираем таски и добавляем в лист для дальнейшего ожидания.
-            task = asyncio.ensure_future(bound_fetch(semaphore, url, session))
-            tasks.append(task)
-        # Ожидаем завершения всех наших задач.
-        await asyncio.gather(*tasks)
-
-
-def get_item(content, url):
-    try:
-        html = BeautifulSoup(content, "lxml", )
+        html = BeautifulSoup(html, "lxml", )
     except Exception as e:
         print(e, f'\n Ошибка при получении контента страницы - {url}')
-        sleep(5)
-        return get_item(content, url)
+        sleep(1)
+        return parsing_car_pages(html, url)
     try:
         info_param = html.find('div', class_='card__params').text.split(', ')
         year = info_param[0].strip()[0:5]
         transmission = info_param[1]
-        dimension = info_param[2].strip()
+        dimension = info_param[2].strip().replace('электро', 'эл.')
         motor = info_param[3]
         km = info_param[4].strip()
     except Exception as e:
@@ -107,7 +82,7 @@ def get_item(content, url):
     try:
         info_description = html.find('div', class_='card__description').text.split(', ')
         type = info_description[0].strip()
-        drive = info_description[1].strip()
+        drive = info_description[1].strip().replace('привод', '').replace('постоянный', 'пост.')
         color = info_description[2].strip()
     except Exception as e:
         print(e, f'\n Ошибка при получении info_description - {url}')
@@ -115,17 +90,17 @@ def get_item(content, url):
         drive = ''
         color = ''
     try:
-        cost = html.find('div', class_='card__price-secondary').getText('span').replace('≈ ', '')
+        cost = html.find('div', class_='card__price-secondary').getText('span')[0].strip().replace('≈ ', '')
     except Exception as e:
         print(e, f'\n Ошибка при получении цены - {url}')
         cost = ''
     try:
-        model = html.find('h1', class_='card__title').text.split(', ')[0][8:]
+        model = html.find('h1', class_='card__title').text.split(', ')[0][8:].replace('Рестайлинг', 'Рест.')
     except Exception as e:
         print(e, f'\n Ошибка при получении модели - {url}')
         model = ''
     try:
-        data = html.find_all('li', class_='card__stat-item')[1].text[13:]
+        data = html.find_all('li', class_='card__stat-item')[1].text.replace('опубликовано', 'опубл.').replace('обновлено', 'обн.')
     except Exception as e:
         print(e, f'\n Ошибка при получении даты - {url}')
         data = ''
@@ -135,7 +110,7 @@ def get_item(content, url):
         print(e, f'\n Ошибка при получении комментария- {url}')
         comment = ''
     try:
-        exchange = html.find('h4', class_='card__exchange-title').text
+        exchange = html.find('h4', class_='card__exchange-title').text.casefold().replace('обмен ', '')
     except Exception as e:
         print(e, f'\n Ошибка при получении обмена - {url}')
         exchange = ''
@@ -145,7 +120,7 @@ def get_item(content, url):
         print(f'\n vin не указан - {url}')
         vin = ''
     try:
-        city = html.find('div', class_='card__location').text
+        city = html.find('div', class_='card__location').text.split(', ')[0]
     except Exception as e:
         print(e, f'\n Ошибка при получении города - {url}')
         city = ''
@@ -155,16 +130,51 @@ def get_item(content, url):
             year, type, drive, color, vin, exchange, data, city]
 
 
-def main():
+async def bound_fetch(semaphore, url, session, result):
+    try:
+        async with semaphore:
+            await get_one(url, session, result)
+    except Exception as e:
+        print(e)
+        # Блокируем все таски на <> секунд в случае ошибки 429.
+        sleep(0.05)
+
+
+
+async def get_one(url, session, result):
+    async with session.get(url) as response:
+        page_content = await response.read()    # Ожидаем ответа и блокируем таск.
+        item = parsing_car_pages(page_content, url)      # Получаем информацию об машине и сохраняем в лист.
+        result.append(item)
+        print(url)
+
+
+async def run(urls, result):
+    tasks = []
+    # Выбрал лок от балды. Можете поиграться.
+    semaphore = asyncio.Semaphore(5)
+    headers = {"User-Agent": "Mozilla/5.001 (windows; U; NT4.0; en-US; rv:1.0) Gecko/25250101"}
+    # Опять же оставляем User-Agent, чтобы не получить ошибку от Metacritic
+    async with ClientSession(
+            headers=headers) as session:
+        for url in urls:
+            # Собираем таски и добавляем в лист для дальнейшего ожидания.
+            task = asyncio.ensure_future(bound_fetch(semaphore, url, session, result))
+            tasks.append(task)
+        # Ожидаем завершения всех наших задач.
+        await asyncio.gather(*tasks)
+
+
+def main(url):
+    result = []
     # Запускаем наш парсер.
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(get_pages(url)))
+    future = asyncio.ensure_future(run(get_pages(url), result))
     loop.run_until_complete(future)
     np.save(f'parse_av_by.npy', result)
-    #print(result)
     print('ok')
     return result
 
 
 if __name__ == "__main__":
-    main()
+    main(url)

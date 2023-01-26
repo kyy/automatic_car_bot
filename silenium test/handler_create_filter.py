@@ -116,8 +116,8 @@ async def cooking_pdf(message: Message):
         cars = message.text.replace('filter=', '')
         car_link = get_url(cars)
         await message.answer("Фильтр принят", reply_markup=ReplyKeyboardRemove())
-        dicts = main()
-        if len(dicts) == 0:
+        dicts = main(car_link)
+        if dicts == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
         else:
