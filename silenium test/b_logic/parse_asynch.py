@@ -11,17 +11,19 @@ import nest_asyncio
 
 nest_asyncio.apply()
 
-stoptask = 'https://www.cyberforum.ru/python-beginners/thread3009742.html'
-source = 'https://habr.com/ru/post/319966/'
 root = 'https://av.by/'
 url = 'https://cars.av.by/rover'
+
+
+
+
 
 
 def get_pages(url):
     """
     парсим ссылки на машины
     :param url: ссылка на страницу результата поиска
-    :return: спимок ссылок на машины
+    :return: спиcок ссылок на машины
     """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/103.0.0.0 Safari/537.36',
@@ -35,9 +37,16 @@ def get_pages(url):
         for lin in link:
             link = lin.get('href')
             link_list.append('https://cars.av.by' + link)
+        try:
+            sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
+
+        except:
+            sum_cars = 0
+            pass
     except:
-        pass
-    return link_list
+        sleep(2)
+        get_pages(url)
+    return link_list, sum_cars
 
 
 # def main():
@@ -82,7 +91,7 @@ def parsing_car_pages(html, url):
     try:
         info_description = html.find('div', class_='card__description').text.split(', ')
         type = info_description[0].strip()
-        drive = info_description[1].strip().replace('привод', '').replace('постоянный', 'пост.')
+        drive = info_description[1].strip().replace('привод', '').replace('постоянный', 'пост.').replace('подключаемый', 'подкл.')
         color = info_description[2].strip()
     except Exception as e:
         print(e, f'\n Ошибка при получении info_description - {url}')
@@ -90,7 +99,8 @@ def parsing_car_pages(html, url):
         drive = ''
         color = ''
     try:
-        cost = html.find('div', class_='card__price-secondary').getText('span')[0].strip().replace('≈ ', '')
+        cost = html.find('div', class_='card__price-secondary').getText('span').split(' ')[0].strip().replace('span', '').replace('≈ ', '')
+        print(cost)
     except Exception as e:
         print(e, f'\n Ошибка при получении цены - {url}')
         cost = ''
@@ -167,9 +177,10 @@ async def run(urls, result):
 
 def main(url):
     result = []
+    car_link_list, sum_cars = get_pages(url)
     # Запускаем наш парсер.
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(get_pages(url), result))
+    future = asyncio.ensure_future(run(car_link_list, result))
     loop.run_until_complete(future)
     np.save(f'parse_av_by.npy', result)
     print('ok')
