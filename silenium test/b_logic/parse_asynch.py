@@ -5,17 +5,63 @@ import requests
 from multiprocessing import Pool
 from time import sleep
 from bs4 import BeautifulSoup
-import time
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 import nest_asyncio
 
 
 nest_asyncio.apply()
 
 root = 'https://av.by/'
-url = 'https://cars.av.by/rover'
+url = 'https://cars.av.by/chevrolet'
 
 
+def start_browser():
+    res = None
+    try:
+        options = webdriver.ChromeOptions()
+        #options = webdriver.FirefoxOptions()
+        options.add_argument("--no-sandbox")
+        options.add_argument('--headless')  # закомментируй, если хочется видеть браузер
+        options.add_argument('--verbose')
+        options.add_argument("--disable-dev-shm-usage")
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        #driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+        driver.set_page_load_timeout(60)
+        res = driver
+    except:
+        pass
+    return res
 
+
+def click_cookies(driver):
+    try:
+        click_cookies = driver.find_element(By.XPATH, '//*[@id="__next"]/div[3]/div/div/button').click()
+    except:
+        pass
+
+
+def show_all_cars(url):
+    driver = start_browser()
+    driver.get(url)
+    click_cookies(driver)
+    try:
+        paging_text = driver.find_element(By.CSS_SELECTOR, 'div:nth-child(4) > div > div.paging__text').text.split(' ')
+        show_more_button = driver.find_element(By.LINK_TEXT, 'Показать ещё')
+        sum_cars = int(paging_text[-1])
+        while sum_cars > 25:
+            driver.execute_script("arguments[0].scrollIntoView();", show_more_button)
+            sleep(0.5)
+            show_more_button.click()
+            sum_cars -= 25
+            print(sum_cars)
+            sleep(2)
+        content = driver.page_source
+        return content
+    except:
+        print('error1')
 
 
 
@@ -32,20 +78,22 @@ def get_pages(url):
     r = r.content
     html = BeautifulSoup(r, "lxml", )
     link_list = []
-    try:
-        link = html.select('.listing-item__link')
-        for lin in link:
-            link = lin.get('href')
-            link_list.append('https://cars.av.by' + link)
-        try:
-            sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
 
-        except:
-            sum_cars = 0
-            pass
+    try:
+        sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
+        if sum_cars > 25:
+            body = show_all_cars(url)
+            for line in body:
+                q = requests.get(line)
+                r = q.content
     except:
-        sleep(2)
-        get_pages(url)
+        sum_cars = 0
+    html = BeautifulSoup(r, "lxml", )
+    link = html.select('.listing-item__link')
+    for lin in link:
+        link = lin.get('href')
+        link_list.append(root + link)
+
     return link_list, sum_cars
 
 
@@ -72,8 +120,6 @@ def parsing_car_pages(html, url):
         html = BeautifulSoup(html, "lxml", )
     except Exception as e:
         print(e, f'\n Ошибка при получении контента страницы - {url}')
-        sleep(1)
-        return parsing_car_pages(html, url)
     try:
         info_param = html.find('div', class_='card__params').text.split(', ')
         year = info_param[0].strip()[0:5]
@@ -178,6 +224,7 @@ async def run(urls, result):
 def main(url):
     result = []
     car_link_list, sum_cars = get_pages(url)
+    print(car_link_list)
     # Запускаем наш парсер.
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(car_link_list, result))
@@ -188,4 +235,4 @@ def main(url):
 
 
 if __name__ == "__main__":
-    main(url)
+    pass
