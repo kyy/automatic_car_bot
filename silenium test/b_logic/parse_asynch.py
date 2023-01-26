@@ -61,7 +61,19 @@ def show_all_cars(url):
         content = driver.page_source
         return content
     except:
-        print('show_all_cars')
+        print('show_all_cars error')
+
+
+def count_cars(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/103.0.0.0 Safari/537.36',
+        'accept': '*/*'}
+    r = requests.get(url, headers=headers)
+    r = r.content
+    html = BeautifulSoup(r, "lxml", )
+    sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
+    return sum_cars
+
 
 
 
@@ -122,9 +134,9 @@ def parsing_car_pages(html, url):
         info_param = html.find('div', class_='card__params').text.split(', ')
         year = info_param[0].strip()[0:5]
         transmission = info_param[1]
-        dimension = info_param[2].strip().replace('электро', 'эл.')
-        motor = info_param[3]
-        km = info_param[4].strip()
+        dimension = info_param[2].strip().replace('электро', 'эл.').replace('л', '')
+        motor = info_param[3].replace('(пропан-бутан)', '(пр/бут)')
+        km = info_param[4].strip().replace('км', '')
     except Exception as e:
         print(e, f'\n Ошибка при получении info_param - {url}')
         year = '-'
@@ -144,7 +156,6 @@ def parsing_car_pages(html, url):
         color = ''
     try:
         cost = html.find('div', class_='card__price-secondary').getText('span').split(' ')[0].strip().replace('span', '').replace('≈ ', '')
-        print(cost)
     except Exception as e:
         print(e, f'\n Ошибка при получении цены - {url}')
         cost = ''
@@ -154,7 +165,7 @@ def parsing_car_pages(html, url):
         print(e, f'\n Ошибка при получении модели - {url}')
         model = ''
     try:
-        data = html.find_all('li', class_='card__stat-item')[1].text.replace('опубликовано', 'опубл.').replace('обновлено', 'обн.')
+        data = html.find_all('li', class_='card__stat-item')[1].text.replace('опубликовано', '').replace('обновлено', 'обн.')
     except Exception as e:
         print(e, f'\n Ошибка при получении даты - {url}')
         data = ''
@@ -164,7 +175,7 @@ def parsing_car_pages(html, url):
         print(e, f'\n Ошибка при получении комментария- {url}')
         comment = ''
     try:
-        exchange = html.find('h4', class_='card__exchange-title').text.casefold().replace('обмен ', '')
+        exchange = html.find('h4', class_='card__exchange-title').text.casefold().replace('обмен ', '').replace(' обмен', '')
     except Exception as e:
         print(e, f'\n Ошибка при получении обмена - {url}')
         exchange = ''
@@ -200,7 +211,7 @@ async def get_one(url, session, result):
         page_content = await response.read()    # Ожидаем ответа и блокируем таск.
         item = parsing_car_pages(page_content, url)      # Получаем информацию об машине и сохраняем в лист.
         result.append(item)
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.05)
         print(url)
 
 
@@ -222,10 +233,9 @@ async def run(urls, result):
 
 def main(url):
     result = []
-    car_link_list, count_cars = get_pages(url)
     # Запускаем наш парсер.
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(car_link_list, result))
+    future = asyncio.ensure_future(run(get_pages(url), result))
     loop.run_until_complete(future)
     np.save(f'parse_av_by.npy', result)
     print('ok')

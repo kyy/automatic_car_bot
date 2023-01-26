@@ -11,6 +11,7 @@ from datetime import datetime as datatime_datatime
 import datetime
 from b_logic.get_url import get_url, s_s
 from b_logic.parse import parse_av_by
+from b_logic.parse_asynch import count_cars
 from b_logic.parse_asynch import main
 from b_logic.do_pdf import do_pdf
 from config_reader import config
@@ -31,7 +32,7 @@ columns_dimension = 8
 motor_dict = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
               'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
 
-s_b = '.'    # skip button on keyboards
+s_b = '?'    # skip button on keyboards
 
 
 motor = [s_b] + \
@@ -95,6 +96,7 @@ def code_filter_short(cc: list = None):
         cc[9] = str(int(cc[9].replace('.', '')) * 100)
     return 'filter=' + s_s.join(cc)
 
+print(code_filter_short(['Citroen','C4','b','a',s_b,s_b,s_b,s_b,'1000','1500']))
 
 class CreateCar(StatesGroup):
     brand_choosing = State()
@@ -114,16 +116,23 @@ class CreateCar(StatesGroup):
 async def cooking_pdf(message: Message):
     if message.text[0:7] == 'filter=':
         cars = message.text.replace('filter=', '')
+        await message.answer("Фильтр принят\n"
+                             "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
         car_link = get_url(cars)
-        await message.answer("Фильтр принят", reply_markup=ReplyKeyboardRemove())
-        dicts = main(car_link)
-        if len(dicts) == 0:
+        all_cars = count_cars(car_link)
+        await message.reply(f"Найдено позиций - {all_cars}\nПодготовка данных.\n"
+                            f"Примерное время ожидания - ???? мин\n"
+                            f"Чем уже фильтр тем быстрее поиск")
+
+        if all_cars == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
         else:
-            await message.reply(f"Найдено позиций - {len(dicts)}\nГотовим к отправке отчет")
+            main(car_link)
+            await message.reply(f"Сбор данных.")
+
             try:
-                name_pdf_ = (str(datatime_datatime.now())).replace(':', s_b)
+                name_pdf_ = (str(datatime_datatime.now())).replace(':', '.')
                 try:
                     do_pdf(
                         av_by_link=car_link,

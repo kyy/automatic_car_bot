@@ -56,7 +56,7 @@ class PDF(FPDF):
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
-    def colored_table(self, headings, rows, links, col_widths=(7, 34, 15, 15, 10, 17, 22, 12, 25, 17, 23, 8, 28, 23, 25)):
+    def colored_table(self, headings, rows, links, col_widths=(9, 36, 15, 17, 8, 17, 18, 12, 25, 17, 23, 8, 28, 23, 25)):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 2.5
         self.set_fill_color(240, 240, 240)                                                                              # цвет заливки строки
@@ -159,7 +159,7 @@ def hui():
     print(dataframe.head().to_string())
 
 def get_data():
-    columns = ['#', 'марка', 'цена', 'топливо', 'V,л', 'коробка', 'пробег', 'год',
+    columns = ['#', 'марка', 'цена', 'топливо', 'V, л', 'коробка', 'пробег, км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дата', 'город']
     dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
     dataframe.sort_values(by=3)
