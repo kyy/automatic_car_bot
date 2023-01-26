@@ -14,7 +14,7 @@ import nest_asyncio
 
 nest_asyncio.apply()
 
-root = 'https://av.by/'
+root = 'https://cars.av.by'
 url = 'https://cars.av.by/chevrolet'
 
 
@@ -61,7 +61,7 @@ def show_all_cars(url):
         content = driver.page_source
         return content
     except:
-        print('error1')
+        print('show_all_cars')
 
 
 
@@ -81,20 +81,18 @@ def get_pages(url):
 
     try:
         sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
-        if sum_cars > 25:
-            body = show_all_cars(url)
-            for line in body:
-                q = requests.get(line)
-                r = q.content
     except:
         sum_cars = 0
+    if sum_cars > 25:
+        body = show_all_cars(url)
+        r = body
     html = BeautifulSoup(r, "lxml", )
     link = html.select('.listing-item__link')
     for lin in link:
         link = lin.get('href')
         link_list.append(root + link)
 
-    return link_list, sum_cars
+    return link_list
 
 
 # def main():
@@ -202,6 +200,7 @@ async def get_one(url, session, result):
         page_content = await response.read()    # Ожидаем ответа и блокируем таск.
         item = parsing_car_pages(page_content, url)      # Получаем информацию об машине и сохраняем в лист.
         result.append(item)
+        await asyncio.sleep(0.1)
         print(url)
 
 
@@ -223,8 +222,7 @@ async def run(urls, result):
 
 def main(url):
     result = []
-    car_link_list, sum_cars = get_pages(url)
-    print(car_link_list)
+    car_link_list, count_cars = get_pages(url)
     # Запускаем наш парсер.
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(car_link_list, result))
