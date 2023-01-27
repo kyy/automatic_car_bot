@@ -1,5 +1,5 @@
 import numpy as np
-from .constant import s_s, s_b
+from .constant_fu import s_s, s_b
 
 
 

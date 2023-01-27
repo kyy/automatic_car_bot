@@ -4,8 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from tqdm import tqdm
@@ -16,13 +14,11 @@ def start_browser():
     res = None
     try:
         options = webdriver.ChromeOptions()
-        #options = webdriver.FirefoxOptions()
         options.add_argument("--no-sandbox")
         options.add_argument('--headless')  # закомментируй, если хочется видеть браузер
         options.add_argument('--verbose')
         options.add_argument("--disable-dev-shm-usage")
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-        #driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
         driver.set_page_load_timeout(60)
         res = driver
     except:

@@ -56,12 +56,13 @@ class PDF(FPDF):
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
-    def colored_table(self, headings, rows, links, col_widths=(9, 35, 16, 15, 8, 17, 15, 12, 25, 17, 23, 8, 28, 26, 27)):
+    def colored_table(self, headings, rows, links,
+                      col_widths=(9, 35, 16, 15, 8, 17, 15, 12, 25, 17, 23, 8, 28, 26, 27)):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 2.5
-        self.set_fill_color(240, 240, 240)                                                                              # цвет заливки строки
-        self.set_text_color(0)                                                                                          # цвет текста в заливке
-        fill = False                                                                                                    # заливаем строку
+        self.set_fill_color(240, 240, 240)    # цвет заливки строки
+        self.set_text_color(0)     # цвет текста в заливке
+        fill = False     # заливаем строку
         j = 0
         for row in rows:
             if self.will_page_break(line_height):
@@ -70,7 +71,7 @@ class PDF(FPDF):
             link = links[j]
             j += 1
             for datum in row:
-                link_to_car = link if i == 1 else ''                                                                    # создаем ссылку во 2 столбце
+                link_to_car = link if i == 1 else ''      # создаем ссылку во 2 столбце
                 self.multi_cell(
                     w=col_widths[i],
                     h=line_height,
@@ -84,7 +85,7 @@ class PDF(FPDF):
                     fill=fill,
                 )
                 i += 1
-            fill = not fill                                                                                             # убираем заливку строки
+            fill = not fill   # убираем заливку строки
             self.ln(line_height)
 
     def render_table_header(self, headings, col_widths):
@@ -153,10 +154,12 @@ def do_pdf(
     pdf.colored_table(col_names, data, links)
     return pdf.output(f'{name}.pdf')
 
+
 def hui():
     dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
     dataframe.insert(2, '#', [i + 1 for i in range(len(dataframe))])
     print(dataframe.head().to_string())
+
 
 def get_data():
     columns = ['#', 'марка', 'цена', 'топливо', 'V, л', 'коробка', 'км', 'год',
@@ -172,4 +175,3 @@ def get_data():
 
 if __name__ == '__main__':
     do_pdf()
-

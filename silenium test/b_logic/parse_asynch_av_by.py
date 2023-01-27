@@ -57,7 +57,7 @@ def show_all_cars(url):
             show_more_button.click()
             sum_cars -= 25
             print(sum_cars)
-            sleep(2)
+            sleep(1.65)
         content = driver.page_source
         return content
     except:
@@ -168,7 +168,7 @@ def parsing_car_pages(html, url):
     try:
         comment = html.find('div', class_='card__comment-text').text.strip().replace('• ', ' ')
     except Exception as e:
-        print(e, f'\n комментарий не указан- {url}')
+        print(f'комментарий не указан- {url}')
         comment = ''
     try:
         exchange = html.find('h4', class_='card__exchange-title').text.casefold().replace('обмен ', '').replace(' обмен', '')
