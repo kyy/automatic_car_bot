@@ -14,3 +14,4 @@ tqdm==4.64.1
 qrcode~=7.3.1
 fpdf2
 aiohttp~=3.8.3
+aiosqlite==0.18.0

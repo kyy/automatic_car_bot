@@ -3,8 +3,16 @@ from .constant_fu import s_s, s_b
 
 
 
+
+
 # av.by
-def get_url(car_input):
+def get_url_av(car_input):
+    """
+    Формируем гет запрос для av.by
+    :param car_input: filter_short
+    :return: гет запрос
+    """
+
     # Входные параметры
     param_input = ['brands[0][brand]=', 'brands[0][model]=', 'engine_type[0]=', 'transmission_type=', 'year[min]=',
                    'year[max]=', 'price_usd[min]=', 'price_usd[max]=', 'engine_capacity[min]=', 'engine_capacity[max]=']
@@ -33,3 +41,14 @@ def get_url(car_input):
     new_part_url = '&'.join(new_part)
     full_url = f'https://cars.av.by/filter?{new_part_url}'
     return full_url
+
+
+# abw.by
+def get_url_abw(car_input):
+    """
+    Формируем гет запрос для abw.by
+    :param car_input: filter_short
+    :return: гет запрос
+    """
+    pass
+
