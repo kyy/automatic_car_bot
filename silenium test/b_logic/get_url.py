@@ -1,9 +1,7 @@
 import numpy as np
 from .constant_fu import s_s, s_b
-
-
-
-
+import asyncio
+import aiosqlite
 
 # av.by
 def get_url_av(car_input):
@@ -29,6 +27,8 @@ def get_url_av(car_input):
         car_input['brands[0][model]='] = models[car_input['brands[0][model]=']]
     if car_input['brands[0][brand]='] in brands:
         car_input['brands[0][brand]='] = brands[car_input['brands[0][brand]=']]
+    brand = car_input['brands[0][brand]=']
+
     if car_input['engine_type[0]='] in motor:
         car_input['engine_type[0]='] = motor[car_input['engine_type[0]=']]
     if car_input['transmission_type='] in transmission:

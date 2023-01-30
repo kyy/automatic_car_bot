@@ -62,14 +62,24 @@ async def models_part_db(db):
     await db.commit()
 
 
+brand = 'BMW'
+model = 'X5'
+async def test(db):
+    cursor = await db.execute(f"select * from brands inner join models on brands.id = models.brand_id where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
+    rows = await cursor.fetchall()
+    print(rows)
+
+
 async def main():
     async with aiosqlite.connect('auto_db') as db:
         await asyncio.gather(
-            create_tables(db),
-            brands_part_db(db),
-            models_part_db(db),
+            # create_tables(db),
+            # brands_part_db(db),
+            # models_part_db(db),
+            test(db),
         )
 
 
 if __name__ == '__main__':
     asyncio.run(main())
+
