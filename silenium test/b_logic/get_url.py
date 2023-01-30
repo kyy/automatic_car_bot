@@ -1,10 +1,11 @@
 import numpy as np
 from .constant_fu import s_s, s_b
+#from constant_fu import s_s, s_b
 import asyncio
 import aiosqlite
 
 # av.by
-def get_url_av(car_input):
+async def get_url_av(car_input, db):
     """
     Формируем гет запрос для av.by
     :param car_input: filter_short
@@ -19,15 +20,31 @@ def get_url_av(car_input):
     car_input = dict(zip(param_input, car_input.split(s_s)))
     transmission = {'a': '1', 'm': '2'}
     motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
-    brands = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
-    models = np.load(f'base_data_av_by/models_part_url/{car_input["brands[0][brand]="]}.npy', allow_pickle=True).item()
+    # brands = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
+    # models = np.load(f'base_data_av_by/models_part_url/{car_input["brands[0][brand]="]}.npy', allow_pickle=True).item()
 
     # Корректируем данные для гет-запроса
-    if car_input['brands[0][model]='] in models:
-        car_input['brands[0][model]='] = models[car_input['brands[0][model]=']]
-    if car_input['brands[0][brand]='] in brands:
-        car_input['brands[0][brand]='] = brands[car_input['brands[0][brand]=']]
+    # if car_input['brands[0][model]='] in models:
+    #     car_input['brands[0][model]='] = models[car_input['brands[0][model]=']]
+    # if car_input['brands[0][brand]='] in brands:
+    #     car_input['brands[0][brand]='] = brands[car_input['brands[0][brand]=']]
     brand = car_input['brands[0][brand]=']
+    model = car_input['brands[0][model]=']
+    if model != s_b:
+        cursor = await db.execute(f"select brands.av_by, models.av_by  from brands "
+                                  f"inner join models on brands.id = models.brand_id "
+                                  f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
+        rows = await cursor.fetchall()
+        car_input['brands[0][brand]='] = rows[0][0]
+        car_input['brands[0][model]='] = rows[0][1]
+    else:
+        cursor = await db.execute(f"select brands.av_by, models.av_by  from brands "
+                                  f"inner join models on brands.id = models.brand_id "
+                                  f"where brands.[unique] = '{brand}'")
+        rows = await cursor.fetchall()
+        car_input['brands[0][model]='] = s_b
+        car_input['brands[0][brand]='] = rows[0][0]
+
 
     if car_input['engine_type[0]='] in motor:
         car_input['engine_type[0]='] = motor[car_input['engine_type[0]=']]
@@ -52,3 +69,12 @@ def get_url_abw(car_input):
     """
     pass
 
+link = 'BMW+X5+b+a+?+?+?+?+?+?'
+async def all_get_url(link):
+    async with aiosqlite.connect('./auto_db') as db:
+        return asyncio.run(get_url_av(link, db))
+
+
+if __name__ == '__main__':
+    #asyncio.run(all_get_url())
+    pass

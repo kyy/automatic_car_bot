@@ -49,15 +49,12 @@ async def models_part_db(db):
     cursor = await db.execute("SELECT id, [unique] FROM brands;")
     rows = await cursor.fetchall()
     models_list = []
-    lists = []
     for item in rows:
         models = np.load(f'base_data_av_by/models_part_url/{item[1]}.npy', allow_pickle=True).item()  # открываем модели
         model_list = list(models.items())      # преобразуем в список кортеджей
         for model in model_list:
             new = item[0:1] + model     # конкатенация кортеджей со срезом, удаляем бренд
             models_list.append(new)
-            lists.append(model[1])
-            lists.sort()
     await db.executemany("INSERT INTO models(brand_id, [unique], av_by) VALUES(?, ?, ?);", models_list)
     await db.commit()
 
@@ -65,7 +62,9 @@ async def models_part_db(db):
 brand = 'BMW'
 model = 'X5'
 async def test(db):
-    cursor = await db.execute(f"select * from brands inner join models on brands.id = models.brand_id where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
+    cursor = await db.execute(f"select brands.av_by, models.av_by  from brands "
+                              f"inner join models on brands.id = models.brand_id "
+                              f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
     rows = await cursor.fetchall()
     print(rows)
 

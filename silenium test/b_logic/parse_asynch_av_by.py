@@ -131,7 +131,7 @@ def parsing_car_pages(html, url):
         year = info_param[0].strip()[0:5]
         transmission = info_param[1]
         dimension = info_param[2].strip().replace('электро', 'эл.').replace('л', '')
-        motor = info_param[3].replace('(пропан-бутан)', '(пр/бут)')
+        motor = info_param[3].replace('(пропан-бутан)', '(пр/бут)').replace('хода', '')
         km = info_param[4].strip().replace('км', '')
     except Exception as e:
         print(e, f'\n Ошибка при получении info_param - {url}')
