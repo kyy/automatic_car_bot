@@ -124,10 +124,20 @@ def get_models_part_url(): # парсим номера для гет запро�
 
 
 def corerection_models():
-    bmw = np.load('models_part_url/BMW.npy', allow_pickle=True).item()
-    bmw['X5'] = '5867'
-    np.save(f'models_part_url/BMW.npy', bmw)
-    print(np.load('models_part_url/BMW.npy', allow_pickle=True).item())
+    hyndai = np.load('models_part_url/Hyundai.npy', allow_pickle=True).item()
+    hyndai['Accent'] = '434'
+    hyndai['Grand Santa Fe'] = '5613'
+    hyndai['Solaris'] = '2336'
+    np.save(f'models_part_url/Hyundai.npy',  hyndai)
+    ford = np.load('models_part_url/Ford.npy', allow_pickle=True).item()
+    ford['S-MAX'] = '1949'
+    np.save(f'models_part_url/Ford.npy', ford)
+    vw = np.load('models_part_url/Volkswagen.npy', allow_pickle=True).item()
+    vw['Polo'] = '1229'
+    np.save(f'models_part_url/Volkswagen.npy', vw)
+    renault = np.load('models_part_url/Renault.npy', allow_pickle=True).item()
+    renault['Logan Stepway'] = '10148'
+    np.save(f'models_part_url/Renault.npy', renault)
 
 
 # бренд модель топливо коробка год_от год_до цена_от цена_до объем_от объем_до (пропустить параметр -> '-')
@@ -175,7 +185,7 @@ def car_parturl():     # фильтр авто по запросу 'get_cars_inp
     time.sleep(2)
 
 if __name__ == '__main__':
-    pass
+    corerection_models()
 
 
 
