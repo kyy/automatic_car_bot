@@ -1,4 +1,3 @@
-import numpy as np
 from .constant_fu import s_s, s_b
 #from constant_fu import s_s, s_b
 import asyncio
@@ -20,14 +19,6 @@ async def get_url_av(car_input, db):
     car_input = dict(zip(param_input, car_input.split(s_s)))
     transmission = {'a': '1', 'm': '2'}
     motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
-    # brands = np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item()
-    # models = np.load(f'base_data_av_by/models_part_url/{car_input["brands[0][brand]="]}.npy', allow_pickle=True).item()
-
-    # Корректируем данные для гет-запроса
-    # if car_input['brands[0][model]='] in models:
-    #     car_input['brands[0][model]='] = models[car_input['brands[0][model]=']]
-    # if car_input['brands[0][brand]='] in brands:
-    #     car_input['brands[0][brand]='] = brands[car_input['brands[0][brand]=']]
     brand = car_input['brands[0][brand]=']
     model = car_input['brands[0][model]=']
     if model != s_b:
