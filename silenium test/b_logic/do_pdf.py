@@ -6,6 +6,8 @@ from datetime import datetime
 import csv
 
 
+
+
 class PDF(FPDF):
 
     def imports(self):
@@ -125,9 +127,10 @@ def do_pdf(
         name=None,
         filter_full='<filter full>',
         filter_short='<filter code>',
-        av_by_link='<link_to_av_by_filter>'
+        av_by_link='<link_to_av_by_filter>',
+        message=None,
 ):
-    data, col_names, links = get_data()
+    data, col_names, links = get_data(message)
     pdf = PDF(
         orientation="L",
         unit="mm",
@@ -161,10 +164,11 @@ def hui():
     print(dataframe.head().to_string())
 
 
-def get_data():
+def get_data(message):
     columns = ['#', 'марка', 'цена', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дата', 'город']
-    dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
+    #dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
+    dataframe = pd.DataFrame(np.load(f'{message}.npy'))
     dataframe.sort_values(by=3)
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()

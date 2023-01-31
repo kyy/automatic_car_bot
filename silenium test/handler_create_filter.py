@@ -52,13 +52,14 @@ async def cooking_pdf(message: Message):
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
         else:
-            main(car_link)
+            main(car_link, message=message.from_user.id)
             await message.answer(f"Сбор данных.")
 
             try:
                 name_pdf_ = (str(datatime_datatime.now())).replace(':', '.')
                 try:
                     do_pdf(
+                        message=message.from_user.id,
                         av_by_link=car_link,
                         name=name_pdf_,
                         filter_full=decode_filter_short(cars),

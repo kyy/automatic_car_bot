@@ -227,13 +227,14 @@ async def run(urls, result):
         await asyncio.gather(*tasks)
 
 
-def main(url):
+def main(url, message):
     result = []
     # Запускаем наш парсер.
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(get_pages(url), result))
     loop.run_until_complete(future)
-    np.save(f'parse_av_by.npy', result)
+    #np.save(f'parse_av_by.npy', result)
+    np.save(f'{message}.npy', result)
     print('ok')
     return result
 
