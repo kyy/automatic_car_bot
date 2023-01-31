@@ -9,7 +9,7 @@ from config_reader import config
 from keyboards import multi_row_keyboard
 from b_logic.parse_asynch_av_by import count_cars, main
 from b_logic.do_pdf import do_pdf
-from b_logic.get_url import get_url_av, all_get_url
+from b_logic.get_url import all_get_url
 from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, time_data,
                                  columns_cost, columns_years, columns_dimension, columns_motor, motor, transmission,
                                  decode_filter_short, code_filter_short,)

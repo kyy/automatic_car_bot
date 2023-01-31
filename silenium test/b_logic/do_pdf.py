@@ -153,7 +153,7 @@ async def get_data(message, name):
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()
     links = dataframe.iloc[0:, 0].tolist()
-    comments = dataframe.iloc[0:, 1].tolist()
+    #comments = dataframe.iloc[0:, 1].tolist()
     return df, columns, links
 
 

@@ -161,11 +161,11 @@ def parsing_car_pages(html, url):
     except Exception as e:
         print(e, f'\n Ошибка при получении даты - {url}')
         data = ''
-    try:
-        comment = html.find('div', class_='card__comment-text').text.strip().replace('• ', ' ')
-    except Exception as e:
-        print(f'комментарий не указан- {url}')
-        comment = ''
+    # try:
+    #     comment = html.find('div', class_='card__comment-text').text.strip().replace('• ', ' ')
+    # except Exception as e:
+    #     print(f'комментарий не указан- {url}')
+    #     comment = ''
     try:
         exchange = html.find('h4', class_='card__exchange-title').text.casefold().replace('обмен ', '').replace(' обмен', '')
     except Exception as e:
@@ -183,7 +183,7 @@ def parsing_car_pages(html, url):
         city = ''
 
     #print(f'{year}\n{transmission}\n{dimension}\n{motor}\n{km}\ncost: {cost}\nmodel: {model}\ndata: {data}\ncomment:{comment}\ncity: {city}\nexcjange: {exchange}\nvin: {vin}\ntype: {type}\ndrive: {drive}\ncolor: {color}')
-    return [url, comment, model, cost, motor, dimension, transmission, km,
+    return [url, 'comment', model, cost, motor, dimension, transmission, km,
             year, type, drive, color, vin, exchange, data, city]
 
 

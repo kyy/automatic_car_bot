@@ -1,7 +1,7 @@
 import asyncio
 import aiosqlite
 import numpy as np
-
+from tqdm import tqdm
 
 source = 'https://aiosqlite.omnilib.dev/en/stable/'
 
@@ -59,14 +59,20 @@ async def models_part_db(db):
     await db.commit()
 
 
-brand = 'BMW'
-model = 'X5'
-async def test(db):
-    cursor = await db.execute(f"select brands.av_by, models.av_by  from brands "
-                              f"inner join models on brands.id = models.brand_id "
-                              f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
-    rows = await cursor.fetchall()
-    print(rows)
+brands_abw = np.load('base_data_abw_by/brands.npy', allow_pickle=True).item()
+for i in brands_abw:
+    if brands_abw[i] == '':
+        del brands_abw[i]
+brands_abw_list = list(brands_abw.items())
+print(brands_abw_list)
+
+
+async def brands_part_db_abw(db):
+    for brand in tqdm(brands_abw_list):
+        await db.execute(f"UPDATE brands "
+                        f"SET abw_by = '{brand[1]}'"
+                        f"WHERE [unique] = '{brand[0]}';")
+    await db.commit()
 
 
 async def main():
@@ -75,7 +81,7 @@ async def main():
             # create_tables(db),
             # brands_part_db(db),
             # models_part_db(db),
-            test(db),
+            brands_part_db_abw(db),
         )
 
 
