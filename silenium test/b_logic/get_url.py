@@ -48,6 +48,7 @@ async def get_url_av(car_input, db):
             new_part.append(str(key)+str(car_input[key]))
     new_part_url = '&'.join(new_part)
     full_url = f'https://cars.av.by/filter?{new_part_url}'
+    print(full_url)
     return full_url
 
 

@@ -52,31 +52,29 @@ async def cooking_pdf(message: Message):
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
         else:
-            main(car_link, message=message.from_user.id)
+            name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
+            main(car_link, message=message.from_user.id, name=name_time_stump)
             await message.answer(f"Сбор данных.")
-
             try:
-                name_pdf_ = (str(datatime_datatime.now())).replace(':', '.')
                 try:
-                    do_pdf(
+                    await do_pdf(
                         message=message.from_user.id,
                         av_by_link=car_link,
-                        name=name_pdf_,
+                        name=name_time_stump,
                         filter_full=decode_filter_short(cars),
                         filter_short=message.text)
                 except Exception as error:
                     print(str(error), "<--> Ошибка при формировании отчета")
                     return await message.answer("Ошибка при создании pdf")
-                if os.path.exists(f'{name_pdf_}.pdf'):
-                    file = FSInputFile(f'{name_pdf_}.pdf')
+                if os.path.exists(f'b_logic/buffer/{name_time_stump}.pdf'):
+                    file = FSInputFile(f'b_logic/buffer/{name_time_stump}.pdf')
                     await bot.send_document(message.chat.id, document=file)
-                    os.remove(f'{name_pdf_}.pdf')
+                    os.remove(f'b_logic/buffer/{name_time_stump}.pdf')
+                    os.remove(f'b_logic/buffer/{message.from_user.id}{name_time_stump}.npy')
                 else:
-                    print(f'{name_pdf_}.pdf не найден')
+                    print(f'{name_time_stump}.pdf не найден')
             except Exception as error:
-                await message.answer(f"Не удалось отправить отчет,\n"
-                                     f"поторите попытку позже")
-                print(str(error))
+                print(error)
 
 
 @router.message(Command(commands=["search"]))

@@ -6,8 +6,6 @@ from datetime import datetime
 import csv
 
 
-
-
 class PDF(FPDF):
 
     def imports(self):
@@ -111,18 +109,7 @@ class PDF(FPDF):
         self.set_text_color(0)
 
 
-def load_data_from_csv(csv_filepath):
-    headings, rows = [], []
-    with open(csv_filepath, encoding="utf8") as csv_file:
-        for row in csv.reader(csv_file, delimiter=","):
-            if not headings:  # extracting column names from first row:
-                headings = row
-            else:
-                rows.append(row)
-    return headings, rows
-
-
-def do_pdf(
+async def do_pdf(
         data: [[str], ] = None,
         name=None,
         filter_full='<filter full>',
@@ -130,7 +117,7 @@ def do_pdf(
         av_by_link='<link_to_av_by_filter>',
         message=None,
 ):
-    data, col_names, links = get_data(message)
+    data, col_names, links = await get_data(message, name)
     pdf = PDF(
         orientation="L",
         unit="mm",
@@ -155,20 +142,13 @@ def do_pdf(
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")
     pdf.colored_table(col_names, data, links)
-    return pdf.output(f'{name}.pdf')
+    return pdf.output(f'b_logic/buffer/{name}.pdf')
 
 
-def hui():
-    dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
-    dataframe.insert(2, '#', [i + 1 for i in range(len(dataframe))])
-    print(dataframe.head().to_string())
-
-
-def get_data(message):
+async def get_data(message, name):
     columns = ['#', 'марка', 'цена', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дата', 'город']
-    #dataframe = pd.DataFrame(np.load('parse_av_by.npy'))
-    dataframe = pd.DataFrame(np.load(f'{message}.npy'))
+    dataframe = pd.DataFrame(np.load(f'b_logic/buffer/{message}{name}.npy'))
     dataframe.sort_values(by=3)
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()

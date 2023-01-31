@@ -76,11 +76,8 @@ def bs_p(url):
 
 def count_cars(url):
     html = bs_p(url)
-    try:
-        sum_cars = int(html.find('div', class_='filter__show-result').find('span', class_='button__text').text.split(' ')[1])
-    except:
-        sum_cars = 0
-    return sum_cars
+    sum_cars = html.find('div', class_='filter__show-result').find('span', class_='button__text').text.strip().split(' ')[1].replace('\u2009', '')
+    return int(sum_cars) if int(sum_cars) > 0 else 0
 
 
 def get_pages(url):
@@ -92,14 +89,13 @@ def get_pages(url):
     link_list = []
     sum_cars = count_cars(url)
     html = bs_p(url)
-    if sum_cars > 25:
+    if sum_cars > 2500000000000000000000:   # отключилли селениум пока для теста нужно установить 25 для av.by
         r = show_all_cars(url)
         html = BeautifulSoup(r, "lxml", )
     link = html.select('.listing-item__link')
     for lin in link:
         link = lin.get('href')
         link_list.append(root + link)
-
     return link_list
 
 
@@ -201,7 +197,6 @@ async def bound_fetch(semaphore, url, session, result):
         sleep(0.05)
 
 
-
 async def get_one(url, session, result):
     async with session.get(url) as response:
         page_content = await response.read()    # Ожидаем ответа и блокируем таск.
@@ -227,14 +222,14 @@ async def run(urls, result):
         await asyncio.gather(*tasks)
 
 
-def main(url, message):
+def main(url, message, name):
     result = []
     # Запускаем наш парсер.
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(get_pages(url), result))
     loop.run_until_complete(future)
     #np.save(f'parse_av_by.npy', result)
-    np.save(f'{message}.npy', result)
+    np.save(f'b_logic/buffer/{message}{name}.npy', result)
     print('ok')
     return result
 
