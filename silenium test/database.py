@@ -60,18 +60,15 @@ async def models_part_db(db):
 
 
 brands_abw = np.load('base_data_abw_by/brands.npy', allow_pickle=True).item()
-for i in brands_abw:
-    if brands_abw[i] == '':
-        del brands_abw[i]
 brands_abw_list = list(brands_abw.items())
 print(brands_abw_list)
 
-
 async def brands_part_db_abw(db):
     for brand in tqdm(brands_abw_list):
-        await db.execute(f"UPDATE brands "
-                        f"SET abw_by = '{brand[1]}'"
-                        f"WHERE [unique] = '{brand[0]}';")
+        if brand[1] != None:
+            await db.execute(f"UPDATE brands "
+                            f"SET abw_by = '{brand[1]}'"
+                            f"WHERE [unique] = '{brand[0]}';")
     await db.commit()
 
 
@@ -81,7 +78,7 @@ async def main():
             # create_tables(db),
             # brands_part_db(db),
             # models_part_db(db),
-            brands_part_db_abw(db),
+            # brands_part_db_abw(db),
         )
 
 
