@@ -77,7 +77,7 @@ def bs_p(url):
 def count_cars(url):
     html = bs_p(url)
     sum_cars = html.find('div', class_='filter__show-result').find('span', class_='button__text').text.strip().split(' ')[1].replace('\u2009', '')
-    return int(sum_cars) if int(sum_cars) > 0 else 0
+    return int(sum_cars) if sum_cars != 'не' else 0
 
 
 def get_pages(url):
@@ -93,6 +93,11 @@ def get_pages(url):
         r = show_all_cars(url)
         html = BeautifulSoup(r, "lxml", )
     link = html.select('.listing-item__link')
+    try:
+        link_up = html.find('a', class_='listing-top__title-link').get('href')  # поиск ссылки на машину поднятую рекламой
+        link_list.append(root + link_up)
+    except:
+        pass
     for lin in link:
         link = lin.get('href')
         link_list.append(root + link)

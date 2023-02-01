@@ -21,7 +21,7 @@ def start_browser():
     try:
         options = webdriver.ChromeOptions()
         options.add_argument("--no-sandbox")
-        options.add_argument('headless')    # закомментируй, если хочется видеть браузер
+        #options.add_argument('headless')    # закомментируй, если хочется видеть браузер
         options.add_argument('--verbose')
         options.add_argument("--disable-dev-shm-usage")
         driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
@@ -57,6 +57,36 @@ def get_brands():       # парсим все бренды авто и запи�
     print('OK--парсинг брендов')
 
 
+def get_models():
+    try:
+        driver = start_browser()
+        for brand in brands_abw:
+            if not os.path.exists(f'models_part_url/{brand}.npy') and brands_abw[brand] != None:
+                driver.get(f'{root}/{brands_abw[brand]}')
+                time.sleep(2)
+                models = np.load(f'../base_data_av_by/models/{brand}.npy', allow_pickle=True).item()    # открываем файл с именем бренда
+                models_list = {}
+                for model in models:
+                    model_show = driver.find_element(By.XPATH, '//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/div').click()  # кликаем на модель
+                    time.sleep(0.1)
+                    model_input = driver.find_element(By.XPATH,'//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/ul/li[1]/div/div/input').send_keys(model)  # вводим модель
+                    time.sleep(0.1)
+                    try:
+                        model_input = driver.find_element(By.XPATH, '//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/ul/li[2]').click()
+                        link = driver.current_url.split('/')[-1]
+                    except:
+                        model_show = driver.find_element(By.XPATH,
+                                                         '//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/div').click()
+                        brands_clear_type = driver.find_element(By.XPATH, '//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/ul/li[1]/div/div/input').send_keys(Keys.SHIFT + Keys.HOME + Keys.DELETE)
+                        time.sleep(0.1)
+                        link = None
+                    models_list.update({model: link})
+                print(brand, models_list)
+                np.save(f'models_part_url/{brand}.npy', models_list)
+
+    except:
+        return get_models()
+
 
 if __name__ == '__main__':
-    pass
+    get_models()

@@ -63,14 +63,16 @@ async def cooking_pdf(message: Message):
                         name=name_time_stump,
                         filter_full=decode_filter_short(cars),
                         filter_short=message.text)
+                    os.remove(f'b_logic/buffer/{message.from_user.id}{name_time_stump}.npy')
                 except Exception as error:
-                    print(str(error), "<--> Ошибка при формировании отчета")
+                    os.remove(f'b_logic/buffer/{message.from_user.id}{name_time_stump}.npy')
+                    print(error, "<--> Ошибка при формировании отчета")
                     return await message.answer("Ошибка при создании pdf")
                 if os.path.exists(f'b_logic/buffer/{name_time_stump}.pdf'):
                     file = FSInputFile(f'b_logic/buffer/{name_time_stump}.pdf')
                     await bot.send_document(message.chat.id, document=file)
                     os.remove(f'b_logic/buffer/{name_time_stump}.pdf')
-                    os.remove(f'b_logic/buffer/{message.from_user.id}{name_time_stump}.npy')
+
                 else:
                     print(f'{name_time_stump}.pdf не найден')
             except Exception as error:

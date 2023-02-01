@@ -122,7 +122,6 @@ def get_models_part_url(): # парсим номера для гет запро�
                 time.sleep(0.25)
             np.save(f'models_part_url/{brand}.npy', model_list_digits)  # сохраняем все в файл
 
-
 def corerection_models():
     hyndai = np.load('models_part_url/Hyundai.npy', allow_pickle=True).item()
     hyndai['Accent'] = '434'

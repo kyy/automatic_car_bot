@@ -1,4 +1,5 @@
 import asyncio
+import os
 import aiosqlite
 import numpy as np
 from tqdm import tqdm
@@ -22,8 +23,8 @@ async def create_tables(db):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             brand_id INTEGER REFERENCES brands (id) ON DELETE CASCADE,
             [unique] TEXT (0, 32) NOT NULL,
-            av_by TEXT (0, 32) UNIQUE,
-            abw_by TEXT (0, 32) UNIQUE
+            av_by TEXT (0, 32),
+            abw_by TEXT (0, 32) 
             )""")
         await db.commit()
         print('Таблицы - brands, models успешно созданы')
@@ -61,7 +62,6 @@ async def models_part_db(db):
 
 brands_abw = np.load('base_data_abw_by/brands.npy', allow_pickle=True).item()
 brands_abw_list = list(brands_abw.items())
-print(brands_abw_list)
 
 async def brands_part_db_abw(db):
     for brand in tqdm(brands_abw_list):
@@ -72,6 +72,25 @@ async def brands_part_db_abw(db):
     await db.commit()
 
 
+async def models_part_db_abw(db):
+    cursor = await db.execute(f"select [unique], id  from brands ")
+    rows = await cursor.fetchall()
+    dict_brands = {}
+    for item in rows:
+        dict_brands.update({item[0]: item[1]})
+    for brand in tqdm(brands_abw_list):
+        if os.path.exists(f'base_data_abw_by/models_part_url/{brand[0]}.npy') and brand[1] != None:
+            models = np.load(f'base_data_abw_by/models_part_url/{brand[0]}.npy', allow_pickle=True).item()
+            models = list(models.items())
+            for model in tqdm(models):
+                if model[1] != None:
+                    print(model)
+                    await db.execute(f"UPDATE models "
+                                     f"SET abw_by = '{model[1]}'"
+                                     f"WHERE [unique] = '{model[0]}' and brand_id = '{dict_brands[brand[0]]}';")
+    await db.commit()
+
+
 async def main():
     async with aiosqlite.connect('auto_db') as db:
         await asyncio.gather(
@@ -79,6 +98,7 @@ async def main():
             # brands_part_db(db),
             # models_part_db(db),
             # brands_part_db_abw(db),
+            # models_part_db_abw(db),
         )
 
 
