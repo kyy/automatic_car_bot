@@ -45,6 +45,7 @@ async def brands_part_db(db):
         print(e, 'Такие данные уже существуют')
 
 
+
 # добавляем в базу данных модели и av.by идентификаторы
 async def models_part_db(db):
     cursor = await db.execute("SELECT id, [unique] FROM brands;")
@@ -58,6 +59,7 @@ async def models_part_db(db):
             models_list.append(new)
     await db.executemany("INSERT INTO models(brand_id, [unique], av_by) VALUES(?, ?, ?);", models_list)
     await db.commit()
+
 
 
 brands_abw = np.load('base_data_abw_by/brands.npy', allow_pickle=True).item()
@@ -84,11 +86,11 @@ async def models_part_db_abw(db):
             models = list(models.items())
             for model in tqdm(models):
                 if model[1] != None:
-                    print(model)
                     await db.execute(f"UPDATE models "
                                      f"SET abw_by = '{model[1]}'"
                                      f"WHERE [unique] = '{model[0]}' and brand_id = '{dict_brands[brand[0]]}';")
     await db.commit()
+
 
 
 async def main():
