@@ -41,43 +41,48 @@ def json_links_av_by(url):
 def json_parse_av_by(json_data):
     car = []
     for i in range(len(json_data['adverts'])):
+        root = json_data['adverts'][i]
         try:
-            price = json_data['adverts'][i]['price']['usd']['amount']
+            price = root['price']['usd']['amount']
         except:
             price = ''
         try:
-            days = json_data['adverts'][i]['originalDaysOnSale']    # дни в продаже
+            days = root['originalDaysOnSale']    # дни в продаже
         except:
             days = ''
         try:
-            exchange = json_data['adverts'][i]['exchange']['label']
+            exchange = root['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
         except:
             exchange = ''
         try:
-            city = json_data['adverts'][i]['locationName']
+            city = root['shortLocationName']
         except:
             city = ''
         try:
-            url = json_data['adverts'][i]['publicUrl']
+            url = root['publicUrl']
         except:
             url = ''
         try:
-            vin = json_data['adverts'][i]['metadata']['vinInfo']['vin']
+            vin = root['metadata']['vinInfo']['vin']
         except:
             vin = 'vin'
         try:
-            brand = json_data['adverts'][i]['properties'][0]['value']
+            brand = root['properties'][0]['value']
         except:
             brand = ''
         try:
-            model = json_data['adverts'][i]['properties'][1]['value']
+            model = root['properties'][1]['value']
         except:
             model = ''
+
         for j in range(len(json_data['adverts'][i]['properties'])):
+            generation = ''
             root = json_data['adverts'][i]['properties'][j]
             if root['id'] == 12:
                 km = root['value']
             if root['id'] == 13:
+                dimension = root['value']
+            if root['id'] == 19:
                 dimension = root['value']
             if root['id'] == 14:
                 motor = root['value']
@@ -86,13 +91,14 @@ def json_parse_av_by(json_data):
             if root['id'] == 18:
                 color = root['value']
             if root['id'] == 17:
-                drive = root['value']
+                drive = root['value'].replace('привод', '')
             if root['id'] == 16:
                 type = root['value']
             if root['id'] == 4:
                 generation = root['value']
             if root['id'] == 6:
                 year = root['value']
+
 
         car.append([url, 'comment', f'{brand} {model} {generation}', price, motor, dimension, transmission, km, year,
                     type, drive, color, vin, exchange, days, city])
@@ -114,7 +120,7 @@ async def get_one(url, session, result):
         page_content = await response.json()   # Ожидаем ответа и блокируем таск.
         item = json_parse_av_by(page_content)      # Получаем информацию об машине и сохраняем в лист.
         result += item
-        await asyncio.sleep(0.1)
+        #await asyncio.sleep(0.1)
 
 
 async def run(urls, result):
@@ -139,9 +145,8 @@ def parse_main(url, message, name):
     future = asyncio.ensure_future(run(json_links_av_by(url), result))
     loop.run_until_complete(future)
     np.save(f'b_logic/buffer/{message}{name}.npy', result)
-    print('ok')
     return result
 
 
 if __name__ == "__main__":
-    main(url)
+    pass

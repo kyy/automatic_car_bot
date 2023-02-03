@@ -3,7 +3,6 @@ import pandas as pd
 from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
-import csv
 
 
 class PDF(FPDF):
@@ -57,7 +56,7 @@ class PDF(FPDF):
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
     def colored_table(self, headings, rows, links,
-                      col_widths=(9, 35, 16, 15, 8, 17, 15, 12, 25, 25, 23, 20, 28, 6, 27)):
+                      col_widths=(9, 32, 15, 15, 8, 17, 15, 11, 25, 26, 23, 25, 28, 9, 23)):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 2.5
         self.set_fill_color(240, 240, 240)    # цвет заливки строки
@@ -146,7 +145,7 @@ async def do_pdf(
 
 
 async def get_data(message, name):
-    columns = ['#', 'марка', 'цена', 'топливо', 'V, л', 'коробка', 'км', 'год',
+    columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
     dataframe = pd.DataFrame(np.load(f'b_logic/buffer/{message}{name}.npy'))
     dataframe.sort_values(by=[2])

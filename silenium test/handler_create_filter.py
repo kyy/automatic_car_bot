@@ -42,7 +42,7 @@ async def cooking_pdf(message: Message):
         av_link, abw_link = await all_get_url(cars)
         all_cars_av = count_cars_av(av_link)
         await message.answer(f"Найдено: \n"
-                             f"Действует ограничение до 125 объявлений с 1 ресурса.\n",
+                             f"Действует ограничение до 125 объявлений с 1 ресурса.\n"
                              f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n",
                              disable_web_page_preview=True,
                              parse_mode="HTML",
