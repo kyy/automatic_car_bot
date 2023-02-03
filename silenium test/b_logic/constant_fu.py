@@ -1,5 +1,5 @@
 import numpy as np
-import datetime
+from datetime import datetime
 import time
 
 s_s = '+'    # split symbol in filter
@@ -31,7 +31,7 @@ def get_models(brand: str) -> list[str]:
     return [s_b] + sorted(np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item())
 
 
-def get_years(from_year: int = 1990, to_year=datetime.datetime.now().year) -> list[str]:
+def get_years(from_year: int = 1990, to_year=datetime.now().year) -> list[str]:
     return [s_b] + [str(i) for i in range(from_year, to_year + 1)]
 
 
@@ -60,7 +60,7 @@ def decode_filter_short(string: str = None, lists: list = None, sep: str = s_s):
         c = lists
     text = f"{c[0].replace(s_b, '<все бренды>')} {c[1].replace(s_b, '<все модели>')}\n" \
            f"{c[2].replace(s_b, '<все типы двигателей>')} {c[3].replace(s_b, '<все типы трансмиссий>')}\n" \
-           f"с {c[4].replace(s_b, get_years()[1])}  по {c[5].replace(s_b, str(datetime.datetime.now().year))} г\n" \
+           f"с {c[4].replace(s_b, get_years()[1])}  по {c[5].replace(s_b, str(datetime.now().year))} г\n" \
            f"от {c[6].replace(s_b, get_cost()[1])}  до {c[7].replace(s_b, str(get_cost()[-1]))} $\n" \
            f"от {c[8].replace(s_b, get_dimension()[1])}  до {c[9].replace(s_b, str(get_dimension()[-1]))} л"
     return text if lists else text.replace('\n', ' | ')
@@ -79,6 +79,4 @@ def code_filter_short(cc: list = None):
     return 'filter=' + s_s.join(cc)
 
 
-def time_data(number):
-    n = 3+(number/5) if number <= 25 else (number/25) * 17
-    return time.strftime("%M мин %S с", time.gmtime(n))
+

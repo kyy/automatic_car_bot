@@ -7,11 +7,11 @@ from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 from aiogram.filters import Command
 from config_reader import config
 from keyboards import multi_row_keyboard
-from b_logic.parse_asynch_av_by import count_cars, main
+from b_logic.parse_asynch_av_by_json import count_cars_av, parse_main
 from b_logic.do_pdf import do_pdf
 from b_logic.get_url import all_get_url
-from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, time_data,
-                                 columns_cost, columns_years, columns_dimension, columns_motor, motor, transmission,
+from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, columns_cost,
+                                 columns_years, columns_dimension, columns_motor, motor, transmission,
                                  decode_filter_short, code_filter_short,)
 
 
@@ -39,27 +39,26 @@ async def cooking_pdf(message: Message):
         cars = message.text.replace('filter=', '')
         await message.answer("Фильтр принят\n"
                              "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
-        car_link = await all_get_url(cars)
-        all_cars = count_cars(car_link)
+        av_link, abw_link = await all_get_url(cars)
+        all_cars_av = count_cars_av(av_link)
         await message.answer(f"Найдено: \n"
-                             f"<a href='{car_link}'>av.by</a> - {all_cars}.\n"
-                             f"Примерное время ожидания - {time_data(all_cars)}\n",
+                             f"Действует ограничение до 125 объявлений с 1 ресурса.\n",
+                             f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n",
                              disable_web_page_preview=True,
                              parse_mode="HTML",
                              )
-
-        if all_cars == 0:
+        if all_cars_av == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
         else:
             name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
-            main(car_link, message=message.from_user.id, name=name_time_stump)
+            parse_main(av_link, message=message.from_user.id, name=name_time_stump)
             await message.answer(f"Сбор данных.")
             try:
                 try:
                     await do_pdf(
                         message=message.from_user.id,
-                        av_by_link=car_link,
+                        av_by_link=av_link,
                         name=name_time_stump,
                         filter_full=decode_filter_short(cars),
                         filter_short=message.text)
