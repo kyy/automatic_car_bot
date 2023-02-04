@@ -56,7 +56,7 @@ class PDF(FPDF):
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
     def colored_table(self, headings, rows, links,
-                      col_widths=(9, 32, 15, 15, 8, 17, 15, 11, 25, 26, 23, 25, 28, 9, 23)):
+                      col_widths=(9, 32, 15, 15, 8, 17, 14, 10, 25, 26, 23, 27, 28, 9, 23)):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 2.5
         self.set_fill_color(240, 240, 240)    # цвет заливки строки

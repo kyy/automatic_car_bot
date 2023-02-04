@@ -52,7 +52,12 @@ async def cooking_pdf(message: Message):
                                         "или запрашиваемый сервер перегружен")
         else:
             name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
-            parse_main(av_link, message=message.from_user.id, name=name_time_stump)
+            try:
+                parse_main(av_link, message=message.from_user.id, name=name_time_stump)
+            except:
+                print('Ошибка в parse_main')
+                return await message.answer("Ошибка при сборе данных.\n"
+                                            "Повторите попытку /search.")
             await message.answer(f"Сбор данных.")
             try:
                 try:

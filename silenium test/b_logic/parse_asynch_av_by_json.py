@@ -42,64 +42,37 @@ def json_parse_av_by(json_data):
     car = []
     for i in range(len(json_data['adverts'])):
         root = json_data['adverts'][i]
-        try:
-            price = root['price']['usd']['amount']
-        except:
-            price = ''
-        try:
-            days = root['originalDaysOnSale']    # дни в продаже
-        except:
-            days = ''
-        try:
-            exchange = root['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
-        except:
-            exchange = ''
-        try:
-            city = root['shortLocationName']
-        except:
-            city = ''
-        try:
-            url = root['publicUrl']
-        except:
-            url = ''
-        try:
-            vin = root['metadata']['vinInfo']['vin']
-        except:
-            vin = 'vin'
-        try:
-            brand = root['properties'][0]['value']
-        except:
-            brand = ''
-        try:
-            model = root['properties'][1]['value']
-        except:
-            model = ''
-
+        price = root['price']['usd']['amount']
+        days = root['originalDaysOnSale']    # дни в продаже
+        exchange = root['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
+        city = root['shortLocationName']
+        url = root['publicUrl']
+        vin = root['metadata']['vinInfo']['vin']
+        brand = root['properties'][0]['value']
+        model = root['properties'][1]['value']
+        generation = motor = dimension = transmission = km = year = type = drive = color = None
         for j in range(len(json_data['adverts'][i]['properties'])):
-            generation = ''
             root = json_data['adverts'][i]['properties'][j]
-            if root['id'] == 12:
+            if root['name'] == 'mileage_km':
                 km = root['value']
-            if root['id'] == 13:
+            if root['name'] == 'engine_endurance':
                 dimension = root['value']
-            if root['id'] == 19:
+            if root['name'] == 'engine_capacity':
                 dimension = root['value']
-            if root['id'] == 14:
+            if root['name'] == 'engine_type':
                 motor = root['value']
-            if root['id'] == 7:
+            if root['name'] == 'transmission_type':
                 transmission = root['value']
-            if root['id'] == 18:
+            if root['name'] == 'color':
                 color = root['value']
-            if root['id'] == 17:
+            if root['name'] == 'drive_type':
                 drive = root['value'].replace('привод', '')
-            if root['id'] == 16:
+            if root['name'] == 'body_type':
                 type = root['value']
-            if root['id'] == 4:
+            if root['name'] == 'generation':
                 generation = root['value']
-            if root['id'] == 6:
+            if root['name'] == 'year':
                 year = root['value']
-
-
         car.append([url, 'comment', f'{brand} {model} {generation}', price, motor, dimension, transmission, km, year,
                     type, drive, color, vin, exchange, days, city])
     return car
