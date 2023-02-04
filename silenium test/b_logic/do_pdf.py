@@ -136,7 +136,7 @@ async def do_pdf(
     pdf.set_font('DejaVuSansCondensed', size=9)
     pdf.filter_full = str(filter_full)
     pdf.filter_short = str(filter_short)
-    pdf.av_by_link = str(av_by_link)
+    pdf.av_by_link = f"https://cars.av.by/filter?{av_by_link.split('?')[1]}"
     pdf.add_page()
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")

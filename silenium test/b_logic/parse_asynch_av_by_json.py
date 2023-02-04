@@ -41,38 +41,40 @@ def json_links_av_by(url):
 def json_parse_av_by(json_data):
     car = []
     for i in range(len(json_data['adverts'])):
-        root = json_data['adverts'][i]
-        price = root['price']['usd']['amount']
-        days = root['originalDaysOnSale']    # дни в продаже
-        exchange = root['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
-        city = root['shortLocationName']
-        url = root['publicUrl']
-        vin = root['metadata']['vinInfo']['vin']
-        brand = root['properties'][0]['value']
-        model = root['properties'][1]['value']
-        generation = motor = dimension = transmission = km = year = type = drive = color = None
+        r_t = json_data['adverts'][i]
+        price = r_t['price']['usd']['amount']
+        days = r_t['originalDaysOnSale']    # дни в продаже
+        exchange = r_t['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
+        city = r_t['shortLocationName']
+        url = r_t['publicUrl']
+        year = r_t['year']
+        brand = r_t['properties'][0]['value']
+        model = r_t['properties'][1]['value']
+        try:
+            vin = r_t['metadata']['vinInfo']['vin']
+        except:
+            vin = 'None'
+        generation = motor = dimension = transmission = km = type = drive = color = None
         for j in range(len(json_data['adverts'][i]['properties'])):
-            root = json_data['adverts'][i]['properties'][j]
-            if root['name'] == 'mileage_km':
-                km = root['value']
-            if root['name'] == 'engine_endurance':
-                dimension = root['value']
-            if root['name'] == 'engine_capacity':
-                dimension = root['value']
-            if root['name'] == 'engine_type':
-                motor = root['value']
-            if root['name'] == 'transmission_type':
-                transmission = root['value']
-            if root['name'] == 'color':
-                color = root['value']
-            if root['name'] == 'drive_type':
-                drive = root['value'].replace('привод', '')
-            if root['name'] == 'body_type':
-                type = root['value']
-            if root['name'] == 'generation':
-                generation = root['value']
-            if root['name'] == 'year':
-                year = root['value']
+            r_t = json_data['adverts'][i]['properties'][j]
+            if r_t['name'] == 'mileage_km':
+                km = r_t['value']
+            if r_t['name'] == 'engine_endurance':
+                dimension = r_t['value']
+            if r_t['name'] == 'engine_capacity':
+                dimension = r_t['value']
+            if r_t['name'] == 'engine_type':
+                motor = r_t['value'].replace('пропан-бутан', 'пр-бут')
+            if r_t['name'] == 'transmission_type':
+                transmission = r_t['value']
+            if r_t['name'] == 'color':
+                color = r_t['value']
+            if r_t['name'] == 'drive_type':
+                drive = r_t['value'].replace('привод', '')
+            if r_t['name'] == 'body_type':
+                type = r_t['value']
+            if r_t['name'] == 'generation':
+                generation = r_t['value']
         car.append([url, 'comment', f'{brand} {model} {generation}', price, motor, dimension, transmission, km, year,
                     type, drive, color, vin, exchange, days, city])
     return car
@@ -118,6 +120,7 @@ def parse_main(url, message, name):
     future = asyncio.ensure_future(run(json_links_av_by(url), result))
     loop.run_until_complete(future)
     np.save(f'b_logic/buffer/{message}{name}.npy', result)
+    print(result)
     return result
 
 
