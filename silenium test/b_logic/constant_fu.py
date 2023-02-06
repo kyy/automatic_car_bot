@@ -35,26 +35,11 @@ async def get_brands() -> list[str]:
             brands.append(brand[0])
     return brands
 
-# async def get_models(brand: str) -> list[str]:
-#     async with aiosqlite.connect('auto_db') as db:
-#         cursor = await db.execute(f"SELECT id FROM brands "
-#                                   f"WHERE [unique] = '{brand}'")
-#         brand_id = await cursor.fetchone()
-#         cursor = await db.execute("SELECT [unique] FROM models "
-#                                   f"WHERE brand_id = '{brand_id[0]}' "
-#                                   f"ORDER BY [unique];")
-#         rows = await cursor.fetchall()
-#         models = []
-#         for brand in rows:
-#             models.append(brand[0])
-#     return models
-
 
 async def get_models(brand: str) -> list[str]:
     async with aiosqlite.connect('auto_db') as db:
-        cursor = await db.execute(f"SELECT models.brand_id models.[unique], "
-                                  f"FROM models "
-                                  f"inner join brands on brands.id =  models.brand_id "
+        cursor = await db.execute(f"SELECT models.[unique] FROM models "
+                                  f"INNER JOIN brands on brands.id =  models.brand_id "
                                   f"WHERE brands.[unique] = '{brand}'")
         rows = await cursor.fetchall()
         models = []
