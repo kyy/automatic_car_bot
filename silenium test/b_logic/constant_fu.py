@@ -28,7 +28,7 @@ transmission = [s_b] + ['автомат', 'механика']
 
 async def get_brands() -> list[str]:
     async with aiosqlite.connect('auto_db') as db:
-        cursor = await db.execute(f"SELECT [unique] FROM brands ORDER BY [unique] ASC")
+        cursor = await db.execute(f"SELECT [unique] FROM brands ORDER BY [unique]")
         rows = await cursor.fetchall()
         brands = []
         for brand in rows:
@@ -38,20 +38,17 @@ async def get_brands() -> list[str]:
 
 async def get_models(brand: str) -> list[str]:
     async with aiosqlite.connect('auto_db') as db:
-        cursor = await db.execute(f"select [unique], id  from brands ")
-        rows = await cursor.fetchall()
-        dict_brands = {}
-        for item in rows:
-            dict_brands.update({item[0]: item[1]})
+        cursor = await db.execute(f"SELECT id FROM brands "
+                                  f"WHERE [unique] = '{brand}'")
+        brand_id = await cursor.fetchone()
         cursor = await db.execute("SELECT [unique] FROM models "
-                                  f"WHERE brand_id = '{dict_brands[brand]}' "
-                                  f"ORDER BY [unique] ASC ;")
+                                  f"WHERE brand_id = '{brand_id[0]}' "
+                                  f"ORDER BY [unique];")
         rows = await cursor.fetchall()
         models = []
         for brand in rows:
             models.append(brand[0])
     return models
-
 
 
 def get_years(from_year: int = 1990, to_year=datetime.now().year) -> list[str]:
