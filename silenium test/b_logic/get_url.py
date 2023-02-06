@@ -108,7 +108,7 @@ async def get_url_abw(car_input, db):
              ]
 
     new_part_url = '/'.join(param)
-    full_url = f'https://b.abw.by/api/adverts/cars/filters/{new_part_url}'
+    full_url = f'https://b.abw.by/api/adverts/cars/list/{new_part_url}'
     print(full_url)
     return full_url
 

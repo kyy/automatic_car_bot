@@ -7,7 +7,7 @@ from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 from aiogram.filters import Command
 from config_reader import config
 from keyboards import multi_row_keyboard
-from b_logic.parse_asynch_av_by_json import count_cars_av, parse_main
+from b_logic.parse_asynch_av_by_json import count_cars_av, parse_main, count_cars_abw
 from b_logic.do_pdf import do_pdf
 from b_logic.get_url import all_get_url
 from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, columns_cost,
@@ -41,9 +41,11 @@ async def cooking_pdf(message: Message):
                              "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
         av_link, abw_link = await all_get_url(cars)
         all_cars_av = count_cars_av(av_link)
+        all_cars_abw = count_cars_abw(abw_link)
         await message.answer(f"Найдено: \n"
                              f"Действует ограничение до 125 объявлений с 1 ресурса.\n"
-                             f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n",
+                             f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n"
+                             f"<a href='{av_link}'>abw.by</a> - { all_cars_abw}.\n",
                              disable_web_page_preview=True,
                              parse_mode="HTML",
                              )
@@ -53,9 +55,9 @@ async def cooking_pdf(message: Message):
         else:
             name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
             try:
-                parse_main(av_link, message=message.from_user.id, name=name_time_stump)
-            except:
-                print('Ошибка в parse_main')
+                parse_main(av_link, abw_link, message=message.from_user.id, name=name_time_stump)
+            except Exception as e:
+                print(e, 'Ошибка в parse_main')
                 return await message.answer("Ошибка при сборе данных.\n"
                                             "Повторите попытку /search.")
             await message.answer(f"Сбор данных.")
