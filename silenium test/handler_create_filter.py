@@ -126,7 +126,7 @@ async def brand_chosen(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_keyboard(
-            get_brands(),
+            await get_brands(),
             input_field_placeholder='имя бренда',
             )
     )
@@ -135,12 +135,12 @@ async def brand_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.brand_choosing)
 async def model_chosen(message: Message, state: FSMContext):
-    if message.text in get_brands():
+    if message.text in await get_brands():
         await state.update_data(chosen_brand=message.text)
         await message.answer(
             text="Теперь, выберите модель:",
             reply_markup=multi_row_keyboard(
-                get_models(message.text),
+                await get_models(message.text),
                 input_field_placeholder='имя модели')
             )
     else:
@@ -158,7 +158,7 @@ async def model_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.model_choosing)
 async def motor_chosen(message: Message, state: FSMContext):
     user_data = await state.get_data()
-    if message.text in get_models(user_data['chosen_brand']):
+    if message.text in await get_models(user_data['chosen_brand']):
         await state.update_data(chosen_model=message.text)
         await message.answer(
             text="Теперь, выберите тип топлива:",

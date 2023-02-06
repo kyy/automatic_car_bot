@@ -92,7 +92,6 @@ async def models_part_db_abw(db):
     await db.commit()
 
 
-
 async def main():
     async with aiosqlite.connect('auto_db') as db:
         await asyncio.gather(
@@ -100,7 +99,7 @@ async def main():
             # brands_part_db(db),
             # models_part_db(db),
             # brands_part_db_abw(db),
-            models_part_db_abw(db),
+            # models_part_db_abw(db),
         )
 
 

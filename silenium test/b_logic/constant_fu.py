@@ -1,6 +1,9 @@
+import asyncio
+
+import aiosqlite
 import numpy as np
 from datetime import datetime
-import time
+
 
 s_s = '+'    # split symbol in filter
 s_b = '?'    # skip button on keyboards
@@ -23,12 +26,32 @@ motor = [s_b] + \
 transmission = [s_b] + ['автомат', 'механика']
 
 
-def get_brands() -> list[str]:
-    return sorted(np.load('base_data_av_by/brands_part_url.npy', allow_pickle=True).item())
+async def get_brands() -> list[str]:
+    async with aiosqlite.connect('auto_db') as db:
+        cursor = await db.execute(f"SELECT [unique] FROM brands ORDER BY [unique] ASC")
+        rows = await cursor.fetchall()
+        brands = []
+        for brand in rows:
+            brands.append(brand[0])
+    return brands
 
 
-def get_models(brand: str) -> list[str]:
-    return [s_b] + sorted(np.load(f'base_data_av_by/models_part_url/{brand}.npy', allow_pickle=True).item())
+async def get_models(brand: str) -> list[str]:
+    async with aiosqlite.connect('auto_db') as db:
+        cursor = await db.execute(f"select [unique], id  from brands ")
+        rows = await cursor.fetchall()
+        dict_brands = {}
+        for item in rows:
+            dict_brands.update({item[0]: item[1]})
+        cursor = await db.execute("SELECT [unique] FROM models "
+                                  f"WHERE brand_id = '{dict_brands[brand]}' "
+                                  f"ORDER BY [unique] ASC ;")
+        rows = await cursor.fetchall()
+        models = []
+        for brand in rows:
+            models.append(brand[0])
+    return models
+
 
 
 def get_years(from_year: int = 1990, to_year=datetime.now().year) -> list[str]:
@@ -79,4 +102,5 @@ def code_filter_short(cc: list = None):
     return 'filter=' + s_s.join(cc)
 
 
-
+if __name__ == '__main__':
+    asyncio.run(get_models(brand='BMW'))
