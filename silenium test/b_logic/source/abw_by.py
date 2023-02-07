@@ -33,15 +33,15 @@ def json_parse_abw(json_data):
     car = []
     for i in range(len(json_data['items'])):
         r_t = json_data['items'][i]
-        brand = r_t['title']
-        price = r_t['price']['usd']
+        brand = r_t['title'].split(',')[0]
+        price = r_t['price']['usd'].replace('USD', '').replace(' ', '')
         city = r_t['city']
-        url = f"https://abw.by/{r_t['link']}"
+        url = f"https://abw.by{r_t['link']}"
         description = r_t['description'].split('/')
-        km = description[0].replace(' <br>', '')
-        year = description[1].replace('г.', '')
-        dimension = description[2]
-        motor = description[3]
+        km = description[0].replace(' <br', '').replace(' км', '')
+        year = description[1].replace('г.', '').replace('>', '')
+        dimension = description[2].split(' ')[1]
+        motor = description[3].replace(' ', '')
         transmission = description[-3]
         drive = description[-2]
         type = description[-1]

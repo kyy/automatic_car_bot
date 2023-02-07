@@ -88,8 +88,8 @@ async def cooking_pdf(message: Message):
                 print(error)
 
 
-@router.message(Command(commands=["search"]))
-@router.message(F.text.casefold() == "search")
+@router.message(Command(commands=["show"]))
+@router.message(F.text.casefold() == "show")
 async def get_rusult(message: Message, state: FSMContext):
     await state.set_state('finish_choosing')
     data = await state.get_data()
