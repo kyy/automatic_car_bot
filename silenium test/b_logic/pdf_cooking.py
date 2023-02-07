@@ -11,12 +11,13 @@ class PDF(FPDF):
         self.filter_full = None
         self.filter_short = None
         self.av_by_link = None
+        self.abw_by_link = None
 
     def header(self):
         # Rendering QRC:
-        img = qrcode.make(self.av_by_link)
+        img_av = qrcode.make(self.av_by_link)
         self.image(
-            img.get_image(),
+            img_av.get_image(),
             x=273,
             y=3,
             w=19,
@@ -24,6 +25,18 @@ class PDF(FPDF):
             title='av.by',
             alt_text='av.by',
         )
+
+        img_abw = qrcode.make(self.abw_by_link)
+        self.image(
+            img_abw.get_image(),
+            x=252,
+            y=3,
+            w=19,
+            link=self.abw_by_link,
+            title='abw.by',
+            alt_text='abw.by',
+        )
+
         # Rendering logo:
         self.image(
             f"b_logic/static/logo.png",
@@ -40,9 +53,9 @@ class PDF(FPDF):
         self.set_font(size=9)
         self.set_text_color(60, 60, 60)
         self.cell(0, 0, f'{self.filter_short}', align="L")
-        self.cell(-18, 0, f'{datetime.now().date()}', align="R")
+        self.cell(-36, 0, f'{datetime.now().date()}', align="R")
         self.ln(4)
-        self.cell(259, 0, f'{datetime.now().time().strftime("%H:%M")}', align="R")
+        self.cell(241, 0, f'{datetime.now().time().strftime("%H:%M")}', align="R")
         self.ln(4)
         self.cell(13)
         self.cell(10, -8, f'{self.filter_full}', align="L")
@@ -56,7 +69,7 @@ class PDF(FPDF):
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
     def colored_table(self, headings, rows, links,
-                      col_widths=(9, 45, 15, 15, 8, 17, 14, 10, 25, 26, 23, 16, 28, 9, 21)):
+                      col_widths=(9, 45, 14, 17, 8, 17, 14, 10, 24, 26, 23, 16, 28, 9, 21)):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 2.5
         self.set_fill_color(240, 240, 240)    # цвет заливки строки
@@ -109,11 +122,11 @@ class PDF(FPDF):
 
 
 async def do_pdf(
-        data: [[str], ] = None,
         name=None,
         filter_full='<filter full>',
         filter_short='<filter code>',
-        av_by_link='<link_to_av_by_filter>',
+        av_by_link='<av.by>',
+        abw_by_link='<abw.by>',
         message=None,
 ):
     data, col_names, links = await get_data(message, name)
@@ -137,6 +150,7 @@ async def do_pdf(
     pdf.filter_full = str(filter_full)
     pdf.filter_short = str(filter_short)
     pdf.av_by_link = f"https://cars.av.by/filter?{av_by_link.split('?')[1]}"
+    pdf.abw_by_link = f"https://abw.by/cars{abw_by_link.split('list')[1]}"
     pdf.add_page()
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")
@@ -152,7 +166,7 @@ async def get_data(message, name):
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()
     links = dataframe.iloc[0:, 0].tolist()
-    #comments = dataframe.iloc[0:, 1].tolist()
+    # comments = dataframe.iloc[0:, 1].tolist()
     return df, columns, links
 
 

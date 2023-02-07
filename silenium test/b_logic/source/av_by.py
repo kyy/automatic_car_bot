@@ -45,7 +45,7 @@ def json_parse_av(json_data):
             vin = r_t['metadata']['vinInfo']['vin']
         except:
             vin = 'None'
-        generation = motor = dimension = transmission = km = type = drive = color = None
+        generation = motor = dimension = transmission = km = type = drive = color = ''
         for j in range(len(json_data['adverts'][i]['properties'])):
             r_t = json_data['adverts'][i]['properties'][j]
             if r_t['name'] == 'mileage_km':

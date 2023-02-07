@@ -42,9 +42,10 @@ async def get_models(brand: str) -> list[str]:
                                   f"INNER JOIN brands on brands.id =  models.brand_id "
                                   f"WHERE brands.[unique] = '{brand}'")
         rows = await cursor.fetchall()
-        models = []
+        models = [s_b]
         for brand in rows:
             models.append(brand[0])
+
     return models
 
 

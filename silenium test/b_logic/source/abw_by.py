@@ -39,11 +39,11 @@ def json_parse_abw(json_data):
         url = f"https://abw.by{r_t['link']}"
         description = r_t['description'].split('/')
         km = description[0].replace(' <br', '').replace(' км', '')
-        year = description[1].replace('г.', '').replace('>', '')
+        year = description[1].replace('г.', '').replace('>', '').replace(' ', '')
         dimension = description[2].split(' ')[1]
         motor = description[3].replace(' ', '')
-        transmission = description[-3]
-        drive = description[-2]
+        transmission = description[-3].replace(' ', '')
+        drive = description[-2].replace(' ', '')
         type = description[-1]
         color = vin = exchange = days = ''
         car.append([url, 'comment', brand, price, motor, dimension, transmission, km, year,

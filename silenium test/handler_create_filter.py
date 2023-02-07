@@ -51,8 +51,8 @@ async def cooking_pdf(message: Message):
                              disable_web_page_preview=True,
                              parse_mode="HTML",
                              )
-        all = [all_cars_av, all_cars_abw]
-        if sum(all) == 0:
+        all_count = [all_cars_av, all_cars_abw]
+        if sum(all_count) == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
         else:
@@ -69,6 +69,7 @@ async def cooking_pdf(message: Message):
                     await do_pdf(
                         message=message.from_user.id,
                         av_by_link=av_link,
+                        abw_by_link=abw_link,
                         name=name_time_stump,
                         filter_full=decode_filter_short(cars),
                         filter_short=message.text)

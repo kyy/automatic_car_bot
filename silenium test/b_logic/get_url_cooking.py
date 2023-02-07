@@ -98,6 +98,7 @@ async def get_url_abw(car_input, db):
     if car_input['transmission_'] in transmission:
         car_input['transmission_'] = transmission[car_input['transmission_']]
 
+
     param = [f"{car_input['brand_']}",
              f"{car_input['model_']}",
              f"engine_{car_input['engine_']}",
@@ -106,7 +107,7 @@ async def get_url_abw(car_input, db):
              f"price_{car_input['price_']}:{car_input['price_max']}",
              f"volume_{car_input['volume_']}:{car_input['volume_max']}"
              ]
-
+    param.remove(s_b)       # удаляем '?' если не выбраны все модели
     new_part_url = '/'.join(param)
     full_url = f'https://b.abw.by/api/adverts/cars/list/{new_part_url}'
     print(full_url)
