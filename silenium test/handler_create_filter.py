@@ -45,11 +45,12 @@ async def cooking_pdf(message: Message):
         await message.answer(f"Найдено: \n"
                              f"Действует ограничение до 125 объявлений с 1 ресурса.\n"
                              f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n"
-                             f"<a href='{av_link}'>abw.by</a> - { all_cars_abw}.\n",
+                             f"<a href='{abw_link}'>abw.by</a> - { all_cars_abw}.\n",
                              disable_web_page_preview=True,
                              parse_mode="HTML",
                              )
-        if all_cars_av == 0:
+        all = [all_cars_av, all_cars_abw]
+        if sum(all) == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
         else:

@@ -32,11 +32,11 @@ def count_cars_abw(url):
 def json_links_abw_by(url):
     links_to_json = []
     r = requests.get(url, headers=headers).json()
-    #page_count = r['pageCount']
-    page_count = 5  # ограничиваем количество стрниц
+    page_count = r['pagination']['pages']
     links_to_json.append(url)
     i = 1
-    if page_count > 1:
+    if page_count > 5:  # - - - - - - ограничение вывода страниц
+        page_count = 5  # - - - - - - ограничение вывода страниц
         while page_count > 1:
             i += 1
             links_to_json.append(f'{url}?page={i}')
@@ -47,11 +47,11 @@ def json_links_abw_by(url):
 def json_links_av_by(url_abw):
     links_to_json = []
     r = requests.get(url_abw, headers=headers).json()
-    #page_count = r['pageCount']
-    page_count = 5  # ограничиваем количество стрниц
+    page_count = r['pageCount']
     links_to_json.append(url_abw)
     i = 1
-    if page_count > 1:
+    if page_count > 5:  # - - - - - - ограничение вывода страниц
+        page_count = 5  # - - - - - - ограничение вывода страниц
         while page_count > 1:
             i += 1
             links_to_json.append(f'{url_abw}&page={i}')
@@ -66,15 +66,15 @@ def json_parse_abw_by(json_data):
         brand = r_t['title']
         price = r_t['price']['usd']
         city = r_t['city']
-        url = r_t['link']
+        url = f"https://abw.by/{r_t['link']}"
         description = r_t['description'].split('/')
         km = description[0].replace(' <br>', '')
         year = description[1].replace('г.', '')
-        dimension = description[2].split(' ')[0]
+        dimension = description[2]
         motor = description[3]
-        transmission = description[4]
-        drive = description[5]
-        type = description[6]
+        transmission = description[-3]
+        drive = description[-2]
+        type = description[-1]
         color = vin = exchange = days = ''
         car.append([url, 'comment', brand, price, motor, dimension, transmission, km, year,
                     type, drive, color, vin, exchange, days, city])
@@ -178,7 +178,6 @@ async def run(urls, urls_abw, result):
 
 def parse_main(url_av, url_abw,  message, name):
     result = []
-    # Запускаем наш парсер.
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(json_links_av_by(url_av),
                                        json_links_abw_by(url_abw),
