@@ -4,6 +4,7 @@ import aiosqlite
 import numpy as np
 from tqdm import tqdm
 
+
 source = 'https://aiosqlite.omnilib.dev/en/stable/'
 
 
@@ -16,7 +17,7 @@ async def create_tables(db):
             [unique] TEXT (0, 32) NOT NULL, 
             av_by TEXT (0, 32), 
             abw_by TEXT (0, 32), 
-            onliner TEXT (0, 32))
+            onliner_by TEXT (0, 32))
         
             CREATE TABLE models(
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
@@ -24,7 +25,7 @@ async def create_tables(db):
             [unique] TEXT (0, 32) NOT NULL, 
             av_by TEXT (0, 32), 
             abw_by TEXT (0, 32), 
-            onliner TEXT (0, 32)
+            onliner_by TEXT (0, 32)
         )""")
         await db.commit()
         print('Таблицы - brands, models успешно созданы')
@@ -92,6 +93,19 @@ async def models_part_db_abw(db):
     await db.commit()
 
 
+brands_onliner = np.load('base_data_onliner_by/brands.npy', allow_pickle=True).item()
+brands_onliner_list = list(brands_onliner.items())
+
+
+async def brands_part_db_onliner(db):
+    for brand in tqdm(brands_onliner_list):
+        if brand[1] != None:
+            await db.execute(f"UPDATE brands "
+                            f"SET onliner = '{brand[1]}'"
+                            f"WHERE [unique] = '{brand[0]}';")
+    await db.commit()
+
+
 async def main():
     async with aiosqlite.connect('auto_db') as db:
         await asyncio.gather(
@@ -100,6 +114,7 @@ async def main():
             # models_part_db(db),
             # brands_part_db_abw(db),
             # models_part_db_abw(db),
+            brands_part_db_onliner(db)
         )
 
 
