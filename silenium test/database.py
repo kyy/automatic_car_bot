@@ -11,21 +11,21 @@ source = 'https://aiosqlite.omnilib.dev/en/stable/'
 async def create_tables(db):
     try:
         await db.execute("""
-        CREATE TABLE brands(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            [unique] TEXT (0, 32) UNIQUE NOT NULL,
-            av_by TEXT (0, 32) UNIQUE,
-            abw_by TEXT (0, 32) UNIQUE
-            )""")
-
-        await db.execute("""
-        CREATE TABLE models(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            brand_id INTEGER REFERENCES brands (id) ON DELETE CASCADE,
-            [unique] TEXT (0, 32) NOT NULL,
-            av_by TEXT (0, 32),
-            abw_by TEXT (0, 32) 
-            )""")
+            CREATE TABLE brands(
+            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
+            [unique] TEXT (0, 32) NOT NULL, 
+            av_by TEXT (0, 32), 
+            abw_by TEXT (0, 32), 
+            onliner TEXT (0, 32))
+        
+            CREATE TABLE models(
+            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
+            brand_id INTEGER REFERENCES brands (id) ON DELETE CASCADE, 
+            [unique] TEXT (0, 32) NOT NULL, 
+            av_by TEXT (0, 32), 
+            abw_by TEXT (0, 32), 
+            onliner TEXT (0, 32)
+        )""")
         await db.commit()
         print('Таблицы - brands, models успешно созданы')
     except Exception as e:
@@ -101,6 +101,7 @@ async def main():
             # brands_part_db_abw(db),
             # models_part_db_abw(db),
         )
+
 
 
 if __name__ == '__main__':
