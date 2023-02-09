@@ -51,7 +51,7 @@ async def models_part_db(db):
     cursor = await db.execute("SELECT id, [unique] FROM brands;")
     rows = await cursor.fetchall()
     models_list = []
-    for item in rows:
+    for item in tqdm(rows):
         models = np.load(f'base_data_av_by/models_part_url/{item[1]}.npy', allow_pickle=True).item()  # открываем модели
         model_list = list(models.items())      # преобразуем в список кортеджей
         for model in model_list:

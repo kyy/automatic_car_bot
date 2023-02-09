@@ -1,4 +1,5 @@
 import numpy as np
+import requests
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
@@ -120,7 +121,43 @@ def get_models():
         print('errno')
 
 
+
+'https://ab.onliner.by/sdapi/ab.api/manufacturers/5'
+
+headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/109.0.0.0 Safari/537.36',
+        'accept': '*/*',
+        'content-type': 'application/json'}
+
+
+def get_from_json_brands():
+    url = 'https://ab.onliner.by/sdapi/ab.api/dictionaries'
+    r = requests.get(url, headers=headers).json()
+    brands = {}
+    for car in r['manufacturer']:
+        id = car['id']
+        name = car['name']
+        slug = car['slug']
+        brands.update({name: id})
+    np.save('brands_name_id.npy', brands)
+
+
+def get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
+    url = 'https://ab.onliner.by/sdapi/ab.api/manufacturers/'
+    brands = np.load('brands_name_id.npy', allow_pickle=True).item()
+    brand_dict = {}
+    for item in tqdm(brands):
+        r = requests.get(f'{url}{brands[item]}', headers=headers).json()
+        models_dict = {}
+        for car in r['models']:
+            id = car['id']
+            name = car['name']
+            slug = car['slug']
+            models_dict.update({name: [id, name, slug]})
+        brand_dict.update({item: models_dict})
+    np.save(f'brands_dict_models.npy', brand_dict)
+
+
 if __name__ == '__main__':
-    pass
-
-
+    print(np.load('brands_dict_models.npy', allow_pickle=True).item())

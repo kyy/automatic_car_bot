@@ -4,8 +4,6 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 import time
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import os.path
 from tqdm import tqdm
 
@@ -60,7 +58,7 @@ def get_brands():       # парсим все бренды авто и запи�
 def get_models():
     try:
         driver = start_browser()
-        for brand in brands_abw:
+        for brand in tqdm(brands_abw):
             if not os.path.exists(f'models_part_url/{brand}.npy') and brands_abw[brand] != None:
                 driver.get(f'{root}/{brands_abw[brand]}')
                 time.sleep(2)
@@ -82,9 +80,7 @@ def get_models():
                         time.sleep(0.5)
                         link = None
                     models_list.update({model: link})
-                print(brand, models_list)
                 np.save(f'models_part_url/{brand}.npy', models_list)
-
     except:
         return get_models()
 

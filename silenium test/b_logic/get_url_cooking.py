@@ -115,6 +115,48 @@ async def get_url_abw(car_input, db):
     return full_url
 
 
+'https://ab.onliner.by/sdapi/ab.api/search/vehicles?price[from]=666&price[to]=66666&price[currency]=USD&year[from]=2000&year[to]=2023&engine_capacity[from]=0.6&engine_capacity[to]=8&car[0][manufacturer]=2&car[0][model]=597&extended=true&limit=50'
+
+async def get_url_onliner(car_input, db):
+    param_input = ['brand', 'model', 'engine_type[0]=', 'transmission[0]=', 'year[from]=',
+                   'year[to]=', 'price[from]=', 'price[to]', 'engine_capacity[from]=', 'engine_capacity[to]=']
+
+    # База данных
+    car_input = dict(zip(param_input, car_input.split(s_s)))
+    transmission = {'a': 'automatic', 'm': 'mechanical'}
+    motor = {'b': 'gasoline', 'bpb': 'gasoline&gas=true', 'bm': 'gasoline&gas=true', 'bg': 'gasoline&hybrid=true', 'd': 'diesel', 'dg': 'diesel&hybrid=true', 'e': 'electric'}
+    brand = car_input['brand']
+    model = car_input['model']
+    if model != s_b:
+        cursor = await db.execute(f"select brands.onliner_by, models.onliner_by  from brands "
+                                  f"inner join models on brands.id = models.brand_id "
+                                  f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
+        rows = await cursor.fetchall()
+        car_input['brand'] = rows[0][0]
+        car_input['model'] = rows[0][1]
+    else:
+        cursor = await db.execute(f"select brands.onliner_by, models.onliner_by  from brands "
+                                  f"inner join models on brands.id = models.brand_id "
+                                  f"where brands.[unique] = '{brand}'")
+        rows = await cursor.fetchall()
+        car_input['model'] = s_b
+        car_input['brand'] = rows[0][0]
+
+    if car_input['engine_type[0]='] in motor:
+        car_input['engine_type[0]='] = motor[car_input['engine_type[0]=']]
+    if car_input['transmission[0]='] in transmission:
+        car_input['transmission[0]='] = transmission[car_input['transmission[0]=']]
+
+    new_part = []
+    for key in car_input:
+        if car_input[key] != s_b:
+            new_part.append(str(key) + str(car_input[key]))
+    new_part_url = '&'.join(new_part)+'&price[currency]=USD'
+    full_url = f'https://api.av.by/offer-types/cars/filters/main/init?{new_part_url}'
+    print(full_url)
+    return full_url
+
+
 async def all_get_url(link):
     async with aiosqlite.connect('./auto_db') as db:
         return asyncio.run(get_url_av(link, db)), asyncio.run(get_url_abw(link, db))
