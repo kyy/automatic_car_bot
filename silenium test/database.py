@@ -17,8 +17,8 @@ async def create_tables(db):
             [unique] TEXT (0, 32) NOT NULL, 
             av_by TEXT (0, 32), 
             abw_by TEXT (0, 32), 
-            onliner_by TEXT (0, 32))
-        
+            onliner_by TEXT (0, 32))""")
+        await db.execute("""
             CREATE TABLE models(
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
             brand_id INTEGER REFERENCES brands (id) ON DELETE CASCADE, 
@@ -46,7 +46,6 @@ async def brands_part_db(db):
         print(e, 'Такие данные уже существуют')
 
 
-
 # добавляем в базу данных модели и av.by идентификаторы
 async def models_part_db(db):
     cursor = await db.execute("SELECT id, [unique] FROM brands;")
@@ -62,9 +61,10 @@ async def models_part_db(db):
     await db.commit()
 
 
-
 brands_abw = np.load('base_data_abw_by/brands.npy', allow_pickle=True).item()
 brands_abw_list = list(brands_abw.items())
+
+
 
 async def brands_part_db_abw(db):
     for brand in tqdm(brands_abw_list):
@@ -85,11 +85,11 @@ async def models_part_db_abw(db):
         if os.path.exists(f'base_data_abw_by/models_part_url/{brand[0]}.npy') and brand[1] != None:
             models = np.load(f'base_data_abw_by/models_part_url/{brand[0]}.npy', allow_pickle=True).item()
             models = list(models.items())
-            for model in tqdm(models):
+            for model in models:
                 if model[1] != None:
-                    await db.execute(f"UPDATE models "
-                                     f"SET abw_by = '{model[1]}'"
-                                     f"WHERE [unique] = '{model[0]}' and brand_id = '{dict_brands[brand[0]]}';")
+                    await db.execute(f"""UPDATE models 
+                                     SET abw_by = "{model[1]}"
+                                     WHERE [unique] = "{model[0]}" and brand_id = "{dict_brands[brand[0]]}";""")
     await db.commit()
 
 
@@ -101,8 +101,26 @@ async def brands_part_db_onliner(db):
     for brand in tqdm(brands_onliner_list):
         if brand[1] != None:
             await db.execute(f"UPDATE brands "
-                            f"SET onliner = '{brand[1]}'"
+                            f"SET onliner_by = '{brand[1]}'"
                             f"WHERE [unique] = '{brand[0]}';")
+    await db.commit()
+
+
+async def models_part_db_onliner(db):
+    cursor = await db.execute(f"select [unique], id  from brands ")
+    rows = await cursor.fetchall()
+    dict_brands = {}
+    for item in rows:
+        dict_brands.update({item[0]: item[1]})
+    for brand in tqdm(brands_onliner_list):
+        if os.path.exists(f'base_data_onliner_by/models_part_url/{brand[0]}.npy') and brand[1] != None:
+            models = np.load(f'base_data_onliner_by/models_part_url/{brand[0]}.npy', allow_pickle=True).item()
+            models = list(models.items())
+            for model in models:
+                if model[1] != None:
+                    await db.execute(f"""UPDATE models 
+                                     SET onliner_by = "{model[1]}"
+                                     WHERE [unique] = "{model[0]}" and brand_id = "{dict_brands[brand[0]]}";""")
     await db.commit()
 
 
@@ -113,10 +131,10 @@ async def main():
             # brands_part_db(db),
             # models_part_db(db),
             # brands_part_db_abw(db),
-            # models_part_db_abw(db),
-            brands_part_db_onliner(db)
+             models_part_db_abw(db),
+            # brands_part_db_onliner(db),
+            # models_part_db_onliner(db),
         )
-
 
 
 if __name__ == '__main__':

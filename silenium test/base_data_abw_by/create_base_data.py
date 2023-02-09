@@ -68,17 +68,18 @@ def get_models():
                 models_list = {}
                 for model in models:
                     model_show = driver.find_element(By.XPATH, '//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/div').click()  # кликаем на модель
-                    time.sleep(0.1)
+                    time.sleep(0.5)
                     model_input = driver.find_element(By.XPATH,'//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/ul/li[1]/div/div/input').send_keys(model)  # вводим модель
-                    time.sleep(0.1)
+                    time.sleep(0.5)
                     try:
                         model_input = driver.find_element(By.XPATH, '//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/ul/li[2]').click()
+                        time.sleep(0.5)
                         link = driver.current_url.split('/')[-1]
                     except:
                         model_show = driver.find_element(By.XPATH,
                                                          '//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/div').click()
                         brands_clear_type = driver.find_element(By.XPATH, '//*[@id="app"]/div/div[3]/div/main/div/div[1]/div/div/div[1]/div/div[3]/div/ul/li[1]/div/div/input').send_keys(Keys.SHIFT + Keys.HOME + Keys.DELETE)
-                        time.sleep(0.1)
+                        time.sleep(0.5)
                         link = None
                     models_list.update({model: link})
                 print(brand, models_list)
