@@ -131,7 +131,7 @@ async def main():
             # brands_part_db(db),
             # models_part_db(db),
             # brands_part_db_abw(db),
-             models_part_db_abw(db),
+            # models_part_db_abw(db),
             # brands_part_db_onliner(db),
             # models_part_db_onliner(db),
         )
