@@ -191,11 +191,7 @@ headers = {
         'accept': '*/*',
         'content-type': 'application/json'}
 
-brands_link = np.load('brands.npy', allow_pickle=True).item()
-brands_link.update({'Hozon': 'https://cars.av.by/hozon'})
-brands_link.update({'Polestar': 'https://cars.av.by/polestar'})
-brands_link.update({'Voyah': 'https://cars.av.by/voyah'})
-brands_link.update({'ZX': 'https://cars.av.by/zx'})
+
 def get_from_json_brands():
     url = 'https://api.av.by/home/filters/home/init'
     r = requests.get(url, headers=headers).json()
@@ -203,8 +199,11 @@ def get_from_json_brands():
     for car in tqdm(r['blocks'][0]['rows'][0]['propertyGroups'][0]['properties'][0]['value'][0][1]['options']):
         id = car['id']
         name = car['label']
-        slug = brands_link[name].split('/')[-1]
-        brands.update({name: [id, slug]})
+        rr = requests.get('https://api.av.by/offer-types/cars/landings/', headers).json()
+        for ids in rr['seo']['links']:
+            if ids['label'] == name:
+                slug = ids['url'].split('/')[-1]
+            brands.update({name: [id, slug]})
     np.save('brands_name_id_slug.npy', brands)
 
 
@@ -229,8 +228,8 @@ def get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
 
 
 if __name__ == '__main__':
-    print(np.load('brands_name_id_slug.npy', allow_pickle=True).item())
-    print(np.load('brands_dict_models.npy', allow_pickle=True).item())
+    pass
+
 
 
 
