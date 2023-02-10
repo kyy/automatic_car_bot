@@ -121,9 +121,6 @@ def get_models():
         print('errno')
 
 
-
-'https://ab.onliner.by/sdapi/ab.api/manufacturers/5'
-
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/109.0.0.0 Safari/537.36',
@@ -135,20 +132,20 @@ def get_from_json_brands():
     url = 'https://ab.onliner.by/sdapi/ab.api/dictionaries'
     r = requests.get(url, headers=headers).json()
     brands = {}
-    for car in r['manufacturer']:
+    for car in tqdm(r['manufacturer']):
         id = car['id']
         name = car['name']
         slug = car['slug']
-        brands.update({name: id})
-    np.save('brands_name_id.npy', brands)
+        brands.update({name: [id, slug]})
+    np.save('brands_name_id_slug.npy', brands)
 
 
 def get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://ab.onliner.by/sdapi/ab.api/manufacturers/'
-    brands = np.load('brands_name_id.npy', allow_pickle=True).item()
+    brands = np.load('brands_name_id_slug.npy', allow_pickle=True).item()
     brand_dict = {}
     for item in tqdm(brands):
-        r = requests.get(f'{url}{brands[item]}', headers=headers).json()
+        r = requests.get(f'{url}{brands[item][0]}', headers=headers).json()
         models_dict = {}
         for car in r['models']:
             id = car['id']
@@ -160,4 +157,4 @@ def get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
 
 
 if __name__ == '__main__':
-    print(np.load('brands_dict_models.npy', allow_pickle=True).item())
+    pass

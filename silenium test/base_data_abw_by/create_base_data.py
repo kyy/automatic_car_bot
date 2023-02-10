@@ -1,4 +1,5 @@
 import numpy as np
+import requests
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
@@ -11,7 +12,6 @@ from tqdm import tqdm
 root = 'https://abw.by/cars'
 brands = np.load('../base_data_av_by/brands.npy', allow_pickle=True).item()
 brands_abw = np.load('brands.npy', allow_pickle=True).item()
-print(brands_abw)
 
 
 def start_browser():
@@ -85,5 +85,41 @@ def get_models():
         return get_models()
 
 
+headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/109.0.0.0 Safari/537.36',
+        'accept': '*/*',
+        'content-type': 'application/json'}
+
+
+def get_from_json_brands():
+    url = 'https://b.abw.by/api/adverts/cars/filters'
+    r = requests.get(url, headers=headers).json()
+    brands = {}
+    for car in tqdm(r['filters']['2']['options']):
+        id = car['id']
+        name = car['title']
+        slug = car['slug']
+        brands.update({name: [id, f'brand_{slug}']})
+    np.save('brands_name_id_slug.npy', brands)
+
+
+def get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
+    url = 'https://b.abw.by/api/adverts/cars/filters/'
+    brands = np.load('brands_name_id_slug.npy', allow_pickle=True).item()
+    brand_dict = {}
+    for item in tqdm(brands):
+        r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
+        models_dict = {}
+        for car in r['filters']['3']['options']:
+            id = car['id']
+            name = car['title']
+            slug = car['slug']
+            models_dict.update({name: [id, name, f'model_{slug}']})
+        brand_dict.update({item: models_dict})
+    np.save(f'brands_dict_models.npy', brand_dict)
+
+
 if __name__ == '__main__':
-    get_models()
+    pass
+

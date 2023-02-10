@@ -1,4 +1,5 @@
 import numpy as np
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
@@ -183,8 +184,53 @@ def car_parturl():     # фильтр авто по запросу 'get_cars_inp
     print(20*'OK**')
     time.sleep(2)
 
+
+headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/109.0.0.0 Safari/537.36',
+        'accept': '*/*',
+        'content-type': 'application/json'}
+
+brands_link = np.load('brands.npy', allow_pickle=True).item()
+brands_link.update({'Hozon': 'https://cars.av.by/hozon'})
+brands_link.update({'Polestar': 'https://cars.av.by/polestar'})
+brands_link.update({'Voyah': 'https://cars.av.by/voyah'})
+brands_link.update({'ZX': 'https://cars.av.by/zx'})
+def get_from_json_brands():
+    url = 'https://api.av.by/home/filters/home/init'
+    r = requests.get(url, headers=headers).json()
+    brands = {}
+    for car in tqdm(r['blocks'][0]['rows'][0]['propertyGroups'][0]['properties'][0]['value'][0][1]['options']):
+        id = car['id']
+        name = car['label']
+        slug = brands_link[name].split('/')[-1]
+        brands.update({name: [id, slug]})
+    np.save('brands_name_id_slug.npy', brands)
+
+
+def get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
+    url = 'https://api.av.by/offer-types/cars/landings/'
+    brands = np.load('brands_name_id_slug.npy', allow_pickle=True).item()
+    brand_dict = {}
+    for item in tqdm(brands):
+        r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
+        models_dict = {}
+        for car in r['seo']['links']:
+            name = car['label']
+            try:
+                rr = requests.get(f'{url}{brands[item][1]}/{name}', headers=headers).json()
+                id = rr['metadata']['modelId']
+            except:
+                continue
+            slug = car['url'].split('/')[-1]
+            models_dict.update({name: [id, name, slug]})
+        brand_dict.update({item: models_dict})
+    np.save(f'brands_dict_models.npy', brand_dict)
+
+
 if __name__ == '__main__':
-    corerection_models()
+    print(np.load('brands_name_id_slug.npy', allow_pickle=True).item())
+    print(np.load('brands_dict_models.npy', allow_pickle=True).item())
 
 
 
