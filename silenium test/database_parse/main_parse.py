@@ -21,12 +21,12 @@ def av_get_from_json_brands():
             if ids['label'] == name:
                 slug = ids['url'].split('/')[-1]
             brands.update({name: [id, slug]})
-    np.save('brands_name_id_slug.npy', brands)
+    np.save('av_brands.npy', brands)
 
 
 def av_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://api.av.by/offer-types/cars/landings/'
-    brands = np.load('brands_name_id_slug.npy', allow_pickle=True).item()
+    brands = np.load('av_brands.npy', allow_pickle=True).item()
     brand_dict = {}
     for item in tqdm(brands):
         r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
@@ -41,7 +41,7 @@ def av_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
             slug = car['url'].split('/')[-1]
             models_dict.update({name: [id, name, slug]})
         brand_dict.update({item: models_dict})
-    np.save(f'brands_dict_models.npy', brand_dict)
+    np.save(f'av_models.npy', brand_dict)
 
 
 def abw_get_from_json_brands():
@@ -53,12 +53,12 @@ def abw_get_from_json_brands():
         name = car['title']
         slug = car['slug']
         brands.update({name: [id, f'brand_{slug}']})
-    np.save('brands_name_id_slug.npy', brands)
+    np.save('abw_brands.npy', brands)
 
 
 def abw_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://b.abw.by/api/adverts/cars/filters/'
-    brands = np.load('brands_name_id_slug.npy', allow_pickle=True).item()
+    brands = np.load('abw_brands.npy', allow_pickle=True).item()
     brand_dict = {}
     for item in tqdm(brands):
         r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
@@ -69,7 +69,7 @@ def abw_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
             slug = car['slug']
             models_dict.update({name: [id, name, f'model_{slug}']})
         brand_dict.update({item: models_dict})
-    np.save(f'brands_dict_models.npy', brand_dict)
+    np.save(f'abw_models.npy', brand_dict)
 
 
 def onliner_get_from_json_brands():
@@ -81,12 +81,12 @@ def onliner_get_from_json_brands():
         name = car['name']
         slug = car['slug']
         brands.update({name: [id, slug]})
-    np.save('brands_name_id_slug.npy', brands)
+    np.save('onliner_brands.npy', brands)
 
 
 def onliner_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://ab.onliner.by/sdapi/ab.api/manufacturers/'
-    brands = np.load('brands_name_id_slug.npy', allow_pickle=True).item()
+    brands = np.load('onliner_brands.npy', allow_pickle=True).item()
     brand_dict = {}
     for item in tqdm(brands):
         r = requests.get(f'{url}{brands[item][0]}', headers=headers).json()
@@ -97,7 +97,7 @@ def onliner_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}
             slug = car['slug']
             models_dict.update({name: [id, name, slug]})
         brand_dict.update({item: models_dict})
-    np.save(f'brands_dict_models.npy', brand_dict)
+    np.save(f'onliner_models.npy', brand_dict)
 
 
 if __name__ == '__main__':
