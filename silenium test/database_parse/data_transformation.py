@@ -42,22 +42,28 @@ async def create_tables(db):
         await db.commit()
         print('Таблицы - brands, models успешно созданы')
     except Exception as e:
-        print(e, '\nТаблицы уже существуют')
+        print('Таблицы brands и models уже существуют')
 
 
 async def av_brands(db):
+    """
+    Заполняем в первый раз таблицу brands: id, [unique], av_by,
+    Повторно - обновляем эти столбцы.
+    :param db: инструкция к БД
+    :return: None
+    """
     cursor = await db.execute(f"select [unique], id  from brands ")
     av_bd = await cursor.fetchall()
     l_av_bd = len(av_bd)
     if l_av_bd == 0:
         await db.executemany("""INSERT INTO brands([unique], av_by) VALUES(?, ?)""", br_to_tuple(av_b))
         await db.commit()
+        print(f'Данные добавлены brands([unique], av_by)')
     else:
         print(f'Кол-во брендов: БД/av.by  {l_av_bd}/{l_av_b}')
         update = []
-        for item in tqdm(av_bd):
-            if item[0] in av_b:
-                update.append((item[1], item[0], av_b[item[0]][0]))
+        for item in av_bd:
+            update.append((item[1], item[0], av_b[item[0]][0]))
         await db.executemany("""REPLACE INTO brands(id, [unique], av_by) VALUES(?, ?, ?)""", update)
         await db.commit()
         print(f'Данные обновлены brands([unique], av_by)')
@@ -69,7 +75,7 @@ async def av_brands(db):
 async def main():
     async with aiosqlite.connect('test_db') as db:
         await asyncio.gather(
-            #create_tables(db),
+            create_tables(db),
             av_brands(db),
         )
 
