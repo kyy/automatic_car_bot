@@ -5,9 +5,16 @@ from tqdm import tqdm
 
 
 def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
-    new = {}
-    [new.update({key: value[0]}) for key, value in dictionary.items()]
-    return list(new.items())
+    new = []
+    return [new.append((key, value[0])) for key, value in dictionary.items()]
+
+
+def lenn(x):
+    k = 0
+    for i in x:
+        for j in x[i]:
+            k += 1
+    return k
 
 
 abw_m = np.load('abw_models.npy', allow_pickle=True).item()
@@ -17,6 +24,10 @@ abw_b = np.load('abw_brands.npy', allow_pickle=True).item()
 av_b = np.load('av_brands.npy', allow_pickle=True).item()
 onliner_b = np.load('onliner_brands.npy', allow_pickle=True).item()
 l_av_b = len(av_b)
+
+
+
+
 
 
 async def create_tables(db):
@@ -47,13 +58,12 @@ async def create_tables(db):
 
 async def av_brands(db):
     """
-    Заполняем в первый раз таблицу brands: id, [unique], av_by,
-    Повторно - обновляем эти столбцы.
+    Заполняем или обновляем таблицу brands: id, [unique], av_by,
     :param db: инструкция к БД
     :return: None
     """
-    cursor = await db.execute(f"select [unique], id  from brands ")
-    av_bd = await cursor.fetchall()
+    cursor_av_b = await db.execute(f"select [unique], id  from brands ")
+    av_bd = await cursor_av_b.fetchall()
     l_av_bd = len(av_bd)
     if l_av_bd == 0:
         await db.executemany("""INSERT INTO brands([unique], av_by) VALUES(?, ?)""", br_to_tuple(av_b))
@@ -62,14 +72,50 @@ async def av_brands(db):
     else:
         print(f'Кол-во брендов: БД/av.by  {l_av_bd}/{l_av_b}')
         update = []
-        for item in av_bd:
+        for item in tqdm(av_bd):
             update.append((item[1], item[0], av_b[item[0]][0]))
         await db.executemany("""REPLACE INTO brands(id, [unique], av_by) VALUES(?, ?, ?)""", update)
         await db.commit()
         print(f'Данные обновлены brands([unique], av_by)')
+        await asyncio.sleep(0.1)
         if l_av_b != l_av_bd:
             print(f'Добавлено - {l_av_b-l_av_bd}')
 
+
+async def models_part_db(db):
+    """
+    Заполняем или обновляем таблицу models: id, brand_id, [unique], av_by,
+    :param db: инструкция к БД
+    :return: None
+    """
+    cursor_av_b = await db.execute("SELECT id, [unique] FROM brands;")
+    cursor_av_m = await db.execute("SELECT id, [unique] FROM models;")
+    av_bd_b = await cursor_av_b.fetchall()
+    av_bd_m = await cursor_av_m.fetchall()
+    l_av_bd_m = len(av_bd_m)
+    l_av_m = lenn(av_m)
+    models_list = []
+    for item in av_bd_b:
+        models = av_m[item[1]]
+        for model in models:
+            models_list.append((item[0], model, models[model][0]))
+    if l_av_bd_m == 0:
+        await db.executemany("INSERT INTO models(brand_id, [unique], av_by) VALUES(?, ?, ?);", models_list)
+        await db.commit()
+        print(f'Данные добавлены models([unique], av_by)')
+    else:
+        print(f'Кол-во моделей: БД/av.by  {l_av_bd_m}/{l_av_m}')
+        models_list_update = []
+        for i in tqdm(av_bd_m):
+            for j in models_list:
+                if i[1] == j[1]:
+                    models_list_update.append((i[0], )+j)
+        await db.executemany("REPLACE INTO models(id, brand_id, [unique], av_by) VALUES(?, ?, ?, ?);", models_list_update)
+        await db.commit()
+        print(f'Данные обновлены models([unique], av_by)')
+        await asyncio.sleep(0.1)
+        if l_av_m != l_av_bd_m:
+            print(f'Добавлено - {l_av_m - l_av_bd_m}')
 
 
 async def main():
@@ -77,6 +123,7 @@ async def main():
         await asyncio.gather(
             create_tables(db),
             av_brands(db),
+            models_part_db(db),
         )
 
 
