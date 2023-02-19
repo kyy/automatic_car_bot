@@ -141,19 +141,20 @@ async def add_brand(db, brand_data: dict[str: [str, str]], set_row: str, index: 
     print(f'+ brands - {set_row}')
 
 
-async def add_model(db):
+async def add_model(db, model_data, set_row, index):
     cursor_av_m = await db.execute(f"select brands.[unique], models.[unique] from brands "
                                   f"inner join models on brands.id = models.brand_id ")
     av_bd_m = await cursor_av_m.fetchall()
-    for brand in abw_m:
-        for model in abw_m[brand]:
+    for brand in model_data:
+        for model in model_data[brand]:
             if (brand, model) in av_bd_m:
                 await db.execute(f"""
                             UPDATE models
-                            SET abw_by = '{abw_m[brand][model][2]}'
+                            SET {set_row} = '{model_data[brand][model][index]}'
                             WHERE [unique] = '{model}';
                             """)
-                await db.commit()
+    await db.commit()
+    print(f'+ models - {set_row}')
 
 
 
@@ -174,7 +175,8 @@ async def main(db_name='test_db'):
                 av_models(db),
                 add_brand(db, abw_b, 'abw_by', 1),              # noqa
                 add_brand(db, onliner_b, 'onliner_by', 0),      # noqa
-                add_model(db),
+                add_model(db, abw_m, 'abw_by', 2),              # noqa
+                add_model(db, onliner_m, 'onliner_by', 0),      # noqa
             )
     except aiosqlite.Error as e:
         print(e, f'\nНе удалось подключиться к БД {db_name}')
