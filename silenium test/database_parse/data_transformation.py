@@ -119,9 +119,9 @@ async def av_models(db):
             print(f'Добавлено - {l_av_m - l_av_bd_m}')
 
 
-async def add_brand(db, brand_data: dict[str: [str, str]], set_row: str, index: int):
+async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, index: int):
     """
-    Добавляет модели в соответствующий столбец
+    Добавляет бренды в соответствующий столбец
     :param db: инструкция к БД
     :param brand_data: данные (словарь содержащий бренды, cо списком параметров: id, slug)
     :param set_row: имя столбца куда добавляем данные
@@ -141,25 +141,29 @@ async def add_brand(db, brand_data: dict[str: [str, str]], set_row: str, index: 
     print(f'+ brands - {set_row}')
 
 
-async def add_model(db, model_data, set_row, index):
-    cursor_av_m = await db.execute(f"select brands.[unique], models.[unique] from brands "
-                                  f"inner join models on brands.id = models.brand_id ")
+async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], ], set_row: str, index: str):
+    """
+        Добавляет модели в соответствующий столбец
+        :param db: инструкция к БД
+        :param model_data: данные (словарь содержащий модели, cо списком параметров: id, name, slug)
+        :param set_row: имя столбца куда добавляем данные
+        :param index: id=0, name=1, slug=2
+        :return: None
+        """
+    cursor_av_m = await db.execute(f"""
+        select brands.[unique], models.[unique] from brands
+        inner join models on brands.id = models.brand_id""")
     av_bd_m = await cursor_av_m.fetchall()
     for brand in model_data:
         for model in model_data[brand]:
             if (brand, model) in av_bd_m:
                 await db.execute(f"""
-                            UPDATE models
-                            SET {set_row} = '{model_data[brand][model][index]}'
-                            WHERE [unique] = '{model}';
-                            """)
+                    UPDATE models
+                    SET {set_row} = '{model_data[brand][model][index]}'
+                    WHERE [unique] = '{model}';
+                """)
     await db.commit()
     print(f'+ models - {set_row}')
-
-
-
-
-
 
 
 async def main(db_name='test_db'):
