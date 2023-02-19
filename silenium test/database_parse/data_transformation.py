@@ -3,14 +3,13 @@ import aiosqlite
 import numpy as np
 
 
-
 def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
     new = []
     return [new.append((key, value[0])) for key, value in dictionary.items()]
 
 
 def lenn(items):
-    return sum([1 for item in items for sub_item in items[item]])
+    return sum([1 for item in items for sub_item in items[item]])   # noqa
 
 
 abw_m = np.load('abw_models.npy', allow_pickle=True).item()
@@ -19,10 +18,10 @@ onliner_m = np.load('onliner_models.npy', allow_pickle=True).item()
 abw_b = np.load('abw_brands.npy', allow_pickle=True).item()
 av_b = np.load('av_brands.npy', allow_pickle=True).item()
 onliner_b = np.load('onliner_brands.npy', allow_pickle=True).item()
-l_av_b = len(av_b)      # ---> всех брендов в av.by
-l_av_m = lenn(av_m)     # ---> всех моделей av.by
+l_av_b = len(av_b)     # noqa  ---> всех брендов в av.by
+l_av_m = lenn(av_m)    # noqa  ---> всех моделей av.by
 
-print(abw_b)
+print(abw_m)
 
 
 async def create_tables(db):
@@ -67,14 +66,14 @@ async def av_brands(db):
     av_bd = await cursor_av_b.fetchall()
     l_av_bd = len(av_bd)
     if l_av_bd == 0:
-        await db.executemany("""INSERT INTO brands([unique], av_by) VALUES(?, ?)""", br_to_tuple(av_b))
+        await db.executemany("""INSERT INTO brands([unique], av_by) VALUES(?, ?)""", br_to_tuple(av_b))    # noqa
         await db.commit()
         print(f'+ добавлены brands([unique], av_by)')
     else:
         print(f'---> брендов: БД/av.by  {l_av_bd}/{l_av_b}')
         update = []
         for item in av_bd:
-            update.append((item[1], item[0], av_b[item[0]][0]))
+            update.append((item[1], item[0], av_b[item[0]][0]))      # noqa
         await db.executemany("""REPLACE INTO brands(id, [unique], av_by) VALUES(?, ?, ?)""", update)
         await db.commit()
         print(f'+ обновлены brands([unique], av_by)')
@@ -83,7 +82,7 @@ async def av_brands(db):
             print(f'Добавлено - {l_av_b-l_av_bd}')
 
 
-async def models_part_db(db):
+async def av_models(db):
     """
     Заполняем или обновляем таблицу models: id, brand_id, [unique], av_by,
     :param db: инструкция к БД
@@ -96,7 +95,7 @@ async def models_part_db(db):
     l_av_bd_m = len(av_bd_m)
     models_list = []
     for item in av_bd_b:
-        models = av_m[item[1]]
+        models = av_m[item[1]]          # noqa
         for model in models:
             models_list.append((item[0], model, models[model][0]))
     if l_av_bd_m == 0:
@@ -110,7 +109,7 @@ async def models_part_db(db):
         for i in av_bd_m:
             for j in models_list:
                 if i[1] == j[1]:
-                    models_list_update.append((i[0], )+j)
+                    models_list_update.append((i[0],)+j)
         await db.executemany(
             "REPLACE INTO models(id, brand_id, [unique], av_by) VALUES(?, ?, ?, ?);", models_list_update)
         await db.commit()
@@ -126,7 +125,7 @@ async def add_brand(db, brand_data: dict[str: [str, str]], set_row: str, index: 
     :param db: инструкция к БД
     :param brand_data: данные (словарь содержащий бренды, cо списком параметров: id, slug)
     :param set_row: имя столбца куда добавляем данные
-    :param index: id: index=0, slug: index=1
+    :param index: id=0, slug=1
     :return: None
     """
     cursor_av_b = await db.execute("SELECT id, [unique] FROM brands;")
@@ -142,6 +141,26 @@ async def add_brand(db, brand_data: dict[str: [str, str]], set_row: str, index: 
     print(f'+ brands - {set_row}')
 
 
+async def add_model(db):
+    cursor_av_m = await db.execute(f"select brands.[unique], models.[unique] from brands "
+                                  f"inner join models on brands.id = models.brand_id ")
+    av_bd_m = await cursor_av_m.fetchall()
+    for brand in abw_m:
+        for model in abw_m[brand]:
+            if (brand, model) in av_bd_m:
+                await db.execute(f"""
+                            UPDATE models
+                            SET abw_by = '{abw_m[brand][model][2]}'
+                            WHERE [unique] = '{model}';
+                            """)
+                await db.commit()
+
+
+
+
+
+
+
 async def main(db_name='test_db'):
     f"""
     Выполняем сценарий по созданию и наполнению БД {db_name}
@@ -152,9 +171,10 @@ async def main(db_name='test_db'):
             await asyncio.gather(
                 create_tables(db),
                 av_brands(db),
-                models_part_db(db),
-                add_brand(db, abw_b, 'abw_by', 1),
-                add_brand(db, onliner_b, 'onliner_by', 0),
+                av_models(db),
+                add_brand(db, abw_b, 'abw_by', 1),              # noqa
+                add_brand(db, onliner_b, 'onliner_by', 0),      # noqa
+                add_model(db),
             )
     except aiosqlite.Error as e:
         print(e, f'\nНе удалось подключиться к БД {db_name}')

@@ -97,7 +97,7 @@ def onliner_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}
             slug = car['slug']
             models_dict.update({name: [id, name, slug]})
         brand_dict.update({item: models_dict})
-    np.save(f'onliner_models.npy', brand_dict)
+    np.save('onliner_models.npy', brand_dict)
 
 
 if __name__ == '__main__':
