@@ -110,36 +110,44 @@ async def av_models(db):
     models_list = []
     models_list_update = []
     models_list_insert = []
+    brand_dict = {}
+
+    for brand in av_bd_b:
+        brand_dict.update({brand[1]: brand[0]})
+
     for item in av_bd_b:
         models = av_m[item[1]]          # noqa
         for model in models:
             models_list.append((item[0], model, models[model][0]))
+
     if l_av_bd_m == 0:
         await db.executemany(
-            "INSERT INTO models(brand_id, [unique], av_by) VALUES(?, ?, ?);", models_list)
+            "INSERT INTO models(brand_id, [unique], av_by) "
+            "VALUES(?, ?, ?);", models_list)
         await db.commit()
         print(f'+ добавлены models([unique], av_by)')
     else:
         print(f'---> моделей: БД/av.by  {l_av_bd_m}/{l_av_m}')
-
 
         for brand_model in av_bd_bm:
             if brand_model[1] not in av_m[brand_model[0]]:
                 await db.execute(f"""
                 DELETE FROM models
                 WHERE id={brand_model[2]}""")    # чистим базу от неактуальных моделей
-
-
-        for ii in models_list:
-            if ii[0:2] not in [(i[2], i[1]) for i in av_bd_m]:
-                models_list_insert.append((ii))
-            for jj in av_bd_m:
-                if (ii[1], ii[1]) == jj[1:]:
-                    models_list_update.append((jj[0],)+ii)
+        for brand in av_m:
+            for model in av_m[brand]:
+                if (brand, model) not in [i[0:2] for i in av_bd_bm]:
+                    models_list_insert.append((brand_dict[brand], model, av_m[brand][model][0]))
+                else:
+                    for item in av_bd_m:
+                        if item[1:3] == (model, brand_dict[brand]):
+                            models_list_update.append((item[0], brand_dict[brand], model, av_m[brand][model][0]))
         await db.executemany(
-            "INSERT INTO models(brand_id, [unique], av_by) VALUES(?, ?, ?);", models_list_insert)
+            "INSERT INTO models(brand_id, [unique], av_by) "
+            "VALUES(?, ?, ?);", models_list_insert)   # записываем новые модели
         await db.executemany(
-            "REPLACE INTO models(id, brand_id, [unique], av_by) VALUES(?, ?, ?, ?);", models_list_update)    # обновляем модели моделей
+            "REPLACE INTO models(id, brand_id, [unique], av_by) "
+            "VALUES(?, ?, ?, ?);", models_list_update)    # обновляем модели моделей
         await db.commit()
         print(f'+ обновлены models([unique], av_by)')
         await asyncio.sleep(0.1)
@@ -162,7 +170,7 @@ async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, i
         if brand in [item[1] for item in av_bd_b]:
             await db.execute(f"""
             UPDATE brands
-            SET {set_row} = '{brand_data[brand][index]}'
+            SET {set_row} = '{brand_data[brand][index]}' 
             WHERE [unique] = '{brand}';
             """)
     await db.commit()
@@ -179,18 +187,18 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
         :return: None
         """
     cursor_av_m = await db.execute(f"""
-            select brands.[unique], models.[unique] from brands
-            inner join models on brands.id = models.brand_id
+            select brands.[unique], models.[unique] from brands 
+            inner join models on brands.id = models.brand_id 
         """)
     av_bd_m = await cursor_av_m.fetchall()
     for brand in model_data:
         for model in model_data[brand]:
-            if (brand, model) in av_bd_m:
-                await db.execute(f"""
-                    UPDATE models
-                    SET {set_row} = '{model_data[brand][model][index]}'
-                    WHERE [unique] = '{model}';
-                """)
+            if (brand, model) in av_bd_m and model != "Cee'd":
+                await db.execute(f""" 
+                    UPDATE models 
+                    SET {set_row} = '{model_data[brand][model][index]}'    
+                    WHERE [unique] = '{model}' ;""")
+
     await db.commit()
     print(f'+ models - {set_row}')
 
@@ -206,13 +214,10 @@ async def main():
         await create_tables(db)
         await av_brands(db),
         await av_models(db),
-        # await asyncio.gather(
-        #     add_brand(db, abw_b, 'abw_by', 1),              # noqa
-        #     add_brand(db, onliner_b, 'onliner_by', 0),      # noqa
-        #     add_model(db, abw_m, 'abw_by', 2),              # noqa
-        #     add_model(db, onliner_m, 'onliner_by', 0),      # noqa
-        # )
-
+        await add_brand(db, abw_b, 'abw_by', 1),              # noqa
+        await add_brand(db, onliner_b, 'onliner_by', 0),      # noqa
+        await add_model(db, abw_m, 'abw_by', 2),              # noqa
+        await add_model(db, onliner_m, 'onliner_by', 0),      # noqa
 
 
 if __name__ == '__main__':
