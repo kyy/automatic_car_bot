@@ -2,7 +2,6 @@ import asyncio
 import aiosqlite
 import numpy as np
 from config import database
-from tqdm import tqdm
 
 
 def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
@@ -67,7 +66,9 @@ async def av_brands(db):
     av_bd = await cursor_av_b.fetchall()
     l_av_bd = len(av_bd)
     if l_av_bd == 0:
-        await db.executemany("""INSERT INTO brands([unique], av_by) VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
+        await db.executemany("""
+            INSERT INTO brands([unique], av_by) 
+            VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
         await db.commit()
         print(f'+ добавлены brands([unique], av_by)')
     else:
@@ -77,13 +78,19 @@ async def av_brands(db):
         for item in av_b:
             if item not in [i[0] for i in av_bd]:
                 update_insert.append((item, av_b[item][0]))  # noqa
-        await db.executemany("""REPLACE INTO brands([unique], av_by) VALUES(?, ?)""", update_insert)  # вставляем новые бренды
+        await db.executemany("""
+            REPLACE INTO brands([unique], av_by) 
+            VALUES(?, ?)""", update_insert)     # вставляем новые бренды
         for item in av_bd:
             if item[0] in av_b:
                 update.append((item[1], item[0], av_b[item[0]][0]))      # noqa
             else:
-                await db.execute(f"""DELETE FROM brands WHERE id={item[1]}""")    # удаляем неактуальные бренды
-        await db.executemany("""REPLACE INTO brands(id, [unique], av_by) VALUES(?, ?, ?)""", update)  # обновляем все бренды
+                await db.execute(f"""
+                    DELETE FROM brands 
+                    WHERE id={item[1]}""")    # удаляем неактуальные бренды
+        await db.executemany("""
+            REPLACE INTO brands(id, [unique], av_by) 
+            VALUES(?, ?, ?)""", update)      # обновляем все бренды
         await db.commit()
         print(f'+ обновлены brands([unique], av_by)')
         await asyncio.sleep(0.1)
@@ -193,12 +200,9 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
     av_bd_m = await cursor_av_m.fetchall()
     for brand in model_data:
         for model in model_data[brand]:
-            if (brand, model) in av_bd_m and model != "Cee'd":
-                await db.execute(f""" 
-                    UPDATE models 
-                    SET {set_row} = '{model_data[brand][model][index]}'    
-                    WHERE [unique] = '{model}' ;""")
-
+            if (brand, model) in av_bd_m:
+                await db.execute(
+                    f'''UPDATE models SET {set_row} = "{model_data[brand][model][index]}" WHERE [unique] = "{model}";''')
     await db.commit()
     print(f'+ models - {set_row}')
 
@@ -208,7 +212,6 @@ async def main():
     Выполняем сценарий по созданию и наполнению БД
     :return: None
     """
-
     db = database()
     async with db:
         await create_tables(db)
