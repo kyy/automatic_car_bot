@@ -104,12 +104,14 @@ async def av_models(db):
     :param db: инструкция к БД
     :return: None
     """
-    cursor_av_b = await db.execute("SELECT id, [unique] FROM brands;")
-    cursor_av_m = await db.execute("SELECT id, [unique], brand_id FROM models;")
+    cursor_av_b = await db.execute("""
+        SELECT id, [unique] FROM brands;""")
+    cursor_av_m = await db.execute("""
+        SELECT id, [unique], brand_id FROM models;""")
     cursor_av_bm = await db.execute("""
-                select brands.[unique], models.[unique], models.id from brands
-                inner join models on brands.id = models.brand_id
-            """)
+        SELECT brands.[unique], models.[unique], models.id FROM brands
+        INNER JOIN models ON brands.id = models.brand_id
+                """)
     av_bd_b = await cursor_av_b.fetchall()
     av_bd_m = await cursor_av_m.fetchall()
     av_bd_bm = await cursor_av_bm.fetchall()
@@ -140,7 +142,8 @@ async def av_models(db):
             if brand_model[1] not in av_m[brand_model[0]]:
                 await db.execute(f"""
                 DELETE FROM models
-                WHERE id={brand_model[2]}""")    # чистим базу от неактуальных моделей
+                WHERE id={brand_model[2]}
+                """)    # чистим базу от неактуальных моделей
         for brand in av_m:
             for model in av_m[brand]:
                 if (brand, model) not in [i[0:2] for i in av_bd_bm]:
@@ -176,10 +179,10 @@ async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, i
     for brand in brand_data:
         if brand in [item[1] for item in av_bd_b]:
             await db.execute(f"""
-            UPDATE brands
-            SET {set_row} = '{brand_data[brand][index]}' 
-            WHERE [unique] = '{brand}';
-            """)
+                UPDATE brands
+                SET {set_row} = '{brand_data[brand][index]}' 
+                WHERE [unique] = '{brand}';
+                """)
     await db.commit()
     print(f'+ brands - {set_row}')
 
@@ -201,10 +204,30 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
     for brand in model_data:
         for model in model_data[brand]:
             if (brand, model) in av_bd_m:
-                await db.execute(
-                    f'''UPDATE models SET {set_row} = "{model_data[brand][model][index]}" WHERE [unique] = "{model}";''')
+                await db.execute(f'''
+                    UPDATE models 
+                    SET {set_row} = '{model_data[brand][model][index]}' 
+                    WHERE [unique] = "{model}";
+                    ''')
     await db.commit()
     print(f'+ models - {set_row}')
+
+
+async def delete_dublicates(db, table):
+
+    cursor = await db.execute(f"""SELECT * FROM {table}""")
+    rows = await cursor.fetchall()
+    unique_list = []
+
+    for row in rows:
+        if row[1::] not in [i[1::] for i in unique_list]:
+            unique_list.append(row)
+        else:
+            await db.execute(f"""
+                DELETE FROM {table}
+                WHERE id={row[0]}
+            """)
+    await db.commit()
 
 
 async def main():
@@ -221,6 +244,8 @@ async def main():
         await add_brand(db, onliner_b, 'onliner_by', 0),      # noqa
         await add_model(db, abw_m, 'abw_by', 2),              # noqa
         await add_model(db, onliner_m, 'onliner_by', 0),      # noqa
+        await delete_dublicates(db, 'brands')
+        await delete_dublicates(db, 'models')
 
 
 if __name__ == '__main__':
