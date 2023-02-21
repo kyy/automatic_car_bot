@@ -2,7 +2,7 @@ from datetime import datetime
 import asyncio
 import aiosqlite
 from .constant_fu import s_s, s_b
-
+from .database.config import db_name
 
 # av.by
 async def get_url_av(car_input, db):
@@ -158,7 +158,7 @@ async def get_url_onliner(car_input, db):
 
 
 async def all_get_url(link):
-    async with aiosqlite.connect('./auto_db') as db:
+    async with aiosqlite.connect(db_name) as db:
         return asyncio.run(get_url_av(link, db)), asyncio.run(get_url_abw(link, db))
 
 

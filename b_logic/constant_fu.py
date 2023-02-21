@@ -1,5 +1,4 @@
 import asyncio
-
 import aiosqlite
 import numpy as np
 from datetime import datetime

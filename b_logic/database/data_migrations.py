@@ -20,8 +20,17 @@ onliner_m = np.load('parse/onliner_models.npy', allow_pickle=True).item()
 abw_b = np.load('parse/abw_brands.npy', allow_pickle=True).item()
 av_b = np.load('parse/av_brands.npy', allow_pickle=True).item()
 onliner_b = np.load('parse/onliner_brands.npy', allow_pickle=True).item()
-l_av_b = len(av_b)     # noqa  ---> всех брендов в av.by
-l_av_m = lenn(av_m)    # noqa  ---> всех моделей av.by
+
+l_av_b = len(av_b)
+l_abw_b = len(abw_b)
+l_onliner_b = len(abw_b)
+l_av_m = lenn(av_m)
+l_abw_m = lenn(av_m)
+l_onliner_m = lenn(av_m)
+
+
+async def checking_null():
+    return True if all(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m) else False
 
 
 async def create_tables(db):
@@ -77,13 +86,13 @@ async def av_brands(db):
         update_insert = []
         for item in av_b:
             if item not in [i[0] for i in av_bd]:
-                update_insert.append((item, av_b[item][0]))  # noqa
+                update_insert.append((item, av_b[item][0]))
         await db.executemany("""
             REPLACE INTO brands([unique], av_by) 
             VALUES(?, ?)""", update_insert)     # вставляем новые бренды
         for item in av_bd:
             if item[0] in av_b:
-                update.append((item[1], item[0], av_b[item[0]][0]))      # noqa
+                update.append((item[1], item[0], av_b[item[0]][0]))
             else:
                 await db.execute(f"""
                     DELETE FROM brands 
@@ -174,7 +183,7 @@ async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, i
     :param index: id=0, slug=1
     :return: None
     """
-    cursor_av_b = await db.execute("SELECT id, [unique] FROM brands;")
+    cursor_av_b = await db.execute("""SELECT id, [unique] FROM brands;""")
     av_bd_b = await cursor_av_b.fetchall()
     for brand in brand_data:
         if brand in [item[1] for item in av_bd_b]:
@@ -213,7 +222,7 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
     print(f'+ models - {set_row}')
 
 
-async def delete_dublicates(db, table):
+async def delete_dublicates(db, table: str):
     """
     Удаляем дубликаты в таблице с уникальным id
     :param db: инструкция к БД
