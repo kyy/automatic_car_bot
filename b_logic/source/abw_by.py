@@ -10,23 +10,29 @@ headers = {
 
 
 def count_cars_abw(url):
-    r = requests.get(url, headers=headers).json()
-    return int(r['pagination']['total'])
+    try:
+        r = requests.get(url, headers=headers).json()
+        return int(r['pagination']['total'])
+    except:
+        return 0
 
 
 def json_links_abw(url):
-    links_to_json = []
-    r = requests.get(url, headers=headers).json()
-    page_count = r['pagination']['pages']
-    links_to_json.append(url)
-    i = 1
-    if page_count > 5:  # - - - - - - ограничение вывода страниц
-        page_count = 5  # - - - - - - ограничение вывода страниц
-        while page_count > 1:
-            i += 1
-            links_to_json.append(f'{url}?page={i}')
-            page_count -= 1
-    return links_to_json
+    try:
+        links_to_json = []
+        r = requests.get(url, headers=headers).json()
+        page_count = r['pagination']['pages']
+        links_to_json.append(url)
+        i = 1
+        if page_count > 5:  # - - - - - - ограничение вывода страниц
+            page_count = 5  # - - - - - - ограничение вывода страниц
+            while page_count > 1:
+                i += 1
+                links_to_json.append(f'{url}?page={i}')
+                page_count -= 1
+        return links_to_json
+    except:
+        return False
 
 
 def json_parse_abw(json_data):
@@ -51,6 +57,7 @@ def json_parse_abw(json_data):
     return car
 
 
+
 async def bound_fetch_abw(semaphore, url, session, result):
     try:
         async with semaphore:
@@ -63,7 +70,8 @@ async def bound_fetch_abw(semaphore, url, session, result):
 
 async def get_one_abw(url, session, result):
     async with session.get(url) as response:
-        page_content = await response.json()   # Ожидаем ответа и блокируем таск.
+        page_content = await response.json()     # Ожидаем ответа и блокируем таск.
         item = json_parse_abw(page_content)      # Получаем информацию об машине и сохраняем в лист.
         result += item
         #await asyncio.sleep(0.1)
+

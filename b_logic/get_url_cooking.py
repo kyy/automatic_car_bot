@@ -110,7 +110,10 @@ async def get_url_abw(car_input, db):
     if s_b in param:
         param.remove(s_b)       # удаляем '?' если не выбраны все модели
     new_part_url = '/'.join(param)
-    full_url = f'https://b.abw.by/api/adverts/cars/list/{new_part_url}'
+    if param[0] != 'None':
+        full_url = f'https://b.abw.by/api/adverts/cars/list/{new_part_url}'
+    else:
+        full_url = None
     print(full_url)
     return full_url
 

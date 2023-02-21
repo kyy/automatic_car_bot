@@ -25,17 +25,17 @@ class PDF(FPDF):
             title='av.by',
             alt_text='av.by',
         )
-
-        img_abw = qrcode.make(self.abw_by_link)
-        self.image(
-            img_abw.get_image(),
-            x=252,
-            y=3,
-            w=19,
-            link=self.abw_by_link,
-            title='abw.by',
-            alt_text='abw.by',
-        )
+        if self.abw_by_link:
+            img_abw = qrcode.make(self.abw_by_link)
+            self.image(
+                img_abw.get_image(),
+                x=252,
+                y=3,
+                w=19,
+                link=self.abw_by_link,
+                title='abw.by',
+                alt_text='abw.by',
+            )
 
         # Rendering logo:
         self.image(
@@ -150,7 +150,10 @@ async def do_pdf(
     pdf.filter_full = str(filter_full)
     pdf.filter_short = str(filter_short)
     pdf.av_by_link = f"https://cars.av.by/filter?{av_by_link.split('?')[1]}"
-    pdf.abw_by_link = f"https://abw.by/cars{abw_by_link.split('list')[1]}"
+    try:
+        pdf.abw_by_link = f"https://abw.by/cars{abw_by_link.split('list')[1]}"
+    except:
+        pdf.abw_by_link = False
     pdf.add_page()
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")

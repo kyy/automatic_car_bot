@@ -47,7 +47,7 @@ async def cooking_pdf(message: Message):
         await message.answer(f"Найдено: \n"
                              f"Действует ограничение до 125 объявлений с 1 ресурса.\n"
                              f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n"
-                             f"<a href='{abw_link}'>abw.by</a> - { all_cars_abw}.\n",
+                             f"<a href='{abw_link}'>abw.by</a> - {all_cars_abw}.\n",
                              disable_web_page_preview=True,
                              parse_mode="HTML",
                              )
@@ -60,7 +60,7 @@ async def cooking_pdf(message: Message):
             try:
                 parse_main(av_link, abw_link, message=message.from_user.id, name=name_time_stump)
             except Exception as e:
-                print(e, 'Ошибка в parse_main')
+                print(e, '\nОшибка в parse_main')
                 return await message.answer("Ошибка при сборе данных.\n"
                                             "Повторите попытку /search.")
             await message.answer(f"Сбор данных.")

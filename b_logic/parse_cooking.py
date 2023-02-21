@@ -25,10 +25,11 @@ async def run(urls_av, urls_abw, result):
             # Собираем таски и добавляем в лист для дальнейшего ожидания.
             task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result))
             tasks.append(task)
-        for url in urls_abw:
-            # Собираем таски и добавляем в лист для дальнейшего ожидания.
-            task = asyncio.ensure_future(bound_fetch_abw(semaphore, url, session, result))
-            tasks.append(task)
+        if urls_abw:
+            for url in urls_abw:
+                # Собираем таски и добавляем в лист для дальнейшего ожидания.
+                task = asyncio.ensure_future(bound_fetch_abw(semaphore, url, session, result))
+                tasks.append(task)
         # Ожидаем завершения всех наших задач.
         await asyncio.gather(*tasks)
 
