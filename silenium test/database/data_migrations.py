@@ -70,7 +70,7 @@ async def av_brands(db):
             INSERT INTO brands([unique], av_by) 
             VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
         await db.commit()
-        print(f'+ добавлены brands([unique], av_by)')
+        print('+ brands - av_by')
     else:
         print(f'---> брендов: БД/av.by  {l_av_bd}/{l_av_b}')
         update = []
@@ -92,7 +92,7 @@ async def av_brands(db):
             REPLACE INTO brands(id, [unique], av_by) 
             VALUES(?, ?, ?)""", update)      # обновляем все бренды
         await db.commit()
-        print(f'+ обновлены brands([unique], av_by)')
+        print('+ brands - av_by')
         await asyncio.sleep(0.1)
         if l_av_b != l_av_bd:
             print(f'Добавлено - {l_av_b-l_av_bd}')
@@ -134,7 +134,7 @@ async def av_models(db):
             "INSERT INTO models(brand_id, [unique], av_by) "
             "VALUES(?, ?, ?);", models_list)
         await db.commit()
-        print(f'+ добавлены models([unique], av_by)')
+        print('+ models - av_by')
     else:
         print(f'---> моделей: БД/av.by  {l_av_bd_m}/{l_av_m}')
 
@@ -159,7 +159,7 @@ async def av_models(db):
             "REPLACE INTO models(id, brand_id, [unique], av_by) "
             "VALUES(?, ?, ?, ?);", models_list_update)    # обновляем модели моделей
         await db.commit()
-        print(f'+ обновлены models([unique], av_by)')
+        print('+ models - av_by')
         await asyncio.sleep(0.1)
         if l_av_m != l_av_bd_m:
             print(f'Добавлено - {l_av_m - l_av_bd_m}')
@@ -214,7 +214,12 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
 
 
 async def delete_dublicates(db, table):
-
+    """
+    Удаляем дубликаты в таблице с уникальным id
+    :param db: инструкция к БД
+    :param table: имя таблицы
+    :return: None
+    """
     cursor = await db.execute(f"""SELECT * FROM {table}""")
     rows = await cursor.fetchall()
     unique_list = []
