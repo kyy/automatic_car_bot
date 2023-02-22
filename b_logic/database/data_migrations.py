@@ -29,8 +29,9 @@ l_abw_m = lenn(av_m)
 l_onliner_m = lenn(av_m)
 
 
-async def checking_null():
-    return True if all(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m) else False
+def checking_null():   # проверяем все ли файлы с данными
+    xxx = [l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m]
+    return all([x > 0 for x in xxx])
 
 
 async def create_tables(db):
@@ -240,6 +241,7 @@ async def delete_dublicates(db, table: str):
             await db.execute(f"""
                 DELETE FROM {table}
                 WHERE id={row[0]}
+                ORDER BY DATE 
             """)
     await db.commit()
 
@@ -251,15 +253,19 @@ async def main():
     """
     db = database()
     async with db:
-        await create_tables(db)
-        await av_brands(db),
-        await av_models(db),
-        await add_brand(db, abw_b, 'abw_by', 1),              # noqa
-        await add_brand(db, onliner_b, 'onliner_by', 0),      # noqa
-        await add_model(db, abw_m, 'abw_by', 2),              # noqa
-        await add_model(db, onliner_m, 'onliner_by', 0),      # noqa
-        await delete_dublicates(db, 'brands')
-        await delete_dublicates(db, 'models')
+        if checking_null():
+            await create_tables(db)
+            await av_brands(db),
+            await av_models(db),
+            await add_brand(db, abw_b, 'abw_by', 1),
+            await add_brand(db, onliner_b, 'onliner_by', 0),
+            await add_model(db, abw_m, 'abw_by', 2),
+            await add_model(db, onliner_m, 'onliner_by', 0),
+            await delete_dublicates(db, 'brands')
+            await delete_dublicates(db, 'models')
+        else:
+            print('Присутствуют пустые словари, '
+                  'возможна утеря данных в БД (data_migrations.py -> checking_null())')
 
 
 if __name__ == '__main__':

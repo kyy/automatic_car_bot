@@ -1,13 +1,47 @@
 import numpy as np
 import requests
 from tqdm import tqdm
-
+from data_migrations import lenn
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/109.0.0.0 Safari/537.36',
         'accept': '*/*',
         'content-type': 'application/json'}
+
+
+def checking_new_brands_av():
+    print('проверка брендов')
+    url = 'https://api.av.by/home/filters/home/init'
+    brands = np.load('parse/av_brands.npy', allow_pickle=True).item()
+    r = requests.get(url, headers=headers).json()
+    n_brands_inet = len(r['blocks'][0]['rows'][0]['propertyGroups'][0]['properties'][0]['value'][0][1]['options'])
+    try:
+        n_brands_stor = len(brands)
+    except:
+        n_brands_stor = 0
+    print(n_brands_stor, n_brands_inet)
+    if n_brands_inet != n_brands_stor:
+        return False
+    else:
+        return True
+
+
+def checking_new_models_av():
+    print('проверка моделей')
+    url = 'https://api.av.by/offer-types/cars/landings/'
+    brands = np.load('parse/av_brands.npy', allow_pickle=True).item()
+    models = np.load('parse/av_models.npy', allow_pickle=True).item()
+    n_models_inet = 0
+    n_models_stor = lenn(models)
+    for item in tqdm(brands):
+        r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
+        n_models_inet += len(r['seo']['links'])
+    print(n_models_stor, n_models_inet)
+    if n_models_inet != n_models_stor :
+        return False
+    else:
+        return True
 
 
 def av_get_from_json_brands():
@@ -102,9 +136,20 @@ def onliner_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}
 
 
 if __name__ == '__main__':
-    av_get_from_json_brands()
-    av_get_from_json_models()
-    abw_get_from_json_brands()
-    abw_get_from_json_models()
-    onliner_get_from_json_brands()
-    onliner_get_from_json_models()
+    if not all([checking_new_brands_av(), checking_new_models_av()]):
+        print('Начинаем обновления')
+        print('av.by -> brands')
+        av_get_from_json_brands()
+        print('av.by -> models')
+        av_get_from_json_models()
+        print('abw.by -> brands')
+        abw_get_from_json_brands()
+        print('abw.by -> models')
+        abw_get_from_json_models()
+        print('onliner.by -> brands')
+        onliner_get_from_json_brands()
+        print('onliner.by -> models')
+        onliner_get_from_json_models()
+        pass
+    else:
+        print('Обновления не требуются')
