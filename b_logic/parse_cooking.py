@@ -4,6 +4,7 @@ from aiohttp import ClientSession
 import nest_asyncio
 from .source.av_by import json_links_av, bound_fetch_av
 from .source.abw_by import json_links_abw, bound_fetch_abw
+from .source.onliner_by import json_links_onliner, bound_fetch_onliner
 
 
 nest_asyncio.apply()
@@ -15,7 +16,7 @@ headers = {
 }
 
 
-async def run(urls_av, urls_abw, result):
+async def run(urls_av, urls_abw, urls_onliner, result):
     tasks = []
     # Выбрал лок от балды. Можете поиграться.
     semaphore = asyncio.Semaphore(5)
@@ -30,16 +31,23 @@ async def run(urls_av, urls_abw, result):
                 # Собираем таски и добавляем в лист для дальнейшего ожидания.
                 task = asyncio.ensure_future(bound_fetch_abw(semaphore, url, session, result))
                 tasks.append(task)
+        if urls_onliner:
+            for url in urls_onliner:
+                # Собираем таски и добавляем в лист для дальнейшего ожидания.
+                task = asyncio.ensure_future(bound_fetch_onliner(semaphore, url, session, result))
+                tasks.append(task)
         # Ожидаем завершения всех наших задач.
         await asyncio.gather(*tasks)
 
 
-def parse_main(url_av, url_abw,  message, name):
+def parse_main(url_av, url_abw, url_onliner,  message, name):
     result = []
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(json_links_av(url_av),
                                        json_links_abw(url_abw),
-                                       result))
+                                       json_links_onliner(url_onliner),
+                                       result)
+                                   )
     loop.run_until_complete(future)
     np.save(f'b_logic/buffer/{message}{name}.npy', result)
     print(result)

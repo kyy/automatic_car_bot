@@ -41,24 +41,34 @@ async def cooking_pdf(message: Message):
         cars = message.text.replace('filter=', '')
         await message.answer("Фильтр принят\n"
                              "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
-        av_link, abw_link = await all_get_url(cars)
+        av_link, abw_link, onliner_link = await all_get_url(cars)
         all_cars_av = count_cars_av(av_link)
         all_cars_abw = count_cars_abw(abw_link)
+        all_cars_onliner = count_cars_abw(onliner_link)
         await message.answer(f"Найдено: \n"
                              f"Действует ограничение до 125 объявлений с 1 ресурса.\n"
                              f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n"
-                             f"<a href='{abw_link}'>abw.by</a> - {all_cars_abw}.\n",
+                             f"<a href='{abw_link}'>abw.by</a> - {all_cars_abw}.\n"
+                             f"<a href='{onliner_link}'>onliner.by</a> - {all_cars_onliner}.\n",
                              disable_web_page_preview=True,
                              parse_mode="HTML",
                              )
-        all_count = [all_cars_av, all_cars_abw]
+        all_count = [all_cars_av,
+                     all_cars_abw,
+                     all_cars_onliner
+                     ]
         if sum(all_count) == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"
                                         "или запрашиваемый сервер перегружен")
         else:
             name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
             try:
-                parse_main(av_link, abw_link, message=message.from_user.id, name=name_time_stump)
+                parse_main(av_link,
+                           abw_link,
+                           onliner_link,
+                           message=message.from_user.id,
+                           name=name_time_stump
+                           )
             except Exception as e:
                 print(e, '\nОшибка в parse_main')
                 return await message.answer("Ошибка при сборе данных.\n"

@@ -127,7 +127,8 @@ async def get_url_onliner(car_input, db):
     # База данных
     car_input = dict(zip(param_input, car_input.split(s_s)))
     transmission = {'a': 'automatic', 'm': 'mechanical'}
-    motor = {'b': 'gasoline', 'bpb': 'gasoline&gas=true', 'bm': 'gasoline&gas=true', 'bg': 'gasoline&hybrid=true', 'd': 'diesel', 'dg': 'diesel&hybrid=true', 'e': 'electric'}
+    motor = {'b': 'gasoline', 'bpb': 'gasoline&gas=true', 'bm': 'gasoline&gas=true', 'bg': 'gasoline&hybrid=true',
+             'd': 'diesel', 'dg': 'diesel&hybrid=true', 'e': 'electric'}
     brand = car_input['brand']
     model = car_input['model']
     if model != s_b:
@@ -162,7 +163,10 @@ async def get_url_onliner(car_input, db):
 
 async def all_get_url(link):
     async with aiosqlite.connect(db_name) as db:
-        return asyncio.run(get_url_av(link, db)), asyncio.run(get_url_abw(link, db))
+        return (asyncio.run(get_url_av(link, db)),
+                asyncio.run(get_url_abw(link, db)),
+                asyncio.run(get_url_onliner(link, db)),
+                )
 
 
 if __name__ == '__main__':
