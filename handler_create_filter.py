@@ -9,9 +9,10 @@ from config_reader import config
 from b_logic.keyboards import multi_row_keyboard
 from b_logic.parse_cooking import parse_main
 from b_logic.pdf_cooking import do_pdf
-from b_logic.get_url_cooking import all_get_url
+from b_logic.get_url_cooking import all_get_url, onliner_url_filter
 from b_logic.source.av_by import count_cars_av
 from b_logic.source.abw_by import count_cars_abw
+from b_logic.source.onliner_by import count_cars_onliner
 from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, columns_cost,
                                  columns_years, columns_dimension, columns_motor, motor, transmission,
                                  decode_filter_short, code_filter_short,)
@@ -41,12 +42,16 @@ async def cooking_pdf(message: Message):
         cars = message.text.replace('filter=', '')
         await message.answer("Фильтр принят\n"
                              "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
-        av_link, abw_link, onliner_link = await all_get_url(cars)
-        all_cars_av = count_cars_av(av_link)
-        all_cars_abw = count_cars_abw(abw_link)
-        all_cars_onliner = count_cars_abw(onliner_link)
+
+        av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars)
+        all_cars_av = count_cars_av(av_link_json)
+        all_cars_abw = count_cars_abw(abw_link_json)
+        all_cars_onliner = count_cars_onliner(onliner_link_json)
+        av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
+        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
+        onliner_link = onliner_url_filter(cars, onliner_link_json)
         await message.answer(f"Найдено: \n"
-                             f"Действует ограничение до 125 объявлений с 1 ресурса.\n"
+                             f"Действует ограничение до ~125 объявлений с 1 ресурса.\n"
                              f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n"
                              f"<a href='{abw_link}'>abw.by</a> - {all_cars_abw}.\n"
                              f"<a href='{onliner_link}'>onliner.by</a> - {all_cars_onliner}.\n",
@@ -63,9 +68,9 @@ async def cooking_pdf(message: Message):
         else:
             name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
             try:
-                parse_main(av_link,
-                           abw_link,
-                           onliner_link,
+                parse_main(av_link_json,
+                           abw_link_json,
+                           onliner_link_json,
                            message=message.from_user.id,
                            name=name_time_stump
                            )
@@ -74,29 +79,23 @@ async def cooking_pdf(message: Message):
                 return await message.answer("Ошибка при сборе данных.\n"
                                             "Повторите попытку /search.")
             await message.answer(f"Сбор данных.")
-            try:
-                try:
-                    await do_pdf(
-                        message=message.from_user.id,
-                        av_by_link=av_link,
-                        abw_by_link=abw_link,
-                        name=name_time_stump,
-                        filter_full=decode_filter_short(cars),
-                        filter_short=message.text)
-                    os.remove(f'b_logic/buffer/{message.from_user.id}{name_time_stump}.npy')
-                except Exception as error:
-                    os.remove(f'b_logic/buffer/{message.from_user.id}{name_time_stump}.npy')
-                    print(error, "<--> Ошибка при формировании отчета")
-                    return await message.answer("Ошибка при создании pdf")
-                if os.path.exists(f'b_logic/buffer/{name_time_stump}.pdf'):
-                    file = FSInputFile(f'b_logic/buffer/{name_time_stump}.pdf')
-                    await bot.send_document(message.chat.id, document=file)
-                    os.remove(f'b_logic/buffer/{name_time_stump}.pdf')
 
-                else:
-                    print(f'{name_time_stump}.pdf не найден')
-            except Exception as error:
-                print(error)
+            await do_pdf(
+                message=message.from_user.id,
+                av_by_link=av_link,
+                abw_by_link=abw_link,
+                name=name_time_stump,
+                filter_full=decode_filter_short(cars),
+                filter_short=message.text)
+            os.remove(f'b_logic/buffer/{message.from_user.id}{name_time_stump}.npy')
+
+        if os.path.exists(f'b_logic/buffer/{name_time_stump}.pdf'):
+            file = FSInputFile(f'b_logic/buffer/{name_time_stump}.pdf')
+            await bot.send_document(message.chat.id, document=file)
+            os.remove(f'b_logic/buffer/{name_time_stump}.pdf')
+        else:
+            print(f'{name_time_stump}.pdf не найден')
+
 
 
 @router.message(Command(commands=["show"]))

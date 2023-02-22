@@ -10,23 +10,29 @@ headers = {
 
 
 def count_cars_av(url):
-    r = requests.get(url, headers=headers).json()
-    return int(r['count'])
+    try:
+        r = requests.get(url, headers=headers).json()
+        return int(r['count'])
+    except:
+        return 0
 
 
 def json_links_av(url):
-    links_to_json = []
-    r = requests.get(url, headers=headers).json()
-    page_count = r['pageCount']
-    links_to_json.append(url)
-    i = 1
-    if page_count > 5:  # - - - - - - ограничение вывода страниц
-        page_count = 5  # - - - - - - ограничение вывода страниц
-        while page_count > 1:
-            i += 1
-            links_to_json.append(f'{url}&page={i}')
-            page_count -= 1
-    return links_to_json
+    try:
+        links_to_json = []
+        r = requests.get(url, headers=headers).json()
+        page_count = r['pageCount']
+        links_to_json.append(url)
+        i = 1
+        if page_count > 5:  # - - - - - - ограничение вывода страниц
+            page_count = 5  # - - - - - - ограничение вывода страниц
+            while page_count > 1:
+                i += 1
+                links_to_json.append(f'{url}&page={i}')
+                page_count -= 1
+        return links_to_json
+    except:
+        return False
 
 
 def json_parse_av(json_data):
@@ -66,8 +72,11 @@ def json_parse_av(json_data):
                 type = r_t['value']
             if r_t['name'] == 'generation':
                 generation = r_t['value']
-        car.append([url, 'comment', f'{brand} {model} {generation}', price, motor, dimension, transmission, km, year,
-                    type, drive, color, vin, exchange, days, city])
+        car.append([
+            str(url), 'comment', f'{str(brand)} {str(model)} {str(generation)}', str(price), str(motor), str(dimension),
+            str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
+            str(exchange), str(days), str(city)
+        ])
     return car
 
 

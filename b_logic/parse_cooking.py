@@ -22,18 +22,16 @@ async def run(urls_av, urls_abw, urls_onliner, result):
     semaphore = asyncio.Semaphore(5)
     # Опять же оставляем User-Agent, чтобы не получить ошибку от Metacritic
     async with ClientSession(headers=headers) as session:
-        for url in urls_av:
-            # Собираем таски и добавляем в лист для дальнейшего ожидания.
-            task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result))
-            tasks.append(task)
+        if urls_av:
+            for url in urls_av:
+                task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result))
+                tasks.append(task)
         if urls_abw:
             for url in urls_abw:
-                # Собираем таски и добавляем в лист для дальнейшего ожидания.
                 task = asyncio.ensure_future(bound_fetch_abw(semaphore, url, session, result))
                 tasks.append(task)
         if urls_onliner:
             for url in urls_onliner:
-                # Собираем таски и добавляем в лист для дальнейшего ожидания.
                 task = asyncio.ensure_future(bound_fetch_onliner(semaphore, url, session, result))
                 tasks.append(task)
         # Ожидаем завершения всех наших задач.
@@ -50,7 +48,6 @@ def parse_main(url_av, url_abw, url_onliner,  message, name):
                                    )
     loop.run_until_complete(future)
     np.save(f'b_logic/buffer/{message}{name}.npy', result)
-    print(result)
     return result
 
 

@@ -52,8 +52,11 @@ def json_parse_abw(json_data):
         drive = description[-2].replace(' ', '')
         type = description[-1]
         color = vin = exchange = days = ''
-        car.append([url, 'comment', brand, price, motor, dimension, transmission, km, year,
-                    type, drive, color, vin, exchange, days, city])
+        car.append([
+            str(url), 'comment', brand, str(price), str(motor), str(dimension),
+            str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
+            str(exchange), str(days), str(city)
+        ])
     return car
 
 

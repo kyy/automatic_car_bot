@@ -15,16 +15,17 @@ class PDF(FPDF):
 
     def header(self):
         # Rendering QRC:
-        img_av = qrcode.make(self.av_by_link)
-        self.image(
-            img_av.get_image(),
-            x=273,
-            y=3,
-            w=19,
-            link=self.av_by_link,
-            title='av.by',
-            alt_text='av.by',
-        )
+        if self.av_by_link:
+            img_av = qrcode.make(self.av_by_link)
+            self.image(
+                img_av.get_image(),
+                x=273,
+                y=3,
+                w=19,
+                link=self.av_by_link,
+                title='av.by',
+                alt_text='av.by',
+            )
         if self.abw_by_link:
             img_abw = qrcode.make(self.abw_by_link)
             self.image(
@@ -149,9 +150,12 @@ async def do_pdf(
     pdf.set_font('DejaVuSansCondensed', size=9)
     pdf.filter_full = str(filter_full)
     pdf.filter_short = str(filter_short)
-    pdf.av_by_link = f"https://cars.av.by/filter?{av_by_link.split('?')[1]}"
     try:
-        pdf.abw_by_link = f"https://abw.by/cars{abw_by_link.split('list')[1]}"
+        pdf.av_by_link = av_by_link
+    except:
+        pdf.av_by_link = False
+    try:
+        pdf.abw_by_link = abw_by_link
     except:
         pdf.abw_by_link = False
     pdf.add_page()
@@ -164,7 +168,7 @@ async def do_pdf(
 async def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
-    dataframe = pd.DataFrame(np.load(f'b_logic/buffer/{message}{name}.npy'))
+    dataframe = pd.DataFrame(np.load(f'b_logic/buffer/{message}{name}.npy', allow_pickle=True))
     dataframe.sort_values(by=[2])
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()
