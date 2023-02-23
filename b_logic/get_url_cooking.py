@@ -160,6 +160,7 @@ async def get_url_onliner(car_input, db):
     print(full_url)
     return full_url
 
+
 def onliner_url_filter(car_input, link):
     car = car_input.split(s_s)
     brand, model = car[0:2]

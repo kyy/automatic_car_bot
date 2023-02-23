@@ -1,7 +1,7 @@
 import numpy as np
 import requests
 from tqdm import tqdm
-from data_migrations import lenn
+
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -27,7 +27,7 @@ def checking_new_brands_av():
         return True
 
 
-def checking_new_models_av():
+def checking_new_models_av(lenn):
     print('проверка моделей')
     url = 'https://api.av.by/offer-types/cars/landings/'
     brands = np.load('parse/av_brands.npy', allow_pickle=True).item()
@@ -135,21 +135,16 @@ def onliner_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}
     np.save('parse/onliner_models.npy', brand_dict)
 
 
-if __name__ == '__main__':
-    if not all([checking_new_brands_av(), checking_new_models_av()]):
+def main_parse(lenn):
+    if not all([checking_new_brands_av(), checking_new_models_av(lenn)]):
         print('Начинаем обновления')
-        print('av.by -> brands')
         av_get_from_json_brands()
-        print('av.by -> models')
         av_get_from_json_models()
-        print('abw.by -> brands')
         abw_get_from_json_brands()
-        print('abw.by -> models')
         abw_get_from_json_models()
-        print('onliner.by -> brands')
         onliner_get_from_json_brands()
-        print('onliner.by -> models')
         onliner_get_from_json_models()
-        pass
+        return True
     else:
         print('Обновления не требуются')
+        return False

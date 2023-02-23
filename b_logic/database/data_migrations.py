@@ -2,7 +2,7 @@ import asyncio
 import aiosqlite
 import numpy as np
 from config import database
-
+from main_parse import main_parse
 
 def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
     new = []
@@ -269,4 +269,5 @@ async def main():
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    if main_parse(lenn):        # проверяем обновления на сайтах
+        asyncio.run(main())     # обновляем базу

@@ -1,7 +1,7 @@
 import asyncio
 import requests
 from datetime import datetime
-from datetime import date
+
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -45,7 +45,7 @@ def json_parse_onliner(json_data):
         days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
         city = r_t['location']['city']['name']
         url = r_t['html_url']
-        vin = 'None'
+        vin = ''
         exchange = ''
         year = r_t['specs']['year']
         km = r_t['specs']['odometer']['value']
