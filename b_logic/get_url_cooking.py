@@ -1,12 +1,10 @@
 from datetime import datetime
 import asyncio
 import aiosqlite
-import numpy as np
-from .constant_fu import s_s, s_b, onliner_root_link
+from .constant_fu import s_s, s_b
 from .database.config import db_name
 
 
-# av.by
 async def get_url_av(car_input, db):
     """
     Формируем гет запрос для av.by
@@ -55,7 +53,6 @@ async def get_url_av(car_input, db):
     return full_url
 
 
-# abw.by
 async def get_url_abw(car_input, db):
     """
     Формируем гет запрос для abw.by
@@ -95,7 +92,7 @@ async def get_url_abw(car_input, db):
         car_input['model_'] = s_b
         car_input['brand_'] = rows[0][0]
 
-    if car_input['brand_'] is not None:
+    if (car_input['brand_'] and car_input['model_']) is not None:
         if car_input['engine_'] in motor:
             car_input['engine_'] = motor[car_input['engine_']]
         if car_input['transmission_'] in transmission:
@@ -117,8 +114,6 @@ async def get_url_abw(car_input, db):
         return full_url
     else:
         return None
-
-
 
 
 async def get_url_onliner(car_input, db):
@@ -147,7 +142,7 @@ async def get_url_onliner(car_input, db):
         car_input['car[0][model]='] = s_b
         car_input['car[0][manufacturer]='] = rows[0][0]
 
-    if car_input['car[0][manufacturer]='] is not None:
+    if (car_input['car[0][manufacturer]='] and car_input['car[0][model]=']) is not None:
         if car_input['engine_type[0]='] in motor:
             car_input['engine_type[0]='] = motor[car_input['engine_type[0]=']]
         if car_input['transmission[0]='] in transmission:
