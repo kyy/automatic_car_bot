@@ -102,5 +102,23 @@ def code_filter_short(cc: list = None):
     return 'filter=' + s_s.join(cc)
 
 
+def onliner_url_filter(car_input, link):
+    try:
+        car = car_input.split(s_s)
+        brand, model = car[0:2]
+        brands = np.load('b_logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
+        link = link.split('vehicles?')[1]
+        brand_slug = brands[brand][1]
+        if model != s_b:
+            models = np.load('b_logic/database/parse/onliner_models.npy', allow_pickle=True).item()
+            model_slug = models[brand][model][2]
+            url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
+        else:
+            url = f'https://ab.onliner.by/{brand_slug}?{link}'
+        return url
+    except:
+        return onliner_root_link
+
+
 if __name__ == '__main__':
     asyncio.run(get_models(brand='BMW'))

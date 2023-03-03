@@ -3,8 +3,7 @@ import pandas as pd
 from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
-
-from b_logic.constant_fu import abw_root_link
+from b_logic.constant_fu import abw_root_link, onliner_root_link
 
 
 class PDF(FPDF):
@@ -14,6 +13,7 @@ class PDF(FPDF):
         self.filter_short = None
         self.av_by_link = None
         self.abw_by_link = None
+        self.onliner_by_link = None
 
     def header(self):
         # Rendering QRC:
@@ -40,6 +40,18 @@ class PDF(FPDF):
                 alt_text='abw.by',
             )
 
+        if self.onliner_by_link != onliner_root_link:
+            img_abw = qrcode.make(self.onliner_by_link)
+            self.image(
+                img_abw.get_image(),
+                x=231,
+                y=3,
+                w=19,
+                link=self.abw_by_link,
+                title='onliner.by',
+                alt_text='onliner.by',
+            )
+
         # Rendering logo:
         self.image(
             f"b_logic/static/logo.png",
@@ -56,9 +68,9 @@ class PDF(FPDF):
         self.set_font(size=9)
         self.set_text_color(60, 60, 60)
         self.cell(0, 0, f'{self.filter_short}', align="L")
-        self.cell(-36, 0, f'{datetime.now().date()}', align="R")
+        self.cell(-57, -6, f'{datetime.now().date()}', align="R")
         self.ln(4)
-        self.cell(241, 0, f'{datetime.now().time().strftime("%H:%M")}', align="R")
+        self.cell(220, -6, f'{datetime.now().time().strftime("%H:%M")}', align="R")
         self.ln(4)
         self.cell(13)
         self.cell(10, -8, f'{self.filter_full}', align="L")
@@ -153,6 +165,7 @@ async def do_pdf(
     pdf.filter_short = str(filter_short)
     pdf.av_by_link = link.get('av')
     pdf.abw_by_link = link.get('abw')
+    pdf.onliner_by_link = link.get('onliner')
     pdf.add_page()
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")
