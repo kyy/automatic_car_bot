@@ -2,7 +2,7 @@ from datetime import datetime
 import asyncio
 import aiosqlite
 import numpy as np
-from .constant_fu import s_s, s_b
+from .constant_fu import s_s, s_b, onliner_root_link
 from .database.config import db_name
 
 
@@ -95,29 +95,30 @@ async def get_url_abw(car_input, db):
         car_input['model_'] = s_b
         car_input['brand_'] = rows[0][0]
 
-    if car_input['engine_'] in motor:
-        car_input['engine_'] = motor[car_input['engine_']]
-    if car_input['transmission_'] in transmission:
-        car_input['transmission_'] = transmission[car_input['transmission_']]
+    if car_input['brand_'] is not None:
+        if car_input['engine_'] in motor:
+            car_input['engine_'] = motor[car_input['engine_']]
+        if car_input['transmission_'] in transmission:
+            car_input['transmission_'] = transmission[car_input['transmission_']]
 
-
-    param = [f"{car_input['brand_']}",
-             f"{car_input['model_']}",
-             f"engine_{car_input['engine_']}",
-             f"transmission_{car_input['transmission_']}",
-             f"year_{car_input['year_']}:{car_input['year_max']}",
-             f"price_{car_input['price_']}:{car_input['price_max']}",
-             f"volume_{car_input['volume_']}:{car_input['volume_max']}"
-             ]
-    if s_b in param:
-        param.remove(s_b)       # удаляем '?' если не выбраны все модели
-    new_part_url = '/'.join(param)
-    if param[0] != 'None':
+        param = [f"{car_input['brand_']}",
+                 f"{car_input['model_']}",
+                 f"engine_{car_input['engine_']}",
+                 f"transmission_{car_input['transmission_']}",
+                 f"year_{car_input['year_']}:{car_input['year_max']}",
+                 f"price_{car_input['price_']}:{car_input['price_max']}",
+                 f"volume_{car_input['volume_']}:{car_input['volume_max']}"
+                 ]
+        if s_b in param:
+            param.remove(s_b)       # удаляем '?' если не выбраны все модели
+        new_part_url = '/'.join(param)
         full_url = f'https://b.abw.by/api/adverts/cars/list/{new_part_url}'
+        print(full_url)
+        return full_url
     else:
-        full_url = None
-    print(full_url)
-    return full_url
+        return None
+
+
 
 
 async def get_url_onliner(car_input, db):
@@ -146,34 +147,41 @@ async def get_url_onliner(car_input, db):
         car_input['car[0][model]='] = s_b
         car_input['car[0][manufacturer]='] = rows[0][0]
 
-    if car_input['engine_type[0]='] in motor:
-        car_input['engine_type[0]='] = motor[car_input['engine_type[0]=']]
-    if car_input['transmission[0]='] in transmission:
-        car_input['transmission[0]='] = transmission[car_input['transmission[0]=']]
+    if car_input['car[0][manufacturer]='] is not None:
+        if car_input['engine_type[0]='] in motor:
+            car_input['engine_type[0]='] = motor[car_input['engine_type[0]=']]
+        if car_input['transmission[0]='] in transmission:
+            car_input['transmission[0]='] = transmission[car_input['transmission[0]=']]
 
-    new_part = []
-    for key in car_input:
-        if car_input[key] != s_b:
-            new_part.append(str(key) + str(car_input[key]))
-    new_part_url = '&'.join(new_part)+'&price[currency]=USD'
-    full_url = f'https://ab.onliner.by/sdapi/ab.api/search/vehicles?{new_part_url}'
-    print(full_url)
-    return full_url
+        new_part = []
+        for key in car_input:
+            if car_input[key] != s_b:
+                new_part.append(str(key) + str(car_input[key]))
+        new_part_url = '&'.join(new_part)+'&price[currency]=USD'
+        full_url = f'https://ab.onliner.by/sdapi/ab.api/search/vehicles?{new_part_url}'
+        print(full_url)
+        return full_url
+    else:
+        return None
+
 
 
 def onliner_url_filter(car_input, link):
-    car = car_input.split(s_s)
-    brand, model = car[0:2]
-    brands = np.load('b_logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
-    brand_slug = brands[brand][1]
-    link = link.split('vehicles?')[1]
-    if model != s_b:
-        models = np.load('b_logic/database/parse/onliner_models.npy', allow_pickle=True).item()
-        model_slug = models[brand][model][2]
-        url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
-    else:
-        url = f'https://ab.onliner.by/{brand_slug}?{link}'
-    return url
+    try:
+        car = car_input.split(s_s)
+        brand, model = car[0:2]
+        brands = np.load('b_logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
+        link = link.split('vehicles?')[1]
+        brand_slug = brands[brand][1]
+        if model != s_b:
+            models = np.load('b_logic/database/parse/onliner_models.npy', allow_pickle=True).item()
+            model_slug = models[brand][model][2]
+            url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
+        else:
+            url = f'https://ab.onliner.by/{brand_slug}?{link}'
+        return url
+    except:
+        return onliner_root_link
 
 
 async def all_get_url(link):

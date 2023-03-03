@@ -13,6 +13,11 @@ columns_years = 5
 columns_cost = 5
 columns_dimension = 8
 
+# root links
+av_root_link = 'https://ab.onliner.by/'
+abw_root_link = 'https://ab.onliner.by/'
+onliner_root_link = 'https://ab.onliner.by/'
+
 # source of data for buttons
 # make '' for delete button
 
@@ -70,6 +75,7 @@ def decode_filter_short(string: str = None, lists: list = None, sep: str = s_s):
         if c[8] != s_b:
             c[8] = str(int(c[8]) / 1000)
         if c[9] != s_b:
+            print(c[9])
             c[9] = str(int(c[9]) / 1000)
         if c[3] != s_b:
             c[3] = 'автомат' if c[3] == 'a' else 'механика'

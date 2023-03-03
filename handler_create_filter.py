@@ -15,7 +15,7 @@ from b_logic.source.abw_by import count_cars_abw
 from b_logic.source.onliner_by import count_cars_onliner
 from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, columns_cost,
                                  columns_years, columns_dimension, columns_motor, motor, transmission,
-                                 decode_filter_short, code_filter_short,)
+                                 decode_filter_short, code_filter_short, abw_root_link, )
 
 
 router = Router()
@@ -48,7 +48,10 @@ async def cooking_pdf(message: Message):
         all_cars_abw = count_cars_abw(abw_link_json)
         all_cars_onliner = count_cars_onliner(onliner_link_json)
         av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
-        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
+        try:
+            abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
+        except:
+            abw_link = abw_root_link
         onliner_link = onliner_url_filter(cars, onliner_link_json)
         await message.answer(f"Найдено: \n"
                              f"Действует ограничение до ~125 объявлений с 1 ресурса.\n"
@@ -82,8 +85,11 @@ async def cooking_pdf(message: Message):
 
             await do_pdf(
                 message=message.from_user.id,
-                av_by_link=av_link,
-                abw_by_link=abw_link,
+                link={
+                    'av': av_link,
+                    'abw': abw_link,
+                    'onliner': onliner_link,
+                    },
                 name=name_time_stump,
                 filter_full=decode_filter_short(cars),
                 filter_short=message.text)

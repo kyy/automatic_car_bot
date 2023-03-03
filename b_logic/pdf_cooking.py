@@ -4,6 +4,8 @@ from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
 
+from b_logic.constant_fu import abw_root_link
+
 
 class PDF(FPDF):
 
@@ -26,7 +28,7 @@ class PDF(FPDF):
                 title='av.by',
                 alt_text='av.by',
             )
-        if self.abw_by_link:
+        if self.abw_by_link != abw_root_link:
             img_abw = qrcode.make(self.abw_by_link)
             self.image(
                 img_abw.get_image(),
@@ -126,8 +128,7 @@ async def do_pdf(
         name=None,
         filter_full='<filter full>',
         filter_short='<filter code>',
-        av_by_link='<av.by>',
-        abw_by_link='<abw.by>',
+        link=None,
         message=None,
 ):
     data, col_names, links = await get_data(message, name)
@@ -150,14 +151,8 @@ async def do_pdf(
     pdf.set_font('DejaVuSansCondensed', size=9)
     pdf.filter_full = str(filter_full)
     pdf.filter_short = str(filter_short)
-    try:
-        pdf.av_by_link = av_by_link
-    except:
-        pdf.av_by_link = False
-    try:
-        pdf.abw_by_link = abw_by_link
-    except:
-        pdf.abw_by_link = False
+    pdf.av_by_link = link.get('av')
+    pdf.abw_by_link = link.get('abw')
     pdf.add_page()
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")

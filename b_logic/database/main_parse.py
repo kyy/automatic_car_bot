@@ -38,7 +38,7 @@ def checking_new_models_av(lenn):
         r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
         n_models_inet += len(r['seo']['links'])
     print(n_models_stor, n_models_inet)
-    if n_models_inet != n_models_stor :
+    if n_models_inet != n_models_stor:
         return False
     else:
         return True
