@@ -47,7 +47,7 @@ class PDF(FPDF):
                 x=231,
                 y=3,
                 w=19,
-                link=self.abw_by_link,
+                link=self.onliner_by_link,
                 title='onliner.by',
                 alt_text='onliner.by',
             )
@@ -182,6 +182,9 @@ async def get_data(message, name):
     df = dataframe.iloc[0:, 2:].to_numpy()
     links = dataframe.iloc[0:, 0].tolist()
     # comments = dataframe.iloc[0:, 1].tolist()
+
+    # dataframe.to_excel(f'{message}{name}.xlsx', index=False) #экспорт в эксель
+
     return df, columns, links
 
 
