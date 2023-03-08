@@ -86,9 +86,9 @@ async def cooking_pdf(message: Message):
             await do_pdf(
                 message=message.from_user.id,
                 link={
-                    'av': av_link,
-                    'abw': abw_link,
-                    'onliner': onliner_link,
+                    'av': [av_link, all_cars_av],
+                    'abw': [abw_link, all_cars_abw],
+                    'onliner': [onliner_link, all_cars_onliner],
                     },
                 name=name_time_stump,
                 filter_full=decode_filter_short(cars),

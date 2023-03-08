@@ -3,7 +3,6 @@ import pandas as pd
 from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
-from b_logic.constant_fu import abw_root_link, onliner_root_link
 
 
 class PDF(FPDF):
@@ -17,37 +16,37 @@ class PDF(FPDF):
 
     def header(self):
         # Rendering QRC:
-        if self.av_by_link:
-            img_av = qrcode.make(self.av_by_link)
+        if self.av_by_link[1] != 0:
+            img_av = qrcode.make(self.av_by_link[0])
             self.image(
                 img_av.get_image(),
                 x=273,
                 y=3,
                 w=19,
-                link=self.av_by_link,
+                link=self.av_by_link[0],
                 title='av.by',
                 alt_text='av.by',
             )
-        if self.abw_by_link != abw_root_link:
-            img_abw = qrcode.make(self.abw_by_link)
+        if self.abw_by_link[1] != 0:
+            img_abw = qrcode.make(self.abw_by_link[0])
             self.image(
                 img_abw.get_image(),
                 x=252,
                 y=3,
                 w=19,
-                link=self.abw_by_link,
+                link=self.abw_by_link[0],
                 title='abw.by',
                 alt_text='abw.by',
             )
 
-        if self.onliner_by_link != onliner_root_link:
-            img_abw = qrcode.make(self.onliner_by_link)
+        if self.onliner_by_link[1] != 0:
+            img_abw = qrcode.make(self.onliner_by_link[0])
             self.image(
                 img_abw.get_image(),
                 x=231,
                 y=3,
                 w=19,
-                link=self.onliner_by_link,
+                link=self.onliner_by_link[0],
                 title='onliner.by',
                 alt_text='onliner.by',
             )
