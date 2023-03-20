@@ -47,7 +47,7 @@ def json_parse_abw(json_data):
         km = description[0].replace(' <br', '').replace(' км', '')
         year = description[1].replace('г.', '').replace('>', '').replace(' ', '')
         dimension = description[2].split(' ')[1]
-        motor = description[3].replace(' ', '')
+        motor = description[-4].replace(' ', '')
         transmission = description[-3].replace(' ', '')
         drive = description[-2].replace(' ', '')
         type = description[-1]

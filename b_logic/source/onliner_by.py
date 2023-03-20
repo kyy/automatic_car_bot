@@ -50,8 +50,8 @@ def json_parse_onliner(json_data):
         year = r_t['specs']['year']
         km = r_t['specs']['odometer']['value']
         dimension = r_t['specs']['engine']['capacity']
-        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин')
-        transmission = r_t['specs']['transmission']
+        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель')
+        transmission = r_t['specs']['transmission'].replace('mechanical ', 'механика').replace('automatic', 'автомат')
         color = r_t['specs']['color']
         drive = r_t['specs']['drivetrain']
         type = r_t['specs']['body_type']

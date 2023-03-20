@@ -1,6 +1,7 @@
 from datetime import datetime
 import asyncio
 import aiosqlite
+import numpy as np
 from .constant_fu import s_s, s_b
 from .database.config import db_name
 
@@ -65,6 +66,8 @@ async def get_url_abw(car_input, db):
                    'year_max', 'price_', 'price_max', 'volume_', 'volume_max']
     # вставляем минимумы и максимумы вместо s_b
     min_max_values = ['benzin,dizel,gibrid,sug', 'at,mt', '2000', datetime.now().year, '100', '500000', '0.2', '10.0']
+    # цену выдумать нельзя, берется из селектора
+
     car_input = car_input.split(s_s)
     for i in range(len(car_input) - 2):
         if car_input[i + 2] == s_b:
@@ -72,8 +75,22 @@ async def get_url_abw(car_input, db):
 
     # База данных
     car_input = dict(zip(param_input, car_input))
+    cost_selection = np.load('b_logic/database/parse/abw_price_list.npy', allow_pickle=True).tolist()
     transmission = {'at': '1', 'mt': '2'}
     motor = {'b': 'benzin', 'bpb': 'sug', 'bm': 'sug', 'bg': 'gibrid', 'd': 'dizel', 'dg': 'gibrid', 'e': 'elektro'}
+
+    # решаем проблему селектора диапазона цены
+    min = car_input['price_']
+    max = car_input['price_max']
+    i = 0
+    if (min or max) not in cost_selection:
+        for i in range(len(cost_selection)-1):
+            if cost_selection[i] < min and cost_selection[i+1] > min:
+                car_input['price_'] = cost_selection[i]
+            if cost_selection[i] < max and cost_selection[i+1] > max:
+                car_input['price_max'] = cost_selection[i+1]
+            i += 1
+
     brand = car_input['brand_']
     model = car_input['model_']
 
@@ -122,6 +139,10 @@ async def get_url_onliner(car_input, db):
 
     # База данных
     car_input = dict(zip(param_input, car_input.split(s_s)))
+    car_input['engine_capacity[from]='] = int(car_input['engine_capacity[from]='])
+    car_input['engine_capacity[to]='] = int(car_input['engine_capacity[to]='])
+    car_input['engine_capacity[from]='] /= 1000
+    car_input['engine_capacity[to]='] /= 1000
     transmission = {'a': 'automatic', 'm': 'mechanical'}
     motor = {'b': 'gasoline', 'bpb': 'gasoline&gas=true', 'bm': 'gasoline&gas=true', 'bg': 'gasoline&hybrid=true',
              'd': 'diesel', 'dg': 'diesel&hybrid=true', 'e': 'electric'}
@@ -166,3 +187,7 @@ async def all_get_url(link):
                 asyncio.run(get_url_abw(link, db)),
                 asyncio.run(get_url_onliner(link, db)),
                 )
+
+
+if __name__ == '__main__':
+    pass

@@ -83,12 +83,17 @@ def abw_get_from_json_brands():
     url = 'https://b.abw.by/api/adverts/cars/filters'
     r = requests.get(url, headers=headers).json()
     brands = {}
+    price_list = []
     for car in tqdm(r['filters']['2']['options']):
         id = car['id']
         name = car['title']
         slug = car['slug']
         brands.update({name: [id, f'brand_{slug}']})
     np.save('parse/abw_brands.npy', brands)
+    for price in tqdm(r['filters']['10']['options']):
+        price_cost = price['slug']
+        price_list.append(price_cost)
+    np.save('parse/abw_price_list.npy', price_list)
 
 
 def abw_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
