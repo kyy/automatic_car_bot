@@ -139,10 +139,12 @@ async def get_url_onliner(car_input, db):
 
     # База данных
     car_input = dict(zip(param_input, car_input.split(s_s)))
-    car_input['engine_capacity[from]='] = int(car_input['engine_capacity[from]='])
-    car_input['engine_capacity[to]='] = int(car_input['engine_capacity[to]='])
-    car_input['engine_capacity[from]='] /= 1000
-    car_input['engine_capacity[to]='] /= 1000
+    if car_input['engine_capacity[from]='] != s_b:
+        car_input['engine_capacity[from]='] = int(car_input['engine_capacity[from]='])
+        car_input['engine_capacity[from]='] /= 1000
+    if car_input['engine_capacity[to]='] != s_b:
+        car_input['engine_capacity[to]='] = int(car_input['engine_capacity[to]='])
+        car_input['engine_capacity[to]='] /= 1000
     transmission = {'a': 'automatic', 'm': 'mechanical'}
     motor = {'b': 'gasoline', 'bpb': 'gasoline&gas=true', 'bm': 'gasoline&gas=true', 'bg': 'gasoline&hybrid=true',
              'd': 'diesel', 'dg': 'diesel&hybrid=true', 'e': 'electric'}
