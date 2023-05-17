@@ -80,14 +80,14 @@ async def get_url_abw(car_input, db):
     motor = {'b': 'benzin', 'bpb': 'sug', 'bm': 'sug', 'bg': 'gibrid', 'd': 'dizel', 'dg': 'gibrid', 'e': 'elektro'}
 
     # решаем проблему селектора диапазона цены
-    min = car_input['price_']
-    max = car_input['price_max']
+    min = int(car_input['price_'])
+    max = int(car_input['price_max'])
     i = 0
     if (min or max) not in cost_selection:
         for i in range(len(cost_selection)-1):
-            if cost_selection[i] < min and cost_selection[i+1] > min:
+            if int(cost_selection[i]) < min and int(cost_selection[i+1]) > min:
                 car_input['price_'] = cost_selection[i]
-            if cost_selection[i] < max and cost_selection[i+1] > max:
+            if int(cost_selection[i]) < max and int(cost_selection[i+1]) > max:
                 car_input['price_max'] = cost_selection[i+1]
             i += 1
 
