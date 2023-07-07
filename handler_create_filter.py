@@ -63,7 +63,7 @@ async def cooking_pdf(message: Message):
                              )
         all_count = [all_cars_av,
                      all_cars_abw,
-                     all_cars_onliner
+                     all_cars_onliner,
                      ]
         if sum(all_count) == 0:
             return await message.answer("По вашему запросу ничего не найдено,\n"
