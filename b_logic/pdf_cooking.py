@@ -3,6 +3,8 @@ import pandas as pd
 from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
+from dramatiq.brokers.redis import RedisBroker
+import dramatiq
 
 
 class PDF(FPDF):
@@ -135,6 +137,10 @@ class PDF(FPDF):
         self.set_text_color(0)
 
 
+dramatiq.set_broker(RedisBroker())
+
+
+@dramatiq.actor
 async def do_pdf(
         name=None,
         filter_full='<filter full>',

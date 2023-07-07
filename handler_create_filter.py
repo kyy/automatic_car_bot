@@ -80,7 +80,7 @@ async def cooking_pdf(message: Message):
             except Exception as e:
                 print(e, '\nОшибка в parse_main')
                 return await message.answer("Ошибка при сборе данных.\n"
-                                            "Повторите попытку /search.")
+                                            "Показать фильтр /show.")
             await message.answer(f"Сбор данных.")
 
             await do_pdf(

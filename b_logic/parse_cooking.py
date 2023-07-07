@@ -22,12 +22,19 @@ async def run(urls_av, urls_abw, urls_onliner, result):
     semaphore = asyncio.Semaphore(5)
     # Опять же оставляем User-Agent, чтобы не получить ошибку от Metacritic
     async with ClientSession(headers=headers) as session:
-        urls = urls_av + urls_abw + urls_onliner
-        if urls:
+
+        if urls_av:
             for url in urls_av:
                 task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result))
                 tasks.append(task)
-
+        if urls_abw:
+            for url in urls_abw:
+                task = asyncio.ensure_future(bound_fetch_abw(semaphore, url, session, result))
+                tasks.append(task)
+        if urls_onliner:
+            for url in urls_onliner:
+                task = asyncio.ensure_future(bound_fetch_onliner(semaphore, url, session, result))
+                tasks.append(task)
         # Ожидаем завершения всех наших задач.
         await asyncio.gather(*tasks)
 
