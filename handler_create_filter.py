@@ -3,8 +3,7 @@ from datetime import datetime as datatime_datatime
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile, CallbackQuery, InlineKeyboardMarkup, \
-    InlineKeyboardButton
+from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile, CallbackQuery
 from aiogram.filters import Command
 from config_reader import config
 from b_logic.keyboards import multi_row_keyboard, result_menu, start_menu, params_menu

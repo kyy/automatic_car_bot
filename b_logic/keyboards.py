@@ -43,16 +43,8 @@ async def params_menu(decode_filter_short, callback, db):
                                             f"INNER JOIN udata on user.id = udata.user_id "
                                             f"WHERE user.tel_id = {user_id}")
     search_params = await search_params_cursor.fetchall()
-
-    return InlineKeyboardMarkup(
-        inline_keyboard=[[
-            InlineKeyboardButton(
-                text=decode_filter_short(i[0])[7:],
-                callback_data=i[0],
-            ),
-            InlineKeyboardButton(
-                text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'),
-                callback_data=f'{i[0]}_{i[1]}',
-            ),
-        ] for i in search_params]
-    )
+    buttons = [
+            [InlineKeyboardButton(text=decode_filter_short(i[0])[7:], callback_data=i[0]),
+            InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'{i[0]}_{i[1]}')] for i in search_params]
+    buttons.append([InlineKeyboardButton(text='назад', callback_data='cancel')])
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
