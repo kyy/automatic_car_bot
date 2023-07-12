@@ -15,3 +15,4 @@ aiohttp~=3.8.3
 aiosqlite==0.18.0
 nest-asyncio==1.5.6
 openpyxl
+arq==0.25.0
