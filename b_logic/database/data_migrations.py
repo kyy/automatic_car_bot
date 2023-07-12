@@ -1,8 +1,10 @@
-import asyncio
 import aiosqlite
 import numpy as np
 from config import database
 from main_parse import main_parse
+import asyncio
+from arq import cron
+
 
 def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
     new = []
@@ -266,6 +268,17 @@ async def main():
         else:
             print('Присутствуют пустые словари, '
                   'возможна утеря данных в БД (data_migrations.py -> checking_null())')
+
+
+async def run_regularly(ctx):
+    if main_parse(lenn):
+        await main()
+
+
+class WorkerSettings:
+    cron_jobs = [
+        cron(run_regularly, hour=23, minute=59)
+    ]
 
 
 if __name__ == '__main__':

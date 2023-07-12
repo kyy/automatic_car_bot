@@ -465,7 +465,7 @@ async def start_search(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == 'show_search')
-async def start_search(callback: CallbackQuery):
+async def show_search(callback: CallbackQuery):
     async with aiosqlite.connect(db_name) as db:
         await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
 
