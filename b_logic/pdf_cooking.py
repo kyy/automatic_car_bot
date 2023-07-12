@@ -3,8 +3,6 @@ import pandas as pd
 from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
-from dramatiq.brokers.redis import RedisBroker
-import dramatiq
 
 
 class PDF(FPDF):
@@ -137,10 +135,6 @@ class PDF(FPDF):
         self.set_text_color(0)
 
 
-dramatiq.set_broker(RedisBroker())
-
-
-@dramatiq.actor
 async def do_pdf(
         name=None,
         filter_full='<filter full>',
@@ -148,7 +142,7 @@ async def do_pdf(
         link=None,
         message=None,
 ):
-    data, col_names, links = await get_data(message, name)
+    data, col_names, links = get_data(message, name)
     pdf = PDF(
         orientation="L",
         unit="mm",
@@ -178,7 +172,7 @@ async def do_pdf(
     return pdf.output(f'b_logic/buffer/{name}.pdf')
 
 
-async def get_data(message, name):
+def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
     dataframe = pd.DataFrame(np.load(f'b_logic/buffer/{message}{name}.npy', allow_pickle=True))

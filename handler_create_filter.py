@@ -3,10 +3,11 @@ from datetime import datetime as datatime_datatime
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
+from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile, CallbackQuery, InlineKeyboardMarkup, \
+    InlineKeyboardButton
 from aiogram.filters import Command
 from config_reader import config
-from b_logic.keyboards import multi_row_keyboard
+from b_logic.keyboards import multi_row_keyboard, result_menu, start_menu, params_menu
 from b_logic.parse_cooking import parse_main
 from b_logic.pdf_cooking import do_pdf
 from b_logic.get_url_cooking import all_get_url
@@ -16,6 +17,8 @@ from b_logic.source.onliner_by import count_cars_onliner
 from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, columns_cost,
                                  columns_years, columns_dimension, columns_motor, motor, transmission,
                                  decode_filter_short, code_filter_short, abw_root_link, onliner_url_filter)
+import aiosqlite
+from b_logic.database.config import db_name
 
 
 router = Router()
@@ -112,16 +115,17 @@ async def get_rusult(message: Message, state: FSMContext):
     c = []
     for item in data:
         c.append(data[item])
-    cc = c.copy()
+
     if len(c) > 0 and c[0] != s_b:
         await message.answer(
             text=decode_filter_short(lists=c),
             reply_markup=ReplyKeyboardRemove()
         )
         await message.answer(
-            text='подтвердите фильтр:',
-            reply_markup=multi_row_keyboard([code_filter_short(cc)])
+            text='Управление фильтром:',
+            reply_markup=result_menu
         )
+
         await cooking_pdf(message=message)
     else:
         await message.answer(
@@ -169,7 +173,7 @@ async def model_chosen(message: Message, state: FSMContext):
             text="Я не знаю такого бренда.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
             reply_markup=multi_row_keyboard(
-                get_brands(),
+                await get_brands(),
                 input_field_placeholder='имя бренда')
         )
         return model_chosen
@@ -194,7 +198,7 @@ async def motor_chosen(message: Message, state: FSMContext):
             text="Я не знаю такой модели.\n"
                  "Пожалуйста, выберите один из вариантов из списка ниже:",
             reply_markup=multi_row_keyboard(
-                get_models(user_data['chosen_brand']),
+                await get_models(user_data['chosen_brand']),
                 input_field_placeholder='имя модели'
             )
         )
@@ -407,3 +411,79 @@ async def finish_chosen(message: Message, state: FSMContext):
         )
         return finish_chosen
     await get_rusult(message=message, state=state)
+
+
+@router.callback_query(F.data == "add_search")
+async def brand_chosen(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(chosen_brand=s_b,
+                            chosen_model=s_b,
+                            chosen_motor=s_b,
+                            chosen_transmission=s_b,
+                            chosen_year_from=s_b,
+                            chosen_year_to=s_b,
+                            chosen_cost_min=s_b,
+                            chosen_cost_max=s_b,
+                            chosen_dimension_min=s_b,
+                            chosen_dimension_max=s_b,
+                            )
+    await callback.message.answer(
+        text="Выберите бренд автомобиля:",
+        reply_markup=multi_row_keyboard(
+            await get_brands(),
+            input_field_placeholder='имя бренда',
+            )
+    )
+    await callback.message.edit_text("Ваш фильтр:")
+    await state.set_state(CreateCar.brand_choosing)
+
+
+@router.callback_query(F.data == 'cancel')
+async def cancel(callback: CallbackQuery):
+    await callback.message.edit_text('отмена', reply_markup=start_menu)
+
+
+@router.callback_query(F.data == 'start_search')
+async def start_search(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    c = []
+    for item in data:
+        c.append(data[item])
+    car_code = code_filter_short(c)
+    user_id = callback.from_user.id
+    async with aiosqlite.connect(db_name) as db:
+        check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = {user_id}")
+        check_id = await check_id_cursor.fetchone()
+        if check_id is None:
+            await db.execute(f"INSERT INTO user (tel_id) VALUES ({user_id})")
+        base_user_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = {user_id}")
+        base_user_id = await base_user_id_cursor.fetchone()
+        await db.executemany(
+            f"INSERT INTO udata(user_id, search_param, is_active) "
+            f"VALUES (?, ?, ?)", [(base_user_id[0], car_code, 1),]
+        )
+        await db.commit()
+    await callback.message.edit_text('Теперь мы будем присылать вам лучшие объявления', reply_markup=start_menu)
+
+
+@router.callback_query(F.data == 'show_search')
+async def start_search(callback: CallbackQuery):
+    async with aiosqlite.connect(db_name) as db:
+        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
+
+
+@router.callback_query(F.data.startswith('filter='))
+async def edit_search(callback: CallbackQuery):
+     async with aiosqlite.connect(db_name) as db:
+        user_id = callback.from_user.id
+        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
+        check_id = await select_id_cursor.fetchone()
+        status_cursor = await db.execute(f"""SELECT is_active FROM udata 
+                                             WHERE search_param='{callback.data[:-2]}' AND user_id = '{check_id[0]}'""")
+        status = await status_cursor.fetchone()
+        status_set = 0 if status[0] == 1 else 1
+        await db.execute(f"""UPDATE udata SET is_active = '{status_set}'                     
+                             WHERE search_param='{callback.data[:-2]}' AND user_id = '{check_id[0]}'
+                        """)
+        await db.commit()
+        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
+

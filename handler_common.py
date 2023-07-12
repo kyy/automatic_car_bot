@@ -1,8 +1,9 @@
 import logging
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove, BotCommand
+from aiogram.types import Message, ReplyKeyboardRemove, BotCommand, CallbackQuery
 from aiogram.filters import Command, CommandObject
+from b_logic.keyboards import start_menu
 
 
 router = Router()
@@ -47,7 +48,7 @@ async def set_commands(bot: Bot):
 
 
 @router.message(Command(commands=["help"]))
-@router.message(F.text.startswith == "help")
+@router.message(F.text.casefold() == "help")
 async def cmd_help(message: Message, command: CommandObject):
     if command.args:
         for cmd in commands:
@@ -67,13 +68,8 @@ async def cmd_help(message: Message, command: CommandObject):
 @router.message(F.text.casefold() == "start")
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer(
-        text=f"Привет, {message.from_user.full_name}!"
-             "\nЭто бот может искать объявления автомобилей."
-             "\nНачать - /car."
-             "\nПомощь - /help.",
-        reply_markup=ReplyKeyboardRemove()
-    )
+    await message.answer('главное меню', reply_markup=start_menu)
+
 
 
 @router.message(Command(commands=["cancel"]))
