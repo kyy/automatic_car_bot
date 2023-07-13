@@ -441,7 +441,7 @@ async def cancel(callback: CallbackQuery):
     await callback.message.edit_text('отмена', reply_markup=start_menu)
 
 
-@router.callback_query(F.data == 'start_search')
+@router.callback_query(F.data == 'save_search')
 async def start_search(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     c = []
@@ -476,12 +476,14 @@ async def edit_search(callback: CallbackQuery):
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
+        user_id = check_id[0]
+        params_id = callback.data.split('_')[1]        # {user.id}_{udata.id}_{udata.is_active}
         status_cursor = await db.execute(f"""SELECT is_active FROM udata 
-                                             WHERE search_param='{callback.data[:-2]}' AND user_id = '{check_id[0]}'""")
+                                             WHERE id='{params_id}' AND user_id = '{user_id}'""")
         status = await status_cursor.fetchone()
         status_set = 0 if status[0] == 1 else 1
         await db.execute(f"""UPDATE udata SET is_active = '{status_set}'                     
-                             WHERE search_param='{callback.data[:-2]}' AND user_id = '{check_id[0]}'
+                             WHERE id='{params_id}' AND user_id = '{user_id}'
                         """)
         await db.commit()
         await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
@@ -493,8 +495,9 @@ async def delete_search(callback: CallbackQuery):
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
+        params_id = callback.data.split('_')[1]
         await db.execute(f"""DELETE FROM udata 
-                             WHERE search_param='{callback.data[:-4]}' AND user_id = '{check_id[0]}'
+                             WHERE id='{params_id}' AND user_id = '{check_id[0]}'
                         """)
         await db.commit()
         await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))

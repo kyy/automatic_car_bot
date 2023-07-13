@@ -18,7 +18,7 @@ start_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text="📝 Добавить фильтр", callback_data="add_search"),
-            InlineKeyboardButton(text="🖼 Управлениее фильтрами", callback_data="show_search")
+            InlineKeyboardButton(text="🖼 Управление фильтрами", callback_data="show_search")
         ],
         [
             InlineKeyboardButton(text="🔎 Помощь", callback_data="help")
@@ -28,7 +28,7 @@ start_menu = InlineKeyboardMarkup(
 result_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="📝 Сохранить", callback_data="start_search"),
+            InlineKeyboardButton(text="📝 Сохранить", callback_data="save_search"),
             InlineKeyboardButton(text="🖼 Отмена", callback_data="cancel")
         ],
         [
@@ -39,14 +39,14 @@ result_menu = InlineKeyboardMarkup(
 
 async def params_menu(decode_filter_short, callback, db):
     user_id = callback.from_user.id
-    search_params_cursor = await db.execute(f"SELECT udata.search_param, udata.is_active FROM user "
+    search_params_cursor = await db.execute(f"SELECT udata.search_param, udata.is_active, udata.id FROM user "
                                             f"INNER JOIN udata on user.id = udata.user_id "
                                             f"WHERE user.tel_id = {user_id}")
     search_params = await search_params_cursor.fetchall()
     buttons = [
-            [InlineKeyboardButton(text=decode_filter_short(i[0])[7:], callback_data=i[0]),
-            InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'{i[0]}_{i[1]}'),
-            InlineKeyboardButton(text='Удалить', callback_data=f'{i[0]}_del'),
+            [InlineKeyboardButton(text=decode_filter_short(i[0])[7:], callback_data=f'{user_id}_{i[2]}'),
+            InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'filter={user_id}_{i[2]}_{i[1]}'),
+            InlineKeyboardButton(text='Удалить', callback_data=f'filter={user_id}_{i[2]}_del'),
              ] for i in search_params]
     buttons.append([InlineKeyboardButton(text='назад', callback_data='cancel')])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
