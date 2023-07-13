@@ -48,7 +48,7 @@ def parse_main(url_av, url_abw, url_onliner,  message, name):
                                        result)
                                    )
     loop.run_until_complete(future)
-    np.save(f'b_logic/buffer/{message}{name}.npy', result)
+    np.save(f'b_logic/buffer/{message}_{name}.npy', result)
     return result
 
 

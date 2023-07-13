@@ -175,7 +175,7 @@ async def do_pdf(
 def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
-    dataframe = pd.DataFrame(np.load(f'b_logic/buffer/{message}{name}.npy', allow_pickle=True))
+    dataframe = pd.DataFrame(np.load(f'b_logic/buffer/{message}_{name}.npy', allow_pickle=True))
     dataframe.sort_values(by=[2])
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()
