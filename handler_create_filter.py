@@ -432,13 +432,13 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
             input_field_placeholder='имя бренда',
             )
     )
-    await callback.message.edit_text("Ваш фильтр:")
+
     await state.set_state(CreateCar.brand_choosing)
 
 
 @router.callback_query(F.data == 'cancel')
 async def cancel(callback: CallbackQuery):
-    await callback.message.edit_text('отмена', reply_markup=start_menu)
+    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu)
 
 
 @router.callback_query(F.data == 'save_search')

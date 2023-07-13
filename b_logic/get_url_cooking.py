@@ -6,7 +6,7 @@ from .constant_fu import s_s, s_b
 from .database.config import db_name
 
 
-async def get_url_av(car_input, db):
+async def get_url_av(car_input, db, work):
     """
     Формируем гет запрос для av.by
     :param car_input: filter_short
@@ -48,19 +48,22 @@ async def get_url_av(car_input, db):
     for key in car_input:
         if car_input[key] != s_b:
             new_part.append(str(key)+str(car_input[key]))
+    if work is True:
+        new_part.append('creation_date=10')
     new_part_url = '&'.join(new_part)
     full_url = f'https://api.av.by/offer-types/cars/filters/main/init?{new_part_url}'
     print(full_url)
     return full_url
 
 
-async def get_url_abw(car_input, db):
+async def get_url_abw(car_input, db, work):
     """
     Формируем гет запрос для abw.by
     :param car_input: filter_short
     :param db: database
     :return: гет запрос
     """
+    work = False
     # Входные параметры
     param_input = ['brand_', 'model_', 'engine_', 'transmission_', 'year_',
                    'year_max', 'price_', 'price_max', 'volume_', 'volume_max']
@@ -127,13 +130,15 @@ async def get_url_abw(car_input, db):
             param.remove(s_b)       # удаляем '?' если не выбраны все модели
         new_part_url = '/'.join(param)
         full_url = f'https://b.abw.by/api/adverts/cars/list/{new_part_url}'
+        if work is True:
+            full_url = f'{full_url}?sort=new'
         print(full_url)
         return full_url
     else:
         return None
 
 
-async def get_url_onliner(car_input, db):
+async def get_url_onliner(car_input, db, work):
     param_input = ['car[0][manufacturer]=', 'car[0][model]=', 'engine_type[0]=', 'transmission[0]=', 'year[from]=',
                    'year[to]=', 'price[from]=', 'price[to]', 'engine_capacity[from]=', 'engine_capacity[to]=']
 
@@ -175,6 +180,8 @@ async def get_url_onliner(car_input, db):
         for key in car_input:
             if car_input[key] != s_b:
                 new_part.append(str(key) + str(car_input[key]))
+        if work is True:
+            new_part.append("order=created_at:desc")
         new_part_url = '&'.join(new_part)+'&price[currency]=USD'
         full_url = f'https://ab.onliner.by/sdapi/ab.api/search/vehicles?{new_part_url}'
         print(full_url)
@@ -183,11 +190,11 @@ async def get_url_onliner(car_input, db):
         return None
 
 
-async def all_get_url(link):
+async def all_get_url(link, work):
     async with aiosqlite.connect(db_name) as db:
-        return (asyncio.run(get_url_av(link, db)),
-                asyncio.run(get_url_abw(link, db)),
-                asyncio.run(get_url_onliner(link, db)),
+        return (asyncio.run(get_url_av(link, db, work)),
+                asyncio.run(get_url_abw(link, db, work)),
+                asyncio.run(get_url_onliner(link, db, work)),
                 )
 
 

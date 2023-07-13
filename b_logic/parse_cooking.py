@@ -39,7 +39,7 @@ async def run(urls_av, urls_abw, urls_onliner, result, work):
         await asyncio.gather(*tasks)
 
 
-def parse_main(url_av, url_abw, url_onliner,  message, name, work=False):
+def parse_main(url_av, url_abw, url_onliner,  message, name, work):
     result = []
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(json_links_av(url_av),
