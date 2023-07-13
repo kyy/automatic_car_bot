@@ -77,7 +77,7 @@ async def cooking_pdf(message: Message):
                            abw_link_json,
                            onliner_link_json,
                            message=message.from_user.id,
-                           name=name_time_stump
+                           name=name_time_stump,
                            )
             except Exception as e:
                 print(e, '\nОшибка в parse_main')
@@ -95,7 +95,7 @@ async def cooking_pdf(message: Message):
                 name=name_time_stump,
                 filter_full=decode_filter_short(cars),
                 filter_short=message.text)
-            os.remove(f'b_logic/buffer/{message.from_user.id}{name_time_stump}.npy')
+            os.remove(f'b_logic/buffer/{message.from_user.id}_{name_time_stump}.npy')
 
         if os.path.exists(f'b_logic/buffer/{name_time_stump}.pdf'):
             file = FSInputFile(f'b_logic/buffer/{name_time_stump}.pdf')

@@ -53,7 +53,7 @@ def json_parse_abw(json_data):
         type = description[-1]
         color = vin = exchange = days = ''
         car.append([
-            str(url), 'comment', brand, str(price), str(motor), str(dimension),
+            str(url), 'comment', str(brand), str(price), str(motor), str(dimension),
             str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
             str(exchange), str(days), str(city)
         ])

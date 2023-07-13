@@ -16,7 +16,7 @@ headers = {
 }
 
 
-async def run(urls_av, urls_abw, urls_onliner, result):
+async def run(urls_av, urls_abw, urls_onliner, result, work):
     tasks = []
     # Выбрал лок от балды. Можете поиграться.
     semaphore = asyncio.Semaphore(5)
@@ -25,7 +25,7 @@ async def run(urls_av, urls_abw, urls_onliner, result):
 
         if urls_av:
             for url in urls_av:
-                task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result))
+                task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result, work))
                 tasks.append(task)
         if urls_abw:
             for url in urls_abw:
@@ -39,13 +39,15 @@ async def run(urls_av, urls_abw, urls_onliner, result):
         await asyncio.gather(*tasks)
 
 
-def parse_main(url_av, url_abw, url_onliner,  message, name):
+def parse_main(url_av, url_abw, url_onliner,  message, name, work=False):
     result = []
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(json_links_av(url_av),
                                        json_links_abw(url_abw),
                                        json_links_onliner(url_onliner),
-                                       result)
+                                       result,
+                                       work,
+                                       )
                                    )
     loop.run_until_complete(future)
     np.save(f'b_logic/buffer/{message}_{name}.npy', result)
