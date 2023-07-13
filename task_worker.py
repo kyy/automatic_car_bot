@@ -21,7 +21,7 @@ async def shutdown(ctx):
 
 async def main():
     redis = await create_pool(RedisSettings())
-    for car in ('Abarth+?+?+?+?+?+?+?+?+?', 'Audi+A2+b+?+?+?+?+?+?+?', 'Audi+A2+dg+a+?+?+?+?+?+?'):
+    for car in ('BMW+X3+d+a+1996+2020+?+?+?+?', 'BMW+X5+d+a+1996+2012+?+?+?+?'):
         await redis.enqueue_job('parse', car)
 
 # WorkerSettings defines the settings to use when creating the work,

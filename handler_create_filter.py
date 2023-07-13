@@ -470,7 +470,7 @@ async def show_search(callback: CallbackQuery):
         await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
 
 
-@router.callback_query(F.data.startswith('filter='))
+@router.callback_query((F.data.startswith('filter=')) & (((F.data.endswith('_0')) | (F.data.endswith('_1')))))
 async def edit_search(callback: CallbackQuery):
      async with aiosqlite.connect(db_name) as db:
         user_id = callback.from_user.id
@@ -486,3 +486,15 @@ async def edit_search(callback: CallbackQuery):
         await db.commit()
         await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
 
+
+@router.callback_query((F.data.startswith('filter=')) & (F.data.endswith('_del')))
+async def delete_search(callback: CallbackQuery):
+     async with aiosqlite.connect(db_name) as db:
+        user_id = callback.from_user.id
+        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
+        check_id = await select_id_cursor.fetchone()
+        await db.execute(f"""DELETE FROM udata 
+                             WHERE search_param='{callback.data[:-4]}' AND user_id = '{check_id[0]}'
+                        """)
+        await db.commit()
+        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))

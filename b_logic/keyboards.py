@@ -17,8 +17,8 @@ def multi_row_keyboard(items: list[str], columns: int = 4, **kwargs) -> ReplyKey
 start_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="📝 Добавиьт фильтр поиска", callback_data="add_search"),
-            InlineKeyboardButton(text="🖼 Сохраненные фильтры", callback_data="show_search")
+            InlineKeyboardButton(text="📝 Добавить фильтр", callback_data="add_search"),
+            InlineKeyboardButton(text="🖼 Управлениее фильтрами", callback_data="show_search")
         ],
         [
             InlineKeyboardButton(text="🔎 Помощь", callback_data="help")
@@ -28,7 +28,7 @@ start_menu = InlineKeyboardMarkup(
 result_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="📝 Активировать подбор", callback_data="start_search"),
+            InlineKeyboardButton(text="📝 Сохранить", callback_data="start_search"),
             InlineKeyboardButton(text="🖼 Отмена", callback_data="cancel")
         ],
         [
@@ -45,6 +45,8 @@ async def params_menu(decode_filter_short, callback, db):
     search_params = await search_params_cursor.fetchall()
     buttons = [
             [InlineKeyboardButton(text=decode_filter_short(i[0])[7:], callback_data=i[0]),
-            InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'{i[0]}_{i[1]}')] for i in search_params]
+            InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'{i[0]}_{i[1]}'),
+            InlineKeyboardButton(text='Удалить', callback_data=f'{i[0]}_del'),
+             ] for i in search_params]
     buttons.append([InlineKeyboardButton(text='назад', callback_data='cancel')])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
