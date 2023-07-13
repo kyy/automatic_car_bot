@@ -36,40 +36,43 @@ def json_links_onliner(url):
         return False
 
 
-def json_parse_onliner(json_data):
+def json_parse_onliner(json_data, work):
     car = []
     for i in range(len(json_data['adverts'])):
         r_t = json_data['adverts'][i]
-        brand_model_gen = r_t['title']
-        price = r_t['price']['converted']['USD']['amount'].split('.')[0]
-        days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
-        city = r_t['location']['city']['name']
-        url = r_t['html_url']
-        vin = ''
-        exchange = ''
-        year = r_t['specs']['year']
-        km = r_t['specs']['odometer']['value']
-        dimension = r_t['specs']['engine']['capacity']
-        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель')
-        transmission = r_t['specs']['transmission'].replace('mechanical ', 'механика').replace('automatic', 'автомат')
-        color = r_t['specs']['color']
-        drive = r_t['specs']['drivetrain']
-        type = r_t['specs']['body_type']
-        brand = r_t['manufacturer']['name']
-        model = r_t['model']['name']
-        generation = r_t['generation']['name']
-        car.append([
-            str(url), 'comment', f'{str(brand_model_gen)}', str(price), str(motor), str(dimension),
-            str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
-            str(exchange), str(days), str(city)
-        ])
+        published = r_t['created_at']
+        fresh_minutes = (datetime.now().timestamp() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M").timestamp()) / 60
+        if (work is True and fresh_minutes < 59) or (work is False):
+            brand_model_gen = r_t['title']
+            price = r_t['price']['converted']['USD']['amount'].split('.')[0]
+            days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
+            city = r_t['location']['city']['name']
+            url = r_t['html_url']
+            vin = ''
+            exchange = ''
+            year = r_t['specs']['year']
+            km = r_t['specs']['odometer']['value']
+            dimension = r_t['specs']['engine']['capacity']
+            motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель')
+            transmission = r_t['specs']['transmission'].replace('mechanical ', 'механика').replace('automatic', 'автомат')
+            color = r_t['specs']['color']
+            drive = r_t['specs']['drivetrain']
+            type = r_t['specs']['body_type']
+            # brand = r_t['manufacturer']['name']
+            # model = r_t['model']['name']
+            # generation = r_t['generation']['name']
+            car.append([
+                str(url), 'comment', f'{str(brand_model_gen)}', str(price), str(motor), str(dimension),
+                str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
+                str(exchange), str(days), str(city)
+            ])
     return car
 
 
-async def bound_fetch_onliner(semaphore, url, session, result):
+async def bound_fetch_onliner(semaphore, url, session, result, work):
     try:
         async with semaphore:
-            await get_one_onliner(url, session, result)
+            await get_one_onliner(url, session, result, work)
     except Exception as e:
         print(e)
         print('bound_fetch_onliner error')
@@ -77,10 +80,10 @@ async def bound_fetch_onliner(semaphore, url, session, result):
         await asyncio.sleep(1)
 
 
-async def get_one_onliner(url, session, result):
+async def get_one_onliner(url, session, result, work):
     async with session.get(url) as response:
         page_content = await response.json()         # Ожидаем ответа и блокируем таск.
-        item = json_parse_onliner(page_content)      # Получаем информацию об машине и сохраняем в лист.
+        item = json_parse_onliner(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
         result += item
         #await asyncio.sleep(0.1)
 

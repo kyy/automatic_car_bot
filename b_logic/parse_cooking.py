@@ -29,11 +29,11 @@ async def run(urls_av, urls_abw, urls_onliner, result, work):
                 tasks.append(task)
         if urls_abw:
             for url in urls_abw:
-                task = asyncio.ensure_future(bound_fetch_abw(semaphore, url, session, result))
+                task = asyncio.ensure_future(bound_fetch_abw(semaphore, url, session, result, work))
                 tasks.append(task)
         if urls_onliner:
             for url in urls_onliner:
-                task = asyncio.ensure_future(bound_fetch_onliner(semaphore, url, session, result))
+                task = asyncio.ensure_future(bound_fetch_onliner(semaphore, url, session, result, work))
                 tasks.append(task)
         # Ожидаем завершения всех наших задач.
         await asyncio.gather(*tasks)

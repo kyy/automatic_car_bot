@@ -35,46 +35,48 @@ def json_links_abw(url):
         return False
 
 
-def json_parse_abw(json_data):
+def json_parse_abw(json_data, work):
     car = []
+    work = False
     for i in range(len(json_data['items'])):
-        r_t = json_data['items'][i]
-        brand = r_t['title'].split(',')[0]
-        price = r_t['price']['usd'].replace('USD', '').replace(' ', '')
-        city = r_t['city']
-        url = f"https://abw.by{r_t['link']}"
-        description = r_t['description'].split('/')
-        km = description[0].replace(' <br', '').replace(' км', '')
-        year = description[1].replace('г.', '').replace('>', '').replace(' ', '')
-        dimension = description[2].split(' ')[1]
-        motor = description[-4].replace(' ', '')
-        transmission = description[-3].replace(' ', '')
-        drive = description[-2].replace(' ', '')
-        type = description[-1]
-        color = vin = exchange = days = ''
-        car.append([
-            str(url), 'comment', str(brand), str(price), str(motor), str(dimension),
-            str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
-            str(exchange), str(days), str(city)
-        ])
+        if work:
+            r_t = json_data['items'][i]
+            brand = r_t['title'].split(',')[0]
+            price = r_t['price']['usd'].replace('USD', '').replace(' ', '')
+            city = r_t['city']
+            url = f"https://abw.by{r_t['link']}"
+            description = r_t['description'].split('/')
+            km = description[0].replace(' <br', '').replace(' км', '')
+            year = description[1].replace('г.', '').replace('>', '').replace(' ', '')
+            dimension = description[2].split(' ')[1]
+            motor = description[-4].replace(' ', '')
+            transmission = description[-3].replace(' ', '')
+            drive = description[-2].replace(' ', '')
+            type = description[-1]
+            color = vin = exchange = days = ''
+            car.append([
+                str(url), 'comment', str(brand), str(price), str(motor), str(dimension),
+                str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
+                str(exchange), str(days), str(city)
+            ])
     return car
 
 
 
-async def bound_fetch_abw(semaphore, url, session, result):
+async def bound_fetch_abw(semaphore, url, session, result, work):
     try:
         async with semaphore:
-            await get_one_abw(url, session, result)
+            await get_one_abw(url, session, result, work)
     except Exception as e:
         print(e)
         # Блокируем все таски на <> секунд в случае ошибки 429.
         await asyncio.sleep(1)
 
 
-async def get_one_abw(url, session, result):
+async def get_one_abw(url, session, result, work):
     async with session.get(url) as response:
         page_content = await response.json()     # Ожидаем ответа и блокируем таск.
-        item = json_parse_abw(page_content)      # Получаем информацию об машине и сохраняем в лист.
+        item = json_parse_abw(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
         result += item
         #await asyncio.sleep(0.1)
 
