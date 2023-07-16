@@ -48,10 +48,9 @@ commands = [
             full_description='Дополнительная вспомогательная инструкция.'
         ),
 ]
-def all_commands(commands=commands):
+def all_commands(commands):
     c_list = []
-    for cmd in commands:
-        c_list.append(str(cmd.command))
+    [(c_list.append(str(cmd.command))) for cmd in commands]
     return ", ".join(c_list)
 
 
@@ -64,7 +63,6 @@ async def set_commands(bot: Bot):
 async def cmd_help(message: Message, command: CommandObject):
     if command.args:
         for cmd in commands:
-            print(cmd.command)
             if cmd.command == command.args:
                 return await message.answer(
                     f'{cmd.command} - {cmd.full_description}'
@@ -73,9 +71,9 @@ async def cmd_help(message: Message, command: CommandObject):
             return await message.answer('Команда не найдена')
     await message.answer(
         text=f"Для получение подробного описание команд наберите:"
-             "\n/help <имя команды"
+             "\n/help <имя команды>"
              "\nДоступные команды:"
-             f"\n{all_commands(commands)}>"
+             f"\n{all_commands(commands)}"
     )
 
 

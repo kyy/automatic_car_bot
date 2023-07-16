@@ -11,6 +11,7 @@ async def get_url_av(car_input, db, work):
     Формируем гет запрос для av.by
     :param car_input: filter_short
     :param db: database
+    :param work: Boolean, if True - running task_worker
     :return: гет запрос
     """
 

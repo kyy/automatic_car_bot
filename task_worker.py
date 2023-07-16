@@ -35,12 +35,16 @@ async def main(ctx):
         try:
             open = pd.DataFrame(np.load(f'b_logic/buffer/{item[0]}_{item[2]}.npy', allow_pickle=True))
             links = open.iloc[0:, 0].tolist()
-            print(links)
-            if len(links) > 0:
-                try:
-                    await bot.send_message(item[0], str(links))
-                except Exception as e:
-                    print(e, f'Не удалось отправить сообщение {str(links)} \nпользователю {item[0]}')
+            l_data = len(links)
+            if l_data > 0:
+                index = 0
+                for link in links:
+                    try:
+                        await bot.send_message(item[0], link)
+                        await asyncio.sleep(3)
+                    except Exception as e:
+                        print(e, f'Не удалось отправить сообщение {str(links)} \nпользователю {item[0]}')
+                    index += 1
         except Exception as e:
             print(e, f'Не удалось открыть файл {item[0]}_{item[2]}')
 
