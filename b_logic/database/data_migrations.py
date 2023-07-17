@@ -1,5 +1,4 @@
 import os
-
 import aiosqlite
 import numpy as np
 from .config import database
@@ -17,24 +16,31 @@ def lenn(items):
     return sum([1 for item in items for sub_item in items[item]])   # noqa
 
 
-folder = 'b_logic/database/parse/'
-if os.path.exists(f'{folder}av_brands.npy'):
+
+
+def car_data():
+    folder = 'b_logic/database/parse/'
     av_b = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
     abw_m = np.load(f'{folder}abw_models.npy', allow_pickle=True).item()
     av_m = np.load(f'{folder}av_models.npy', allow_pickle=True).item()
     onliner_m = np.load(f'{folder}onliner_models.npy', allow_pickle=True).item()
     abw_b = np.load(f'{folder}abw_brands.npy', allow_pickle=True).item()
     onliner_b = np.load(f'{folder}onliner_brands.npy', allow_pickle=True).item()
+    return av_b, abw_m, av_m, onliner_m, abw_b, onliner_b
 
+
+def l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b):
     l_av_b = len(av_b) # noqa
+    l_av_m = lenn(av_m)  # noqa
     l_abw_b = len(abw_b) # noqa
-    l_onliner_b = len(abw_b) # noqa
-    l_av_m = lenn(av_m) # noqa
-    l_abw_m = lenn(av_m) # noqa
-    l_onliner_m = lenn(av_m) # noqa
+    l_abw_m = lenn(abw_m)  # noqa
+    l_onliner_b = len(onliner_b) # noqa
+    l_onliner_m = lenn(onliner_m) # noqa
+    return l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m
 
 
-def checking_null():   # проверяем все ли файлы с данными
+
+def checking_null(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m):   # проверяем все ли файлы с данными
     xxx = [l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m]
     return all([x > 0 for x in xxx])
 
@@ -71,7 +77,7 @@ async def create_tables(db):
         print('---> brands, models уже существуют')
 
 
-async def av_brands(db):
+async def av_brands(db, av_b, l_av_b):
     """
     Заполняем или обновляем таблицу brands: id, [unique], av_by,
     :param db: инструкция к БД
@@ -113,7 +119,7 @@ async def av_brands(db):
             print(f'Добавлено - {l_av_b-l_av_bd}')
 
 
-async def av_models(db):
+async def av_models(db, av_m, l_av_m):
     """
     Заполняем или обновляем таблицу models: id, brand_id, [unique], av_by,
     :param db: инструкция к БД
@@ -256,13 +262,15 @@ async def main(database: database()):
     Выполняем сценарий по созданию и наполнению БД
     :return: None
     """
+    av_b, abw_m, av_m, onliner_m, abw_b, onliner_b = car_data()
+    l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m = l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b)
     db = database
     async with db:
-        if checking_null():
+        if checking_null(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m):
             await create_tables(db)
             await user_data_migrations(db)
-            await av_brands(db),
-            await av_models(db),
+            await av_brands(db, av_b, l_av_b),
+            await av_models(db, av_m, l_av_m),
             await add_brand(db, abw_b, 'abw_by', 1),
             await add_brand(db, onliner_b, 'onliner_by', 0),
             await add_model(db, abw_m, 'abw_by', 2),

@@ -10,7 +10,16 @@ headers = {
         'accept': '*/*',
         'content-type': 'application/json'}
 
+
+def create_folders():
+    if not os.path.exists('b_logic/database/parse'):
+        os.mkdir(os.path.join('b_logic/database/', 'parse'))
+    if not os.path.exists('b_logic/buffer'):
+        os.mkdir(os.path.join('b_logic/', 'buffer'))
+
+
 folder = 'b_logic/database/parse/'
+
 
 def checking_new_brands_av():
     print('проверка брендов')
@@ -162,5 +171,6 @@ def main_parse(lenn):
             return False
     else:
         print('1ый сбор данных')
+        create_folders()    # создаем папки 'buffer' и 'parse'
         parse()
         return True
