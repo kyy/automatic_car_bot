@@ -1,6 +1,7 @@
 import numpy as np
 import requests
 from tqdm import tqdm
+import os.path
 
 
 headers = {
@@ -9,11 +10,12 @@ headers = {
         'accept': '*/*',
         'content-type': 'application/json'}
 
+folder = 'b_logic/database/parse/'
 
 def checking_new_brands_av():
     print('проверка брендов')
     url = 'https://api.av.by/home/filters/home/init'
-    brands = np.load('parse/av_brands.npy', allow_pickle=True).item()
+    brands = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
     r = requests.get(url, headers=headers).json()
     n_brands_inet = len(r['blocks'][0]['rows'][0]['propertyGroups'][0]['properties'][0]['value'][0][1]['options'])
     try:
@@ -30,8 +32,8 @@ def checking_new_brands_av():
 def checking_new_models_av(lenn):
     print('проверка моделей')
     url = 'https://api.av.by/offer-types/cars/landings/'
-    brands = np.load('parse/av_brands.npy', allow_pickle=True).item()
-    models = np.load('parse/av_models.npy', allow_pickle=True).item()
+    brands = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
+    models = np.load(f'{folder}av_models.npy', allow_pickle=True).item()
     n_models_inet = 0
     n_models_stor = lenn(models)
     for item in tqdm(brands):
@@ -56,12 +58,12 @@ def av_get_from_json_brands():
             if ids['label'] == name:
                 slug = ids['url'].split('/')[-1]
             brands.update({name: [id, slug]})
-    np.save('parse/av_brands.npy', brands)
+    np.save(f'{folder}av_brands.npy', brands)
 
 
 def av_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://api.av.by/offer-types/cars/landings/'
-    brands = np.load('parse/av_brands.npy', allow_pickle=True).item()
+    brands = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
     brand_dict = {}
     for item in tqdm(brands):
         r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
@@ -76,7 +78,7 @@ def av_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
                 continue
             models_dict.update({name: [id, name, slug]})
         brand_dict.update({item: models_dict})
-    np.save(f'parse/av_models.npy', brand_dict)
+    np.save(f'{folder}av_models.npy', brand_dict)
 
 
 def abw_get_from_json_brands():
@@ -89,16 +91,16 @@ def abw_get_from_json_brands():
         name = car['title']
         slug = car['slug']
         brands.update({name: [id, f'brand_{slug}']})
-    np.save('parse/abw_brands.npy', brands)
+    np.save(f'{folder}abw_brands.npy', brands)
     for price in tqdm(r['filters']['10']['options']):
         price_cost = price['slug']
         price_list.append(price_cost)
-    np.save('parse/abw_price_list.npy', price_list)
+    np.save(f'{folder}abw_price_list.npy', price_list)
 
 
 def abw_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://b.abw.by/api/adverts/cars/filters/'
-    brands = np.load('parse/abw_brands.npy', allow_pickle=True).item()
+    brands = np.load(f'{folder}abw_brands.npy', allow_pickle=True).item()
     brand_dict = {}
     for item in tqdm(brands):
         r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
@@ -109,7 +111,7 @@ def abw_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
             slug = car['slug']
             models_dict.update({name: [id, name, f'model_{slug}']})
         brand_dict.update({item: models_dict})
-    np.save(f'parse/abw_models.npy', brand_dict)
+    np.save(f'{folder}abw_models.npy', brand_dict)
 
 
 def onliner_get_from_json_brands():
@@ -121,12 +123,12 @@ def onliner_get_from_json_brands():
         name = car['name']
         slug = car['slug']
         brands.update({name: [id, slug]})
-    np.save('parse/onliner_brands.npy', brands)
+    np.save(f'{folder}onliner_brands.npy', brands)
 
 
 def onliner_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://ab.onliner.by/sdapi/ab.api/manufacturers/'
-    brands = np.load('parse/onliner_brands.npy', allow_pickle=True).item()
+    brands = np.load(f'{folder}onliner_brands.npy', allow_pickle=True).item()
     brand_dict = {}
     for item in tqdm(brands):
         r = requests.get(f'{url}{brands[item][0]}', headers=headers).json()
@@ -137,19 +139,28 @@ def onliner_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}
             slug = car['slug']
             models_dict.update({name: [id, name, slug]})
         brand_dict.update({item: models_dict})
-    np.save('parse/onliner_models.npy', brand_dict)
+    np.save(f'{folder}onliner_models.npy', brand_dict)
+
+
+def parse():
+    av_get_from_json_brands()
+    av_get_from_json_models()
+    abw_get_from_json_brands()
+    abw_get_from_json_models()
+    onliner_get_from_json_brands()
+    onliner_get_from_json_models()
 
 
 def main_parse(lenn):
-    if not all([checking_new_brands_av(), checking_new_models_av(lenn)]):
-        print('Начинаем обновления')
-        av_get_from_json_brands()
-        av_get_from_json_models()
-        abw_get_from_json_brands()
-        abw_get_from_json_models()
-        onliner_get_from_json_brands()
-        onliner_get_from_json_models()
-        return True
+    if os.path.exists(f'{folder}av_brands.npy'):
+        if not all([checking_new_brands_av(), checking_new_models_av(lenn)]):
+            print('Начинаем обновления')
+            parse()
+            return True
+        else:
+            print('Обновления не требуются')
+            return False
     else:
-        print('Обновления не требуются')
-        return False
+        print('1ый сбор данных')
+        parse()
+        return True

@@ -1,15 +1,17 @@
 import asyncio
-
 import numpy as np
 import pandas as pd
 from aiogram import Bot
 import aiosqlite
 from arq import create_pool, cron
 from arq.connections import RedisSettings
-from b_logic.database.config import db_name
+from b_logic.database.config import db_name, database
+from b_logic.database.data_migrations import main as update, lenn
+from b_logic.database.main_parse import main_parse
 from b_logic.get_url_cooking import all_get_url
 from b_logic.parse_cooking import parse_main
 from config_reader import config
+
 
 bot = Bot(token=config.bot_token.get_secret_value())
 
@@ -17,6 +19,11 @@ bot = Bot(token=config.bot_token.get_secret_value())
 async def parse(ctx, car, message, name, work):
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
     parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work)
+
+
+async def base(ctx):
+    if main_parse(lenn):
+        asyncio.run(update(database()))
 
 
 async def main(ctx):
@@ -37,14 +44,12 @@ async def main(ctx):
             links = open.iloc[0:, 0].tolist()
             l_data = len(links)
             if l_data > 0:
-                index = 0
                 for link in links:
                     try:
                         await bot.send_message(item[0], link)
                         await asyncio.sleep(3)
                     except Exception as e:
                         print(e, f'Не удалось отправить сообщение {str(links)} \nпользователю {item[0]}')
-                    index += 1
         except Exception as e:
             print(e, f'Не удалось открыть файл {item[0]}_{item[2]}')
 
@@ -56,8 +61,7 @@ async def main(ctx):
 
 class WorkerSettings:
     functions = [parse]
-    cron_jobs = [cron(main, hour={i for i in range(1, 24)}, minute={00})]
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
+    cron_jobs = [
+        cron(main, hour={i for i in range(1, 24)}, minute={00}),   # парсинг новых объявлений
+        cron(base, hour={1}, minute={30}),  # обновление БД
+    ]

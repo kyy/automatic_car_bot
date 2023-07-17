@@ -1,9 +1,10 @@
+import os
+
 import aiosqlite
 import numpy as np
-from config import database
-from main_parse import main_parse
+from .config import database
+from .main_parse import main_parse
 import asyncio
-from arq import cron
 
 
 def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
@@ -16,12 +17,14 @@ def lenn(items):
     return sum([1 for item in items for sub_item in items[item]])   # noqa
 
 
-abw_m = np.load('parse/abw_models.npy', allow_pickle=True).item()
-av_m = np.load('parse/av_models.npy', allow_pickle=True).item()
-onliner_m = np.load('parse/onliner_models.npy', allow_pickle=True).item()
-abw_b = np.load('parse/abw_brands.npy', allow_pickle=True).item()
-av_b = np.load('parse/av_brands.npy', allow_pickle=True).item()
-onliner_b = np.load('parse/onliner_brands.npy', allow_pickle=True).item()
+folder = 'b_logic/database/parse/'
+if os.path.exists(f'{folder}av_brands.npy'):
+    av_b = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
+abw_m = np.load(f'{folder}abw_models.npy', allow_pickle=True).item()
+av_m = np.load(f'{folder}av_models.npy', allow_pickle=True).item()
+onliner_m = np.load(f'{folder}onliner_models.npy', allow_pickle=True).item()
+abw_b = np.load(f'{folder}abw_brands.npy', allow_pickle=True).item()
+onliner_b = np.load(f'{folder}onliner_brands.npy', allow_pickle=True).item()
 
 l_av_b = len(av_b)
 l_abw_b = len(abw_b)
@@ -248,12 +251,12 @@ async def delete_dublicates(db, table: str):
     await db.commit()
 
 
-async def main():
+async def main(database:database()):
     """
     Выполняем сценарий по созданию и наполнению БД
     :return: None
     """
-    db = database()
+    db = database
     async with db:
         if checking_null():
             await create_tables(db)
@@ -269,16 +272,6 @@ async def main():
             print('Присутствуют пустые словари, '
                   'возможна утеря данных в БД (data_migrations.py -> checking_null())')
 
-
-async def run_regularly(ctx):
-    if main_parse(lenn):
-        await main()
-
-
-class WorkerSettings:
-    cron_jobs = [
-        cron(run_regularly, hour=23, minute=59)
-    ]
 
 
 if __name__ == '__main__':
