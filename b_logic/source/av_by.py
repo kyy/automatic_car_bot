@@ -40,9 +40,9 @@ def json_parse_av(json_data, work):
     for i in range(len(json_data['adverts'])):
         r_t = json_data['adverts'][i]
         published = r_t['publishedAt']
-        fresh_minutes = ((datetime.now().timestamp()-datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M").timestamp())/60) - 120
+        fresh_minutes = ((datetime.now().timestamp()-datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M").timestamp())/60) - 210
         print(published, fresh_minutes, datetime.now())
-        if (work is True and fresh_minutes < 59) or (work is False):   # Предпологаем что +240 минут к дате публикации
+        if ((work is True) and (fresh_minutes < 29)) or (work is False):
             price = r_t['price']['usd']['amount']
             comments = r_t['description']
             days = r_t['originalDaysOnSale']    # дни в продаже

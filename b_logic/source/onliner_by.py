@@ -42,7 +42,7 @@ def json_parse_onliner(json_data, work):
         r_t = json_data['adverts'][i]
         published = r_t['created_at']
         fresh_minutes = (datetime.now().timestamp() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M").timestamp()) / 60
-        if (work is True and fresh_minutes < 59) or (work is False):
+        if (work is True and fresh_minutes < 29) or (work is False):
             brand_model_gen = r_t['title']
             price = r_t['price']['converted']['USD']['amount'].split('.')[0]
             days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
@@ -85,10 +85,3 @@ async def get_one_onliner(url, session, result, work):
         page_content = await response.json()         # Ожидаем ответа и блокируем таск.
         item = json_parse_onliner(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
         result += item
-        #await asyncio.sleep(0.1)
-
-
-if __name__ == '__main__':
-    pass
-
-

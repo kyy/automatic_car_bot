@@ -23,6 +23,7 @@ async def parse(ctx, car, message, name, work):
 
 async def base(ctx):
     if main_parse(lenn):
+        await asyncio.sleep(5)
         asyncio.run(update(database()))
 
 
@@ -38,8 +39,8 @@ async def main(ctx):
         select = await select_cursor.fetchall()
     for item in select:
         await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True)
-        await asyncio.sleep(0.3)
         try:
+            await asyncio.sleep(1)
             open = pd.DataFrame(np.load(f'b_logic/buffer/{item[0]}_{item[2]}.npy', allow_pickle=True))
             links = open.iloc[0:, 0].tolist()
             l_data = len(links)
@@ -47,13 +48,11 @@ async def main(ctx):
                 for link in links:
                     try:
                         await bot.send_message(item[0], link)
-                        await asyncio.sleep(3)
+                        await asyncio.sleep(1)
                     except Exception as e:
                         print(e, f'Не удалось отправить сообщение {str(links)} \nпользователю {item[0]}')
         except Exception as e:
             print(e, f'Не удалось открыть файл {item[0]}_{item[2]}')
-
-
 
 # WorkerSettings defines the settings to use when creating the work,
 # it's used by the arq cli.
@@ -62,6 +61,10 @@ async def main(ctx):
 class WorkerSettings:
     functions = [parse]
     cron_jobs = [
-        cron(main, hour={i for i in range(1, 24)}, minute={00}),   # парсинг новых объявлений
-        cron(base, hour={1}, minute={30}),  # обновление БД
+        cron(main, hour={i for i in range(1, 24)}, minute={00, 30}),   # парсинг новых объявлений
+        cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
     ]
+
+
+if __name__ == '__main__':
+    asyncio.run(update(database()))

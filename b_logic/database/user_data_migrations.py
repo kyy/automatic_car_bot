@@ -1,6 +1,6 @@
 import asyncio
 import aiosqlite
-from config import database
+from .config import database
 
 
 async def create_tables(db):
@@ -22,11 +22,5 @@ async def create_tables(db):
         print('---> user, udata уже существуют')
 
 
-async def main():
-    db = database()
-    async with db:
-        await create_tables(db)
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
+async def main(db: database()):
+    await create_tables(db)

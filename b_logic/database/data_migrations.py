@@ -3,8 +3,8 @@ import os
 import aiosqlite
 import numpy as np
 from .config import database
-from .main_parse import main_parse
 import asyncio
+from .user_data_migrations import main as user_data_migrations
 
 
 def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
@@ -20,18 +20,18 @@ def lenn(items):
 folder = 'b_logic/database/parse/'
 if os.path.exists(f'{folder}av_brands.npy'):
     av_b = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
-abw_m = np.load(f'{folder}abw_models.npy', allow_pickle=True).item()
-av_m = np.load(f'{folder}av_models.npy', allow_pickle=True).item()
-onliner_m = np.load(f'{folder}onliner_models.npy', allow_pickle=True).item()
-abw_b = np.load(f'{folder}abw_brands.npy', allow_pickle=True).item()
-onliner_b = np.load(f'{folder}onliner_brands.npy', allow_pickle=True).item()
+    abw_m = np.load(f'{folder}abw_models.npy', allow_pickle=True).item()
+    av_m = np.load(f'{folder}av_models.npy', allow_pickle=True).item()
+    onliner_m = np.load(f'{folder}onliner_models.npy', allow_pickle=True).item()
+    abw_b = np.load(f'{folder}abw_brands.npy', allow_pickle=True).item()
+    onliner_b = np.load(f'{folder}onliner_brands.npy', allow_pickle=True).item()
 
-l_av_b = len(av_b)
-l_abw_b = len(abw_b)
-l_onliner_b = len(abw_b)
-l_av_m = lenn(av_m)
-l_abw_m = lenn(av_m)
-l_onliner_m = lenn(av_m)
+    l_av_b = len(av_b) # noqa
+    l_abw_b = len(abw_b) # noqa
+    l_onliner_b = len(abw_b) # noqa
+    l_av_m = lenn(av_m) # noqa
+    l_abw_m = lenn(av_m) # noqa
+    l_onliner_m = lenn(av_m) # noqa
 
 
 def checking_null():   # проверяем все ли файлы с данными
@@ -77,7 +77,7 @@ async def av_brands(db):
     :param db: инструкция к БД
     :return: None
     """
-    cursor_av_b = await db.execute(f"select [unique], id  from brands ")
+    cursor_av_b = await db.execute("""select [unique], id  from brands """)
     av_bd = await cursor_av_b.fetchall()
     l_av_bd = len(av_bd)
     if l_av_bd == 0:
@@ -202,7 +202,7 @@ async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, i
     print(f'+ brands - {set_row}')
 
 
-async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], ], set_row: str, index: str):
+async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], ], set_row: str, index: int):
     """
         Добавляет модели в соответствующий столбец
         :param db: инструкция к БД
@@ -251,7 +251,7 @@ async def delete_dublicates(db, table: str):
     await db.commit()
 
 
-async def main(database:database()):
+async def main(database: database()):
     """
     Выполняем сценарий по созданию и наполнению БД
     :return: None
@@ -260,6 +260,7 @@ async def main(database:database()):
     async with db:
         if checking_null():
             await create_tables(db)
+            await user_data_migrations(db)
             await av_brands(db),
             await av_models(db),
             await add_brand(db, abw_b, 'abw_by', 1),
@@ -271,9 +272,3 @@ async def main(database:database()):
         else:
             print('Присутствуют пустые словари, '
                   'возможна утеря данных в БД (data_migrations.py -> checking_null())')
-
-
-
-if __name__ == '__main__':
-    if main_parse(lenn):        # проверяем обновления на сайтах
-        asyncio.run(main())     # обновляем базу
