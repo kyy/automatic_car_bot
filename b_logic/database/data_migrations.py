@@ -1,4 +1,3 @@
-import os
 import aiosqlite
 import numpy as np
 from .config import database
@@ -14,8 +13,6 @@ def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
 
 def lenn(items):
     return sum([1 for item in items for sub_item in items[item]])   # noqa
-
-
 
 
 def car_data():
@@ -37,7 +34,6 @@ def l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b):
     l_onliner_b = len(onliner_b) # noqa
     l_onliner_m = lenn(onliner_m) # noqa
     return l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m
-
 
 
 def checking_null(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m):   # проверяем все ли файлы с данными
@@ -257,14 +253,13 @@ async def delete_dublicates(db, table: str):
     await db.commit()
 
 
-async def main(database: database()):
+async def main(db: database()):
     """
     Выполняем сценарий по созданию и наполнению БД
     :return: None
     """
     av_b, abw_m, av_m, onliner_m, abw_b, onliner_b = car_data()
     l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m = l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b)
-    db = database
     async with db:
         if checking_null(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m):
             await create_tables(db)

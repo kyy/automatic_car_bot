@@ -2,6 +2,7 @@ import asyncio
 import numpy as np
 from aiohttp import ClientSession
 import nest_asyncio
+from b_logic.database.config import database
 from .source.av_by import json_links_av, bound_fetch_av
 from .source.abw_by import json_links_abw, bound_fetch_abw
 from .source.onliner_by import json_links_onliner, bound_fetch_onliner
@@ -39,7 +40,16 @@ async def run(urls_av, urls_abw, urls_onliner, result, work):
         await asyncio.gather(*tasks)
 
 
-def parse_main(url_av, url_abw, url_onliner,  message, name, work):
+async def parse_main(url_av, url_abw, url_onliner,  message, name, work):
+    """
+    :param url_av: ссылка к json файлу
+    :param url_abw: ссылка к json файлу
+    :param url_onliner: ссылка к json файлу
+    :param message: id of telegram user
+    :param name: id of filter
+    :param work: True - задачи таска task_worker
+    :return: result список машин с параметрами [[],[]...]
+    """
     result = []
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(json_links_av(url_av),
@@ -50,7 +60,20 @@ def parse_main(url_av, url_abw, url_onliner,  message, name, work):
                                        )
                                    )
     loop.run_until_complete(future)
-    np.save(f'b_logic/buffer/{message}_{name}.npy', result)
+    if work is True:
+        async with database() as db:
+            id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{message}'""")
+            id = await id_cursor.fetchone()
+            select_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{id[0]}'""")
+            select = await select_cursor.fetchall()
+            for car in result:
+                if car[0] not in [i[0] for i in select]:  # проверяем на дубликаты
+                    await db.execute(f"""
+                    INSERT INTO ucars(user_id, url)
+                    VALUES (?, ?)""", (id[0], car[0]))
+            await db.commit()
+    else:
+        np.save(f'b_logic/buffer/{message}_{name}.npy', result)
     return result
 
 

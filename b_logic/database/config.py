@@ -9,4 +9,4 @@ def database():
     Создаем БД в корне проекта.
     :return:
     """
-    return aiosqlite.connect(database=f'../../{db_name}')
+    return aiosqlite.connect(database=f'{db_name}')

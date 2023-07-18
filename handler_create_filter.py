@@ -17,7 +17,7 @@ from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_br
                                  columns_years, columns_dimension, columns_motor, motor, transmission,
                                  decode_filter_short, code_filter_short, abw_root_link, onliner_url_filter)
 import aiosqlite
-from b_logic.database.config import db_name
+from b_logic.database.config import database
 
 
 router = Router()
@@ -73,7 +73,7 @@ async def cooking_pdf(message: Message):
         else:
             name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
             try:
-                parse_main(av_link_json,
+                await parse_main(av_link_json,
                            abw_link_json,
                            onliner_link_json,
                            message=message.from_user.id,
@@ -449,7 +449,7 @@ async def start_search(callback: CallbackQuery, state: FSMContext):
         c.append(data[item])
     car_code = code_filter_short(c)
     user_id = callback.from_user.id
-    async with aiosqlite.connect(db_name) as db:
+    async with database() as db:
         check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = {user_id}")
         check_id = await check_id_cursor.fetchone()
         if check_id is None:
@@ -466,13 +466,13 @@ async def start_search(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'show_search')
 async def show_search(callback: CallbackQuery):
-    async with aiosqlite.connect(db_name) as db:
+    async with database() as db:
         await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
 
 
 @router.callback_query((F.data.startswith('filter=')) & (((F.data.endswith('_0')) | (F.data.endswith('_1')))))
 async def edit_search(callback: CallbackQuery):
-     async with aiosqlite.connect(db_name) as db:
+     async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
@@ -491,7 +491,7 @@ async def edit_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('filter=')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
-     async with aiosqlite.connect(db_name) as db:
+     async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()

@@ -1,11 +1,8 @@
 import asyncio
-import numpy as np
-import pandas as pd
 from aiogram import Bot
-import aiosqlite
 from arq import create_pool, cron
 from arq.connections import RedisSettings
-from b_logic.database.config import db_name, database
+from b_logic.database.config import database
 from b_logic.database.data_migrations import main as update, lenn
 from b_logic.database.main_parse import main_parse
 from b_logic.get_url_cooking import all_get_url
@@ -18,53 +15,51 @@ bot = Bot(token=config.bot_token.get_secret_value())
 
 async def parse(ctx, car, message, name, work):
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
-    parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work)
+    await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work)
+
+
+async def send_car(ctx, url, tel_id):
+    try:
+        await bot.send_message(tel_id, url)
+    except Exception as e:
+        print(e)
 
 
 async def base(ctx):
     if main_parse(lenn):
-        await asyncio.sleep(5)
         asyncio.run(update(database()))
 
 
-async def main(ctx):
+async def collect_data(ctx):
     redis = await create_pool(RedisSettings())
-    async with aiosqlite.connect(db_name) as db:
-        select_cursor = await db.execute(f"""
+    async with database() as db:
+        select_filters_cursor = await db.execute(f"""
         SELECT user.tel_id, udata.search_param, udata.id FROM udata
         INNER JOIN user on user.id = udata.user_id
         WHERE udata.is_active=1 
         ORDER BY user.tel_id ASC 
         """)
-        select = await select_cursor.fetchall()
-    for item in select:
-        await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True)
-        try:
-            await asyncio.sleep(1)
-            open = pd.DataFrame(np.load(f'b_logic/buffer/{item[0]}_{item[2]}.npy', allow_pickle=True))
-            links = open.iloc[0:, 0].tolist()
-            l_data = len(links)
-            if l_data > 0:
-                for link in links:
-                    try:
-                        await bot.send_message(item[0], link)
-                        await asyncio.sleep(1)
-                    except Exception as e:
-                        print(e, f'Не удалось отправить сообщение {str(links)} \nпользователю {item[0]}')
-        except Exception as e:
-            print(e, f'Не удалось открыть файл {item[0]}_{item[2]}')
+        select_filters = await select_filters_cursor.fetchall()
+    for item in select_filters:
+        await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True,
+                                _job_id=f'{item[0]}_{item[2]}')
+        await send_data()
 
-# WorkerSettings defines the settings to use when creating the work,
-# it's used by the arq cli.
-# For a list of available settings, see https://arq-docs.helpmanual.io/#arq.worker.Worker
+
+async def send_data():
+    redis = await create_pool(RedisSettings())
+    async with database() as db:
+        select_urls_cursor = await db.execute(f"""SELECT user.tel_id, ucars.url, ucars.id FROM user
+                                                  INNER JOIN ucars on user.id = ucars.user_id""")
+        select_urls = await select_urls_cursor.fetchall()
+    for url in select_urls:
+        await redis.enqueue_job('send_car', url[1], url[0])
+
 
 class WorkerSettings:
-    functions = [parse]
+    functions = [parse, send_car]
     cron_jobs = [
-        cron(main, hour={i for i in range(1, 24)}, minute={00, 30}),   # парсинг новых объявлений
-        cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
+        cron(collect_data, hour={i for i in range(1, 24)}, minute={00, 30}, run_at_startup=True,),   # парсинг новых объявлений
+        #cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
     ]
 
-
-if __name__ == '__main__':
-    asyncio.run(update(database()))
