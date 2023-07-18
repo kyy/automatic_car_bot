@@ -1,6 +1,7 @@
 import asyncio
 import requests
-
+from bs4 import BeautifulSoup
+from lxml import html
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -37,14 +38,13 @@ def json_links_abw(url):
 
 def json_parse_abw(json_data, work):
     car = []
-    work = False
     for i in range(len(json_data['items'])):
-        if work:
-            r_t = json_data['items'][i]
+        r_t = json_data['items'][i]
+        url = f"https://abw.by{r_t['link']}"
+        if work is False:
             brand = r_t['title'].split(',')[0]
             price = r_t['price']['usd'].replace('USD', '').replace(' ', '')
             city = r_t['city']
-            url = f"https://abw.by{r_t['link']}"
             description = r_t['description'].split('/')
             km = description[0].replace(' <br', '').replace(' км', '')
             year = description[1].replace('г.', '').replace('>', '').replace(' ', '')
@@ -59,8 +59,14 @@ def json_parse_abw(json_data, work):
                 str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
                 str(exchange), str(days), str(city)
             ])
+        if work is True:
+            pass
+            # response = requests.get(url, headers=headers)
+            # soup = BeautifulSoup(response.content, 'html.parser')
+            # time = soup.find('time', {'class': 'time'}).text
+            # print(time)
+            #car.append([str(url)])
     return car
-
 
 
 async def bound_fetch_abw(semaphore, url, session, result, work):
