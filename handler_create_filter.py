@@ -45,7 +45,7 @@ async def cooking_pdf(message: Message):
         await message.answer("Фильтр принят\n"
                              "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
 
-        av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars)
+        av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
         all_cars_av = count_cars_av(av_link_json)
         all_cars_abw = count_cars_abw(abw_link_json)
         all_cars_onliner = count_cars_onliner(onliner_link_json)
@@ -74,11 +74,12 @@ async def cooking_pdf(message: Message):
             name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
             try:
                 await parse_main(av_link_json,
-                           abw_link_json,
-                           onliner_link_json,
-                           message=message.from_user.id,
-                           name=name_time_stump,
-                           )
+                                 abw_link_json,
+                                 onliner_link_json,
+                                 message=message.from_user.id,
+                                 name=name_time_stump,
+                                 work=False,
+                                 )
             except Exception as e:
                 print(e, '\nОшибка в parse_main')
                 return await message.answer("Ошибка при сборе данных.\n"

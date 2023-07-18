@@ -15,7 +15,7 @@ bot = Bot(token=config.bot_token.get_secret_value())
 
 async def parse(ctx, car, message, name, work):
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
-    return await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work)
+    await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work)
 
 
 async def send_car(ctx, tel_id, url):
