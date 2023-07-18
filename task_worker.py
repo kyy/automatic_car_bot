@@ -6,7 +6,7 @@ from b_logic.database.config import database
 from b_logic.database.data_migrations import main as update, lenn
 from b_logic.database.main_parse import main_parse
 from b_logic.get_url_cooking import all_get_url
-from b_logic.parse_cooking import parse_main
+from b_logic.parse_cooking import parse_main, send_car as send_car_from_parse
 from config_reader import config
 
 
@@ -15,14 +15,11 @@ bot = Bot(token=config.bot_token.get_secret_value())
 
 async def parse(ctx, car, message, name, work):
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
-    await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work)
+    return await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work)
 
 
-async def send_car(ctx, url, tel_id):
-    try:
-        await bot.send_message(tel_id, url)
-    except Exception as e:
-        print(e)
+async def send_car(ctx, tel_id, url):
+    await send_car_from_parse(tel_id, url)
 
 
 async def base(ctx):
@@ -40,26 +37,14 @@ async def collect_data(ctx):
         ORDER BY user.tel_id ASC 
         """)
         select_filters = await select_filters_cursor.fetchall()
-    for item in select_filters:
-        await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True,
-                                _job_id=f'{item[0]}_{item[2]}')
-        await send_data()
-
-
-async def send_data():
-    redis = await create_pool(RedisSettings())
-    async with database() as db:
-        select_urls_cursor = await db.execute(f"""SELECT user.tel_id, ucars.url, ucars.id FROM user
-                                                  INNER JOIN ucars on user.id = ucars.user_id""")
-        select_urls = await select_urls_cursor.fetchall()
-    for url in select_urls:
-        await redis.enqueue_job('send_car', url[1], url[0])
+        for item in select_filters:
+            await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True)
 
 
 class WorkerSettings:
     functions = [parse, send_car]
     cron_jobs = [
         cron(collect_data, hour={i for i in range(1, 24)}, minute={00, 30}, run_at_startup=True,),   # парсинг новых объявлений
-        #cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
+    #    cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
     ]
 

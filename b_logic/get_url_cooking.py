@@ -53,7 +53,6 @@ async def get_url_av(car_input, db, work):
         new_part.append('creation_date=10')
     new_part_url = '&'.join(new_part)
     full_url = f'https://api.av.by/offer-types/cars/filters/main/init?{new_part_url}'
-    print(full_url)
     return full_url
 
 
@@ -133,7 +132,6 @@ async def get_url_abw(car_input, db, work):
         full_url = f'https://b.abw.by/api/adverts/cars/list/{new_part_url}'
         if work is True:
             full_url = f'{full_url}?sort=new'
-        print(full_url)
         return full_url
     else:
         return None
@@ -185,7 +183,6 @@ async def get_url_onliner(car_input, db, work):
             new_part.append("order=created_at:desc")
         new_part_url = '&'.join(new_part)+'&price[currency]=USD'
         full_url = f'https://ab.onliner.by/sdapi/ab.api/search/vehicles?{new_part_url}'
-        print(full_url)
         return full_url
     else:
         return None

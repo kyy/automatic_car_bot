@@ -1,14 +1,19 @@
 import asyncio
 import numpy as np
+from aiogram import Bot
 from aiohttp import ClientSession
 import nest_asyncio
-from b_logic.database.config import database
+from arq import create_pool
+from arq.connections import RedisSettings
+from config_reader import config
 from .source.av_by import json_links_av, bound_fetch_av
 from .source.abw_by import json_links_abw, bound_fetch_abw
 from .source.onliner_by import json_links_onliner, bound_fetch_onliner
 
 
 nest_asyncio.apply()
+
+bot = Bot(token=config.bot_token.get_secret_value())
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -40,7 +45,14 @@ async def run(urls_av, urls_abw, urls_onliner, result, work):
         await asyncio.gather(*tasks)
 
 
-async def parse_main(url_av, url_abw, url_onliner,  message, name, work):
+async def send_car(tel_id, url):
+    try:
+        await bot.send_message(tel_id, url)
+    except Exception as e:
+        print(e)
+
+
+async def parse_main(url_av, url_abw, url_onliner, message, name, work):
     """
     :param url_av: ссылка к json файлу
     :param url_abw: ссылка к json файлу
@@ -55,23 +67,13 @@ async def parse_main(url_av, url_abw, url_onliner,  message, name, work):
     future = asyncio.ensure_future(run(json_links_av(url_av),
                                        json_links_abw(url_abw),
                                        json_links_onliner(url_onliner),
-                                       result,
-                                       work,
-                                       )
-                                   )
+                                       result, work,
+                                       ))
     loop.run_until_complete(future)
     if work is True:
-        async with database() as db:
-            id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{message}'""")
-            id = await id_cursor.fetchone()
-            select_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{id[0]}'""")
-            select = await select_cursor.fetchall()
-            for car in result:
-                if car[0] not in [i[0] for i in select]:  # проверяем на дубликаты
-                    await db.execute(f"""
-                    INSERT INTO ucars(user_id, url)
-                    VALUES (?, ?)""", (id[0], car[0]))
-            await db.commit()
+        redis = await create_pool(RedisSettings())
+        for car in result:
+            await redis.enqueue_job('send_car', message, car[0])
     else:
         np.save(f'b_logic/buffer/{message}_{name}.npy', result)
     return result

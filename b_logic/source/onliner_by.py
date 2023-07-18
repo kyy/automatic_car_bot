@@ -41,13 +41,15 @@ def json_parse_onliner(json_data, work):
     for i in range(len(json_data['adverts'])):
         r_t = json_data['adverts'][i]
         published = r_t['created_at']
-        fresh_minutes = (datetime.now().timestamp() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M").timestamp()) / 60
-        if (work is True and fresh_minutes < 29) or (work is False):
+        fresh_minutes = (datetime.now().timestamp() - datetime.strptime(published[:-9],
+                                                                        "%Y-%m-%dT%H:%M").timestamp()) / 60
+        url = r_t['html_url']
+        if work is False:
             brand_model_gen = r_t['title']
             price = r_t['price']['converted']['USD']['amount'].split('.')[0]
             days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
             city = r_t['location']['city']['name']
-            url = r_t['html_url']
+
             vin = ''
             exchange = ''
             year = r_t['specs']['year']
@@ -66,6 +68,8 @@ def json_parse_onliner(json_data, work):
                 str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
                 str(exchange), str(days), str(city)
             ])
+        if work is True and fresh_minutes < 29:
+            car.append([str(url)])
     return car
 
 
