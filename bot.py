@@ -6,6 +6,7 @@ from aiogram.fsm.strategy import FSMStrategy
 from config_reader import config
 import handler_common
 import handler_create_filter
+import handler_control_callback
 from handler_common import set_commands
 
 
@@ -16,6 +17,7 @@ async def main():
     await set_commands(bot)
     dp.include_router(handler_common.router)
     dp.include_router(handler_create_filter.router)
+    dp.include_router(handler_control_callback.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
