@@ -1,7 +1,7 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from b_logic.keyboards import multi_row_keyboard, params_menu, start_menu_with_help
+from b_logic.keyboards import multi_row_keyboard, params_menu, start_menu_with_help, filter_menu
 from b_logic.constant_fu import s_b, get_brands, decode_filter_short, code_filter_short
 from b_logic.database.config import database
 from handler_create_filter import CreateCar
@@ -11,7 +11,7 @@ router = Router()
 
 
 @router.callback_query(F.data == 'help_show_start_menu')
-async def delete_search(callback: CallbackQuery):
+async def help_show_start_menu(callback: CallbackQuery):
     await callback.message.edit_text(
         'Этот бот сэкономит вам время в поиске подходящего автомобиля. '
         'Просто создайте и сохраните необходимый фильтр, и бот начнет вам присылать свежие обявления.\n'
@@ -25,8 +25,27 @@ async def delete_search(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'help_hide_start_menu')
-async def delete_search(callback: CallbackQuery):
-    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu_with_help(True))
+async def help_hide_params_menu(callback: CallbackQuery):
+    await callback.message.edit_text(
+        'управление фильтрами',
+        reply_markup=start_menu_with_help(True))
+
+
+@router.callback_query(F.data == 'help_show_params_menu')
+async def help_show_params_menu(callback: CallbackQuery):
+    async with database() as db:
+        await callback.message.edit_text(
+            'Нажав на фильтр можно заказать сравнительный отчет о всех активных обявлениях.',
+            reply_markup=await params_menu(decode_filter_short, callback, db, False))
+
+
+@router.callback_query(F.data == 'help_hide_params_menu')
+async def help_hide_params_menu(callback: CallbackQuery):
+    async with database() as db:
+        await callback.message.edit_text(
+            'управление фильтрами',
+            reply_markup=await params_menu(decode_filter_short, callback, db, True))
+
 
 
 @router.callback_query(F.data == 'create_search')
@@ -53,12 +72,18 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == 'cancel_start_menu')
-async def cancel(callback: CallbackQuery):
+async def cancel_start_menu(callback: CallbackQuery):
     await callback.message.edit_text('управление фильтрами', reply_markup=start_menu_with_help(True))
 
 
+@router.callback_query(F.data == 'cancel_params_menu')
+async def cancel_params_menu(callback: CallbackQuery):
+    async with database() as db:
+        await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
+
+
 @router.callback_query(F.data == 'save_search')
-async def start_search(callback: CallbackQuery, state: FSMContext):
+async def save_search(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     c = []
     for item in data:
@@ -83,7 +108,7 @@ async def start_search(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'show_search')
 async def show_search(callback: CallbackQuery):
     async with database() as db:
-        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
+        await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f=')) & (((F.data.endswith('_0')) | (F.data.endswith('_1')))))
@@ -102,7 +127,7 @@ async def edit_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{user_id}'
                         """)
         await db.commit()
-        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
+        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f=')) & (F.data.endswith('_del')))
@@ -116,4 +141,16 @@ async def delete_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'
                         """)
         await db.commit()
-        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
+        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db, True))
+
+
+@router.callback_query((F.data.startswith('f=_')) & (F.data.endswith('_show')))
+async def delete_search(callback: CallbackQuery):
+    filter_id = callback.data.split('_')[1]
+    async with database() as db:
+        select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
+        filter = await select_filter_cursor.fetchone()
+    await callback.message.edit_text(
+        f'{filter[0]}\n'
+        f'{decode_filter_short(filter[0])}',
+                                     reply_markup=filter_menu)
