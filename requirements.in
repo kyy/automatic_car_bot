@@ -1,6 +1,7 @@
 aiogram==3.0.0b8
 fpdf2
 pydantic[dotenv]
+pydantic-settings
 beautifulsoup4
 numpy
 outcome

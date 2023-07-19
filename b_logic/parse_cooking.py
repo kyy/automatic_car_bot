@@ -13,7 +13,7 @@ from .source.onliner_by import json_links_onliner, bound_fetch_onliner
 
 nest_asyncio.apply()
 
-bot = Bot(token=config.bot_token.get_secret_value())
+bot = Bot(token=config.BOT_TOKEN)
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '

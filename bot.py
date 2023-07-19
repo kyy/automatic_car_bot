@@ -11,7 +11,7 @@ from handler_common import set_commands
 
 async def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", )
-    bot = Bot(token=config.bot_token.get_secret_value())
+    bot = Bot(token=config.BOT_TOKEN)
     dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.USER_IN_CHAT)  # FSM !
     await set_commands(bot)
     dp.include_router(handler_common.router)

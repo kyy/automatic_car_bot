@@ -96,14 +96,19 @@ pydantic[dotenv]==2.0.3
     # via
     #   -r requirements.in
     #   aiogram
+    #   pydantic-settings
 pydantic-core==2.3.0
     # via pydantic
+pydantic-settings==2.0.2
+    # via -r requirements.in
 pypng==0.20220715.0
     # via qrcode
 pyproject-hooks==1.0.0
     # via build
 python-dateutil==2.8.2
     # via pandas
+python-dotenv==1.0.0
+    # via pydantic-settings
 pytz==2023.3
     # via pandas
 qrcode==7.4.2

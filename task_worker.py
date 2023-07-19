@@ -10,7 +10,7 @@ from b_logic.parse_cooking import parse_main, send_car as send_car_from_parse
 from config_reader import config
 
 
-bot = Bot(token=config.bot_token.get_secret_value())
+bot = Bot(token=config.BOT_TOKEN)
 
 
 async def parse(ctx, car, message, name, work):
@@ -44,7 +44,7 @@ async def collect_data(ctx):
 class WorkerSettings:
     functions = [parse, send_car]
     cron_jobs = [
-        cron(collect_data, hour={i for i in range(1, 24)}, minute={00, 30}, run_at_startup=True,),   # парсинг новых объявлений
-    #    cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
+        cron(collect_data, hour={i for i in range(1, 24)}, minute={00, 30}, run_at_startup=False,),   # парсинг новых объявлений
+        cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
     ]
 

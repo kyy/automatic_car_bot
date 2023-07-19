@@ -21,7 +21,7 @@ from b_logic.database.config import database
 
 
 router = Router()
-bot = Bot(token=config.bot_token.get_secret_value())
+bot = Bot(token=config.BOT_TOKEN)
 
 
 class CreateCar(StatesGroup):
