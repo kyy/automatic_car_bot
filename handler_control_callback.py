@@ -54,7 +54,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'cancel_start_menu')
 async def cancel(callback: CallbackQuery):
-    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu_with_help(False))
+    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu_with_help(True))
 
 
 @router.callback_query(F.data == 'save_search')

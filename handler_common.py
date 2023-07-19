@@ -83,7 +83,7 @@ async def cmd_help(message: Message, command: CommandObject):
 @router.message(F.text.casefold() == "start")
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer('главное меню', reply_markup=start_menu_with_help(False))
+    await message.answer('главное меню', reply_markup=start_menu_with_help(True))
 
 
 
