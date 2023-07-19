@@ -3,10 +3,10 @@ from datetime import datetime as datatime_datatime
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile, CallbackQuery
+from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 from aiogram.filters import Command
 from config_reader import config
-from b_logic.keyboards import multi_row_keyboard, result_menu, start_menu, params_menu
+from b_logic.keyboards import multi_row_keyboard, result_menu
 from b_logic.parse_cooking import parse_main
 from b_logic.pdf_cooking import do_pdf
 from b_logic.get_url_cooking import all_get_url
@@ -15,9 +15,7 @@ from b_logic.source.abw_by import count_cars_abw
 from b_logic.source.onliner_by import count_cars_onliner
 from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, columns_cost,
                                  columns_years, columns_dimension, columns_motor, motor, transmission,
-                                 decode_filter_short, code_filter_short, abw_root_link, onliner_url_filter)
-import aiosqlite
-from b_logic.database.config import database
+                                 decode_filter_short, abw_root_link, onliner_url_filter)
 
 
 router = Router()

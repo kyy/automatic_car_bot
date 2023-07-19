@@ -1,7 +1,7 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from b_logic.keyboards import multi_row_keyboard, start_menu, params_menu, help_menu
+from b_logic.keyboards import multi_row_keyboard, params_menu, start_menu_with_help
 from b_logic.constant_fu import s_b, get_brands, decode_filter_short, code_filter_short
 from b_logic.database.config import database
 from handler_create_filter import CreateCar
@@ -10,7 +10,7 @@ from handler_create_filter import CreateCar
 router = Router()
 
 
-@router.callback_query(F.data == 'help')
+@router.callback_query(F.data == 'help_show_start_menu')
 async def delete_search(callback: CallbackQuery):
     await callback.message.edit_text(
         'Этот бот сэкономит вам время в поиске подходящего автомобиля. '
@@ -21,12 +21,12 @@ async def delete_search(callback: CallbackQuery):
         '- Если хотите прпустить шаги с выбором параметров нажмите [menu]->[/show].\n'
         '- Сохраненные фильтры можно отключить или удалить в управлнии фильтрами.\n'
         '- Узнать больше команд /help.'
-        , reply_markup=help_menu)
+        , reply_markup=start_menu_with_help(False))
 
 
-@router.callback_query(F.data == 'help_hide')
+@router.callback_query(F.data == 'help_hide_start_menu')
 async def delete_search(callback: CallbackQuery):
-    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu)
+    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu_with_help(True))
 
 
 @router.callback_query(F.data == 'create_search')
@@ -52,9 +52,9 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     await state.set_state(CreateCar.brand_choosing)
 
 
-@router.callback_query(F.data == 'cancel')
+@router.callback_query(F.data == 'cancel_start_menu')
 async def cancel(callback: CallbackQuery):
-    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu)
+    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu_with_help(False))
 
 
 @router.callback_query(F.data == 'save_search')
@@ -77,7 +77,7 @@ async def start_search(callback: CallbackQuery, state: FSMContext):
             f"VALUES (?, ?, ?)", [(base_user_id[0], car_code, 1),]
         )
         await db.commit()
-    await callback.message.edit_text('Теперь мы будем присылать вам лучшие объявления', reply_markup=start_menu)
+    await callback.message.edit_text('Теперь мы будем присылать вам лучшие объявления', reply_markup=start_menu_with_help(True))
 
 
 @router.callback_query(F.data == 'show_search')
@@ -86,7 +86,7 @@ async def show_search(callback: CallbackQuery):
         await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
 
 
-@router.callback_query((F.data.startswith('filter=')) & (((F.data.endswith('_0')) | (F.data.endswith('_1')))))
+@router.callback_query((F.data.startswith('f=')) & (((F.data.endswith('_0')) | (F.data.endswith('_1')))))
 async def edit_search(callback: CallbackQuery):
      async with database() as db:
         user_id = callback.from_user.id
@@ -105,7 +105,7 @@ async def edit_search(callback: CallbackQuery):
         await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db))
 
 
-@router.callback_query((F.data.startswith('filter=')) & (F.data.endswith('_del')))
+@router.callback_query((F.data.startswith('f=')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
      async with database() as db:
         user_id = callback.from_user.id
