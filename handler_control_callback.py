@@ -1,14 +1,35 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from b_logic.keyboards import multi_row_keyboard, start_menu, params_menu
-from b_logic.constant_fu import (s_b, get_brands, decode_filter_short, code_filter_short)
-from handler_create_filter import CreateCar
+from b_logic.keyboards import multi_row_keyboard, start_menu, params_menu, help_menu
+from b_logic.constant_fu import s_b, get_brands, decode_filter_short, code_filter_short
 from b_logic.database.config import database
+from handler_create_filter import CreateCar
+
 
 router = Router()
 
-@router.callback_query(F.data == "add_search")
+
+@router.callback_query(F.data == 'help')
+async def delete_search(callback: CallbackQuery):
+    await callback.message.edit_text(
+        'Этот бот сэкономит вам время в поиске подходящего автомобиля. '
+        'Просто создайте и сохраните необходимый фильтр, и бот начнет вам присылать свежие обявления.\n'
+        '- Открыть главное меню - /start.\n'
+        '- Cоздать фильтр  - /car.\n'
+        '- Если необходимо оставить параметр пустым выбирайте - [?].\n'
+        '- Если хотите прпустить шаги с выбором параметров нажмите [menu]->[/show].\n'
+        '- Сохраненные фильтры можно отключить или удалить в управлнии фильтрами.\n'
+        '- Узнать больше команд /help.'
+        , reply_markup=help_menu)
+
+
+@router.callback_query(F.data == 'help_hide')
+async def delete_search(callback: CallbackQuery):
+    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu)
+
+
+@router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     await state.update_data(chosen_brand=s_b,
                             chosen_model=s_b,
@@ -28,7 +49,6 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
             input_field_placeholder='имя бренда',
             )
     )
-
     await state.set_state(CreateCar.brand_choosing)
 
 

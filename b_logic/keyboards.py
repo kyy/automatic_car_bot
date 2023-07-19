@@ -17,7 +17,7 @@ def multi_row_keyboard(items: list[str], columns: int = 4, **kwargs) -> ReplyKey
 start_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="📝 Добавить фильтр", callback_data="add_search"),
+            InlineKeyboardButton(text="📝 Создать фильтр", callback_data="create_search"),
             InlineKeyboardButton(text="🖼 Управление фильтрами", callback_data="show_search")
         ],
         [
@@ -25,10 +25,21 @@ start_menu = InlineKeyboardMarkup(
         ]
     ])
 
+help_menu = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="📝 Создать фильтр", callback_data="create_search"),
+            InlineKeyboardButton(text="🖼 Управление фильтрами", callback_data="show_search")
+        ],
+        [
+            InlineKeyboardButton(text="🔎 Скрыть помощь", callback_data="help_hide")
+        ]
+    ])
+
 result_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="📝 Сохранить", callback_data="save_search"),
+            InlineKeyboardButton(text="📝 Сохранить фильтр", callback_data="save_search"),
             InlineKeyboardButton(text="🖼 Отмена", callback_data="cancel")
         ],
         [

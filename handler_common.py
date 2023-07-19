@@ -59,16 +59,18 @@ async def set_commands(bot: Bot):
 
 
 @router.message(Command(commands=["help"]))
-@router.message(F.text.casefold() == "help")
 async def cmd_help(message: Message, command: CommandObject):
     if command.args:
         for cmd in commands:
             if cmd.command == command.args:
                 return await message.answer(
                     f'{cmd.command} - {cmd.full_description}'
+
                 )
         else:
-            return await message.answer('Команда не найдена')
+            return await message.answer('Команда не найдена'
+                                        '\nДоступные команды:'
+                                        f'\n{all_commands(commands)}')
     await message.answer(
         text=f"Для получение подробного описание команд наберите:"
              "\n/help <имя команды>"
