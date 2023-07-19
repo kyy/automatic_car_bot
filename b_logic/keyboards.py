@@ -38,6 +38,13 @@ result_menu = InlineKeyboardMarkup(
 
 
 async def params_menu(decode_filter_short, callback, db):
+    """
+    Клавиатура управления фильтрами
+    :param decode_filter_short:
+    :param callback:
+    :param db:
+    :return:
+    """
     user_id = callback.from_user.id
     search_params_cursor = await db.execute(f"SELECT udata.search_param, udata.is_active, udata.id FROM user "
                                             f"INNER JOIN udata on user.id = udata.user_id "
