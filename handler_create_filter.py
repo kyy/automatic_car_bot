@@ -1,11 +1,11 @@
 import os
 from datetime import datetime as datatime_datatime
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
+from classes import CreateCar
 from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 from aiogram.filters import Command
-from config_reader import config
+from bot import bot
 from b_logic.keyboards import multi_row_keyboard, result_menu
 from b_logic.parse_cooking import parse_main
 from b_logic.pdf_cooking import do_pdf
@@ -19,21 +19,6 @@ from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_br
 
 
 router = Router()
-bot = Bot(token=config.BOT_TOKEN)
-
-
-class CreateCar(StatesGroup):
-    brand_choosing = State()
-    model_choosing = State()
-    motor_choosing = State()
-    transmission_choosing = State()
-    year_choosing = State()
-    yearm_choosing = State()
-    cost_choosing = State()
-    costm_choosing = State()
-    dimension_choosing = State()
-    dimensionm_choosing = State()
-    finish_choosing = State()
 
 
 @router.message(F.text.startswith('filter='))

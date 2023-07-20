@@ -45,14 +45,6 @@ result_menu = InlineKeyboardMarkup(
 
 async def params_menu(decode_filter_short, callback, db, help_flag):
     # меню списка фильтров
-    """
-    Клавиатура управления фильтрами
-    :param decode_filter_short:
-    :param callback:
-    :param db:
-    :param help_flag:
-    :return:
-    """
     help_callback = 'help_show_params_menu' if help_flag is True else 'help_hide_params_menu'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     user_id = callback.from_user.id
@@ -61,9 +53,9 @@ async def params_menu(decode_filter_short, callback, db, help_flag):
                                             f"WHERE user.tel_id = {user_id}")
     search_params = await search_params_cursor.fetchall()
     buttons = [
-            [InlineKeyboardButton(text=decode_filter_short(i[0])[7:], callback_data=f'f=_{i[2]}_show'),
-            InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'f={user_id}_{i[2]}_{i[1]}'),
-            InlineKeyboardButton(text='Удалить', callback_data=f'f={user_id}_{i[2]}_del'),
+            [InlineKeyboardButton(text=decode_filter_short(i[0])[7:], callback_data=f'f_{i[2]}_show'),
+            InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'f_{user_id}_{i[2]}_{i[1]}'),
+            InlineKeyboardButton(text='Удалить', callback_data=f'f_{user_id}_{i[2]}_del'),
              ] for i in search_params]
     buttons.append([InlineKeyboardButton(text='Назад', callback_data='cancel_start_menu'),
                     InlineKeyboardButton(text=help_text, callback_data=help_callback)])
@@ -71,14 +63,16 @@ async def params_menu(decode_filter_short, callback, db, help_flag):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-filter_menu = InlineKeyboardMarkup(
-    # меню опций фильтра, заказ отчета
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="📝 Создать отчет", callback_data="save_search"),
-            InlineKeyboardButton(text="🖼 Главное меню", callback_data="cancel_start_menu")
-        ],
-        [
-            InlineKeyboardButton(text="Назад", callback_data="cancel_params_menu")
+def filter_menu(callback):
+    # меню опций фильтра, заказ отчета (callback = udata.id )
+    filter_id = callback.data.split('_')[1]
+    buttons = [
+            [
+                InlineKeyboardButton(text="📝 Создать отчет", callback_data=f'f_{filter_id}_rep'),
+                InlineKeyboardButton(text="🖼 Главное меню", callback_data="cancel_start_menu")
+            ],
+            [
+                InlineKeyboardButton(text="Назад", callback_data="cancel_params_menu")
+            ]
         ]
-    ])
+    return InlineKeyboardMarkup(inline_keyboard=buttons)

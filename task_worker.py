@@ -1,5 +1,4 @@
 import asyncio
-from aiogram import Bot
 from arq import create_pool, cron
 from arq.connections import RedisSettings
 from b_logic.database.config import database
@@ -7,10 +6,6 @@ from b_logic.database.data_migrations import main as update, lenn
 from b_logic.database.main_parse import main_parse
 from b_logic.get_url_cooking import all_get_url
 from b_logic.parse_cooking import parse_main, send_car as send_car_from_parse
-from config_reader import config
-
-
-bot = Bot(token=config.BOT_TOKEN)
 
 
 async def parse(ctx, car, message, name, work):
