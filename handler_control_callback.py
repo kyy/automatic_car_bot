@@ -6,14 +6,12 @@ from aiogram.types import CallbackQuery, FSInputFile
 from b_logic.get_url_cooking import all_get_url
 from b_logic.parse_cooking import parse_main
 from b_logic.pdf_cooking import do_pdf
-from b_logic.source.abw_by import count_cars_abw
-from b_logic.source.av_by import count_cars_av
-from b_logic.source.onliner_by import count_cars_onliner
-from keyboards import multi_row_keyboard, params_menu, start_menu_with_help, filter_menu
-from b_logic.constant_fu import (s_b, get_brands, decode_filter_short, code_filter_short, abw_root_link, onliner_url_filter)
+from b_logic.func import get_count_cars, get_search_links, get_brands, decode_filter_short, code_filter_short
+from b_logic.constant import s_b
 from b_logic.database.config import database
 from classes import CreateCar
 from classes import bot
+from keyboards import multi_row_keyboard, params_menu, start_menu_with_help, filter_menu
 
 
 router = Router()
@@ -164,6 +162,10 @@ async def delete_search(callback: CallbackQuery):
         await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
+
+
+
+
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
 async def options_search(callback: CallbackQuery):
     # Опции фильтра, отображение кол-ва обявлений
@@ -171,20 +173,15 @@ async def options_search(callback: CallbackQuery):
     async with database() as db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
         filter = await select_filter_cursor.fetchone()
+    cars = filter[0][7:]
 
-        user_id = callback.from_user.id
-        cars = filter[0][7:]
-        av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
-        all_cars_av = count_cars_av(av_link_json)
-        all_cars_abw = count_cars_abw(abw_link_json)
-        all_cars_onliner = count_cars_onliner(onliner_link_json)
-        av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
-        try:
-            abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-        except:
-            abw_link = abw_root_link
-        onliner_link = onliner_url_filter(cars, onliner_link_json)
+    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
+    all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
+    av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
 
+
+    all_count = [all_cars_av, all_cars_abw, all_cars_onliner]
+    cars_count = sum(all_count)
     await callback.message.edit_text(
         f"{decode_filter_short(filter[0])[7:].replace('<', '').replace('>', '')}\n"
         f"\n"
@@ -194,11 +191,10 @@ async def options_search(callback: CallbackQuery):
         f"<a href='{onliner_link}'>onliner.by</a> - {all_cars_onliner}.\n"
         f"\n"
         f"Действует ограничение до ~125 объявлений с 1 ресурса.\n",
-        reply_markup=filter_menu(callback),
+        reply_markup=filter_menu(callback, cars_count),
         disable_web_page_preview=True,
         parse_mode="HTML",
     )
-
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_rep')))
@@ -209,54 +205,38 @@ async def report_search(callback: CallbackQuery):
     async with database() as db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
         filter = await select_filter_cursor.fetchone()
-
-
     cars = filter[0][7:]
+
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
-    all_cars_av = count_cars_av(av_link_json)
-    all_cars_abw = count_cars_abw(abw_link_json)
-    all_cars_onliner = count_cars_onliner(onliner_link_json)
-    av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
+    all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
+    av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
+
+    name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
     try:
-        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-    except:
-        abw_link = abw_root_link
-    onliner_link = onliner_url_filter(cars, onliner_link_json)
+        await parse_main(av_link_json,
+                         abw_link_json,
+                         onliner_link_json,
+                         message=user_id,
+                         name=name_time_stump,
+                         work=False,
+                         )
+    except Exception as e:
+        print(e, '\nОшибка в parse_main')
+        return await bot.send_message(user_id,"Ошибка при сборе данных.\n"
+                                    "Показать фильтр /show.")
+    await bot.send_message(user_id, f"Сбор данных.")
 
-    all_count = [all_cars_av,
-                 all_cars_abw,
-                 all_cars_onliner,
-                 ]
-    if sum(all_count) == 0:
-        return await bot.send_message(user_id, "По вашему запросу ничего не найдено,\n"
-                                    "или запрашиваемый сервер перегружен")
-    else:
-        name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
-        try:
-            await parse_main(av_link_json,
-                             abw_link_json,
-                             onliner_link_json,
-                             message=user_id,
-                             name=name_time_stump,
-                             work=False,
-                             )
-        except Exception as e:
-            print(e, '\nОшибка в parse_main')
-            return await bot.send_message(user_id,"Ошибка при сборе данных.\n"
-                                        "Показать фильтр /show.")
-        await bot.send_message(user_id, f"Сбор данных.")
-
-        await do_pdf(
-            message=user_id,
-            link={
-                'av': [av_link, all_cars_av],
-                'abw': [abw_link, all_cars_abw],
-                'onliner': [onliner_link, all_cars_onliner],
-            },
-            name=name_time_stump,
-            filter_full=decode_filter_short(cars),
-            filter_short=filter)
-        os.remove(f'b_logic/buffer/{user_id}_{name_time_stump}.npy')
+    await do_pdf(
+        message=user_id,
+        link={
+            'av': [av_link, all_cars_av],
+            'abw': [abw_link, all_cars_abw],
+            'onliner': [onliner_link, all_cars_onliner],
+        },
+        name=name_time_stump,
+        filter_full=decode_filter_short(cars),
+        filter_short=filter[0])
+    os.remove(f'b_logic/buffer/{user_id}_{name_time_stump}.npy')
 
     if os.path.exists(f'b_logic/buffer/{name_time_stump}.pdf'):
         file = FSInputFile(f'b_logic/buffer/{name_time_stump}.pdf')

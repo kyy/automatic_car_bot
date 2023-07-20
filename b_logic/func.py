@@ -1,37 +1,51 @@
-import asyncio
-import aiosqlite
-import numpy as np
 from datetime import datetime
+import numpy as np
+from b_logic.constant import abw_root_link, s_s, s_b, motor_dict, onliner_root_link
+from b_logic.database.config import database
+from b_logic.source.abw_by import count_cars_abw
+from b_logic.source.av_by import count_cars_av
+from b_logic.source.onliner_by import count_cars_onliner
 
 
-s_s = '+'    # split symbol in filter
-s_b = '?'    # skip button on keyboards
+def get_count_cars(av_link_json, abw_link_json, onliner_link_json):
+    # считаем сколько обявлений из json файлов
+    all_cars_av = count_cars_av(av_link_json)
+    all_cars_abw = count_cars_abw(abw_link_json)
+    all_cars_onliner = count_cars_onliner(onliner_link_json)
+    return all_cars_av, all_cars_abw, all_cars_onliner
 
-# constants of columns:keyboards: max = 8, default = 4
-columns_motor = 3
-columns_years = 5
-columns_cost = 5
-columns_dimension = 8
 
-# root links
-av_root_link = 'https://av.by/'
-abw_root_link = 'https://abw.by/cars'
-onliner_root_link = 'https://ab.onliner.by/'
+def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json):
+    # сслыки на страницы с фильтром поиска
+    av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
+    try:
+        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
+    except:
+        abw_link = abw_root_link
+    onliner_link = onliner_url_filter(cars, onliner_link_json)
+    return av_link, onliner_link, abw_link
 
-# source of data for buttons
-# make '' for delete button
 
-motor_dict = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
-              'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
-
-motor = [s_b] + \
-        ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
-
-transmission = [s_b] + ['автомат', 'механика']
+def onliner_url_filter(car_input, link):
+    try:
+        car = car_input.split(s_s)
+        brand, model = car[0:2]
+        brands = np.load('b_logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
+        link = link.split('vehicles?')[1]
+        brand_slug = brands[brand][1]
+        if model != s_b:
+            models = np.load('b_logic/database/parse/onliner_models.npy', allow_pickle=True).item()
+            model_slug = models[brand][model][2]
+            url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
+        else:
+            url = f'https://ab.onliner.by/{brand_slug}?{link}'
+        return url
+    except:
+        return onliner_root_link
 
 
 async def get_brands() -> list[str]:
-    async with aiosqlite.connect('auto_db') as db:
+    async with database() as db:
         cursor = await db.execute(f"SELECT [unique] FROM brands ORDER BY [unique]")
         rows = await cursor.fetchall()
         brands = []
@@ -41,7 +55,7 @@ async def get_brands() -> list[str]:
 
 
 async def get_models(brand: str) -> list[str]:
-    async with aiosqlite.connect('auto_db') as db:
+    async with database() as db:
         cursor = await db.execute(f"SELECT models.[unique] FROM models "
                                   f"INNER JOIN brands on brands.id =  models.brand_id "
                                   f"WHERE brands.[unique] = '{brand}'")
@@ -49,7 +63,6 @@ async def get_models(brand: str) -> list[str]:
         models = [s_b]
         for brand in rows:
             models.append(brand[0])
-
     return models
 
 
@@ -99,25 +112,3 @@ def code_filter_short(cc: list = None):
     if cc[9] != s_b:
         cc[9] = str(int(cc[9].replace('.', '')) * 100)
     return 'filter=' + s_s.join(cc)
-
-
-def onliner_url_filter(car_input, link):
-    try:
-        car = car_input.split(s_s)
-        brand, model = car[0:2]
-        brands = np.load('b_logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
-        link = link.split('vehicles?')[1]
-        brand_slug = brands[brand][1]
-        if model != s_b:
-            models = np.load('b_logic/database/parse/onliner_models.npy', allow_pickle=True).item()
-            model_slug = models[brand][model][2]
-            url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
-        else:
-            url = f'https://ab.onliner.by/{brand_slug}?{link}'
-        return url
-    except:
-        return onliner_root_link
-
-
-if __name__ == '__main__':
-    asyncio.run(get_models(brand='BMW'))

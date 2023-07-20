@@ -2,7 +2,7 @@ from datetime import datetime
 import asyncio
 import aiosqlite
 import numpy as np
-from .constant_fu import s_s, s_b
+from .constant import s_s, s_b
 from .database.config import db_name
 
 

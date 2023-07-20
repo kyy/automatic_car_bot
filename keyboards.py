@@ -63,16 +63,17 @@ async def params_menu(decode_filter_short, callback, db, help_flag):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def filter_menu(callback):
+def filter_menu(callback, cars_count):
     # меню опций фильтра, заказ отчета (callback = udata.id )
     filter_id = callback.data.split('_')[1]
     buttons = [
             [
-                InlineKeyboardButton(text="📝 Создать отчет", callback_data=f'f_{filter_id}_rep'),
                 InlineKeyboardButton(text="🖼 Главное меню", callback_data="cancel_start_menu")
             ],
             [
                 InlineKeyboardButton(text="Назад", callback_data="cancel_params_menu")
             ]
         ]
+    if cars_count > 0:
+        buttons[0].insert(0, InlineKeyboardButton(text="📝 Создать отчет", callback_data=f'f_{filter_id}_rep'),)
     return InlineKeyboardMarkup(inline_keyboard=buttons)
