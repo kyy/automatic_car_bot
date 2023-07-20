@@ -15,6 +15,7 @@ def multi_row_keyboard(items: list[str], columns: int = 4, **kwargs) -> ReplyKey
 
 
 def start_menu_with_help(help_flag):
+    # главное меню
     help_callback = 'help_show_start_menu' if help_flag is True else 'help_hide_start_menu'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     buttons = [
@@ -30,6 +31,7 @@ def start_menu_with_help(help_flag):
 
 
 result_menu = InlineKeyboardMarkup(
+    # меню сформированного фильтра
     inline_keyboard=[
         [
             InlineKeyboardButton(text="📝 Сохранить фильтр", callback_data="save_search"),
@@ -42,6 +44,7 @@ result_menu = InlineKeyboardMarkup(
 
 
 async def params_menu(decode_filter_short, callback, db, help_flag):
+    # меню списка фильтров
     """
     Клавиатура управления фильтрами
     :param decode_filter_short:
@@ -69,6 +72,7 @@ async def params_menu(decode_filter_short, callback, db, help_flag):
 
 
 filter_menu = InlineKeyboardMarkup(
+    # меню опций фильтра, заказ отчета
     inline_keyboard=[
         [
             InlineKeyboardButton(text="📝 Создать отчет", callback_data="save_search"),

@@ -12,6 +12,7 @@ router = Router()
 
 @router.callback_query(F.data == 'help_show_start_menu')
 async def help_show_start_menu(callback: CallbackQuery):
+    # показать помощь главном меню
     await callback.message.edit_text(
         'Этот бот сэкономит вам время в поиске подходящего автомобиля. '
         'Просто создайте и сохраните необходимый фильтр, и бот начнет вам присылать свежие обявления.\n'
@@ -26,6 +27,7 @@ async def help_show_start_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'help_hide_start_menu')
 async def help_hide_params_menu(callback: CallbackQuery):
+    # скрыть помощь главном меню
     await callback.message.edit_text(
         'управление фильтрами',
         reply_markup=start_menu_with_help(True))
@@ -33,6 +35,7 @@ async def help_hide_params_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'help_show_params_menu')
 async def help_show_params_menu(callback: CallbackQuery):
+    # отобразить помощь списка фильтров
     async with database() as db:
         await callback.message.edit_text(
             'Нажав на фильтр можно заказать сравнительный отчет о всех активных обявлениях.',
@@ -41,6 +44,7 @@ async def help_show_params_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'help_hide_params_menu')
 async def help_hide_params_menu(callback: CallbackQuery):
+    # скрыть помощь списка фильтров
     async with database() as db:
         await callback.message.edit_text(
             'управление фильтрами',
@@ -50,6 +54,7 @@ async def help_hide_params_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
+    # создать фильтр
     await state.update_data(chosen_brand=s_b,
                             chosen_model=s_b,
                             chosen_motor=s_b,
@@ -73,17 +78,20 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'cancel_start_menu')
 async def cancel_start_menu(callback: CallbackQuery):
+    # переход к главному меню
     await callback.message.edit_text('Главное меню', reply_markup=start_menu_with_help(True))
 
 
 @router.callback_query(F.data == 'cancel_params_menu')
 async def cancel_params_menu(callback: CallbackQuery):
+    # переход к списку фильтров
     async with database() as db:
         await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query(F.data == 'save_search')
 async def save_search(callback: CallbackQuery, state: FSMContext):
+    # сохранение фильтра
     data = await state.get_data()
     c = []
     for item in data:
@@ -107,12 +115,14 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'show_search')
 async def show_search(callback: CallbackQuery):
+    # список фильтров
     async with database() as db:
         await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f=')) & (((F.data.endswith('_0')) | (F.data.endswith('_1')))))
 async def edit_search(callback: CallbackQuery):
+    # Включение/Отключение фильтров
      async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
@@ -132,6 +142,7 @@ async def edit_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f=')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
+    # Удаление фильтра
      async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
@@ -146,6 +157,7 @@ async def delete_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f=_')) & (F.data.endswith('_show')))
 async def delete_search(callback: CallbackQuery):
+    # Опции фильтра, заказ отчета
     filter_id = callback.data.split('_')[1]
     async with database() as db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
@@ -154,3 +166,6 @@ async def delete_search(callback: CallbackQuery):
         f'{decode_filter_short(filter[0])[7:]}', reply_markup=filter_menu)
 
 
+@router.callback_query((F.data.startswith('f=_')) & (F.data.endswith('_show')))
+async def delete_search(callback: CallbackQuery):
+    ...
