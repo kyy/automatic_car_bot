@@ -13,7 +13,6 @@ from classes import CreateCar
 from classes import bot
 from keyboards import multi_row_keyboard, params_menu, start_menu_with_help, filter_menu
 
-
 router = Router()
 
 
@@ -28,8 +27,8 @@ async def help_show_start_menu(callback: CallbackQuery):
         '- Если необходимо оставить параметр пустым выбирайте - [?].\n'
         '- Если хотите прпустить шаги с выбором параметров нажмите [menu]->[/show].\n'
         '- Сохраненные фильтры можно отключить или удалить в управлнии фильтрами.\n'
-        '- Узнать больше команд /help.'
-        , reply_markup=start_menu_with_help(False))
+        '- Узнать больше команд /help.',
+        reply_markup=start_menu_with_help(False))
 
 
 @router.callback_query(F.data == 'help_hide_start_menu')
@@ -59,7 +58,6 @@ async def help_hide_params_menu(callback: CallbackQuery):
             reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
-
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
@@ -79,7 +77,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
         reply_markup=multi_row_keyboard(
             await get_brands(),
             input_field_placeholder='имя бренда',
-            )
+        )
     )
     await state.set_state(CreateCar.brand_choosing)
 
@@ -87,14 +85,18 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cancel_start_menu')
 async def cancel_start_menu(callback: CallbackQuery):
     # переход к главному меню
-    await callback.message.edit_text('Главное меню', reply_markup=start_menu_with_help(True))
+    await callback.message.edit_text(
+        'Главное меню',
+        reply_markup=start_menu_with_help(True))
 
 
 @router.callback_query(F.data == 'cancel_params_menu')
 async def cancel_params_menu(callback: CallbackQuery):
     # переход к списку фильтров
     async with database() as db:
-        await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
+        await callback.message.edit_text(
+            'Список фильтров',
+            reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query(F.data == 'save_search')
@@ -115,28 +117,32 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
         base_user_id = await base_user_id_cursor.fetchone()
         await db.executemany(
             f"INSERT INTO udata(user_id, search_param, is_active) "
-            f"VALUES (?, ?, ?)", [(base_user_id[0], car_code, 1),]
+            f"VALUES (?, ?, ?)", [(base_user_id[0], car_code, 1), ]
         )
         await db.commit()
-    await callback.message.edit_text('Теперь мы будем присылать вам лучшие объявления', reply_markup=start_menu_with_help(True))
+    await callback.message.edit_text(
+        'Теперь мы будем присылать вам лучшие объявления',
+        reply_markup=start_menu_with_help(True))
 
 
 @router.callback_query(F.data == 'show_search')
 async def show_search(callback: CallbackQuery):
     # список фильтров
     async with database() as db:
-        await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
+        await callback.message.edit_text(
+            'Список фильтров',
+            reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
-@router.callback_query((F.data.startswith('f_')) & (((F.data.endswith('_0')) | (F.data.endswith('_1')))))
+@router.callback_query((F.data.startswith('f_')) & ((F.data.endswith('_0')) | (F.data.endswith('_1'))))
 async def edit_search(callback: CallbackQuery):
     # Включение/Отключение фильтров
-     async with database() as db:
+    async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
         user_id = check_id[0]
-        params_id = callback.data.split('_')[2]        # {user.id}_{udata.id}_{udata.is_active}
+        params_id = callback.data.split('_')[2]  # {user.id}_{udata.id}_{udata.is_active}
         status_cursor = await db.execute(f"""SELECT is_active FROM udata 
                                              WHERE id='{params_id}' AND user_id = '{user_id}'""")
         status = await status_cursor.fetchone()
@@ -145,13 +151,15 @@ async def edit_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{user_id}'
                         """)
         await db.commit()
-        await callback.message.edit_text('Cписок фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
+        await callback.message.edit_text(
+            'Cписок фильтров',
+            reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
     # Удаление фильтра
-     async with database() as db:
+    async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
@@ -160,7 +168,9 @@ async def delete_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'
                         """)
         await db.commit()
-        await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
+        await callback.message.edit_text(
+            'Список фильтров',
+            reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
@@ -169,8 +179,8 @@ async def options_search(callback: CallbackQuery):
     filter_id = callback.data.split('_')[1]
     async with database() as db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
-        filter = await select_filter_cursor.fetchone()
-    cars = filter[0][7:]
+        filter_name = await select_filter_cursor.fetchone()
+    cars = filter_name[0][7:]
 
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
     all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
@@ -179,7 +189,7 @@ async def options_search(callback: CallbackQuery):
     all_count = [all_cars_av, all_cars_abw, all_cars_onliner]
     cars_count = sum(all_count)
     await callback.message.edit_text(
-        f"{decode_filter_short(filter[0])[7:].replace('<', '').replace('>', '')}\n"
+        f"{decode_filter_short(filter_name[0])[7:].replace('<', '').replace('>', '')}\n"
         f"\n"
         f"Найдено:\n"
         f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n"
@@ -200,8 +210,8 @@ async def report_search(callback: CallbackQuery):
     filter_id = callback.data.split('_')[1]
     async with database() as db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
-        filter = await select_filter_cursor.fetchone()
-    cars = filter[0][7:]
+        filter_name = await select_filter_cursor.fetchone()
+    cars = filter_name[0][7:]
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, False)
     all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
     av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
@@ -212,8 +222,10 @@ async def report_search(callback: CallbackQuery):
         print(e, 'Ошибка в parse_main')
         return await bot.send_message(user_id, "Ошибка при сборе данных.\n")
     await bot.send_message(user_id, f"Сбор данных.")
-    link_count = {'av': [av_link, all_cars_av], 'abw': [abw_link, all_cars_abw], 'onliner': [onliner_link, all_cars_onliner]}
-    await do_pdf(user_id, link_count, name_time_stump, decode_filter_short(cars), filter[0])
+    link_count = {'av': [av_link, all_cars_av],
+                  'abw': [abw_link, all_cars_abw],
+                  'onliner': [onliner_link, all_cars_onliner]}
+    await do_pdf(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
     bf = f'logic/buffer/{name_time_stump}'
     os.remove(f'{bf}.npy')
     if os.path.exists(f'{bf}.pdf'):

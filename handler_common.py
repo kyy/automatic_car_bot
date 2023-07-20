@@ -49,14 +49,16 @@ commands = [
             full_description='Дополнительная вспомогательная инструкция.'
         ),
 ]
-def all_commands(commands):
+
+
+def all_commands(allcommands):
     c_list = []
-    [(c_list.append(str(cmd.command))) for cmd in commands]
+    [(c_list.append(str(cmd.command))) for cmd in allcommands]
     return ", ".join(c_list)
 
 
-async def set_commands(bot:bot):
-    await bot.set_my_commands(commands)
+async def set_commands(bot_: bot):
+    await bot_.set_my_commands(commands)
 
 
 @router.message(Command(commands=["help"]))
@@ -85,7 +87,6 @@ async def cmd_help(message: Message, command: CommandObject):
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
     await message.answer('Главное меню', reply_markup=start_menu_with_help(True))
-
 
 
 @router.message(Command(commands=["cancel"]))

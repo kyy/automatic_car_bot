@@ -181,9 +181,7 @@ def get_data(message, name):
     df = dataframe.iloc[0:, 2:].to_numpy()
     links = dataframe.iloc[0:, 0].tolist()
     # comments = dataframe.iloc[0:, 1].tolist()
-
     # dataframe.to_excel(f'{message}{name}.xlsx', index=False) #экспорт в эксель
-
     return df, columns, links
 
 

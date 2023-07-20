@@ -1,6 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardBuilder
 
 
 def single_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
@@ -18,29 +17,31 @@ def start_menu_with_help(help_flag):
     # главное меню
     help_callback = 'help_show_start_menu' if help_flag is True else 'help_hide_start_menu'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
-    buttons = [
-        [
-            InlineKeyboardButton(text="📝 Создать фильтр", callback_data="create_search"),
-            InlineKeyboardButton(text="🖼 Управление фильтрами", callback_data="show_search")
-        ],
-        [
-            InlineKeyboardButton(text=help_text, callback_data=help_callback)
-        ]
-    ]
+    buttons = [[
+        InlineKeyboardButton(
+            text="📝 Создать фильтр",
+            callback_data="create_search"),
+        InlineKeyboardButton(
+            text="🖼 Управление фильтрами",
+            callback_data="show_search")], [
+        InlineKeyboardButton(
+            text=help_text,
+            callback_data=help_callback)]]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 result_menu = InlineKeyboardMarkup(
     # меню сформированного фильтра
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="📝 Сохранить фильтр", callback_data="save_search"),
-            InlineKeyboardButton(text="🖼 Отмена", callback_data="cancel_start_menu")
-        ],
-        [
-            InlineKeyboardButton(text="🔎 Помощь", callback_data="help_show_start_menu")
-        ]
-    ])
+    inline_keyboard=[[
+        InlineKeyboardButton(
+            text="📝 Сохранить фильтр",
+            callback_data="save_search"),
+        InlineKeyboardButton(
+            text="🖼 Отмена",
+            callback_data="cancel_start_menu")], [
+        InlineKeyboardButton(
+            text="🔎 Помощь",
+            callback_data="help_show_start_menu")]])
 
 
 async def params_menu(decode_filter_short, callback, db, help_flag):
@@ -52,28 +53,39 @@ async def params_menu(decode_filter_short, callback, db, help_flag):
                                             f"INNER JOIN udata on user.id = udata.user_id "
                                             f"WHERE user.tel_id = {user_id}")
     search_params = await search_params_cursor.fetchall()
-    buttons = [
-            [InlineKeyboardButton(text=decode_filter_short(i[0])[7:], callback_data=f'f_{i[2]}_show'),
-            InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'f_{user_id}_{i[2]}_{i[1]}'),
-            InlineKeyboardButton(text='Удалить', callback_data=f'f_{user_id}_{i[2]}_del'),
-             ] for i in search_params]
-    buttons.append([InlineKeyboardButton(text='Назад', callback_data='cancel_start_menu'),
-                    InlineKeyboardButton(text=help_text, callback_data=help_callback)])
-
+    buttons = [[
+        InlineKeyboardButton(
+            text=decode_filter_short(i[0])[7:],
+            callback_data=f'f_{i[2]}_show'),
+        InlineKeyboardButton(
+            text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'),
+            callback_data=f'f_{user_id}_{i[2]}_{i[1]}'),
+        InlineKeyboardButton(
+            text='Удалить',
+            callback_data=f'f_{user_id}_{i[2]}_del')]
+        for i in search_params]
+    buttons.append([
+        InlineKeyboardButton(
+            text='Назад',
+            callback_data='cancel_start_menu'),
+        InlineKeyboardButton(
+            text=help_text,
+            callback_data=help_callback)])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def filter_menu(callback, cars_count):
     # меню опций фильтра, заказ отчета (callback = udata.id )
     filter_id = callback.data.split('_')[1]
-    buttons = [
-            [
-                InlineKeyboardButton(text="🖼 Главное меню", callback_data="cancel_start_menu")
-            ],
-            [
-                InlineKeyboardButton(text="Назад", callback_data="cancel_params_menu")
-            ]
-        ]
+    buttons = [[
+        InlineKeyboardButton(
+            text="🖼 Главное меню",
+            callback_data="cancel_start_menu")], [
+        InlineKeyboardButton(
+            text="Назад",
+            callback_data="cancel_params_menu")]]
     if cars_count > 0:
-        buttons[0].insert(0, InlineKeyboardButton(text="📝 Создать отчет", callback_data=f'f_{filter_id}_rep'),)
+        buttons[0].insert(0, InlineKeyboardButton(
+            text="📝 Создать отчет",
+            callback_data=f'f_{filter_id}_rep'))
     return InlineKeyboardMarkup(inline_keyboard=buttons)
