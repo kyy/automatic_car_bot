@@ -1,93 +1,15 @@
-import os
-from datetime import datetime as datatime_datatime
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from classes import CreateCar
-from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
+from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
-from classes import bot
 from keyboards import multi_row_keyboard, result_menu
-from b_logic.parse_cooking import parse_main
-from b_logic.pdf_cooking import do_pdf
-from b_logic.get_url_cooking import all_get_url
-from b_logic.source.av_by import count_cars_av
-from b_logic.source.abw_by import count_cars_abw
-from b_logic.source.onliner_by import count_cars_onliner
 from b_logic.constant_fu import (s_b, get_years, get_cost, get_dimension, get_brands, get_models, columns_cost,
                                  columns_years, columns_dimension, columns_motor, motor, transmission,
-                                 decode_filter_short, abw_root_link, onliner_url_filter)
+                                 decode_filter_short)
 
 
 router = Router()
-
-
-@router.message(F.text.startswith('filter='))
-async def cooking_pdf(message: Message):
-    if message.text[0:7] == 'filter=':
-        cars = message.text.replace('filter=', '')
-        await message.answer("Фильтр принят\n"
-                             "дождитесь ответа", reply_markup=ReplyKeyboardRemove())
-
-        av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
-        all_cars_av = count_cars_av(av_link_json)
-        all_cars_abw = count_cars_abw(abw_link_json)
-        all_cars_onliner = count_cars_onliner(onliner_link_json)
-        av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
-        try:
-            abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-        except:
-            abw_link = abw_root_link
-        onliner_link = onliner_url_filter(cars, onliner_link_json)
-        await message.answer(f"Найдено: \n"
-                             f"Действует ограничение до ~125 объявлений с 1 ресурса.\n"
-                             f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n"
-                             f"<a href='{abw_link}'>abw.by</a> - {all_cars_abw}.\n"
-                             f"<a href='{onliner_link}'>onliner.by</a> - {all_cars_onliner}.\n",
-                             disable_web_page_preview=True,
-                             parse_mode="HTML",
-                             )
-        all_count = [all_cars_av,
-                     all_cars_abw,
-                     all_cars_onliner,
-                     ]
-        if sum(all_count) == 0:
-            return await message.answer("По вашему запросу ничего не найдено,\n"
-                                        "или запрашиваемый сервер перегружен")
-        else:
-            name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
-            try:
-                await parse_main(av_link_json,
-                                 abw_link_json,
-                                 onliner_link_json,
-                                 message=message.from_user.id,
-                                 name=name_time_stump,
-                                 work=False,
-                                 )
-            except Exception as e:
-                print(e, '\nОшибка в parse_main')
-                return await message.answer("Ошибка при сборе данных.\n"
-                                            "Показать фильтр /show.")
-            await message.answer(f"Сбор данных.")
-
-            await do_pdf(
-                message=message.from_user.id,
-                link={
-                    'av': [av_link, all_cars_av],
-                    'abw': [abw_link, all_cars_abw],
-                    'onliner': [onliner_link, all_cars_onliner],
-                    },
-                name=name_time_stump,
-                filter_full=decode_filter_short(cars),
-                filter_short=message.text)
-            os.remove(f'b_logic/buffer/{message.from_user.id}_{name_time_stump}.npy')
-
-        if os.path.exists(f'b_logic/buffer/{name_time_stump}.pdf'):
-            file = FSInputFile(f'b_logic/buffer/{name_time_stump}.pdf')
-            await bot.send_document(message.chat.id, document=file)
-            os.remove(f'b_logic/buffer/{name_time_stump}.pdf')
-        else:
-            print(f'{name_time_stump}.pdf не найден')
-
 
 
 @router.message(Command(commands=["show"]))
@@ -108,8 +30,6 @@ async def get_rusult(message: Message, state: FSMContext):
             text='Управление фильтром:',
             reply_markup=result_menu
         )
-
-        await cooking_pdf(message=message)
     else:
         await message.answer(
             text=f"Фильтр пуст. Воспользуйтесь командой /car",

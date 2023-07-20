@@ -166,7 +166,7 @@ async def delete_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
 async def options_search(callback: CallbackQuery):
-    # Опции фильтра
+    # Опции фильтра, отображение кол-ва обявлений
     filter_id = callback.data.split('_')[1]
     async with database() as db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
