@@ -3,10 +3,9 @@ from datetime import datetime as datatime_datatime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile
-from logic.get_url_cooking import all_get_url
 from logic.parse_cooking import parse_main
 from logic.pdf_cooking import do_pdf
-from logic.func import get_count_cars, get_search_links, get_brands, decode_filter_short, code_filter_short
+from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata
 from logic.constant import s_b
 from logic.database.config import database
 from classes import CreateCar
@@ -181,11 +180,7 @@ async def options_search(callback: CallbackQuery):
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
         filter_name = await select_filter_cursor.fetchone()
     cars = filter_name[0][7:]
-
-    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
-    all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
-    av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
-
+    av_link_json, abw_link_json, onliner_link_json, all_cars_av, all_cars_abw, all_cars_onliner, av_link, abw_link, onliner_link = await car_multidata(cars)
     all_count = [all_cars_av, all_cars_abw, all_cars_onliner]
     cars_count = sum(all_count)
     await callback.message.edit_text(
@@ -212,9 +207,7 @@ async def report_search(callback: CallbackQuery):
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
         filter_name = await select_filter_cursor.fetchone()
     cars = filter_name[0][7:]
-    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, False)
-    all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
-    av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
+    av_link_json, abw_link_json, onliner_link_json, all_cars_av, all_cars_abw, all_cars_onliner, av_link, abw_link, onliner_link = await car_multidata(cars)
     name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
     try:
         await parse_main(av_link_json, abw_link_json, onliner_link_json, user_id, name_time_stump, False)

@@ -2,6 +2,7 @@ from datetime import datetime
 import numpy as np
 from logic.constant import abw_root_link, s_s, s_b, motor_dict, onliner_root_link
 from logic.database.config import database
+from logic.get_url_cooking import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw
 from logic.parse_sites.av_by import count_cars_av
 from logic.parse_sites.onliner_by import count_cars_onliner
@@ -24,6 +25,16 @@ def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json):
         abw_link = abw_root_link
     onliner_link = onliner_url_filter(cars, onliner_link_json)
     return av_link, onliner_link, abw_link
+
+
+async def car_multidata(cars):
+    # cars - фильтр-код
+    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, False)
+    all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
+    av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
+    return (av_link_json, abw_link_json, onliner_link_json,     # ссылки к файлу Json
+            all_cars_av, all_cars_abw, all_cars_onliner,    # количество объявлений
+            av_link, abw_link, onliner_link)    # ссылка на страницу на сайте
 
 
 def onliner_url_filter(car_input, link):
