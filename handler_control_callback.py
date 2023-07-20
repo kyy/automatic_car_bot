@@ -73,7 +73,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'cancel_start_menu')
 async def cancel_start_menu(callback: CallbackQuery):
-    await callback.message.edit_text('управление фильтрами', reply_markup=start_menu_with_help(True))
+    await callback.message.edit_text('Главное меню', reply_markup=start_menu_with_help(True))
 
 
 @router.callback_query(F.data == 'cancel_params_menu')
@@ -127,7 +127,7 @@ async def edit_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{user_id}'
                         """)
         await db.commit()
-        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db, True))
+        await callback.message.edit_text('Cписок фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f=')) & (F.data.endswith('_del')))
@@ -141,7 +141,7 @@ async def delete_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'
                         """)
         await db.commit()
-        await callback.message.edit_text('Параметры', reply_markup=await params_menu(decode_filter_short, callback, db, True))
+        await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f=_')) & (F.data.endswith('_show')))
@@ -151,6 +151,6 @@ async def delete_search(callback: CallbackQuery):
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
         filter = await select_filter_cursor.fetchone()
     await callback.message.edit_text(
-        f'{filter[0]}\n'
-        f'{decode_filter_short(filter[0])}',
-                                     reply_markup=filter_menu)
+        f'{decode_filter_short(filter[0])[7:]}', reply_markup=filter_menu)
+
+

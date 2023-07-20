@@ -62,16 +62,17 @@ async def params_menu(decode_filter_short, callback, db, help_flag):
             InlineKeyboardButton(text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'), callback_data=f'f={user_id}_{i[2]}_{i[1]}'),
             InlineKeyboardButton(text='Удалить', callback_data=f'f={user_id}_{i[2]}_del'),
              ] for i in search_params]
-    buttons.append([InlineKeyboardButton(text='назад', callback_data='cancel_start_menu'),
+    buttons.append([InlineKeyboardButton(text='Назад', callback_data='cancel_start_menu'),
                     InlineKeyboardButton(text=help_text, callback_data=help_callback)])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
 
 filter_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text="📝 Создать отчет", callback_data="save_search"),
-            InlineKeyboardButton(text="🖼 Отмена", callback_data="cancel_start_menu")
+            InlineKeyboardButton(text="🖼 Главное меню", callback_data="cancel_start_menu")
         ],
         [
             InlineKeyboardButton(text="Назад", callback_data="cancel_params_menu")
