@@ -120,7 +120,9 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
         )
         await db.commit()
     await callback.message.edit_text(
-        'Теперь мы будем присылать вам лучшие объявления',
+        'Теперь мы будем присылать вам свежие объявления\n'
+        'Узнать все текущие объявления можно сформировав отчет в управлении фильтрами.\n'
+        'При возникновении трудноситей используйте кнопку [Помощь].\n',
         reply_markup=start_menu_with_help(True))
 
 
