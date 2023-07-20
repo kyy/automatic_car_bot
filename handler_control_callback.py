@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile
 from logic.parse_cooking import parse_main
 from logic.pdf_cooking import do_pdf
-from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata
+from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import
 from logic.constant import s_b
 from logic.database.config import database
 from classes import CreateCar
@@ -175,21 +175,17 @@ async def delete_search(callback: CallbackQuery):
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
 async def options_search(callback: CallbackQuery):
     # Опции фильтра, отображение кол-ва обявлений
-    filter_id = callback.data.split('_')[1]
-    async with database() as db:
-        select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
-        filter_name = await select_filter_cursor.fetchone()
-    cars = filter_name[0][7:]
-    av_link_json, abw_link_json, onliner_link_json, all_cars_av, all_cars_abw, all_cars_onliner, av_link, abw_link, onliner_link = await car_multidata(cars)
-    all_count = [all_cars_av, all_cars_abw, all_cars_onliner]
+    filter_id, filter_name, cars = await filter_import(callback, database())
+    av_jsn, abw_jsn, onliner_jsn, all_av, all_abw, all_onliner, av_l, abw_l, onliner_l = await car_multidata(cars)
+    all_count = [all_av, all_abw, all_onliner]
     cars_count = sum(all_count)
     await callback.message.edit_text(
         f"{decode_filter_short(filter_name[0])[7:].replace('<', '').replace('>', '')}\n"
         f"\n"
         f"Найдено:\n"
-        f"<a href='{av_link}'>av.by</a> - {all_cars_av}.\n"
-        f"<a href='{abw_link}'>abw.by</a> - {all_cars_abw}.\n"
-        f"<a href='{onliner_link}'>onliner.by</a> - {all_cars_onliner}.\n"
+        f"<a href='{av_l}'>av.by</a> - {all_av}.\n"
+        f"<a href='{abw_l}'>abw.by</a> - {all_abw}.\n"
+        f"<a href='{onliner_l}'>onliner.by</a> - {all_onliner}.\n"
         f"\n"
         f"Действует ограничение до ~125 объявлений с 1 ресурса.\n",
         reply_markup=filter_menu(callback, cars_count),
@@ -202,22 +198,18 @@ async def options_search(callback: CallbackQuery):
 async def report_search(callback: CallbackQuery):
     # заказ отчета
     user_id = callback.from_user.id
-    filter_id = callback.data.split('_')[1]
-    async with database() as db:
-        select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
-        filter_name = await select_filter_cursor.fetchone()
-    cars = filter_name[0][7:]
-    av_link_json, abw_link_json, onliner_link_json, all_cars_av, all_cars_abw, all_cars_onliner, av_link, abw_link, onliner_link = await car_multidata(cars)
+    filter_id, filter_name, cars = await filter_import(callback, database())
+    av_jsn, abw_jsn, onliner_jsn, all_av, all_abw, all_onliner, av_l, abw_l, onliner_l = await car_multidata(cars)
     name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
     try:
-        await parse_main(av_link_json, abw_link_json, onliner_link_json, user_id, name_time_stump, False)
+        await parse_main(av_jsn, abw_jsn, onliner_jsn, user_id, name_time_stump, False)
     except Exception as e:
         print(e, 'Ошибка в parse_main')
         return await bot.send_message(user_id, "Ошибка при сборе данных.\n")
     await bot.send_message(user_id, f"Сбор данных.")
-    link_count = {'av': [av_link, all_cars_av],
-                  'abw': [abw_link, all_cars_abw],
-                  'onliner': [onliner_link, all_cars_onliner]}
+    link_count = {'av': [av_l, all_av],
+                  'abw': [abw_l, all_abw],
+                  'onliner': [onliner_l, all_onliner]}
     await do_pdf(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
     bf = f'logic/buffer/{name_time_stump}'
     os.remove(f'{bf}.npy')

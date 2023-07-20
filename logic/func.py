@@ -27,6 +27,15 @@ def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json):
     return av_link, onliner_link, abw_link
 
 
+async def filter_import(callback, db):
+    filter_id = callback.data.split('_')[1]     # id фильтра
+    async with db:
+        select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
+        filter_name = await select_filter_cursor.fetchone()     # фильтр-код ('filter=...',)
+    cars = filter_name[0][7:]    # удаляем 'filter='
+    return filter_id, filter_name, cars
+
+
 async def car_multidata(cars):
     # cars - фильтр-код
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, False)
