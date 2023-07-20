@@ -1,16 +1,14 @@
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher
+from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
-from config_reader import config
 import handler_common
 import handler_create_filter
 import handler_control_callback
 from handler_common import set_commands
+from classes import bot
 
-
-bot = Bot(token=config.BOT_TOKEN)
 
 async def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", )

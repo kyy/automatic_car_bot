@@ -1,9 +1,10 @@
 import logging
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove, BotCommand, CallbackQuery
+from aiogram.types import Message, ReplyKeyboardRemove, BotCommand
 from aiogram.filters import Command, CommandObject
-from b_logic.keyboards import start_menu_with_help
+from keyboards import start_menu_with_help
+from classes import bot
 
 
 router = Router()
@@ -54,7 +55,7 @@ def all_commands(commands):
     return ", ".join(c_list)
 
 
-async def set_commands(bot: Bot):
+async def set_commands(bot:bot):
     await bot.set_my_commands(commands)
 
 

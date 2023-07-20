@@ -1,20 +1,17 @@
 import asyncio
 import numpy as np
-from aiogram import Bot
 from aiohttp import ClientSession
 import nest_asyncio
 from arq import create_pool
 from arq.connections import RedisSettings
-from config_reader import config
 from .source.av_by import json_links_av, bound_fetch_av
 from .source.abw_by import json_links_abw, bound_fetch_abw
 from .source.onliner_by import json_links_onliner, bound_fetch_onliner
-
+from classes import bot
 
 
 nest_asyncio.apply()
 
-bot = Bot(token=config.BOT_TOKEN)
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '

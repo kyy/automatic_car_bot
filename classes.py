@@ -1,4 +1,9 @@
 from aiogram.fsm.state import StatesGroup, State
+from aiogram import Bot
+from config_reader import config
+
+
+bot = Bot(token=config.BOT_TOKEN)
 
 
 class CreateCar(StatesGroup):

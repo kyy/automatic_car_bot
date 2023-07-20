@@ -5,8 +5,8 @@ from aiogram.fsm.context import FSMContext
 from classes import CreateCar
 from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 from aiogram.filters import Command
-from bot import bot
-from b_logic.keyboards import multi_row_keyboard, result_menu
+from classes import bot
+from keyboards import multi_row_keyboard, result_menu
 from b_logic.parse_cooking import parse_main
 from b_logic.pdf_cooking import do_pdf
 from b_logic.get_url_cooking import all_get_url
