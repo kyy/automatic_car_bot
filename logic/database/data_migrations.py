@@ -16,7 +16,7 @@ def lenn(items):
 
 
 def car_data():
-    folder = 'b_logic/database/parse/'
+    folder = 'logic/database/parse/'
     av_b = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
     abw_m = np.load(f'{folder}abw_models.npy', allow_pickle=True).item()
     av_m = np.load(f'{folder}av_models.npy', allow_pickle=True).item()

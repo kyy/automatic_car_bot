@@ -13,7 +13,7 @@ av_root_link = 'https://av.by/'
 abw_root_link = 'https://abw.by/cars'
 onliner_root_link = 'https://ab.onliner.by/'
 
-# source of data for buttons
+# parse of data for buttons
 # make '' for delete button
 
 motor_dict = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',

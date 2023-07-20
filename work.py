@@ -1,11 +1,11 @@
 import asyncio
 from arq import create_pool, cron
 from arq.connections import RedisSettings
-from b_logic.database.config import database
-from b_logic.database.data_migrations import main as update, lenn
-from b_logic.database.main_parse import main_parse
-from b_logic.get_url_cooking import all_get_url
-from b_logic.parse_cooking import parse_main, send_car as send_car_from_parse
+from logic.database.config import database
+from logic.database.data_migrations import main as update, lenn
+from logic.database.main_parse import main_parse
+from logic.get_url_cooking import all_get_url
+from logic.parse_cooking import parse_main, send_car as send_car_from_parse
 
 
 async def parse(ctx, car, message, name, work):
@@ -36,10 +36,9 @@ async def collect_data(ctx):
             await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True)
 
 
-class WorkerSettings:
+class Work:
     functions = [parse, send_car]
     cron_jobs = [
         cron(collect_data, hour={i for i in range(1, 24)}, minute={00, 30}, run_at_startup=False,),   # парсинг новых объявлений
         cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
     ]
-

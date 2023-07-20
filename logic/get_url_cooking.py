@@ -78,7 +78,7 @@ async def get_url_abw(car_input, db, work):
 
     # База данных
     car_input = dict(zip(param_input, car_input))
-    cost_selection = np.load('b_logic/database/parse/abw_price_list.npy', allow_pickle=True).tolist()
+    cost_selection = np.load('logic/database/parse/abw_price_list.npy', allow_pickle=True).tolist()
     transmission = {'at': '1', 'mt': '2'}
     motor = {'b': 'benzin', 'bpb': 'sug', 'bm': 'sug', 'bg': 'gibrid', 'd': 'dizel', 'dg': 'gibrid', 'e': 'elektro'}
 

@@ -4,9 +4,9 @@ from aiohttp import ClientSession
 import nest_asyncio
 from arq import create_pool
 from arq.connections import RedisSettings
-from .source.av_by import json_links_av, bound_fetch_av
-from .source.abw_by import json_links_abw, bound_fetch_abw
-from .source.onliner_by import json_links_onliner, bound_fetch_onliner
+from .parse.av_by import json_links_av, bound_fetch_av
+from .parse.abw_by import json_links_abw, bound_fetch_abw
+from .parse.onliner_by import json_links_onliner, bound_fetch_onliner
 from classes import bot
 
 
@@ -73,7 +73,7 @@ async def parse_main(url_av, url_abw, url_onliner, message, name, work):
         for car in result:
             await redis.enqueue_job('send_car', message, car[0])
     else:
-        np.save(f'b_logic/buffer/{message}_{name}.npy', result)
+        np.save(f'logic/buffer/{message}_{name}.npy', result)
     return result
 
 

@@ -1,10 +1,10 @@
 from datetime import datetime
 import numpy as np
-from b_logic.constant import abw_root_link, s_s, s_b, motor_dict, onliner_root_link
-from b_logic.database.config import database
-from b_logic.source.abw_by import count_cars_abw
-from b_logic.source.av_by import count_cars_av
-from b_logic.source.onliner_by import count_cars_onliner
+from logic.constant import abw_root_link, s_s, s_b, motor_dict, onliner_root_link
+from logic.database.config import database
+from logic.parse.abw_by import count_cars_abw
+from logic.parse.av_by import count_cars_av
+from logic.parse.onliner_by import count_cars_onliner
 
 
 def get_count_cars(av_link_json, abw_link_json, onliner_link_json):
@@ -30,11 +30,11 @@ def onliner_url_filter(car_input, link):
     try:
         car = car_input.split(s_s)
         brand, model = car[0:2]
-        brands = np.load('b_logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
+        brands = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
         link = link.split('vehicles?')[1]
         brand_slug = brands[brand][1]
         if model != s_b:
-            models = np.load('b_logic/database/parse/onliner_models.npy', allow_pickle=True).item()
+            models = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
             model_slug = models[brand][model][2]
             url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
         else:

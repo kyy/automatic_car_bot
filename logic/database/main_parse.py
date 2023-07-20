@@ -12,13 +12,13 @@ headers = {
 
 
 def create_folders():
-    if not os.path.exists('b_logic/database/parse'):
-        os.mkdir(os.path.join('b_logic/database/', 'parse'))
-    if not os.path.exists('b_logic/buffer'):
-        os.mkdir(os.path.join('b_logic/', 'buffer'))
+    if not os.path.exists('logic/database/parse'):
+        os.mkdir(os.path.join('logic/database/', 'parse'))
+    if not os.path.exists('logic/buffer'):
+        os.mkdir(os.path.join('logic/', 'buffer'))
 
 
-folder = 'b_logic/database/parse/'
+folder = 'logic/database/parse/'
 
 
 def checking_new_brands_av():
@@ -87,7 +87,6 @@ def av_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
                 continue
             models_dict.update({name: [id, name, slug]})
         brand_dict.update({item: models_dict})
-    print(brand_dict)
     np.save(f'{folder}av_models.npy', brand_dict)
 
 

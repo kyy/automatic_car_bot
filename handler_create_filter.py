@@ -4,8 +4,8 @@ from classes import CreateCar
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
 from keyboards import multi_row_keyboard, result_menu
-from b_logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
-from b_logic.constant import s_b, columns_cost, columns_years, columns_dimension, columns_motor, motor, transmission
+from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
+from logic.constant import s_b, columns_cost, columns_years, columns_dimension, columns_motor, motor, transmission
 
 
 router = Router()

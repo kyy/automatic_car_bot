@@ -3,12 +3,12 @@ from datetime import datetime as datatime_datatime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile
-from b_logic.get_url_cooking import all_get_url
-from b_logic.parse_cooking import parse_main
-from b_logic.pdf_cooking import do_pdf
-from b_logic.func import get_count_cars, get_search_links, get_brands, decode_filter_short, code_filter_short
-from b_logic.constant import s_b
-from b_logic.database.config import database
+from logic.get_url_cooking import all_get_url
+from logic.parse_cooking import parse_main
+from logic.pdf_cooking import do_pdf
+from logic.func import get_count_cars, get_search_links, get_brands, decode_filter_short, code_filter_short
+from logic.constant import s_b
+from logic.database.config import database
 from classes import CreateCar
 from classes import bot
 from keyboards import multi_row_keyboard, params_menu, start_menu_with_help, filter_menu
@@ -162,10 +162,6 @@ async def delete_search(callback: CallbackQuery):
         await callback.message.edit_text('Список фильтров', reply_markup=await params_menu(decode_filter_short, callback, db, True))
 
 
-
-
-
-
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
 async def options_search(callback: CallbackQuery):
     # Опции фильтра, отображение кол-ва обявлений
@@ -178,7 +174,6 @@ async def options_search(callback: CallbackQuery):
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
     all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
     av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
-
 
     all_count = [all_cars_av, all_cars_abw, all_cars_onliner]
     cars_count = sum(all_count)
@@ -236,11 +231,11 @@ async def report_search(callback: CallbackQuery):
         name=name_time_stump,
         filter_full=decode_filter_short(cars),
         filter_short=filter[0])
-    os.remove(f'b_logic/buffer/{user_id}_{name_time_stump}.npy')
+    os.remove(f'logic/buffer/{user_id}_{name_time_stump}.npy')
 
-    if os.path.exists(f'b_logic/buffer/{name_time_stump}.pdf'):
-        file = FSInputFile(f'b_logic/buffer/{name_time_stump}.pdf')
+    if os.path.exists(f'logic/buffer/{name_time_stump}.pdf'):
+        file = FSInputFile(f'logic/buffer/{name_time_stump}.pdf')
         await bot.send_document(user_id, document=file)
-        os.remove(f'b_logic/buffer/{name_time_stump}.pdf')
+        os.remove(f'logic/buffer/{name_time_stump}.pdf')
     else:
         print(f'{name_time_stump}.pdf не найден')

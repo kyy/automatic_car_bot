@@ -53,7 +53,7 @@ class PDF(FPDF):
 
         # Rendering logo:
         self.image(
-            f"b_logic/static/logo.png",
+            f"logic/static/logo.png",
             x=10,
             y=10,
             w=8,
@@ -158,7 +158,7 @@ async def do_pdf(
         display_doc_title=True,
         non_full_screen_page_mode="USE_OUTLINES",
     )
-    pdf.add_font(fname=f'b_logic/static/DejaVuSansCondensed.ttf')
+    pdf.add_font(fname=f'logic/static/DejaVuSansCondensed.ttf')
     pdf.set_font('DejaVuSansCondensed', size=9)
     pdf.filter_full = str(filter_full)
     pdf.filter_short = str(filter_short)
@@ -169,13 +169,13 @@ async def do_pdf(
     pdf.set_title("@AutomaticCar")
     pdf.set_author("@AutomaticCar")
     pdf.colored_table(col_names, data, links)
-    return pdf.output(f'b_logic/buffer/{name}.pdf')
+    return pdf.output(f'logic/buffer/{name}.pdf')
 
 
 def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
-    dataframe = pd.DataFrame(np.load(f'b_logic/buffer/{message}_{name}.npy', allow_pickle=True))
+    dataframe = pd.DataFrame(np.load(f'logic/buffer/{message}_{name}.npy', allow_pickle=True))
     dataframe.sort_values(by=[2])
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()

@@ -85,4 +85,3 @@ async def get_one_abw(url, session, result, work):
         item = json_parse_abw(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
         result += item
         #await asyncio.sleep(0.1)
-
