@@ -136,11 +136,11 @@ class PDF(FPDF):
 
 
 async def do_pdf(
+        message=None,
+        link=None,
         name=None,
         filter_full='<filter full>',
         filter_short='<filter code>',
-        link=None,
-        message=None,
 ):
     data, col_names, links = get_data(message, name)
     pdf = PDF(
@@ -175,7 +175,7 @@ async def do_pdf(
 def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
-    dataframe = pd.DataFrame(np.load(f'logic/buffer/{message}_{name}.npy', allow_pickle=True))
+    dataframe = pd.DataFrame(np.load(f'logic/buffer/{name}.npy', allow_pickle=True))
     dataframe.sort_values(by=[2])
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()

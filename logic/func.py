@@ -2,9 +2,9 @@ from datetime import datetime
 import numpy as np
 from logic.constant import abw_root_link, s_s, s_b, motor_dict, onliner_root_link
 from logic.database.config import database
-from logic.parse.abw_by import count_cars_abw
-from logic.parse.av_by import count_cars_av
-from logic.parse.onliner_by import count_cars_onliner
+from logic.parse_sites.abw_by import count_cars_abw
+from logic.parse_sites.av_by import count_cars_av
+from logic.parse_sites.onliner_by import count_cars_onliner
 
 
 def get_count_cars(av_link_json, abw_link_json, onliner_link_json):

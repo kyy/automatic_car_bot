@@ -45,7 +45,8 @@ async def help_show_params_menu(callback: CallbackQuery):
     # отобразить помощь списка фильтров
     async with database() as db:
         await callback.message.edit_text(
-            'Нажав на фильтр можно заказать сравнительный отчет о всех активных обявлениях.',
+            'Нажав на фильтр можно заказать сравнительный отчет о всех активных объявлениях.\n'
+            'Отчет представляет собой .PDF-файл, нажав на марку можно перейти к обявлению на сайте.',
             reply_markup=await params_menu(decode_filter_short, callback, db, False))
 
 
@@ -201,41 +202,23 @@ async def report_search(callback: CallbackQuery):
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
         filter = await select_filter_cursor.fetchone()
     cars = filter[0][7:]
-
-    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, work=False)
+    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, False)
     all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
     av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
-
     name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
     try:
-        await parse_main(av_link_json,
-                         abw_link_json,
-                         onliner_link_json,
-                         message=user_id,
-                         name=name_time_stump,
-                         work=False,
-                         )
+        await parse_main(av_link_json, abw_link_json, onliner_link_json, user_id, name_time_stump, False)
     except Exception as e:
-        print(e, '\nОшибка в parse_main')
-        return await bot.send_message(user_id,"Ошибка при сборе данных.\n"
-                                    "Показать фильтр /show.")
+        print(e, 'Ошибка в parse_main')
+        return await bot.send_message(user_id, "Ошибка при сборе данных.\n")
     await bot.send_message(user_id, f"Сбор данных.")
-
-    await do_pdf(
-        message=user_id,
-        link={
-            'av': [av_link, all_cars_av],
-            'abw': [abw_link, all_cars_abw],
-            'onliner': [onliner_link, all_cars_onliner],
-        },
-        name=name_time_stump,
-        filter_full=decode_filter_short(cars),
-        filter_short=filter[0])
-    os.remove(f'logic/buffer/{user_id}_{name_time_stump}.npy')
-
-    if os.path.exists(f'logic/buffer/{name_time_stump}.pdf'):
-        file = FSInputFile(f'logic/buffer/{name_time_stump}.pdf')
+    link_count = {'av': [av_link, all_cars_av], 'abw': [abw_link, all_cars_abw], 'onliner': [onliner_link, all_cars_onliner]}
+    await do_pdf(user_id, link_count, name_time_stump, decode_filter_short(cars), filter[0])
+    bf = f'logic/buffer/{name_time_stump}'
+    os.remove(f'{bf}.npy')
+    if os.path.exists(f'{bf}.pdf'):
+        file = FSInputFile(f'{bf}.pdf')
         await bot.send_document(user_id, document=file)
-        os.remove(f'logic/buffer/{name_time_stump}.pdf')
+        os.remove(f'{bf}.pdf')
     else:
         print(f'{name_time_stump}.pdf не найден')
