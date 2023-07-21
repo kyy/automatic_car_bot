@@ -11,6 +11,8 @@ from logic.database.config import database
 from classes import CreateCar
 from classes import bot
 from keyboards import multi_row_keyboard, params_menu, start_menu_with_help, filter_menu
+from middlewares import ChatActionMiddleware
+
 
 router = Router()
 
@@ -122,7 +124,7 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(
         'Теперь мы будем присылать вам свежие объявления\n'
         'Узнать все текущие объявления можно сформировав отчет в управлении фильтрами.\n'
-        'При возникновении трудноситей используйте кнопку [Помощь].\n',
+        'При возникновении трудноситей жми [Помощь].\n',
         reply_markup=start_menu_with_help(True))
 
 
@@ -149,8 +151,7 @@ async def edit_search(callback: CallbackQuery):
         status = await status_cursor.fetchone()
         status_set = 0 if status[0] == 1 else 1
         await db.execute(f"""UPDATE udata SET is_active = '{status_set}'                     
-                             WHERE id='{params_id}' AND user_id = '{user_id}'
-                        """)
+                             WHERE id='{params_id}' AND user_id = '{user_id}'""")
         await db.commit()
         await callback.message.edit_text(
             'Cписок фильтров',
@@ -166,8 +167,7 @@ async def delete_search(callback: CallbackQuery):
         check_id = await select_id_cursor.fetchone()
         params_id = callback.data.split('_')[2]
         await db.execute(f"""DELETE FROM udata 
-                             WHERE id='{params_id}' AND user_id = '{check_id[0]}'
-                        """)
+                             WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
         await callback.message.edit_text(
             'Список фильтров',

@@ -9,7 +9,6 @@ pandas
 requests
 tqdm
 qrcode
-aiohttp
 aiosqlite
 nest-asyncio
 openpyxl

@@ -176,7 +176,7 @@ def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
     dataframe = pd.DataFrame(np.load(f'logic/buffer/{name}.npy', allow_pickle=True))
-    dataframe.sort_values(by=[2])
+
     dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
     df = dataframe.iloc[0:, 2:].to_numpy()
     links = dataframe.iloc[0:, 0].tolist()

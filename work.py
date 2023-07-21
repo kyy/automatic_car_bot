@@ -29,8 +29,7 @@ async def collect_data(ctx):
         SELECT user.tel_id, udata.search_param, udata.id FROM udata
         INNER JOIN user on user.id = udata.user_id
         WHERE udata.is_active=1 
-        ORDER BY user.tel_id ASC 
-        """)
+        ORDER BY udata.id """)
         select_filters = await select_filters_cursor.fetchall()
         for item in select_filters:
             await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True)
@@ -39,6 +38,12 @@ async def collect_data(ctx):
 class Work:
     functions = [parse, send_car]
     cron_jobs = [
-        cron(collect_data, hour={i for i in range(1, 24)}, minute={00, 30}, run_at_startup=False,),   # парсинг новых объявлений
-        cron(base, hour={00}, minute={15}, max_tries=3, run_at_startup=True),  # обновление БД
+        cron(collect_data,
+             hour={i for i in range(1, 24)},
+             minute={00, 30},
+             run_at_startup=False,),   # парсинг новых объявлений
+        cron(base,
+             hour={00}, minute={15},
+             max_tries=3,
+             run_at_startup=True),  # обновление БД
     ]
