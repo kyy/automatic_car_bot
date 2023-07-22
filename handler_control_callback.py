@@ -11,7 +11,6 @@ from logic.database.config import database
 from classes import CreateCar
 from classes import bot
 from keyboards import multi_row_keyboard, params_menu, start_menu_with_help, filter_menu
-from middlewares import ChatActionMiddleware
 
 
 router = Router()
@@ -139,7 +138,7 @@ async def show_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f_')) & ((F.data.endswith('_0')) | (F.data.endswith('_1'))))
 async def edit_search(callback: CallbackQuery):
-    # Включение/Отключение фильтров
+    # включение/отключение фильтров
     async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
@@ -160,7 +159,7 @@ async def edit_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
-    # Удаление фильтра
+    # удаление фильтра
     async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
@@ -176,7 +175,7 @@ async def delete_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
 async def options_search(callback: CallbackQuery):
-    # Опции фильтра, отображение кол-ва обявлений
+    # опции фильтра, отображение кол-ва объявлений
     filter_id, filter_name, cars = await filter_import(callback, database())
     av_jsn, abw_jsn, onliner_jsn, all_av, all_abw, all_onliner, av_l, abw_l, onliner_l = await car_multidata(cars)
     all_count = [all_av, all_abw, all_onliner]

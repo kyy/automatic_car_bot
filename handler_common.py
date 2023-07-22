@@ -51,7 +51,7 @@ commands = [
 ]
 
 
-def all_commands(allcommands):
+async def all_commands(allcommands):
     c_list = []
     [(c_list.append(str(cmd.command))) for cmd in allcommands]
     return ", ".join(c_list)
@@ -73,12 +73,12 @@ async def cmd_help(message: Message, command: CommandObject):
         else:
             return await message.answer('Команда не найдена'
                                         '\nДоступные команды:'
-                                        f'\n{all_commands(commands)}')
+                                        f'\n{await all_commands(commands)}')
     await message.answer(
         text=f"Для получение подробного описание команд наберите:"
              "\n/help <имя команды>"
              "\nДоступные команды:"
-             f"\n{all_commands(commands)}"
+             f"\n{await all_commands(commands)}"
     )
 
 

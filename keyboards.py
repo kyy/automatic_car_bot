@@ -22,7 +22,7 @@ def start_menu_with_help(help_flag):
             text="📝 Создать фильтр",
             callback_data="create_search"),
         InlineKeyboardButton(
-            text="🖼 Управление фильтрами",
+            text="🖼 Мои фильтры",
             callback_data="show_search")], [
         InlineKeyboardButton(
             text=help_text,
@@ -53,17 +53,24 @@ async def params_menu(decode_filter_short, callback, db, help_flag):
                                             f"INNER JOIN udata on user.id = udata.user_id "
                                             f"WHERE user.tel_id = {user_id}")
     search_params = await search_params_cursor.fetchall()
-    buttons = [[
-        InlineKeyboardButton(
-            text=decode_filter_short(i[0])[7:],
-            callback_data=f'f_{i[2]}_show'),
-        InlineKeyboardButton(
-            text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'),
-            callback_data=f'f_{user_id}_{i[2]}_{i[1]}'),
-        InlineKeyboardButton(
-            text='Удалить',
-            callback_data=f'f_{user_id}_{i[2]}_del')]
-        for i in search_params]
+    buttons = []
+    if search_params == buttons:
+        buttons = [[
+            InlineKeyboardButton(
+                text="📝 Создать фильтр",
+                callback_data="create_search")]]
+    else:
+        buttons = [[
+            InlineKeyboardButton(
+                text=decode_filter_short(i[0])[7:],
+                callback_data=f'f_{i[2]}_show'),
+            InlineKeyboardButton(
+                text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'),
+                callback_data=f'f_{user_id}_{i[2]}_{i[1]}'),
+            InlineKeyboardButton(
+                text='Удалить',
+                callback_data=f'f_{user_id}_{i[2]}_del')]
+            for i in search_params]
     buttons.append([
         InlineKeyboardButton(
             text='Назад',
