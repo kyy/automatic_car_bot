@@ -35,6 +35,23 @@ def json_links_av(url):
         return False
 
 
+async def bound_fetch_av(semaphore, url, session, result, work):
+    try:
+        async with semaphore:
+            await get_one(url, session, result, work)
+    except Exception as e:
+        print(e)
+        # Блокируем все таски на <> секунд в случае ошибки 429.
+        await asyncio.sleep(1)
+
+
+async def get_one(url, session, result, work):
+    async with session.get(url) as response:
+        page_content = await response.json()   # Ожидаем ответа и блокируем таск.
+        item = json_parse_av(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
+        result += item
+
+
 def json_parse_av(json_data, work):
     car = []
     for i in range(len(json_data['adverts'])):
@@ -50,7 +67,6 @@ def json_parse_av(json_data, work):
             days = r_t['originalDaysOnSale']    # дни в продаже
             exchange = r_t['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
             city = r_t['shortLocationName']
-
             year = r_t['year']
             brand = r_t['properties'][0]['value']
             model = r_t['properties'][1]['value']
@@ -88,24 +104,6 @@ def json_parse_av(json_data, work):
         if (work is True) and (fresh_minutes < 29):
             car.append([str(url)])
     return car
-
-
-async def bound_fetch_av(semaphore, url, session, result, work):
-    try:
-        async with semaphore:
-            await get_one(url, session, result, work)
-    except Exception as e:
-        print(e)
-        # Блокируем все таски на <> секунд в случае ошибки 429.
-        await asyncio.sleep(1)
-
-
-async def get_one(url, session, result, work):
-    async with session.get(url) as response:
-        page_content = await response.json()   # Ожидаем ответа и блокируем таск.
-        item = json_parse_av(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
-        result += item
-        #await asyncio.sleep(0.1)
 
 
 

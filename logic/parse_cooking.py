@@ -22,11 +22,8 @@ headers = {
 
 async def run(urls_av, urls_abw, urls_onliner, result, work):
     tasks = []
-    # Выбрал лок от балды. Можете поиграться.
-    semaphore = asyncio.Semaphore(5)
-    # Опять же оставляем User-Agent, чтобы не получить ошибку от Metacritic
+    semaphore = asyncio.Semaphore(10)
     async with ClientSession(headers=headers) as session:
-
         if urls_av:
             for url in urls_av:
                 task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result, work))
@@ -43,11 +40,11 @@ async def run(urls_av, urls_abw, urls_onliner, result, work):
         await asyncio.gather(*tasks)
 
 
-async def send_car(tel_id, url):
-    try:
-        await bot.send_message(tel_id, url)
-    except Exception as e:
-        print(e)
+# async def send_car(tel_id, url):
+#     try:
+#         await bot.send_message(tel_id, url)
+#     except Exception as e:
+#         print(e)
 
 
 async def parse_main(url_av, url_abw, url_onliner, message, name, work):
@@ -75,7 +72,3 @@ async def parse_main(url_av, url_abw, url_onliner, message, name, work):
     else:
         np.save(f'logic/buffer/{name}.npy', result)
     return result
-
-
-if __name__ == "__main__":
-    pass

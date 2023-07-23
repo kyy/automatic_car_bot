@@ -1,6 +1,8 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardBuilder
 
+from logic.func import decode_filter_short
+
 
 def single_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
     row = [KeyboardButton(text=item) for item in items]
@@ -44,7 +46,7 @@ result_menu = InlineKeyboardMarkup(
             callback_data="help_show_start_menu")]])
 
 
-async def params_menu(decode_filter_short, callback, db, help_flag):
+async def params_menu(callback, db, help_flag):
     # меню списка фильтров
     help_callback = 'help_show_params_menu' if help_flag is True else 'help_hide_params_menu'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"

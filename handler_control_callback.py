@@ -46,7 +46,7 @@ async def help_show_params_menu(callback: CallbackQuery):
         await callback.message.edit_text(
             'Нажав на фильтр можно заказать сравнительный отчет о всех активных объявлениях.\n'
             'Отчет представляет собой .PDF-файл, нажав на марку можно перейти к обявлению на сайте.',
-            reply_markup=await params_menu(decode_filter_short, callback, db, False))
+            reply_markup=await params_menu(callback, db, False))
 
 
 @router.callback_query(F.data == 'help_hide_params_menu')
@@ -55,7 +55,7 @@ async def help_hide_params_menu(callback: CallbackQuery):
     async with database() as db:
         await callback.message.edit_text(
             'управление фильтрами',
-            reply_markup=await params_menu(decode_filter_short, callback, db, True))
+            reply_markup=await params_menu(callback, db, True))
 
 
 @router.callback_query(F.data == 'create_search')
@@ -96,7 +96,7 @@ async def cancel_params_menu(callback: CallbackQuery):
     async with database() as db:
         await callback.message.edit_text(
             'Список фильтров',
-            reply_markup=await params_menu(decode_filter_short, callback, db, True))
+            reply_markup=await params_menu(callback, db, True))
 
 
 @router.callback_query(F.data == 'save_search')
@@ -133,7 +133,7 @@ async def show_search(callback: CallbackQuery):
     async with database() as db:
         await callback.message.edit_text(
             'Список фильтров',
-            reply_markup=await params_menu(decode_filter_short, callback, db, True))
+            reply_markup=await params_menu(callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & ((F.data.endswith('_0')) | (F.data.endswith('_1'))))
@@ -154,7 +154,7 @@ async def edit_search(callback: CallbackQuery):
         await db.commit()
         await callback.message.edit_text(
             'Cписок фильтров',
-            reply_markup=await params_menu(decode_filter_short, callback, db, True))
+            reply_markup=await params_menu(callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
@@ -170,7 +170,7 @@ async def delete_search(callback: CallbackQuery):
         await db.commit()
         await callback.message.edit_text(
             'Список фильтров',
-            reply_markup=await params_menu(decode_filter_short, callback, db, True))
+            reply_markup=await params_menu(callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
