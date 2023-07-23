@@ -1,11 +1,13 @@
 import asyncio
 from arq import create_pool, cron
 from arq.connections import RedisSettings
+
+from classes import bot
 from logic.database.config import database
 from logic.database.data_migrations import main as update, lenn
 from logic.database.main_parse import main_parse
 from logic.get_url_cooking import all_get_url
-from logic.parse_cooking import parse_main, send_car as send_car_from_parse
+from logic.parse_cooking import parse_main
 
 
 async def parse(ctx, car, message, name, work):
@@ -14,7 +16,10 @@ async def parse(ctx, car, message, name, work):
 
 
 async def send_car(ctx, tel_id, url):
-    await send_car_from_parse(tel_id, url)
+    try:
+        await bot.send_message(tel_id, url)
+    except Exception as e:
+        print(e)
 
 
 async def base(ctx):
