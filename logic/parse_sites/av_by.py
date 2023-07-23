@@ -13,7 +13,7 @@ def count_cars_av(url):
     try:
         r = requests.get(url, headers=headers).json()
         return int(r['count'])
-    except:
+    except requests.exceptions.RequestException:
         return 0
 
 
@@ -31,7 +31,7 @@ def json_links_av(url):
                 links_to_json.append(f'{url}&page={i}')
                 page_count -= 1
         return links_to_json
-    except:
+    except requests.exceptions.RequestException:
         return False
 
 
@@ -74,7 +74,7 @@ def json_parse_av(json_data, work):
                 vin = r_t['metadata']['vinInfo']['vin']
             except:
                 vin = ''
-            generation = motor = dimension = transmission = km = type = drive = color = ''
+            generation = motor = dimension = transmission = km = typec = drive = color = ''
             for j in range(len(json_data['adverts'][i]['properties'])):
                 r_t = json_data['adverts'][i]['properties'][j]
                 if r_t['name'] == 'mileage_km':
@@ -92,18 +92,15 @@ def json_parse_av(json_data, work):
                 if r_t['name'] == 'drive_type':
                     drive = r_t['value'].replace('привод', '')
                 if r_t['name'] == 'body_type':
-                    type = r_t['value']
+                    typec = r_t['value']
                 if r_t['name'] == 'generation':
                     generation = r_t['value']
             car.append([
-                str(url), str(comments), f'{str(brand)} {str(model)} {str(generation)}', str(price), str(motor), str(dimension),
-                str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
-                str(exchange), str(days), str(city)
+                str(url), str(comments), f'{str(brand)} {str(model)} {str(generation)}', str(price),
+                str(motor), str(dimension), str(transmission), str(km), str(year), str(typec),
+                str(drive), str(color), str(vin), str(exchange), str(days), str(city)
             ])
 
         if (work is True) and (fresh_minutes < 29):
             car.append([str(url)])
     return car
-
-
-

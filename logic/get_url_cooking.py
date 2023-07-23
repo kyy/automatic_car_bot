@@ -63,7 +63,8 @@ async def get_url_abw(car_input, db, work):
     :param db: database
     :return: гет запрос
     """
-    work = False
+    if work is True:  # Т.к свежак пока не вытянуть быстро
+        return None
     # Входные параметры
     param_input = ['brand_', 'model_', 'engine_', 'transmission_', 'year_',
                    'year_max', 'price_', 'price_max', 'volume_', 'volume_max']

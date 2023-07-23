@@ -2,19 +2,13 @@ import asyncio
 import numpy as np
 from aiohttp import ClientSession
 import nest_asyncio
+from .constant import headers
 from .parse_sites.av_by import json_links_av, bound_fetch_av
 from .parse_sites.abw_by import json_links_abw, bound_fetch_abw
 from .parse_sites.onliner_by import json_links_onliner, bound_fetch_onliner
 
 
 nest_asyncio.apply()
-
-
-headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/109.0.0.0 Safari/537.36',
-        'accept': '*/*',
-}
 
 
 async def run(urls_av, urls_abw, urls_onliner, result, work):
@@ -37,7 +31,7 @@ async def run(urls_av, urls_abw, urls_onliner, result, work):
         await asyncio.gather(*tasks)
 
 
-async def parse_main(url_av, url_abw, url_onliner, message, name, work, send_car_job):
+async def parse_main(url_av, url_abw, url_onliner, message, name, work=False, send_car_job=None):
     """
     :param url_av: ссылка к json файлу
     :param url_abw: ссылка к json файлу
@@ -45,6 +39,7 @@ async def parse_main(url_av, url_abw, url_onliner, message, name, work, send_car
     :param message: id of telegram user
     :param name: id of filter
     :param work: True - задачи таска task_worker
+    :param send_car_job: True - отправляемв в очередь задания на отправку обяъвлений
     :return: result список машин с параметрами [[],[]...]
     """
     result = []
@@ -56,7 +51,7 @@ async def parse_main(url_av, url_abw, url_onliner, message, name, work, send_car
                                        ))
     loop.run_until_complete(future)
     if work is True:
-        await send_car_job(message, result)   # отправляемв в очередь задания на отправку обяъвлений
+        await send_car_job(message, result)
     else:
         np.save(f'logic/buffer/{name}.npy', result)
     return result

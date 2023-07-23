@@ -14,7 +14,7 @@ def count_cars_onliner(url):
     try:
         r = requests.get(url, headers=headers).json()
         return int(r['total'])
-    except:
+    except requests.exceptions.RequestException:
         return 0
 
 
@@ -32,7 +32,7 @@ def json_links_onliner(url):
                 links_to_json.append(f'{url}&page={i}')
                 page_count -= 1
         return links_to_json
-    except:
+    except requests.exceptions.RequestException:
         return False
 
 
@@ -56,16 +56,16 @@ def json_parse_onliner(json_data, work):
             km = r_t['specs']['odometer']['value']
             dimension = r_t['specs']['engine']['capacity']
             motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель')
-            transmission = r_t['specs']['transmission'].replace('mechanical ', 'механика').replace('automatic', 'автомат')
+            transmis = r_t['specs']['transmission'].replace('mechanical ', 'механика').replace('automatic', 'автомат')
             color = r_t['specs']['color']
             drive = r_t['specs']['drivetrain']
-            type = r_t['specs']['body_type']
+            typec = r_t['specs']['body_type']
             # brand = r_t['manufacturer']['name']
             # model = r_t['model']['name']
             # generation = r_t['generation']['name']
             car.append([
                 str(url), 'comment', f'{str(brand_model_gen)}', str(price), str(motor), str(dimension),
-                str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
+                str(transmis), str(km), str(year), str(typec), str(drive), str(color), str(vin),
                 str(exchange), str(days), str(city)
             ])
         if work is True and fresh_minutes < 29:

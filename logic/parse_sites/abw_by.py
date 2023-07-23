@@ -1,20 +1,13 @@
 import asyncio
 import requests
-from bs4 import BeautifulSoup
-from lxml import html
-
-headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/109.0.0.0 Safari/537.36',
-        'accept': '*/*',
-        'content-type': 'application/json'}
+from logic.constant import headers
 
 
 def count_cars_abw(url):
     try:
         r = requests.get(url, headers=headers).json()
         return int(r['pagination']['total'])
-    except:
+    except requests.exceptions.RequestException:
         return 0
 
 
@@ -32,7 +25,7 @@ def json_links_abw(url):
                 links_to_json.append(f'{url}?page={i}')
                 page_count -= 1
         return links_to_json
-    except:
+    except requests.exceptions.RequestException:
         return False
 
 
@@ -52,20 +45,20 @@ def json_parse_abw(json_data, work):
             motor = description[-4].replace(' ', '')
             transmission = description[-3].replace(' ', '')
             drive = description[-2].replace(' ', '')
-            type = description[-1]
+            typec = description[-1]
             color = vin = exchange = days = ''
             car.append([
                 str(url), 'comment', str(brand), str(price), str(motor), str(dimension),
-                str(transmission), str(km), str(year), str(type), str(drive), str(color), str(vin),
+                str(transmission), str(km), str(year), str(typec), str(drive), str(color), str(vin),
                 str(exchange), str(days), str(city)
             ])
         if work is True:
-            pass
+            ...
             # response = requests.get(url, headers=headers)
             # soup = BeautifulSoup(response.content, 'html.parser')
             # time = soup.find('time', {'class': 'time'}).text
             # print(time)
-            #car.append([str(url)])
+            # car.append([str(url)])
     return car
 
 
@@ -84,4 +77,3 @@ async def get_one_abw(url, session, result, work):
         page_content = await response.json()     # Ожидаем ответа и блокируем таск.
         item = json_parse_abw(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
         result += item
-        #await asyncio.sleep(0.1)

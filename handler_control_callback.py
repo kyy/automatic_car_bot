@@ -45,7 +45,8 @@ async def help_show_params_menu(callback: CallbackQuery):
     async with database() as db:
         await callback.message.edit_text(
             'Нажав на фильтр можно заказать сравнительный отчет о всех активных объявлениях.\n'
-            'Отчет представляет собой .PDF-файл, нажав на марку можно перейти к обявлению на сайте.',
+            'Отчет представляет собой PDF-файл, нажав на марку в файле можно перейти к обявлению на сайте.',
+            'Отчет содержит, VIN, сколько дней опубликовано объявление, город... и многое другое.',
             reply_markup=await params_menu(callback, db, False))
 
 
@@ -203,7 +204,7 @@ async def report_search(callback: CallbackQuery):
     av_jsn, abw_jsn, onliner_jsn, all_av, all_abw, all_onliner, av_l, abw_l, onliner_l = await car_multidata(cars)
     name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
     try:
-        await parse_main(av_jsn, abw_jsn, onliner_jsn, user_id, name_time_stump, False)
+        await parse_main(av_jsn, abw_jsn, onliner_jsn, user_id, name_time_stump)
     except Exception as e:
         print(e, 'Ошибка в parse_main')
         return await bot.send_message(user_id, "Ошибка при сборе данных.\n")
