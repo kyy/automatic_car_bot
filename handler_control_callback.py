@@ -93,17 +93,19 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
     car_code = code_filter_short(c)
     user_id = callback.from_user.id
     async with database() as db:
-        check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = {user_id}")
+        check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{user_id}'")
         check_id = await check_id_cursor.fetchone()
         if check_id is None:
-            await db.execute(f"INSERT INTO user (tel_id) VALUES ({user_id})")
-        base_user_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = {user_id}")
-        base_user_id = await base_user_id_cursor.fetchone()
-        await db.executemany(
-            f"INSERT INTO udata(user_id, search_param, is_active) "
-            f"VALUES (?, ?, ?)", [(base_user_id[0], car_code, 1), ]
-        )
-        await db.commit()
+            await db.execute(f"INSERT INTO user (tel_id) VALUES ('{user_id}')")
+        user_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{user_id}'")
+        user_id = await user_id_cursor.fetchone()
+        check_filter_cursor = await db.execute(f"SELECT search_param FROM udata WHERE user_id = '{user_id[0]}'")
+        check_filter = await check_filter_cursor.fetchall()
+        if car_code not in [i[0] for i in check_filter]:
+            await db.executemany(
+                f"INSERT INTO udata(user_id, search_param, is_active) "
+                f"VALUES (?, ?, ?)", [(user_id[0], car_code, 1), ])
+            await db.commit()
         await callback.message.edit_text(
         'Теперь мы будем присылать вам свежие объявления\n'
         'Узнать все текущие объявления можно сформировав отчет в управлении фильтрами.\n'
