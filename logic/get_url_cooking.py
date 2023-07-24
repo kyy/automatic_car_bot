@@ -2,10 +2,12 @@ from datetime import datetime
 import asyncio
 import aiosqlite
 import numpy as np
+from logic.decorators import timed_lru_cache
 from .constant import s_s, s_b
 from .database.config import db_name
 
 
+@timed_lru_cache(300)
 async def get_url_av(car_input, db, work):
     """
     Формируем гет запрос для av.by
@@ -56,6 +58,7 @@ async def get_url_av(car_input, db, work):
     return full_url
 
 
+@timed_lru_cache(300)
 async def get_url_abw(car_input, db, work):
     """
     Формируем гет запрос для abw.by
@@ -138,6 +141,7 @@ async def get_url_abw(car_input, db, work):
         return None
 
 
+@timed_lru_cache(300)
 async def get_url_onliner(car_input, db, work):
     param_input = ['car[0][manufacturer]=', 'car[0][model]=', 'engine_type[0]=', 'transmission[0]=', 'year[from]=',
                    'year[to]=', 'price[from]=', 'price[to]', 'engine_capacity[from]=', 'engine_capacity[to]=']

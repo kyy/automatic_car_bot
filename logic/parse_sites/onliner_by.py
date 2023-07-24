@@ -1,7 +1,7 @@
 import asyncio
 import requests
 from datetime import datetime
-
+from logic.decorators import timed_lru_cache
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -18,6 +18,7 @@ def count_cars_onliner(url):
         return 0
 
 
+@timed_lru_cache(300)
 def json_links_onliner(url):
     try:
         links_to_json = []

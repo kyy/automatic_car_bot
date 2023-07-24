@@ -4,6 +4,8 @@ from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
 
+from logic.decorators import timed_lru_cache
+
 
 class PDF(FPDF):
 
@@ -172,6 +174,7 @@ async def do_pdf(
     return pdf.output(f'logic/buffer/{name}.pdf')
 
 
+@timed_lru_cache(300)
 def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
