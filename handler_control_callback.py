@@ -16,7 +16,7 @@ from keyboards import multi_row_keyboard, params_menu, start_menu_with_help, fil
 router = Router()
 
 
-@router.callback_query(F.data == 'help_show_start_menu')
+@router.callback_query(F.data == 'start_menu_help_show')
 async def help_show_start_menu(callback: CallbackQuery):
     # показать помощь главном меню
     await callback.message.edit_text(
@@ -31,15 +31,15 @@ async def help_show_start_menu(callback: CallbackQuery):
         reply_markup=start_menu_with_help(False))
 
 
-@router.callback_query(F.data == 'help_hide_start_menu')
+@router.callback_query(F.data == 'start_menu_help_hide')
 async def help_hide_params_menu(callback: CallbackQuery):
     # скрыть помощь главном меню
     await callback.message.edit_text(
-        'управление фильтрами',
+        'Главное меню',
         reply_markup=start_menu_with_help(True))
 
 
-@router.callback_query(F.data == 'help_show_params_menu')
+@router.callback_query(F.data == 'params_menu_help_show')
 async def help_show_params_menu(callback: CallbackQuery):
     # отобразить помощь списка фильтров
     async with database() as db:
@@ -50,12 +50,12 @@ async def help_show_params_menu(callback: CallbackQuery):
             reply_markup=await params_menu(callback, db, False))
 
 
-@router.callback_query(F.data == 'help_hide_params_menu')
+@router.callback_query(F.data == 'params_menu_help_hide')
 async def help_hide_params_menu(callback: CallbackQuery):
     # скрыть помощь списка фильтров
     async with database() as db:
         await callback.message.edit_text(
-            'управление фильтрами',
+            'Список фильтров',
             reply_markup=await params_menu(callback, db, True))
 
 
@@ -81,23 +81,6 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
         )
     )
     await state.set_state(CreateCar.brand_choosing)
-
-
-@router.callback_query(F.data == 'cancel_start_menu')
-async def cancel_start_menu(callback: CallbackQuery):
-    # переход к главному меню
-    await callback.message.edit_text(
-        'Главное меню',
-        reply_markup=start_menu_with_help(True))
-
-
-@router.callback_query(F.data == 'cancel_params_menu')
-async def cancel_params_menu(callback: CallbackQuery):
-    # переход к списку фильтров
-    async with database() as db:
-        await callback.message.edit_text(
-            'Список фильтров',
-            reply_markup=await params_menu(callback, db, True))
 
 
 @router.callback_query(F.data == 'save_search')

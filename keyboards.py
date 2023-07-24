@@ -17,7 +17,7 @@ def multi_row_keyboard(items: list[str], columns: int = 4, **kwargs) -> ReplyKey
 
 def start_menu_with_help(help_flag):
     # главное меню
-    help_callback = 'help_show_start_menu' if help_flag is True else 'help_hide_start_menu'
+    help_callback = 'start_menu_help_show' if help_flag is True else 'start_menu_help_hide'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     buttons = [[
         InlineKeyboardButton(
@@ -40,15 +40,15 @@ result_menu = InlineKeyboardMarkup(
             callback_data="save_search"),
         InlineKeyboardButton(
             text="🖼 Отмена",
-            callback_data="cancel_start_menu")], [
+            callback_data="start_menu_help_hide")], [
         InlineKeyboardButton(
             text="🔎 Помощь",
-            callback_data="help_show_start_menu")]])
+            callback_data="start_menu_help_show")]])
 
 
 async def params_menu(callback, db, help_flag):
     # меню списка фильтров
-    help_callback = 'help_show_params_menu' if help_flag is True else 'help_hide_params_menu'
+    help_callback = 'params_menu_help_show' if help_flag is True else 'params_menu_help_hide'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     user_id = callback.from_user.id
     search_params_cursor = await db.execute(f"SELECT udata.search_param, udata.is_active, udata.id FROM user "
@@ -76,7 +76,7 @@ async def params_menu(callback, db, help_flag):
     buttons.append([
         InlineKeyboardButton(
             text='Назад',
-            callback_data='cancel_start_menu'),
+            callback_data='start_menu_help_hide'),
         InlineKeyboardButton(
             text=help_text,
             callback_data=help_callback)])
@@ -89,10 +89,10 @@ def filter_menu(callback, cars_count):
     buttons = [[
         InlineKeyboardButton(
             text="🖼 Главное меню",
-            callback_data="cancel_start_menu")], [
+            callback_data="start_menu_help_hide")], [
         InlineKeyboardButton(
             text="Назад",
-            callback_data="cancel_params_menu")]]
+            callback_data="show_search")]]
     if cars_count > 0:
         buttons[0].insert(0, InlineKeyboardButton(
             text="📝 Создать отчет",

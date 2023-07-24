@@ -44,11 +44,14 @@ async def parse_main(url_av, url_abw, url_onliner, message, name, work=False, se
     """
     result = []
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(json_links_av(url_av),
-                                       json_links_abw(url_abw),
-                                       json_links_onliner(url_onliner),
-                                       result, work
-                                       ))
+    future = asyncio.ensure_future(
+        run(
+            json_links_av(url_av),
+            json_links_abw(url_abw),
+            json_links_onliner(url_onliner),
+            result, work,
+        )
+    )
     loop.run_until_complete(future)
     if work is True:
         await send_car_job(message, result)
