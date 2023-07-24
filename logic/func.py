@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import lru_cache
 from .decorators import timed_lru_cache
 import numpy as np
 from logic.constant import abw_root_link, s_s, s_b, motor_dict, onliner_root_link
@@ -7,6 +8,7 @@ from logic.get_url_cooking import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw
 from logic.parse_sites.av_by import count_cars_av
 from logic.parse_sites.onliner_by import count_cars_onliner
+from aiocache import cached, Cache
 
 
 @timed_lru_cache(300)
@@ -39,6 +41,7 @@ async def filter_import(callback, db):
     return filter_id, filter_name, cars
 
 
+@cached(ttl=300, cache=Cache.MEMORY, namespace="car_multidata")
 async def car_multidata(cars):
     # cars - фильтр-код
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, False)
@@ -68,6 +71,7 @@ def onliner_url_filter(car_input, link):
         return onliner_root_link
 
 
+@cached(ttl=300, cache=Cache.MEMORY, key='brands', namespace="get_brands")
 async def get_brands() -> list[str]:
     async with database() as db:
         cursor = await db.execute(f"SELECT [unique] FROM brands ORDER BY [unique]")
@@ -78,6 +82,7 @@ async def get_brands() -> list[str]:
     return brands
 
 
+@cached(ttl=300, cache=Cache.MEMORY, namespace="get_models")
 async def get_models(brand: str) -> list[str]:
     async with database() as db:
         cursor = await db.execute(f"SELECT models.[unique] FROM models "
@@ -90,14 +95,17 @@ async def get_models(brand: str) -> list[str]:
     return models
 
 
+@lru_cache()
 def get_years(from_year: int = 1990, to_year=datetime.now().year) -> list[str]:
     return [s_b] + [str(i) for i in range(from_year, to_year + 1)]
 
 
+@lru_cache()
 def get_dimension(from_dim: float = 1, to_dim: float = 9, step: float = 0.1) -> list[str]:
     return [s_b] + [str(round(i, 1)) for i in np.arange(from_dim, to_dim + step, step)]
 
 
+@lru_cache()
 def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> list[str]:
     return [s_b] + [str(i) for i in range(from_cost, to_cost - step, step)]
 

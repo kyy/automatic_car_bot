@@ -1,4 +1,6 @@
 import asyncio
+
+from aiocache import Cache
 from arq import create_pool, cron
 from arq.connections import RedisSettings
 from classes import bot
@@ -7,6 +9,7 @@ from logic.database.data_migrations import main as update, lenn
 from logic.database.main_parse import main_parse
 from logic.get_url_cooking import all_get_url
 from logic.parse_cooking import parse_main
+
 
 
 async def parse(ctx, car, message, name, work):
@@ -48,9 +51,9 @@ class Work:
         cron(collect_data_job,
              hour={i for i in range(1, 24)},
              minute={00, 30},
-             run_at_startup=True, ),   # парсинг новых объявлений
+             run_at_startup=False, ),   # парсинг новых объявлений
         cron(update_database,
              hour={00}, minute={15},
              max_tries=3,
-             run_at_startup=False),  # обновление БД
+             run_at_startup=True),  # обновление БД
     ]
