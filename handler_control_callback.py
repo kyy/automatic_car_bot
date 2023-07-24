@@ -10,7 +10,7 @@ from logic.constant import s_b
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
-from keyboards import multi_row_keyboard, params_menu, start_menu_with_help, filter_menu
+from keyboards import multi_row_keyboard, params_menu, start_menu, filter_menu
 
 
 router = Router()
@@ -28,7 +28,7 @@ async def help_show_start_menu(callback: CallbackQuery):
         '- Если хотите прпустить шаги с выбором параметров нажмите [menu]->[/show].\n'
         '- Сохраненные фильтры можно отключить или удалить в управлнии фильтрами.\n'
         '- Узнать больше команд /help.',
-        reply_markup=start_menu_with_help(False))
+        reply_markup=start_menu(False))
 
 
 @router.callback_query(F.data == 'start_menu_help_hide')
@@ -36,7 +36,7 @@ async def help_hide_params_menu(callback: CallbackQuery):
     # скрыть помощь главном меню
     await callback.message.edit_text(
         'Главное меню',
-        reply_markup=start_menu_with_help(True))
+        reply_markup=start_menu(True))
 
 
 @router.callback_query(F.data == 'params_menu_help_show')
@@ -104,11 +104,11 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
             f"VALUES (?, ?, ?)", [(base_user_id[0], car_code, 1), ]
         )
         await db.commit()
-    await callback.message.edit_text(
+        await callback.message.edit_text(
         'Теперь мы будем присылать вам свежие объявления\n'
         'Узнать все текущие объявления можно сформировав отчет в управлении фильтрами.\n'
         'При возникновении трудноситей жми [Помощь].\n',
-        reply_markup=start_menu_with_help(True))
+        reply_markup=await params_menu(callback, db, help_flag=True))
 
 
 @router.callback_query(F.data == 'show_search')

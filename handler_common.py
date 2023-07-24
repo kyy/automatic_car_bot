@@ -3,7 +3,7 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove, BotCommand
 from aiogram.filters import Command, CommandObject
-from keyboards import start_menu_with_help
+from keyboards import start_menu
 from classes import bot
 
 
@@ -86,7 +86,7 @@ async def cmd_help(message: Message, command: CommandObject):
 @router.message(F.text.casefold() == "start")
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer('Главное меню', reply_markup=start_menu_with_help(True))
+    await message.answer('Главное меню', reply_markup=start_menu(True))
 
 
 @router.message(Command(commands=["cancel"]))

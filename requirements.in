@@ -14,3 +14,4 @@ nest-asyncio
 openpyxl
 arq
 pip-tools
+aiocache
