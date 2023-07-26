@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from classes import CreateCar
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
-from keyboards import multi_row_keyboard, result_menu
+from keyboards import multi_row_kb, result_menu_kb
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
 from logic.constant import s_b, columns_cost, columns_years, columns_dimension, columns_motor, motor, transmission
 
@@ -27,7 +27,7 @@ async def get_rusult(message: Message, state: FSMContext):
         )
         await message.answer(
             text='Управление фильтром:',
-            reply_markup=result_menu
+            reply_markup=result_menu_kb
         )
     else:
         await message.answer(
@@ -52,7 +52,7 @@ async def brand_chosen(message: Message, state: FSMContext):
                             )
     await message.answer(
         text="Выберите бренд автомобиля:",
-        reply_markup=multi_row_keyboard(
+        reply_markup=multi_row_kb(
             await get_brands(),
             input_field_placeholder='имя бренда',
             )
@@ -66,7 +66,7 @@ async def model_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_brand=message.text)
         await message.answer(
             text="Теперь, выберите модель:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 await get_models(message.text),
                 input_field_placeholder='имя модели')
             )
@@ -74,7 +74,7 @@ async def model_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Я не знаю такого бренда.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 await get_brands(),
                 input_field_placeholder='имя бренда')
         )
@@ -89,7 +89,7 @@ async def motor_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_model=message.text)
         await message.answer(
             text="Теперь, выберите тип топлива:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 motor,
                 input_field_placeholder='тип топлива',
                 columns=columns_motor,
@@ -99,7 +99,7 @@ async def motor_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Я не знаю такой модели.\n"
                  "Пожалуйста, выберите один из вариантов из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 await get_models(user_data['chosen_brand']),
                 input_field_placeholder='имя модели'
             )
@@ -114,7 +114,7 @@ async def transmission_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_motor=message.text)
         await message.answer(
             text="Теперь, выберите тип трансмиссии:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 transmission,
                 input_field_placeholder='тип трансмиссии'
             )
@@ -123,7 +123,7 @@ async def transmission_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Я не знаю такого топлива.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 motor,
                 input_field_placeholder='тип топлива',
                 columns=columns_motor,
@@ -139,7 +139,7 @@ async def from_year_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_transmission=message.text)
         await message.answer(
             text="Теперь, выберите с какого года:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_years(),
                 input_field_placeholder='год от',
                 columns=columns_years,
@@ -149,7 +149,7 @@ async def from_year_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Я не знаю такой трансмиссии.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 transmission,
                 input_field_placeholder='тип трансмиссии'
             )
@@ -165,7 +165,7 @@ async def to_year_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_year_from=message.text)
         await message.answer(
             text="Теперь, выберите по какой год:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_years(from_year=int(year)),
                 input_field_placeholder='год по',
                 columns=columns_years,
@@ -175,7 +175,7 @@ async def to_year_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Год от введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_years(),
                 input_field_placeholder='год от',
                 columns=columns_years,
@@ -193,7 +193,7 @@ async def min_cost_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_year_to=message.text)
         await message.answer(
             text="Теперь, выберите начальную цену:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_cost(),
                 input_field_placeholder='стоимость от',
                 columns=columns_cost,
@@ -203,7 +203,7 @@ async def min_cost_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Год до введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_years(from_year=int(year)),
                 input_field_placeholder='год по',
                 columns=columns_years,
@@ -220,7 +220,7 @@ async def max_cost_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_cost_min=message.text)
         await message.answer(
             text="Теперь, выберите максимальную цену:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_cost(from_cost=int(cost)),
                 input_field_placeholder='стоимость до',
                 columns=columns_cost,
@@ -230,7 +230,7 @@ async def max_cost_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Цена введена не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_cost(),
                 input_field_placeholder='стоимость от',
                 columns=columns_cost,
@@ -248,7 +248,7 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_cost_max=message.text)
         await message.answer(
             text="Теперь, выберите минимальный объем двигателя:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_dimension(),
                 input_field_placeholder='объем двигателя от',
                 columns=columns_dimension,
@@ -258,7 +258,7 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Цена введена не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_cost(from_cost=int(user_data['chosen_cost_min'])),
                 input_field_placeholder='стоимость до',
                 columns=columns_cost,
@@ -275,7 +275,7 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
         await state.update_data(chosen_dimension_min=message.text)
         await message.answer(
             text="Теперь, выберите максимальный объем двигателя:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_dimension(from_dim=float(dimension)),
                 input_field_placeholder='объем двигателя до',
                 columns=columns_dimension,
@@ -285,7 +285,7 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Объем введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_dimension(),
                 input_field_placeholder='объем двигателя от',
                 columns=columns_dimension,
@@ -306,7 +306,7 @@ async def finish_chosen(message: Message, state: FSMContext):
         await message.answer(
             text="Объем введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
-            reply_markup=multi_row_keyboard(
+            reply_markup=multi_row_kb(
                 get_dimension(from_dim=float(user_data['chosen_dimension_min'])),
                 input_field_placeholder='объем до',
             )

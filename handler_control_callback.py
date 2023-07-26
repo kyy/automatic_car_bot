@@ -10,7 +10,7 @@ from logic.constant import s_b
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
-from keyboards import multi_row_keyboard, params_menu, start_menu, filter_menu
+from keyboards import multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb
 
 
 router = Router()
@@ -28,7 +28,7 @@ async def help_show_start_menu(callback: CallbackQuery):
         '- Если хотите прпустить шаги с выбором параметров нажмите [menu]->[/show].\n'
         '- Сохраненные фильтры можно отключить или удалить в управлнии фильтрами.\n'
         '- Узнать больше команд /help.',
-        reply_markup=start_menu(False))
+        reply_markup=start_menu_kb(False))
 
 
 @router.callback_query(F.data == 'start_menu_help_hide')
@@ -36,7 +36,7 @@ async def help_hide_params_menu(callback: CallbackQuery):
     # скрыть помощь главном меню
     await callback.message.edit_text(
         'Главное меню',
-        reply_markup=start_menu(True))
+        reply_markup=start_menu_kb(True))
 
 
 @router.callback_query(F.data == 'params_menu_help_show')
@@ -47,7 +47,7 @@ async def help_show_params_menu(callback: CallbackQuery):
             'Нажав на фильтр можно заказать сравнительный отчет о всех активных объявлениях.\n'
             'Отчет представляет собой PDF-файл, нажав на марку в файле можно перейти к обявлению на сайте.',
             'Отчет содержит, VIN, сколько дней опубликовано объявление, город... и многое другое.',
-            reply_markup=await params_menu(callback, db, False))
+            reply_markup=await params_menu_kb(callback, db, False))
 
 
 @router.callback_query(F.data == 'params_menu_help_hide')
@@ -56,7 +56,7 @@ async def help_hide_params_menu(callback: CallbackQuery):
     async with database() as db:
         await callback.message.edit_text(
             'Список фильтров',
-            reply_markup=await params_menu(callback, db, True))
+            reply_markup=await params_menu_kb(callback, db, True))
 
 
 @router.callback_query(F.data == 'create_search')
@@ -75,7 +75,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
                             )
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
-        reply_markup=multi_row_keyboard(
+        reply_markup=multi_row_kb(
             await get_brands(),
             input_field_placeholder='имя бренда',
         )
@@ -110,7 +110,7 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
         'Теперь мы будем присылать вам свежие объявления\n'
         'Узнать все текущие объявления можно сформировав отчет в управлении фильтрами.\n'
         'При возникновении трудноситей жми [Помощь].\n',
-        reply_markup=await params_menu(callback, db, help_flag=True))
+        reply_markup=await params_menu_kb(callback, db, help_flag=True))
 
 
 @router.callback_query(F.data == 'show_search')
@@ -119,7 +119,7 @@ async def show_search(callback: CallbackQuery):
     async with database() as db:
         await callback.message.edit_text(
             'Список фильтров',
-            reply_markup=await params_menu(callback, db, True))
+            reply_markup=await params_menu_kb(callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & ((F.data.endswith('_0')) | (F.data.endswith('_1'))))
@@ -140,7 +140,7 @@ async def edit_search(callback: CallbackQuery):
         await db.commit()
         await callback.message.edit_text(
             'Cписок фильтров',
-            reply_markup=await params_menu(callback, db, True))
+            reply_markup=await params_menu_kb(callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
@@ -156,7 +156,7 @@ async def delete_search(callback: CallbackQuery):
         await db.commit()
         await callback.message.edit_text(
             'Список фильтров',
-            reply_markup=await params_menu(callback, db, True))
+            reply_markup=await params_menu_kb(callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
@@ -175,7 +175,7 @@ async def options_search(callback: CallbackQuery):
         f"<a href='{onliner_l}'>onliner.by</a> - {all_onliner}.\n"
         f"\n"
         f"Действует ограничение до ~125 объявлений с 1 ресурса.\n",
-        reply_markup=filter_menu(callback, cars_count),
+        reply_markup=filter_menu_kb(callback, cars_count),
         disable_web_page_preview=True,
         parse_mode="HTML",
     )
@@ -193,7 +193,11 @@ async def report_search(callback: CallbackQuery):
     except Exception as e:
         print(e, 'Ошибка в parse_main')
         return await bot.send_message(user_id, "Ошибка при сборе данных.\n")
-    await bot.send_message(user_id, f"Сбор данных.")
+    async with database() as db:
+        await callback.message.edit_text("Сбор данных.",
+                                         reply_markup=await params_menu_kb(callback, db),
+                                         disable_web_page_preview=True,
+                                         parse_mode="HTML", )
     link_count = {'av': [av_l, all_av],
                   'abw': [abw_l, all_abw],
                   'onliner': [onliner_l, all_onliner]}
@@ -207,3 +211,16 @@ async def report_search(callback: CallbackQuery):
     else:
         print(f'{name_time_stump}.pdf не найден')
         await bot.send_message(user_id, f'pdf не удалось отправить')
+
+
+@router.callback_query(F.data == 'bot_functions')
+async def bot_fuctions(callback: CallbackQuery):
+    await callback.message.edit_text(
+        "Основные функции:\n"
+        "- Автоматическое расслка пользователям свежих обявлений по созданному фильтру. "
+        "Возможность управления рассылками (Отключение, удаление).\n"
+        "- Создание удобной таблицы с текущими обявлениями в формате PDF."
+        "Таблица может содержать важные данные при подборе автомобиля, которые не получить на сайте.\n",
+         reply_markup=bot_functions_kb,
+         disable_web_page_preview=True,
+         parse_mode="HTML", )

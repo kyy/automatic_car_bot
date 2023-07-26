@@ -1,25 +1,27 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardBuilder
-from aiocache import cached
 from logic.func import decode_filter_short
 
 
-def single_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
+def single_row_kb(items: list[str]) -> ReplyKeyboardMarkup:
     row = [KeyboardButton(text=item) for item in items]
     return ReplyKeyboardMarkup(keyboard=[row], resize_keyboard=True)
 
 
-def multi_row_keyboard(items: list[str], columns: int = 4, **kwargs) -> ReplyKeyboardMarkup:
+def multi_row_kb(items: list[str], columns: int = 4, **kwargs) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     builder.row(*[KeyboardButton(text=item) for item in items]).adjust(columns)
     return builder.as_markup(**kwargs)
 
 
-def start_menu(help_flag):
+def start_menu_kb(help_flag):
     # главное меню
     help_callback = 'start_menu_help_show' if help_flag is True else 'start_menu_help_hide'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     buttons = [[
+        InlineKeyboardButton(
+            text="🖼 Функционал бота",
+            callback_data="bot_functions"),
         InlineKeyboardButton(
             text="🖼 Мои фильтры",
             callback_data="show_search")], [
@@ -29,7 +31,7 @@ def start_menu(help_flag):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-result_menu = InlineKeyboardMarkup(
+result_menu_kb = InlineKeyboardMarkup(
     # меню сформированного фильтра
     inline_keyboard=[[
         InlineKeyboardButton(
@@ -42,8 +44,15 @@ result_menu = InlineKeyboardMarkup(
             text="🔎 Помощь",
             callback_data="start_menu_help_show")]])
 
+bot_functions_kb = InlineKeyboardMarkup(
+    # меню сформированного фильтра
+    inline_keyboard=[[
+        InlineKeyboardButton(
+            text="Назад",
+            callback_data="start_menu_help_hide")]])
 
-async def params_menu(callback, db, help_flag=False):
+
+async def params_menu_kb(callback, db, help_flag=False):
     # меню списка фильтров
     help_callback = 'params_menu_help_show' if help_flag is True else 'params_menu_help_hide'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
@@ -81,7 +90,7 @@ async def params_menu(callback, db, help_flag=False):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def filter_menu(callback, cars_count):
+def filter_menu_kb(callback, cars_count):
     # меню опций фильтра, заказ отчета (callback = udata.id )
     filter_id = callback.data.split('_')[1]
     buttons = [[
