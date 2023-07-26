@@ -1,7 +1,10 @@
 import asyncio
 import requests
 from datetime import datetime
+
+from logic.constant import WORK_PARSE_DELTA
 from logic.decorators import timed_lru_cache
+
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -42,8 +45,8 @@ def json_parse_onliner(json_data, work):
     for i in range(len(json_data['adverts'])):
         r_t = json_data['adverts'][i]
         published = r_t['created_at']
-        fresh_minutes = (datetime.now().timestamp() - datetime.strptime(published[:-9],
-                                                                        "%Y-%m-%dT%H:%M").timestamp()) / 60
+        fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
+        fresh_minutes = fresh_minutes.total_seconds() / 60
         url = r_t['html_url']
         if work is False:
             brand_model_gen = r_t['title']
@@ -69,8 +72,9 @@ def json_parse_onliner(json_data, work):
                 str(transmis), str(km), str(year), str(typec), str(drive), str(color), str(vin),
                 str(exchange), str(days), str(city)
             ])
-        if work is True and fresh_minutes < 29:
-            car.append([str(url)])
+        else:
+            if fresh_minutes <= WORK_PARSE_DELTA:
+                car.append([str(url)])
     return car
 
 

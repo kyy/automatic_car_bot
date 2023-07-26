@@ -1,4 +1,6 @@
 
+WORK_PARSE_DELTA = 30
+
 s_s = '+'    # split symbol in filter
 s_b = '?'    # skip button on keyboards
 
