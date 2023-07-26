@@ -3,7 +3,6 @@ import pandas as pd
 from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
-
 from logic.decorators import timed_lru_cache
 
 
@@ -144,49 +143,49 @@ async def do_pdf(
         filter_full='<filter full>',
         filter_short='<filter code>',
 ):
-    data, col_names, links = get_data(message, name)
-    pdf = PDF(
-        orientation="L",
-        unit="mm",
-        format="A4"
-              )
-    pdf.page_mode = "FULL_SCREEN"
-    pdf.viewer_preferences = ViewerPreferences(
-        hide_toolbar=True,
-        hide_menubar=True,
-        hide_window_u_i=True,
-        fit_window=True,
-        center_window=True,
-        display_doc_title=True,
-        non_full_screen_page_mode="USE_OUTLINES",
-    )
-    pdf.add_font(fname=f'logic/static/DejaVuSansCondensed.ttf')
-    pdf.set_font('DejaVuSansCondensed', size=9)
-    pdf.filter_full = str(filter_full)
-    pdf.filter_short = str(filter_short)
-    pdf.av_by_link = link.get('av')
-    pdf.abw_by_link = link.get('abw')
-    pdf.onliner_by_link = link.get('onliner')
-    pdf.add_page()
-    pdf.set_title("@AutomaticCar")
-    pdf.set_author("@AutomaticCar")
-    pdf.colored_table(col_names, data, links)
-    return pdf.output(f'logic/buffer/{name}.pdf')
+    if get_data(message, name):
+        data, col_names, links = get_data(message, name)
+        pdf = PDF(
+            orientation="L",
+            unit="mm",
+            format="A4"
+                  )
+        pdf.page_mode = "FULL_SCREEN"
+        pdf.viewer_preferences = ViewerPreferences(
+            hide_toolbar=True,
+            hide_menubar=True,
+            hide_window_u_i=True,
+            fit_window=True,
+            center_window=True,
+            display_doc_title=True,
+            non_full_screen_page_mode="USE_OUTLINES",
+        )
+        pdf.add_font(fname=f'logic/static/DejaVuSansCondensed.ttf')
+        pdf.set_font('DejaVuSansCondensed', size=9)
+        pdf.filter_full = str(filter_full)
+        pdf.filter_short = str(filter_short)
+        pdf.av_by_link = link.get('av')
+        pdf.abw_by_link = link.get('abw')
+        pdf.onliner_by_link = link.get('onliner')
+        pdf.add_page()
+        pdf.set_title("@AutomaticCar")
+        pdf.set_author("@AutomaticCar")
+        pdf.colored_table(col_names, data, links)
+        return pdf.output(f'logic/buffer/{name}.pdf')
 
 
 @timed_lru_cache(300)
 def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
-    dataframe = pd.DataFrame(np.load(f'logic/buffer/{name}.npy', allow_pickle=True))
 
-    dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
-    df = dataframe.iloc[0:, 2:].to_numpy()
-    links = dataframe.iloc[0:, 0].tolist()
+    dataframe = pd.DataFrame(np.load(f'logic/buffer/{name}.npy', allow_pickle=True))
+    if len(dataframe) > 0:
+        dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
+        df = dataframe.iloc[0:, 2:].to_numpy()
+        links = dataframe.iloc[0:, 0].tolist()
     # comments = dataframe.iloc[0:, 1].tolist()
     # dataframe.to_excel(f'{message}{name}.xlsx', index=False) #экспорт в эксель
-    return df, columns, links
-
-
-if __name__ == '__main__':
-    do_pdf()
+        return df, columns, links
+    else:
+        return False

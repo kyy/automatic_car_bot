@@ -206,3 +206,4 @@ async def report_search(callback: CallbackQuery):
         os.remove(f'{bf}.pdf')
     else:
         print(f'{name_time_stump}.pdf не найден')
+        await bot.send_message(user_id, f'pdf не удалось отправить')

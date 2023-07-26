@@ -20,7 +20,7 @@ def count_cars_av(url):
         return 0
 
 
-@timed_lru_cache(300)
+#@timed_lru_cache(300)
 def json_links_av(url):
     try:
         links_to_json = []
@@ -61,13 +61,18 @@ def json_parse_av(json_data, work):
     for i in range(len(json_data['adverts'])):
         r_t = json_data['adverts'][i]
         published = r_t['publishedAt']
-        # 210 = (поправка на 180 минут) + (частота парсинга 30)
+        # 210 = (поправка на 210 минут) + (частота парсинга 30)
         fresh_minutes = ((datetime.now().timestamp()-datetime.strptime(published[:-8],
-                                                                       "%Y-%m-%dT%H:%M").timestamp())/60) - 210
+                                                                       "%Y-%m-%dT%H:%M").timestamp())/60) - 250
         url = r_t['publicUrl']
-        if work is False:
+        if (work is True) and (fresh_minutes < 29):
+            car.append([str(url)])
+        else:
             price = r_t['price']['usd']['amount']
-            comments = r_t['description']
+            # try:
+            #     comments = r_t['description']
+            # except:
+            #     comments = ''
             days = r_t['originalDaysOnSale']    # дни в продаже
             exchange = r_t['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
             city = r_t['shortLocationName']
@@ -100,11 +105,7 @@ def json_parse_av(json_data, work):
                 if r_t['name'] == 'generation':
                     generation = r_t['value']
             car.append([
-                str(url), str(comments), f'{str(brand)} {str(model)} {str(generation)}', str(price),
+                str(url), str('comments'), f'{str(brand)} {str(model)} {str(generation)}', str(price),
                 str(motor), str(dimension), str(transmission), str(km), str(year), str(typec),
-                str(drive), str(color), str(vin), str(exchange), str(days), str(city)
-            ])
-
-        if (work is True) and (fresh_minutes < 29):
-            car.append([str(url)])
+                str(drive), str(color), str(vin), str(exchange), str(days), str(city)])
     return car

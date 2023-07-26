@@ -13,7 +13,7 @@ nest_asyncio.apply()
 
 async def run(urls_av, urls_abw, urls_onliner, result, work):
     tasks = []
-    semaphore = asyncio.Semaphore(10)
+    semaphore = asyncio.Semaphore(20)
     async with ClientSession(headers=headers) as session:
         if urls_av:
             for url in urls_av:
