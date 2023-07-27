@@ -174,7 +174,6 @@ async def do_pdf(
         return pdf.output(f'logic/buffer/{name}.pdf')
 
 
-@timed_lru_cache(300)
 def get_data(message, name):
     columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
                'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']

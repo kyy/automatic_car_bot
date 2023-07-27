@@ -1,4 +1,6 @@
 import asyncio
+import os
+from aiogram.types import FSInputFile
 from arq import create_pool, cron
 from arq.connections import RedisSettings
 from classes import bot
@@ -7,6 +9,7 @@ from logic.database.data_migrations import main as update, lenn
 from logic.database.main_parse import main_parse
 from logic.get_url_cooking import all_get_url
 from logic.parse_cooking import parse_main
+from logic.pdf_cooking import do_pdf
 
 
 async def update_database(ctx):
@@ -43,8 +46,26 @@ async def send_car_job(message, result):
         await redis.enqueue_job('send_car', message, car[0])
 
 
+async def send_pdf(ctx, user_id, link_count, name_time_stump, decode_filter_short, filter_name):
+    await do_pdf(user_id, link_count, name_time_stump, decode_filter_short, filter_name)
+    bf = f'logic/buffer/{name_time_stump}'
+    os.remove(f'{bf}.npy')
+    if os.path.exists(f'{bf}.pdf'):
+        file = FSInputFile(f'{bf}.pdf')
+        await bot.send_document(user_id, document=file)
+        os.remove(f'{bf}.pdf')
+    else:
+        print(f'{name_time_stump}.pdf не найден')
+        await bot.send_message(user_id, 'отчет не удалось отправить')
+
+
+async def send_pdf_job(*args):
+    redis = await create_pool(RedisSettings())
+    await redis.enqueue_job('send_pdf', *args)
+
+
 class Work:
-    functions = [parse, send_car]
+    functions = [parse, send_car, send_pdf]
     cron_jobs = [
         cron(parse_job,
              hour={i for i in range(1, 24)},

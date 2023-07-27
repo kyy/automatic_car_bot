@@ -1,16 +1,15 @@
-import os
 from datetime import datetime as datatime_datatime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, FSInputFile
+from aiogram.types import CallbackQuery
 from logic.parse_cooking import parse_main
-from logic.pdf_cooking import do_pdf
 from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import
 from logic.constant import s_b
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
 from keyboards import multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb
+from work import send_pdf_job
 
 
 router = Router()
@@ -202,16 +201,7 @@ async def report_search(callback: CallbackQuery):
                   'abw': [abw_l, all_abw],
                   'onliner': [onliner_l, all_onliner]}
     await bot.send_message(user_id, 'готовим отчет')
-    await do_pdf(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
-    bf = f'logic/buffer/{name_time_stump}'
-    os.remove(f'{bf}.npy')
-    if os.path.exists(f'{bf}.pdf'):
-        file = FSInputFile(f'{bf}.pdf')
-        await bot.send_document(user_id, document=file)
-        os.remove(f'{bf}.pdf')
-    else:
-        print(f'{name_time_stump}.pdf не найден')
-        await bot.send_message(user_id, 'отчет не удалось отправить')
+    await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
 
 
 @router.callback_query(F.data == 'bot_functions')
