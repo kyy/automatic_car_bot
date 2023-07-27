@@ -1,32 +1,33 @@
 
-WORK_PARSE_DELTA = 30
+WORK_PARSE_DELTA = 90   # частота проверки новых обявллений в минутах
+REPORT_PARSE_LIMIT_PAGES = 5  # лимит страниц парсиинга для отчета
 
-s_s = '+'    # split symbol in filter
-s_b = '?'    # skip button on keyboards
+SS = '+'    # split symbol in filter
+SB = '?'    # skip button on keyboards
 
 # constants of columns:keyboards: max = 8, default = 4
-columns_motor = 3
-columns_years = 5
-columns_cost = 5
-columns_dimension = 8
+COL_MOTOR = 3
+COL_YEARS = 5
+COL_COST = 5
+COL_DIMENSION = 8
 
 # root links
-av_root_link = 'https://av.by/'
-abw_root_link = 'https://abw.by/cars'
-onliner_root_link = 'https://ab.onliner.by/'
+AV_ROOT = 'https://av.by/'
+ABW_ROOT = 'https://abw.by/cars'
+ONLINER_ROOT = 'https://ab.onliner.by/'
 
 # parse of data for buttons
 # make '' for delete button
 
-motor_dict = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
+MOTOR_DICT = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
               'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
 
-motor = [s_b] + \
+MOTOR = [SB] + \
         ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
 
-transmission = [s_b] + ['автомат', 'механика']
+TRANSMISSION = [SB] + ['автомат', 'механика']
 
-headers = {
+HEADERS = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/109.0.0.0 Safari/537.36',
         'accept': '*/*'}

@@ -1,6 +1,7 @@
 import asyncio
 import requests
 
+from logic.constant import REPORT_PARSE_LIMIT_PAGES
 from logic.decorators import timed_lru_cache
 
 headers = {
@@ -27,8 +28,8 @@ def json_links_abw(url):
         page_count = r['pagination']['pages']
         links_to_json.append(url)
         i = 1
-        if page_count > 5:  # - - - - - - ограничение вывода страниц
-            page_count = 5  # - - - - - - ограничение вывода страниц
+        if page_count >= REPORT_PARSE_LIMIT_PAGES:  # - - - - - - ограничение вывода страниц
+            page_count = REPORT_PARSE_LIMIT_PAGES  # - - - - - - ограничение вывода страниц
             while page_count > 1:
                 i += 1
                 links_to_json.append(f'{url}?page={i}')

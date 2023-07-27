@@ -2,7 +2,7 @@ import asyncio
 import numpy as np
 from aiohttp import ClientSession
 import nest_asyncio
-from .constant import headers
+from .constant import HEADERS
 from .parse_sites.av_by import json_links_av, bound_fetch_av
 from .parse_sites.abw_by import json_links_abw, bound_fetch_abw
 from .parse_sites.onliner_by import json_links_onliner, bound_fetch_onliner
@@ -14,7 +14,7 @@ nest_asyncio.apply()
 async def run(urls_av, urls_abw, urls_onliner, result, work):
     tasks = []
     semaphore = asyncio.Semaphore(20)
-    async with ClientSession(headers=headers) as session:
+    async with ClientSession(headers=HEADERS) as session:
         if urls_av:
             for url in urls_av:
                 task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result, work))
@@ -46,9 +46,9 @@ async def parse_main(url_av, url_abw, url_onliner, message, name, work=False, se
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(
         run(
-            json_links_av(url_av),
+            json_links_av(url_av, work),
             json_links_abw(url_abw),
-            json_links_onliner(url_onliner),
+            json_links_onliner(url_onliner, work),
             result, work,
         )
     )

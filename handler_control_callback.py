@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from logic.parse_cooking import parse_main
 from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import
-from logic.constant import s_b
+from logic.constant import SB
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
@@ -61,16 +61,16 @@ async def help_hide_params_menu(callback: CallbackQuery):
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
-    await state.update_data(chosen_brand=s_b,
-                            chosen_model=s_b,
-                            chosen_motor=s_b,
-                            chosen_transmission=s_b,
-                            chosen_year_from=s_b,
-                            chosen_year_to=s_b,
-                            chosen_cost_min=s_b,
-                            chosen_cost_max=s_b,
-                            chosen_dimension_min=s_b,
-                            chosen_dimension_max=s_b,
+    await state.update_data(chosen_brand=SB,
+                            chosen_model=SB,
+                            chosen_motor=SB,
+                            chosen_transmission=SB,
+                            chosen_year_from=SB,
+                            chosen_year_to=SB,
+                            chosen_cost_min=SB,
+                            chosen_cost_max=SB,
+                            chosen_dimension_min=SB,
+                            chosen_dimension_max=SB,
                             )
     await callback.message.answer(
         text="Выберите бренд автомобиля:",

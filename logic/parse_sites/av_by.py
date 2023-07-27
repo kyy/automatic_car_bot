@@ -1,8 +1,7 @@
 import asyncio
 import requests
 from datetime import datetime
-
-from logic.constant import WORK_PARSE_DELTA
+from logic.constant import WORK_PARSE_DELTA, REPORT_PARSE_LIMIT_PAGES
 from logic.decorators import timed_lru_cache
 
 
@@ -22,19 +21,20 @@ def count_cars_av(url):
 
 
 @timed_lru_cache(300)
-def json_links_av(url):
+def json_links_av(url, work):
     try:
         links_to_json = []
         r = requests.get(url, headers=headers).json()
         page_count = r['pageCount']
+        if work is False:
+            if page_count >= REPORT_PARSE_LIMIT_PAGES:  # - - - - - - ограничение вывода страниц
+                page_count = REPORT_PARSE_LIMIT_PAGES   # - - - - - - для отчета
         links_to_json.append(url)
         i = 1
-        if page_count > 5:  # - - - - - - ограничение вывода страниц
-            page_count = 5  # - - - - - - ограничение вывода страниц
-            while page_count > 1:
-                i += 1
-                links_to_json.append(f'{url}&page={i}')
-                page_count -= 1
+        while page_count > 1:
+            i += 1
+            links_to_json.append(f'{url}&page={i}')
+            page_count -= 1
         return links_to_json
     except requests.exceptions.RequestException:
         return False

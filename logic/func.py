@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import lru_cache
 from .decorators import timed_lru_cache
 import numpy as np
-from logic.constant import abw_root_link, s_s, s_b, motor_dict, onliner_root_link
+from logic.constant import ABW_ROOT, SS, SB, MOTOR_DICT, ONLINER_ROOT
 from logic.database.config import database
 from logic.get_url_cooking import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw
@@ -27,7 +27,7 @@ def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json):
     try:
         abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
     except:
-        abw_link = abw_root_link
+        abw_link = ABW_ROOT
     onliner_link = onliner_url_filter(cars, onliner_link_json)
     return av_link, onliner_link, abw_link
 
@@ -55,12 +55,12 @@ async def car_multidata(cars):
 @timed_lru_cache(300)
 def onliner_url_filter(car_input, link):
     try:
-        car = car_input.split(s_s)
+        car = car_input.split(SS)
         brand, model = car[0:2]
         brands = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
         link = link.split('vehicles?')[1]
         brand_slug = brands[brand][1]
-        if model != s_b:
+        if model != SB:
             models = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
             model_slug = models[brand][model][2]
             url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
@@ -68,7 +68,7 @@ def onliner_url_filter(car_input, link):
             url = f'https://ab.onliner.by/{brand_slug}?{link}'
         return url
     except:
-        return onliner_root_link
+        return ONLINER_ROOT
 
 
 @cached(ttl=300, cache=Cache.MEMORY, key='brands', namespace="get_brands")
@@ -89,7 +89,7 @@ async def get_models(brand: str) -> list[str]:
                                   f"INNER JOIN brands on brands.id =  models.brand_id "
                                   f"WHERE brands.[unique] = '{brand}'")
         rows = await cursor.fetchall()
-        models = [s_b]
+        models = [SB]
         for brand in rows:
             models.append(brand[0])
     return models
@@ -97,50 +97,50 @@ async def get_models(brand: str) -> list[str]:
 
 @lru_cache()
 def get_years(from_year: int = 1990, to_year=datetime.now().year) -> list[str]:
-    return [s_b] + [str(i) for i in range(from_year, to_year + 1)]
+    return [SB] + [str(i) for i in range(from_year, to_year + 1)]
 
 
 @lru_cache()
 def get_dimension(from_dim: float = 1, to_dim: float = 9, step: float = 0.1) -> list[str]:
-    return [s_b] + [str(round(i, 1)) for i in np.arange(from_dim, to_dim + step, step)]
+    return [SB] + [str(round(i, 1)) for i in np.arange(from_dim, to_dim + step, step)]
 
 
 @lru_cache()
 def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> list[str]:
-    return [s_b] + [str(i) for i in range(from_cost, to_cost - step, step)]
+    return [SB] + [str(i) for i in range(from_cost, to_cost - step, step)]
 
 
 # encode from strings = 'Citroen|C4|b|a|-|-|-|-|-|-' or list to full description
-def decode_filter_short(string: str = None, lists: list = None, sep: str = s_s):
-    motor_dict_reverse = dict(zip(motor_dict.values(), motor_dict.keys()))
+def decode_filter_short(string: str = None, lists: list = None, sep: str = SS):
+    motor_dict_reverse = dict(zip(MOTOR_DICT.values(), MOTOR_DICT.keys()))
     if lists is None:
         c = (string.split(sep=sep))
         if c[2] in motor_dict_reverse:
             c[2] = motor_dict_reverse[c[2]]
-        if c[8] != s_b:
+        if c[8] != SB:
             c[8] = str(int(c[8]) / 1000)
-        if c[9] != s_b:
+        if c[9] != SB:
             c[9] = str(int(c[9]) / 1000)
-        if c[3] != s_b:
+        if c[3] != SB:
             c[3] = 'автомат' if c[3] == 'a' else 'механика'
     else:
         c = lists
-    text = f"{c[0].replace(s_b, '<все бренды>')} {c[1].replace(s_b, '<все модели>')}\n" \
-           f"{c[2].replace(s_b, '<все типы двигателей>')} {c[3].replace(s_b, '<все типы трансмиссий>')}\n" \
-           f"с {c[4].replace(s_b, get_years()[1])}  по {c[5].replace(s_b, str(datetime.now().year))} г\n" \
-           f"от {c[6].replace(s_b, get_cost()[1])}  до {c[7].replace(s_b, str(get_cost()[-1]))} $\n" \
-           f"от {c[8].replace(s_b, get_dimension()[1])}  до {c[9].replace(s_b, str(get_dimension()[-1]))} л"
+    text = f"{c[0].replace(SB, '<все бренды>')} {c[1].replace(SB, '<все модели>')}\n" \
+           f"{c[2].replace(SB, '<все типы двигателей>')} {c[3].replace(SB, '<все типы трансмиссий>')}\n" \
+           f"с {c[4].replace(SB, get_years()[1])}  по {c[5].replace(SB, str(datetime.now().year))} г\n" \
+           f"от {c[6].replace(SB, get_cost()[1])}  до {c[7].replace(SB, str(get_cost()[-1]))} $\n" \
+           f"от {c[8].replace(SB, get_dimension()[1])}  до {c[9].replace(SB, str(get_dimension()[-1]))} л"
     return text if lists else text.replace('\n', ' | ')
 
 
 # decode from lists of discription to 'filter=Citroen|C4|b|a|-|-|-|-|-|-'
 def code_filter_short(cc: list = None):
-    if cc[3] != s_b:
+    if cc[3] != SB:
         cc[3] = 'a' if cc[3] == 'автомат' else 'm'
-    if cc[2] in motor_dict:
-        cc[2] = motor_dict[cc[2]]
-    if cc[8] != s_b:
+    if cc[2] in MOTOR_DICT:
+        cc[2] = MOTOR_DICT[cc[2]]
+    if cc[8] != SB:
         cc[8] = str(int(cc[8].replace('.', '')) * 100)
-    if cc[9] != s_b:
+    if cc[9] != SB:
         cc[9] = str(int(cc[9].replace('.', '')) * 100)
-    return 'filter=' + s_s.join(cc)
+    return 'filter=' + SS.join(cc)
