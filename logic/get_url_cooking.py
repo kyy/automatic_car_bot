@@ -182,7 +182,7 @@ async def get_url_onliner(car_input, db):
         return None
 
 
-async def all_get_url(link, work):
+async def all_get_url(link, work=False):
     async with database() as db:
         return (asyncio.run(get_url_av(link, db, work)),
                 asyncio.run(get_url_abw(link, db)),
