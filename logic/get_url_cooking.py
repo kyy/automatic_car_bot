@@ -12,7 +12,6 @@ async def get_url_av(car_input, db):
     Формируем гет запрос для av.by
     :param car_input: filter_short
     :param db: database
-    :param work: Boolean, if True - running task_worker
     :return: гет запрос
     """
 
@@ -84,16 +83,14 @@ async def get_url_abw(car_input, db):
     motor = {'b': 'benzin', 'bpb': 'sug', 'bm': 'sug', 'bg': 'gibrid', 'd': 'dizel', 'dg': 'gibrid', 'e': 'elektro'}
 
     # решаем проблему селектора диапазона цены
-    min = int(car_input['price_'])
-    max = int(car_input['price_max'])
-    i = 0
-    if (min or max) not in cost_selection:
+    minimus = int(car_input['price_'])
+    maximus = int(car_input['price_max'])
+    if (minimus or maximus) not in cost_selection:
         for i in range(len(cost_selection)-1):
-            if int(cost_selection[i]) < min and int(cost_selection[i+1]) > min:
+            if int(cost_selection[i]) < minimus and int(cost_selection[i+1]) > minimus:
                 car_input['price_'] = cost_selection[i]
-            if int(cost_selection[i]) < max and int(cost_selection[i+1]) > max:
+            if int(cost_selection[i]) < maximus and int(cost_selection[i+1]) > maximus:
                 car_input['price_max'] = cost_selection[i+1]
-            i += 1
 
     brand = car_input['brand_']
     model = car_input['model_']
@@ -135,7 +132,7 @@ async def get_url_abw(car_input, db):
 @timed_lru_cache(300)
 async def get_url_onliner(car_input, db):
     param_input = ['car[0][manufacturer]=', 'car[0][model]=', 'engine_type[0]=', 'transmission[0]=', 'year[from]=',
-                   'year[to]=', 'price[from]=', 'price[to]', 'engine_capacity[from]=', 'engine_capacity[to]=']
+                   'year[to]=', 'price[from]=', 'price[to]=', 'engine_capacity[from]=', 'engine_capacity[to]=']
 
     # База данных
     car_input = dict(zip(param_input, car_input.split(s_s)))
