@@ -4,6 +4,7 @@ from aiogram.types import FSInputFile
 from arq import create_pool, cron
 from arq.connections import RedisSettings
 from classes import bot
+from logic.constant import WORK_PARSE_DELTA
 from logic.database.config import database
 from logic.database.data_migrations import main as update, lenn
 from logic.database.main_parse import main_parse
@@ -28,7 +29,7 @@ async def parse_job(ctx):
         select_filters_cursor = await db.execute(f"""
         SELECT user.tel_id, udata.search_param, udata.id FROM udata
         INNER JOIN user on user.id = udata.user_id
-        WHERE udata.is_active=1 
+        WHERE udata.is_active = 1 
         ORDER BY udata.id """)
         select_filters = await select_filters_cursor.fetchall()
         for item in select_filters:
@@ -68,11 +69,12 @@ class Work:
     functions = [parse, send_car, send_pdf]
     cron_jobs = [
         cron(parse_job,
-             hour={i for i in range(1, 24)},
-             minute={00, 30},
-             run_at_startup=True),   # парсинг новых объявлений
+             hour={i for i in range(1, 24, WORK_PARSE_DELTA)},
+             minute={00},
+             run_at_startup=False),   # парсинг новых объявлений
         cron(update_database,
-             hour={00}, minute={15},
+             hour={00},
+             minute={15},
              max_tries=3,
              run_at_startup=False),  # обновление БД
     ]

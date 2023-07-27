@@ -107,6 +107,6 @@ def json_parse_av(json_data, work):
                 str(motor), str(dimension), str(transmission), str(km), str(year), str(typec),
                 str(drive), str(color), str(vin), str(exchange), str(days), str(city)])
         else:
-            if fresh_minutes <= WORK_PARSE_DELTA + 180:
+            if fresh_minutes <= WORK_PARSE_DELTA * 60 + 180:
                 car.append([str(url)])
     return car

@@ -1,5 +1,5 @@
 
-WORK_PARSE_DELTA = 90   # частота проверки новых обявллений в минутах
+WORK_PARSE_DELTA = 2   # частота проверки новых обявллений в часах
 REPORT_PARSE_LIMIT_PAGES = 5  # лимит страниц парсиинга для отчета
 
 SS = '+'    # split symbol in filter

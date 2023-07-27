@@ -74,7 +74,7 @@ def json_parse_onliner(json_data, work):
                 str(exchange), str(days), str(city)
             ])
         else:
-            if fresh_minutes <= WORK_PARSE_DELTA:
+            if fresh_minutes <= WORK_PARSE_DELTA * 60:
                 car.append([str(url)])
     return car
 
