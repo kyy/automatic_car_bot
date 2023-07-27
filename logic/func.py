@@ -44,7 +44,7 @@ async def filter_import(callback, db):
 @cached(ttl=300, cache=Cache.MEMORY, namespace="car_multidata")
 async def car_multidata(cars):
     # cars - фильтр-код
-    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars, False)
+    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars)
     all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
     av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
     return (av_link_json, abw_link_json, onliner_link_json,     # ссылки к файлу Json

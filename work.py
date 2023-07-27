@@ -18,7 +18,7 @@ async def update_database(ctx):
 
 
 async def parse(ctx, car, message, name, work):
-    av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
+    av_link_json, abw_link_json, onliner_link_json = await all_get_url(car)
     await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work, send_car_job)
 
 
