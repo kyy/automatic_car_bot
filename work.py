@@ -9,22 +9,17 @@ from logic.get_url_cooking import all_get_url
 from logic.parse_cooking import parse_main
 
 
-async def parse(ctx, car, message, name, work):
-    av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
-    await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work, send_car_job)
-
-
-async def send_car(ctx, tel_id, url):
-    await asyncio.sleep(0.5)
-    await bot.send_message(tel_id, url)
-
-
 async def update_database(ctx):
     if main_parse(lenn):
         asyncio.run(update(database()))
 
 
-async def collect_data_job(ctx):
+async def parse(ctx, car, message, name, work):
+    av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
+    await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work, send_car_job)
+
+
+async def parse_job(ctx):
     redis = await create_pool(RedisSettings())
     async with database() as db:
         select_filters_cursor = await db.execute(f"""
@@ -37,6 +32,11 @@ async def collect_data_job(ctx):
             await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True)
 
 
+async def send_car(ctx, tel_id, url):
+    await asyncio.sleep(0.5)
+    await bot.send_message(tel_id, url)
+
+
 async def send_car_job(message, result):
     redis = await create_pool(RedisSettings())
     for car in result:
@@ -46,7 +46,7 @@ async def send_car_job(message, result):
 class Work:
     functions = [parse, send_car]
     cron_jobs = [
-        cron(collect_data_job,
+        cron(parse_job,
              hour={i for i in range(1, 24)},
              minute={00, 30},
              run_at_startup=True, ),   # парсинг новых объявлений

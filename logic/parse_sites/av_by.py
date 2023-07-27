@@ -13,7 +13,6 @@ headers = {
         'content-type': 'application/json'}
 
 
-
 def count_cars_av(url):
     try:
         r = requests.get(url, headers=headers).json()

@@ -201,6 +201,7 @@ async def report_search(callback: CallbackQuery):
     link_count = {'av': [av_l, all_av],
                   'abw': [abw_l, all_abw],
                   'onliner': [onliner_l, all_onliner]}
+    await bot.send_message(user_id, 'готовим отчет')
     await do_pdf(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
     bf = f'logic/buffer/{name_time_stump}'
     os.remove(f'{bf}.npy')
@@ -210,17 +211,18 @@ async def report_search(callback: CallbackQuery):
         os.remove(f'{bf}.pdf')
     else:
         print(f'{name_time_stump}.pdf не найден')
-        await bot.send_message(user_id, f'pdf не удалось отправить')
+        await bot.send_message(user_id, 'отчет не удалось отправить')
 
 
 @router.callback_query(F.data == 'bot_functions')
 async def bot_fuctions(callback: CallbackQuery):
     await callback.message.edit_text(
         "Основные функции:\n"
-        "- Автоматическое расслка пользователям свежих обявлений по созданному фильтру. "
-        "Возможность управления рассылками (Отключение, удаление).\n"
-        "- Создание удобной таблицы с текущими обявлениями в формате PDF."
-        "Таблица может содержать важные данные при подборе автомобиля, которые не получить на сайте.\n",
+        "- Автоматическая рассылка пользователям свежих обявлений. "
+        "Управление рассылками.\n"
+        "- Удобный отчет с текущими обявлениями в формате PDF. "
+        "Отчет содержит данные, доступ к котором ограничен на сайтах.\n"
+        "Пожеланния, вопросы:\nTelegram  <a href='https://t.me/Xibolba'>@Xibolba</a>\ne-mail  insider_2012@mail.ru\n",
          reply_markup=bot_functions_kb,
          disable_web_page_preview=True,
          parse_mode="HTML", )
