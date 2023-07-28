@@ -105,3 +105,14 @@ def filter_menu_kb(callback, cars_count):
             text="📝 Создать отчет",
             callback_data=f'f_{filter_id}_rep'))
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def car_message_kb():
+    buttons = [[
+        InlineKeyboardButton(
+            text="Отслеживать цену",
+            callback_data="car_follow"),
+        InlineKeyboardButton(
+            text="Удалить",
+            callback_data="message_delete")]]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)

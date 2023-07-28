@@ -216,3 +216,25 @@ async def bot_fuctions(callback: CallbackQuery):
          reply_markup=bot_functions_kb,
          disable_web_page_preview=True,
          parse_mode="HTML", )
+
+
+@router.callback_query(F.data == 'message_delete')
+async def message_delete(callback: CallbackQuery):
+    await bot.delete_message(
+        chat_id=callback.from_user.id,
+        message_id=callback.message.message_id)
+
+
+@router.callback_query(F.data == 'car_follow')
+async def car_follow(callback: CallbackQuery):
+    tel_id =callback.from_user.id
+    message = callback.message.text
+    async with database() as db:
+        check_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{tel_id}'")
+        check_id = await check_id_cursor.fetchone()
+
+        check_url_cursor = await db.execute(f"SELECT url FROM ucars WHERE user_id = '{check_id[0]}'")
+        check_url = await check_url_cursor.fetchall()
+        if message not in [i[0] for i in check_url]:
+            await db.execute(f"INSERT INTO ucars (user_id, url) VALUES ('{check_id[0]}', '{message}')")
+            await db.commit()

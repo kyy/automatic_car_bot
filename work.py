@@ -4,6 +4,7 @@ from aiogram.types import FSInputFile
 from arq import create_pool, cron
 from arq.connections import RedisSettings
 from classes import bot
+from keyboards import car_message_kb
 from logic.constant import WORK_PARSE_DELTA
 from logic.database.config import database
 from logic.database.data_migrations import main as update, lenn
@@ -38,7 +39,7 @@ async def parse_job(ctx):
 
 async def send_car(ctx, tel_id, url):
     await asyncio.sleep(0.5)
-    await bot.send_message(tel_id, url)
+    await bot.send_message(tel_id, url, reply_markup=car_message_kb())
 
 
 async def send_car_job(message, result):
@@ -71,7 +72,7 @@ class Work:
         cron(parse_job,
              hour={i for i in range(1, 24, WORK_PARSE_DELTA)},
              minute={00},
-             run_at_startup=False),   # парсинг новых объявлений
+             run_at_startup=True),   # парсинг новых объявлений
         cron(update_database,
              hour={00},
              minute={15},

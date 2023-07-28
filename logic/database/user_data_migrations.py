@@ -6,7 +6,8 @@ async def create_tables(db):
         await db.executescript("""
             CREATE TABLE user(
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
-            tel_id TEXT (0, 128)
+            tel_id TEXT (0, 128),
+            vip INT DEFAULT 0
             );
             
             CREATE TABLE udata(
@@ -19,7 +20,8 @@ async def create_tables(db):
             CREATE TABLE ucars(
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
             user_id INTEGER REFERENCES user (id) ON DELETE CASCADE,
-            url TEXT (0, 128)
+            url TEXT (0, 128),
+            price INTEGER (0, 16)
             )
             """)
         await db.commit()
