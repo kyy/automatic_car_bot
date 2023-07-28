@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable, Dict, Any, Awaitable, Union
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
@@ -26,4 +27,3 @@ class ChatActionMiddleware(BaseMiddleware):
             chat_id=event.from_user.id
         ):
             return await handler(event, data)
-

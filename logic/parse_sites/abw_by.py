@@ -1,15 +1,14 @@
 import asyncio
 import requests
-
 from logic.constant import REPORT_PARSE_LIMIT_PAGES
 from logic.decorators import timed_lru_cache
+
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/109.0.0.0 Safari/537.36',
         'accept': '*/*',
         'content-type': 'application/json'}
-
 
 
 def count_cars_abw(url):

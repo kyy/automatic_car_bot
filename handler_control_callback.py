@@ -1,14 +1,15 @@
+import asyncio
 from datetime import datetime as datatime_datatime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from logic.parse_cooking import parse_main
+from logic.cook_parse import parse_main
 from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import
 from logic.constant import SB
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
-from keyboards import multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb
+from keyboards import multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb
 from work import send_pdf_job
 
 
@@ -56,6 +57,24 @@ async def help_hide_params_menu(callback: CallbackQuery):
         await callback.message.edit_text(
             'Список фильтров',
             reply_markup=await params_menu_kb(callback, db, True))
+
+
+@router.callback_query(F.data == 'stalk_menu_help_show')
+async def help_show_stalk_menu(callback: CallbackQuery):
+    # показать помощь слежки меню
+    async with database() as db:
+        await callback.message.edit_text(
+            'Мы уведомим вас если цены в этих оюъявления изменятся. ',
+            reply_markup=await stalk_menu_kb(callback, db, False))
+
+
+@router.callback_query(F.data == 'stalk_menu_help_hide')
+async def help_hide_stalk_menu(callback: CallbackQuery):
+    # скрыть помощь слежки меню
+    async with database() as db:
+        await callback.message.edit_text(
+            'Список слежки',
+            reply_markup=await stalk_menu_kb(callback, db, True))
 
 
 @router.callback_query(F.data == 'create_search')
@@ -129,7 +148,7 @@ async def edit_search(callback: CallbackQuery):
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
         user_id = check_id[0]
-        params_id = callback.data.split('_')[2]  # {user.id}_{udata.id}_{udata.is_active}
+        params_id = callback.data.split('_')[1]  #{udata.id}_{udata.is_active}
         status_cursor = await db.execute(f"""SELECT is_active FROM udata 
                                              WHERE id='{params_id}' AND user_id = '{user_id}'""")
         status = await status_cursor.fetchone()
@@ -149,7 +168,7 @@ async def delete_search(callback: CallbackQuery):
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
-        params_id = callback.data.split('_')[2]
+        params_id = callback.data.split('_')[1]
         await db.execute(f"""DELETE FROM udata 
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
@@ -205,7 +224,8 @@ async def report_search(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'bot_functions')
-async def bot_fuctions(callback: CallbackQuery):
+async def bot_functions(callback: CallbackQuery):
+    #   описание бота
     await callback.message.edit_text(
         "Основные функции:\n"
         "- Автоматическая рассылка пользователям свежих обявлений. "
@@ -220,21 +240,55 @@ async def bot_fuctions(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'message_delete')
 async def message_delete(callback: CallbackQuery):
+    # удалить сообщение
     await bot.delete_message(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id)
+        message_id=callback.message.message_id, )
 
 
 @router.callback_query(F.data == 'car_follow')
 async def car_follow(callback: CallbackQuery):
+    # Добавить в слежку
     tel_id =callback.from_user.id
     message = callback.message.text
     async with database() as db:
         check_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{tel_id}'")
         check_id = await check_id_cursor.fetchone()
-
         check_url_cursor = await db.execute(f"SELECT url FROM ucars WHERE user_id = '{check_id[0]}'")
         check_url = await check_url_cursor.fetchall()
         if message not in [i[0] for i in check_url]:
             await db.execute(f"INSERT INTO ucars (user_id, url) VALUES ('{check_id[0]}', '{message}')")
             await db.commit()
+            await callback.message.edit_text(
+                "Добавлено",
+                 disable_web_page_preview=True,
+                 parse_mode="HTML", )
+        await asyncio.sleep(4)
+        await bot.delete_message(
+            chat_id=tel_id,
+            message_id=callback.message.message_id)
+
+
+@router.callback_query(F.data == 'show_stalk')
+async def car_stalk(callback: CallbackQuery):
+    # список слежки
+    async with database() as db:
+        await callback.message.edit_text(
+            'Список слежки',
+            reply_markup=await stalk_menu_kb(callback, db, True))
+
+
+@router.callback_query((F.data.startswith('s_')) & (F.data.endswith('_del')))
+async def delete_search(callback: CallbackQuery):
+    # удаление из слежки
+    async with database() as db:
+        user_id = callback.from_user.id
+        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
+        check_id = await select_id_cursor.fetchone()
+        params_id = callback.data.split('_')[1]
+        await db.execute(f"""DELETE FROM ucars
+                             WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
+        await db.commit()
+        await callback.message.edit_text(
+            'Список слежки',
+            reply_markup=await stalk_menu_kb(callback, db, True))

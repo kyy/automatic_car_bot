@@ -9,9 +9,9 @@ from logic.constant import WORK_PARSE_DELTA
 from logic.database.config import database
 from logic.database.data_migrations import main as update, lenn
 from logic.database.main_parse import main_parse
-from logic.get_url_cooking import all_get_url
-from logic.parse_cooking import parse_main
-from logic.pdf_cooking import do_pdf
+from logic.cook_url import all_get_url
+from logic.cook_parse import parse_main
+from logic.cook_pdf import do_pdf
 
 
 async def update_database(ctx):

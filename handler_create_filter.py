@@ -27,7 +27,7 @@ async def get_rusult(message: Message, state: FSMContext):
         )
         await message.answer(
             text='Управление фильтром:',
-            reply_markup=result_menu_kb
+            reply_markup=result_menu_kb,
         )
     else:
         await message.answer(
@@ -70,6 +70,7 @@ async def model_chosen(message: Message, state: FSMContext):
                 await get_models(message.text),
                 input_field_placeholder='имя модели')
             )
+
     else:
         await message.answer(
             text="Я не знаю такого бренда.\n"
@@ -105,6 +106,7 @@ async def motor_chosen(message: Message, state: FSMContext):
             )
         )
         return motor_chosen
+
     await state.set_state(CreateCar.motor_choosing)
 
 

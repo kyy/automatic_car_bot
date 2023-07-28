@@ -4,7 +4,7 @@ from .decorators import timed_lru_cache
 import numpy as np
 from logic.constant import ABW_ROOT, SS, SB, MOTOR_DICT, ONLINER_ROOT
 from logic.database.config import database
-from logic.get_url_cooking import all_get_url
+from logic.cook_url import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw
 from logic.parse_sites.av_by import count_cars_av
 from logic.parse_sites.onliner_by import count_cars_onliner
@@ -125,10 +125,10 @@ def decode_filter_short(string: str = None, lists: list = None, sep: str = SS):
             c[3] = 'автомат' if c[3] == 'a' else 'механика'
     else:
         c = lists
-    text = f"{c[0].replace(SB, '<все бренды>')} {c[1].replace(SB, '<все модели>')}\n" \
-           f"{c[2].replace(SB, '<все типы двигателей>')} {c[3].replace(SB, '<все типы трансмиссий>')}\n" \
-           f"с {c[4].replace(SB, get_years()[1])}  по {c[5].replace(SB, str(datetime.now().year))} г\n" \
-           f"от {c[6].replace(SB, get_cost()[1])}  до {c[7].replace(SB, str(get_cost()[-1]))} $\n" \
+    text = f"{c[0].replace(SB, '<все бренды>')} {c[1].replace(SB, '<все модели>')} " \
+           f"{c[2].replace(SB, '<все типы двигателей>')} {c[3].replace(SB, '<все типы трансмиссий>')} " \
+           f"с {c[4].replace(SB, get_years()[1])}  по {c[5].replace(SB, str(datetime.now().year))} г " \
+           f"от {c[6].replace(SB, get_cost()[1])}  до {c[7].replace(SB, str(get_cost()[-1]))} $ " \
            f"от {c[8].replace(SB, get_dimension()[1])}  до {c[9].replace(SB, str(get_dimension()[-1]))} л"
     return text if lists else text.replace('\n', ' | ')
 

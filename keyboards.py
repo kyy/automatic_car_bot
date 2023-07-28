@@ -20,11 +20,14 @@ def start_menu_kb(help_flag):
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     buttons = [[
         InlineKeyboardButton(
-            text="🖼 Функционал бота",
+            text="🖼 Бот",
             callback_data="bot_functions"),
         InlineKeyboardButton(
-            text="🖼 Мои фильтры",
-            callback_data="show_search")], [
+            text="🖼 Поиск",
+            callback_data="show_search"),
+        InlineKeyboardButton(
+            text="🖼 Слежка",
+            callback_data="show_stalk")], [
         InlineKeyboardButton(
             text=help_text,
             callback_data=help_callback)]]
@@ -71,10 +74,10 @@ async def params_menu_kb(callback, db, help_flag=False):
                 callback_data=f'f_{i[2]}_show'),
             InlineKeyboardButton(
                 text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'),
-                callback_data=f'f_{user_id}_{i[2]}_{i[1]}'),
+                callback_data=f'f_{i[2]}_{i[1]}'),
             InlineKeyboardButton(
                 text='Удалить',
-                callback_data=f'f_{user_id}_{i[2]}_del')]
+                callback_data=f'f_{i[2]}_del')]
             for i in search_params]
     buttons.append([
         InlineKeyboardButton(
@@ -115,4 +118,40 @@ def car_message_kb():
         InlineKeyboardButton(
             text="Удалить",
             callback_data="message_delete")]]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+async def stalk_menu_kb(callback, db, help_flag=False):
+    # меню списка слкжки
+    help_callback = 'stalk_menu_help_show' if help_flag is True else 'stalk_menu_help_hide'
+    help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
+    user_id = callback.from_user.id
+    search_params_cursor = await db.execute(f"SELECT ucars.url, ucars.id FROM user "
+                                            f"INNER JOIN ucars on user.id = ucars.user_id "
+                                            f"WHERE user.tel_id = {user_id}")
+    search_params = await search_params_cursor.fetchall()
+    buttons = []
+    if search_params == buttons:
+        pass
+    else:
+        buttons = [[
+            InlineKeyboardButton(
+                text=' '.join(i[0].split('/')[3:]),
+                url=i[0],
+                callback_data=f's_{i[1]}_show'),
+            InlineKeyboardButton(
+                text='Удалить',
+                callback_data=f's_{i[1]}_del')]
+            for i in search_params]
+    buttons.append([
+        InlineKeyboardButton(
+            text='Назад',
+            callback_data='start_menu_help_hide'),
+        InlineKeyboardButton(
+            text='Добавить ссылку',
+            callback_data='add_stalk')])
+    buttons.append([
+        InlineKeyboardButton(
+            text=help_text,
+            callback_data=help_callback)])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
