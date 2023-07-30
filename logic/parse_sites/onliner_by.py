@@ -94,3 +94,13 @@ async def get_one_onliner(url, session, result, work):
         page_content = await response.json()         # Ожидаем ответа и блокируем таск.
         item = json_parse_onliner(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
         result += item
+
+
+# -------------follow-price
+def car_json_by_id(id_car):
+    url = f'https://ab.onliner.by/sdapi/ab.api/vehicles/{id_car}'
+    try:
+        r = requests.get(url, headers=headers).json()
+        return int(r['price']['converted']['USD']['amount'][:-3])
+    except requests.exceptions.RequestException:
+        return False

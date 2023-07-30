@@ -10,8 +10,9 @@ from logic.database.config import database
 from logic.database.data_migrations import main as update, lenn
 from logic.database.main_parse import main_parse
 from logic.cook_url import all_get_url
-from logic.cook_parse import parse_main
+from logic.cook_parse_cars import parse_main
 from logic.cook_pdf import do_pdf
+from logic.cook_parse_prices import parse_main as prices
 
 
 async def update_database(ctx):
@@ -19,12 +20,12 @@ async def update_database(ctx):
         asyncio.run(update(database()))
 
 
-async def parse(ctx, car, message, name, work):
+async def parse_cars(ctx, car, message, name, work):
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
     await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work, send_car_job)
 
 
-async def parse_job(ctx):
+async def parse_cars_job(ctx):
     redis = await create_pool(RedisSettings())
     async with database() as db:
         select_filters_cursor = await db.execute(f"""
@@ -34,13 +35,12 @@ async def parse_job(ctx):
         ORDER BY udata.id """)
         select_filters = await select_filters_cursor.fetchall()
         for item in select_filters:
-            await redis.enqueue_job('parse', item[1][7:], item[0], item[2], True)
+            await redis.enqueue_job('parse_cars', item[1][7:], item[0], item[2], True)
 
 
 async def send_car(ctx, tel_id, url):
     await asyncio.sleep(0.5)
-    await bot.send_message(tel_id, url,
-                           reply_markup=car_message_kb())
+    await bot.send_message(tel_id, url, reply_markup=car_message_kb())
 
 
 async def send_car_job(message, result):
@@ -67,16 +67,34 @@ async def send_pdf_job(*args):
     await redis.enqueue_job('send_pdf', *args)
 
 
+async def parse_prices(ctx):
+    await prices(check_price_job)
+
+
+async def check_price(ctx, car):
+    print(car)
+
+
+async def check_price_job(result):
+    redis = await create_pool(RedisSettings())
+    for car in result:
+        await redis.enqueue_job('check_price', car)
+
+
 class Work:
-    functions = [parse, send_car, send_pdf]
+    functions = [parse_cars, send_car, send_pdf, check_price]
     cron_jobs = [
-        cron(parse_job,
+        cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_DELTA)},
              minute={00},
-             run_at_startup=True),   # парсинг новых объявлений
+             run_at_startup=False),   # парсинг новых объявлений
         cron(update_database,
              hour={00},
              minute={15},
              max_tries=3,
              run_at_startup=False),  # обновление БД
+        cron(parse_prices,
+             hour={00},
+             minute={15},
+             run_at_startup=True),  # проверка цен
     ]

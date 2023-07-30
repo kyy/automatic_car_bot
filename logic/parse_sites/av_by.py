@@ -111,3 +111,13 @@ def json_parse_av(json_data, work):
                 str(motor), str(dimension), str(transmission), str(km), str(year), str(typec),
                 str(drive), str(color), str(vin), str(exchange), str(days), str(city)])
     return car
+
+
+# -------------follow-price
+def car_json_by_id(id_car):
+    url = f'https://api.av.by/offers/{id_car}'
+    try:
+        r = requests.get(url, headers=headers).json()
+        return int(r['price']['usd']['amount'])
+    except requests.exceptions.RequestException:
+        return False

@@ -3,7 +3,7 @@ from datetime import datetime as datatime_datatime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from logic.cook_parse import parse_main
+from logic.cook_parse_cars import parse_main
 from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import
 from logic.constant import SB
 from logic.database.config import database
@@ -263,7 +263,7 @@ async def car_follow(callback: CallbackQuery):
                 "Добавлено",
                  disable_web_page_preview=True,
                  parse_mode="HTML", )
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(0.5)
         await bot.delete_message(
             chat_id=tel_id,
             message_id=callback.message.message_id)
