@@ -62,11 +62,9 @@ def json_parse_av(json_data, work):
     for i in range(len(json_data['adverts'])):
         r_t = json_data['adverts'][i]
         published = r_t['publishedAt']
-        fresh_minutes = datetime.now()-datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M")
-        fresh_minutes = fresh_minutes.total_seconds() / 60
+        price = r_t['price']['usd']['amount']
         url = r_t['publicUrl']
         if work is False:
-            price = r_t['price']['usd']['amount']
             # try:
             #     comments = r_t['description']
             # except:
@@ -107,6 +105,8 @@ def json_parse_av(json_data, work):
                 str(motor), str(dimension), str(transmission), str(km), str(year), str(typec),
                 str(drive), str(color), str(vin), str(exchange), str(days), str(city)])
         else:
+            fresh_minutes = datetime.now() - datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M")
+            fresh_minutes = fresh_minutes.total_seconds() / 60
             if fresh_minutes <= WORK_PARSE_DELTA * 60 + 180:
-                car.append([str(url)])
+                car.append([str(url), str(price)])
     return car

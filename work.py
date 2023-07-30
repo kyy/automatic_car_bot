@@ -39,13 +39,14 @@ async def parse_job(ctx):
 
 async def send_car(ctx, tel_id, url):
     await asyncio.sleep(0.5)
-    await bot.send_message(tel_id, url, reply_markup=car_message_kb())
+    await bot.send_message(tel_id, url,
+                           reply_markup=car_message_kb())
 
 
 async def send_car_job(message, result):
     redis = await create_pool(RedisSettings())
     for car in result:
-        await redis.enqueue_job('send_car', message, car[0])
+        await redis.enqueue_job('send_car', message, f'{car[0]}\n${car[1]}')
 
 
 async def send_pdf(ctx, user_id, link_count, name_time_stump, decode_filter_short, filter_name):

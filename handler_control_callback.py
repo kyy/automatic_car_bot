@@ -20,8 +20,8 @@ router = Router()
 async def help_show_start_menu(callback: CallbackQuery):
     # показать помощь главном меню
     await callback.message.edit_text(
-        'Этот бот сэкономит вам время в поиске подходящего автомобиля. '
-        'Просто создайте и сохраните необходимый фильтр, и бот начнет вам присылать свежие обявления.\n'
+        'БОТ поможет вам найти подходящий автомобиль. '
+        'Просто создайте и сохраните необходимый поиск-фильтр, и БОТ начнет вам присылать свежие обявления.\n'
         '- Открыть главное меню - /start.\n'
         '- Cоздать фильтр  - /car.\n'
         '- Если необходимо оставить параметр пустым выбирайте - [?].\n'
@@ -64,7 +64,7 @@ async def help_show_stalk_menu(callback: CallbackQuery):
     # показать помощь слежки меню
     async with database() as db:
         await callback.message.edit_text(
-            'Мы уведомим вас если цены в этих оюъявления изменятся. ',
+            'БОТ уведомит вас о изменениях цен на машины в этом списке. ',
             reply_markup=await stalk_menu_kb(callback, db, False))
 
 
@@ -250,14 +250,14 @@ async def message_delete(callback: CallbackQuery):
 async def car_follow(callback: CallbackQuery):
     # Добавить в слежку
     tel_id =callback.from_user.id
-    message = callback.message.text
+    message = callback.message.text.split('$')
     async with database() as db:
         check_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{tel_id}'")
         check_id = await check_id_cursor.fetchone()
         check_url_cursor = await db.execute(f"SELECT url FROM ucars WHERE user_id = '{check_id[0]}'")
         check_url = await check_url_cursor.fetchall()
         if message not in [i[0] for i in check_url]:
-            await db.execute(f"INSERT INTO ucars (user_id, url) VALUES ('{check_id[0]}', '{message}')")
+            await db.execute(f"INSERT INTO ucars (user_id, url, price) VALUES ('{check_id[0]}', '{message[0]}', '{int(message[1])}')")
             await db.commit()
             await callback.message.edit_text(
                 "Добавлено",
