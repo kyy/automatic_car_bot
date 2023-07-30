@@ -48,33 +48,33 @@ def json_parse_onliner(json_data, work):
         published = r_t['created_at']
         price = r_t['price']['converted']['USD']['amount'].split('.')[0]
         url = r_t['html_url']
-        if work is False:
-            brand_model_gen = r_t['title']
-            days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
-            city = r_t['location']['city']['name']
-            vin = ''
-            exchange = ''
-            year = r_t['specs']['year']
-            km = r_t['specs']['odometer']['value']
-            dimension = r_t['specs']['engine']['capacity']
-            motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель')
-            transmis = r_t['specs']['transmission'].replace('mechanical ', 'механика').replace('automatic', 'автомат')
-            color = r_t['specs']['color']
-            drive = r_t['specs']['drivetrain']
-            typec = r_t['specs']['body_type']
-            # brand = r_t['manufacturer']['name']
-            # model = r_t['model']['name']
-            # generation = r_t['generation']['name']
+        brand_model_gen = r_t['title']
+        days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
+        city = r_t['location']['city']['name']
+        vin = ''
+        exchange = ''
+        year = r_t['specs']['year']
+        km = r_t['specs']['odometer']['value']
+        dimension = r_t['specs']['engine']['capacity']
+        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель')
+        transmis = r_t['specs']['transmission'].replace('mechanical ', 'механика').replace('automatic', 'автомат')
+        color = r_t['specs']['color']
+        drive = r_t['specs']['drivetrain']
+        typec = r_t['specs']['body_type']
+        # brand = r_t['manufacturer']['name']
+        # model = r_t['model']['name']
+        # generation = r_t['generation']['name']
+        if work is True:
+            fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
+            fresh_minutes = fresh_minutes.total_seconds() / 60
+            if fresh_minutes <= WORK_PARSE_DELTA * 60:
+                car.append([str(url), str(price)])
+        else:
             car.append([
                 str(url), 'comment', f'{str(brand_model_gen)}', str(price), str(motor), str(dimension),
                 str(transmis), str(km), str(year), str(typec), str(drive), str(color), str(vin),
                 str(exchange), str(days), str(city)
             ])
-        else:
-            fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
-            fresh_minutes = fresh_minutes.total_seconds() / 60
-            if fresh_minutes <= WORK_PARSE_DELTA * 60:
-                car.append([str(url), str(price)])
     return car
 
 

@@ -29,6 +29,8 @@ async def run(urls_av, urls_abw, urls_onliner, result, work):
                 tasks.append(task)
         # Ожидаем завершения всех наших задач.
         await asyncio.gather(*tasks)
+        await session.close()
+
 
 
 async def parse_main(url_av, url_abw, url_onliner, message, name, work=False, send_car_job=None):

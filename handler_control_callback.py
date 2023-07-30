@@ -263,7 +263,7 @@ async def car_follow(callback: CallbackQuery):
                 "Добавлено",
                  disable_web_page_preview=True,
                  parse_mode="HTML", )
-        await asyncio.sleep(4)
+        await asyncio.sleep(1.5)
         await bot.delete_message(
             chat_id=tel_id,
             message_id=callback.message.message_id)

@@ -64,49 +64,50 @@ def json_parse_av(json_data, work):
         published = r_t['publishedAt']
         price = r_t['price']['usd']['amount']
         url = r_t['publicUrl']
-        if work is False:
-            # try:
-            #     comments = r_t['description']
-            # except:
-            #     comments = ''
-            days = r_t['originalDaysOnSale']    # дни в продаже
-            exchange = r_t['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
-            city = r_t['shortLocationName']
-            year = r_t['year']
-            brand = r_t['properties'][0]['value']
-            model = r_t['properties'][1]['value']
-            try:
-                vin = r_t['metadata']['vinInfo']['vin']
-            except:
-                vin = ''
-            generation = motor = dimension = transmission = km = typec = drive = color = ''
-            for j in range(len(json_data['adverts'][i]['properties'])):
-                r_t = json_data['adverts'][i]['properties'][j]
-                if r_t['name'] == 'mileage_km':
-                    km = r_t['value']
-                if r_t['name'] == 'engine_endurance':
-                    dimension = r_t['value']
-                if r_t['name'] == 'engine_capacity':
-                    dimension = r_t['value']
-                if r_t['name'] == 'engine_type':
-                    motor = r_t['value'].replace('пропан-бутан', 'пр-бут')
-                if r_t['name'] == 'transmission_type':
-                    transmission = r_t['value']
-                if r_t['name'] == 'color':
-                    color = r_t['value']
-                if r_t['name'] == 'drive_type':
-                    drive = r_t['value'].replace('привод', '')
-                if r_t['name'] == 'body_type':
-                    typec = r_t['value']
-                if r_t['name'] == 'generation':
-                    generation = r_t['value']
-            car.append([
-                str(url), str('comments'), f'{str(brand)} {str(model)} {str(generation)}', str(price),
-                str(motor), str(dimension), str(transmission), str(km), str(year), str(typec),
-                str(drive), str(color), str(vin), str(exchange), str(days), str(city)])
-        else:
+
+        # try:
+        #     comments = r_t['description']
+        # except:
+        #     comments = ''
+        days = r_t['originalDaysOnSale']    # дни в продаже
+        exchange = r_t['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
+        city = r_t['shortLocationName']
+        year = r_t['year']
+        brand = r_t['properties'][0]['value']
+        model = r_t['properties'][1]['value']
+        try:
+            vin = r_t['metadata']['vinInfo']['vin']
+        except:
+            vin = ''
+        generation = motor = dimension = transmission = km = typec = drive = color = ''
+        for j in range(len(json_data['adverts'][i]['properties'])):
+            r_t = json_data['adverts'][i]['properties'][j]
+            if r_t['name'] == 'mileage_km':
+                km = r_t['value']
+            if r_t['name'] == 'engine_endurance':
+                dimension = r_t['value']
+            if r_t['name'] == 'engine_capacity':
+                dimension = r_t['value']
+            if r_t['name'] == 'engine_type':
+                motor = r_t['value'].replace('пропан-бутан', 'пр-бут')
+            if r_t['name'] == 'transmission_type':
+                transmission = r_t['value']
+            if r_t['name'] == 'color':
+                color = r_t['value']
+            if r_t['name'] == 'drive_type':
+                drive = r_t['value'].replace('привод', '')
+            if r_t['name'] == 'body_type':
+                typec = r_t['value']
+            if r_t['name'] == 'generation':
+                generation = r_t['value']
+        if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
             if fresh_minutes <= WORK_PARSE_DELTA * 60 + 180:
                 car.append([str(url), str(price)])
+        else:
+            car.append([
+                str(url), str('comments'), f'{str(brand)} {str(model)} {str(generation)}', str(price),
+                str(motor), str(dimension), str(transmission), str(km), str(year), str(typec),
+                str(drive), str(color), str(vin), str(exchange), str(days), str(city)])
     return car
