@@ -155,3 +155,11 @@ async def stalk_menu_kb(callback, db, help_flag=False):
             text=help_text,
             callback_data=help_callback)])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+add_stalk = InlineKeyboardMarkup(
+    # меню добавление слежки
+    inline_keyboard=[[
+        InlineKeyboardButton(
+            text="Назад",
+            callback_data="show_stalk")]])

@@ -80,10 +80,13 @@ async def check_price(ctx, car):
         ORDER BY ucars.url """)
         data = await data_cursor.fetchall()
         for row in data:
-            print(row)
             if row[2] == car[1]:
                 if row[3] != car[0]:
-                    await bot.send_message(row[0], f'Старая цена - {row[3]}$\nНовая цена - {car[0]}$\n{car[1]}')
+                    await bot.send_message(
+                        row[0], f'Старая цена - {row[3]}$\n'
+                                f'Текущая цена - {car[0]}$\n'
+                                f'Разница - {abs(row[3]-car[0])}$\n'
+                                f'{car[1]}')
                     await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
         await db.commit()
 
@@ -104,11 +107,10 @@ class Work:
         cron(parse_prices,
              hour={i for i in range(1, 24, 3)},
              minute={00},
-             run_at_startup=True),  # проверка цен
+             run_at_startup=False),  # проверка цен
         cron(update_database,
              hour={00},
              minute={15},
              max_tries=3,
              run_at_startup=False),  # обновление БД
-
     ]

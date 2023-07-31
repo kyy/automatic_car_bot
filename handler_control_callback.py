@@ -9,7 +9,8 @@ from logic.constant import SB
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
-from keyboards import multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb
+from keyboards import multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb, \
+    add_stalk
 from work import send_pdf_job
 
 
@@ -229,10 +230,9 @@ async def bot_functions(callback: CallbackQuery):
     await callback.message.edit_text(
         "Основные функции:\n"
         "- Автоматическая рассылка пользователям свежих обявлений. "
-        "Управление рассылками.\n"
-        "- Удобный отчет с текущими обявлениями в формате PDF. "
-        "Отчет содержит данные, доступ к котором ограничен на сайтах.\n"
-        "Пожеланния, вопросы:\nTelegram  <a href='https://t.me/Xibolba'>@Xibolba</a>\ne-mail  insider_2012@mail.ru\n",
+        "- Отслеживание изменения цен.\n"
+        "- Формирование отчета с текущими обявлениями.\n"
+        "tel: <a href='https://t.me/Xibolba'>@Xibolba</a>\ne-mail: insider_2012@mail.ru\n",
          reply_markup=bot_functions_kb,
          disable_web_page_preview=True,
          parse_mode="HTML", )
@@ -288,3 +288,10 @@ async def delete_search(callback: CallbackQuery):
         await callback.message.edit_text(
             'Список слежки',
             reply_markup=await stalk_menu_kb(callback, db, True))
+
+
+@router.callback_query(F.data == 'add_stalk')
+async def delete_search(callback: CallbackQuery):
+    await callback.message.edit_text(
+        'Здесь пока пусто',
+        reply_markup=add_stalk)
