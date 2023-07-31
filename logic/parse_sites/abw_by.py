@@ -1,19 +1,11 @@
-import asyncio
 import requests
-from logic.constant import REPORT_PARSE_LIMIT_PAGES
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
 from logic.decorators import timed_lru_cache
-
-
-headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/109.0.0.0 Safari/537.36',
-        'accept': '*/*',
-        'content-type': 'application/json'}
 
 
 def count_cars_abw(url):
     try:
-        r = requests.get(url, headers=headers).json()
+        r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r['pagination']['total'])
     except Exception as e:
         print(e)
@@ -24,7 +16,7 @@ def count_cars_abw(url):
 def json_links_abw(url):
     try:
         links_to_json = []
-        r = requests.get(url, headers=headers).json()
+        r = requests.get(url, headers=HEADERS_JSON).json()
         page_count = r['pagination']['pages']
         links_to_json.append(url)
         i = 1
@@ -71,20 +63,3 @@ def json_parse_abw(json_data, work):
             # print(time)
             # car.append([str(url)])
     return car
-
-
-async def bound_fetch_abw(semaphore, url, session, result, work):
-    try:
-        async with semaphore:
-            await get_one_abw(url, session, result, work)
-    except Exception as e:
-        print(e)
-        # Блокируем все таски на <> секунд в случае ошибки 429.
-        await asyncio.sleep(1)
-
-
-async def get_one_abw(url, session, result, work):
-    async with session.get(url) as response:
-        page_content = await response.json()     # Ожидаем ответа и блокируем таск.
-        item = json_parse_abw(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
-        result += item

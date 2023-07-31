@@ -1,20 +1,12 @@
-import asyncio
 import requests
 from datetime import datetime
-from logic.constant import WORK_PARSE_DELTA, REPORT_PARSE_LIMIT_PAGES
+from logic.constant import WORK_PARSE_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
 from logic.decorators import timed_lru_cache
-
-
-headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/109.0.0.0 Safari/537.36',
-        'accept': '*/*',
-        'content-type': 'application/json'}
 
 
 def count_cars_av(url):
     try:
-        r = requests.get(url, headers=headers).json()
+        r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r['count'])
     except Exception as e:
         print(e)
@@ -25,7 +17,7 @@ def count_cars_av(url):
 def json_links_av(url, work):
     try:
         links_to_json = []
-        r = requests.get(url, headers=headers).json()
+        r = requests.get(url, headers=HEADERS_JSON).json()
         page_count = r['pageCount']
         if work is False:
             if page_count >= REPORT_PARSE_LIMIT_PAGES:  # - - - - - - ограничение вывода страниц
@@ -40,23 +32,6 @@ def json_links_av(url, work):
     except Exception as e:
         print(e)
         return False
-
-
-async def bound_fetch_av(semaphore, url, session, result, work):
-    try:
-        async with semaphore:
-            await get_one(url, session, result, work)
-    except Exception as e:
-        print(e)
-        # Блокируем все таски на <> секунд в случае ошибки 429.
-        await asyncio.sleep(1)
-
-
-async def get_one(url, session, result, work):
-    async with session.get(url) as response:
-        page_content = await response.json()   # Ожидаем ответа и блокируем таск.
-        item = json_parse_av(page_content, work)      # Получаем информацию об машине и сохраняем в лист.
-        result += item
 
 
 def json_parse_av(json_data, work):

@@ -1,14 +1,7 @@
 import asyncio
 from aiohttp import ClientSession
-from .constant import HEADERS
+from .constant import HEADERS, ONLINER_API, AV_API
 from logic.database.config import database
-
-
-headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/109.0.0.0 Safari/537.36',
-        'accept': '*/*',
-        'content-type': 'application/json'}
 
 
 async def json_links():
@@ -37,9 +30,9 @@ async def bound_fetch_av(semaphore, url, session, result):
 async def get_one(url, session, result):
     async with session.get(url) as response:
         page_content = await response.json()
-        if url.split('/')[2] == 'api.av.by':
+        if url.split('/')[2] == AV_API:
             item = json_parse_av(page_content)
-        if url.split('/')[2] == 'ab.onliner.by':
+        if url.split('/')[2] == ONLINER_API:
             item = json_parse_onliner(page_content)
         result += item
 

@@ -8,21 +8,21 @@ from keyboards import car_message_kb
 from logic.constant import WORK_PARSE_DELTA
 from logic.database.config import database
 from logic.database.data_migrations import main as update, lenn
-from logic.database.main_parse import main_parse
+from logic.database.main_parse import main_parse as up
 from logic.cook_url import all_get_url
-from logic.cook_parse_cars import parse_main
+from logic.cook_parse_cars import parse_main as cars
 from logic.cook_pdf import do_pdf
 from logic.cook_parse_prices import parse_main as prices
 
 
 async def update_database(ctx):
-    if main_parse(lenn):
+    if up(lenn):
         asyncio.run(update(database()))
 
 
 async def parse_cars(ctx, car, message, name, work):
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
-    await parse_main(av_link_json, abw_link_json, onliner_link_json, message, name, work, send_car_job)
+    await cars(av_link_json, abw_link_json, onliner_link_json, message, name, work, send_car_job)
 
 
 async def parse_cars_job(ctx):
