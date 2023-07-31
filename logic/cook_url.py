@@ -53,7 +53,6 @@ async def get_url_av(car_input, db, work):
     if work is True:
         new_part.append('creation_date=10')
     full_url = f'https://api.av.by/offer-types/cars/filters/main/init?{new_part_url}'
-    print(full_url)
     return full_url
 
 

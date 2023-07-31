@@ -20,9 +20,10 @@ async def update_database(ctx):
         asyncio.run(update(database()))
 
 
-async def parse_cars(ctx, car, message, name, work):
+async def parse_cars(ctx, item, work):
+    car, tel_id, name = item[1][7:], item[0], item[2]
     av_link_json, abw_link_json, onliner_link_json = await all_get_url(car, work)
-    await cars(av_link_json, abw_link_json, onliner_link_json, message, name, work, send_car_job)
+    await cars(av_link_json, abw_link_json, onliner_link_json, tel_id, name, work, send_car_job)
 
 
 async def parse_cars_job(ctx):
@@ -35,18 +36,18 @@ async def parse_cars_job(ctx):
         ORDER BY udata.id """)
         select_filters = await select_filters_cursor.fetchall()
         for item in select_filters:
-            await redis.enqueue_job('parse_cars', item[1][7:], item[0], item[2], True)
+            await redis.enqueue_job('parse_cars', item, True)
 
 
-async def send_car(ctx, tel_id, url):
-    await asyncio.sleep(0.5)
-    await bot.send_message(tel_id, url, reply_markup=car_message_kb())
+async def send_car(ctx, tel_id, car):
+    message = f'{car[0]}\n${car[1]}'
+    await bot.send_message(tel_id, message, reply_markup=car_message_kb())
 
 
-async def send_car_job(message, result):
+async def send_car_job(tel_id, result):
     redis = await create_pool(RedisSettings())
     for car in result:
-        await redis.enqueue_job('send_car', message, f'{car[0]}\n${car[1]}')
+        await redis.enqueue_job('send_car', tel_id, car)
 
 
 async def send_pdf(ctx, user_id, link_count, name_time_stump, decode_filter_short, filter_name):
@@ -72,7 +73,8 @@ async def parse_prices(ctx):
 
 
 async def check_price(ctx, car):
-    print(car)
+    pass
+
 
 
 async def check_price_job(result):
