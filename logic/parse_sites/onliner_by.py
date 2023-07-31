@@ -17,7 +17,8 @@ def count_cars_onliner(url):
     try:
         r = requests.get(url, headers=headers).json()
         return int(r['total'])
-    except requests.exceptions.RequestException:
+    except Exception as e:
+        print(e)
         return 0
 
 
@@ -37,7 +38,8 @@ def json_links_onliner(url, work):
             links_to_json.append(f'{url}&page={i}')
             page_count -= 1
         return links_to_json
-    except requests.exceptions.RequestException:
+    except Exception as e:
+        print(e)
         return False
 
 

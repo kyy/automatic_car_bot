@@ -15,7 +15,8 @@ def count_cars_abw(url):
     try:
         r = requests.get(url, headers=headers).json()
         return int(r['pagination']['total'])
-    except requests.exceptions.RequestException:
+    except Exception as e:
+        print(e)
         return 0
 
 
@@ -34,7 +35,8 @@ def json_links_abw(url):
                 links_to_json.append(f'{url}?page={i}')
                 page_count -= 1
         return links_to_json
-    except requests.exceptions.RequestException:
+    except Exception as e:
+        print(e)
         return False
 
 

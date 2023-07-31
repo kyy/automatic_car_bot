@@ -87,7 +87,7 @@ class Work:
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_DELTA)},
              minute={00},
-             run_at_startup=False),   # парсинг новых объявлений
+             run_at_startup=True),   # парсинг новых объявлений
         cron(update_database,
              hour={00},
              minute={15},

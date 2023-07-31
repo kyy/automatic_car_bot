@@ -18,8 +18,9 @@ async def json_links():
         av_urls = [f"https://api.av.by/offers/{i[0].split('/')[-1][:-1]}" for i in av_urls]
         onliner_urls_cursor = await db.execute(f"SELECT url FROM ucars WHERE LOWER(url) LIKE 'https://ab.onliner.by/%'")
         onliner_urls = await onliner_urls_cursor.fetchall()
-        onliner_urls = [f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1][:-1]}" for i in onliner_urls]
+        onliner_urls = [f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1]}" for i in onliner_urls]
         urls = [*av_urls, *onliner_urls]
+        print(urls)
         return urls
 
 
