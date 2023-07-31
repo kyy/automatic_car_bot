@@ -18,8 +18,8 @@ ONLINER_ROOT = 'https://ab.onliner.by/'
 
 # api links
 AV_API = 'api.av.by'
-ABW_API = 'ab.onliner.by'
-ONLINER_API = 'b.abw.by'
+ABW_API = 'b.abw.by'
+ONLINER_API = 'ab.onliner.by'
 
 
 # parse of data for buttons

@@ -250,20 +250,16 @@ async def message_delete(callback: CallbackQuery):
 async def car_follow(callback: CallbackQuery):
     # Добавить в слежку
     tel_id =callback.from_user.id
-    message = callback.message.text.split('$')
+    message = callback.message.text.split('\n')
     async with database() as db:
-        check_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{tel_id}'")
+        check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
         check_id = await check_id_cursor.fetchone()
-        check_url_cursor = await db.execute(f"SELECT url FROM ucars WHERE user_id = '{check_id[0]}'")
+        check_url_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
         check_url = await check_url_cursor.fetchall()
-        if message not in [i[0] for i in check_url]:
-            await db.execute(f"INSERT INTO ucars (user_id, url, price) VALUES ('{check_id[0]}', '{message[0]}', '{int(message[1])}')")
+        if message[0] not in [i[0] for i in check_url]:
+            await db.execute(f"""INSERT INTO ucars (user_id, url, price) 
+                                 VALUES ('{check_id[0]}', '{message[0]}', '{int(message[1][1:])}')""")
             await db.commit()
-            await callback.message.edit_text(
-                "Добавлено",
-                 disable_web_page_preview=True,
-                 parse_mode="HTML", )
-        await asyncio.sleep(0.2)
         await bot.delete_message(
             chat_id=tel_id,
             message_id=callback.message.message_id)
