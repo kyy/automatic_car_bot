@@ -80,7 +80,7 @@ async def get_url_abw(car_input, db):
     # База данных
     car_input = dict(zip(param_input, car_input))
     cost_selection: list = np.load('logic/database/parse/abw_price_list.npy', allow_pickle=True).tolist()  # noqa
-    transmission = {'at': '1', 'mt': '2'}
+    transmission = {'a': 'at', 'm': 'mt'}
     motor = {'b': 'benzin', 'bpb': 'sug', 'bm': 'sug', 'bg': 'gibrid', 'd': 'dizel', 'dg': 'gibrid', 'e': 'elektro'}
 
     # решаем проблему селектора диапазона цены
