@@ -1,5 +1,7 @@
 import asyncio
 from aiohttp import ClientSession
+
+from classes import bot
 from .constant import HEADERS, ONLINER_API, AV_API
 from logic.database.config import database
 
@@ -12,8 +14,7 @@ async def json_links():
         onliner_urls_cursor = await db.execute(f"""SELECT url FROM ucars WHERE LOWER(url) LIKE 'https://ab.onliner.by/%'""")
         onliner_urls = await onliner_urls_cursor.fetchall()
         onliner_urls = [f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1]}" for i in onliner_urls]
-        urls = [*av_urls, *onliner_urls]
-        return urls
+        return [*av_urls, *onliner_urls]
 
 
 async def bound_fetch_av(semaphore, url, session, result):
@@ -57,10 +58,29 @@ async def run(urls, result):
         await session.close()
 
 
-async def parse_main(check_price_job=None):
+async def check_price(result):
+    async with database() as db:
+        data_cursor = await db.execute(f"""
+        SELECT user.tel_id, ucars.id, ucars.url, ucars.price FROM ucars
+        INNER JOIN user on user.id = ucars.user_id
+        ORDER BY ucars.url """)
+        base_data = await data_cursor.fetchall()
+        for car in result:
+            for row in (row for row in base_data if row[2] == car[1] and row[3] != car[0]):
+                await bot.send_message(row[0],
+                                       f'Старая цена - {row[3]}$\n'
+                                       f'Текущая цена - {car[0]}$\n'
+                                       f'Разница - {abs(row[3] - car[0])}$\n'
+                                       f'{car[1]}')
+                await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
+        await db.commit()
+
+
+async def parse_main(ctx):
     result = []
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(await json_links(), result))
     loop.run_until_complete(future)
-    await check_price_job(result)
+    await check_price(result)
     return result
+

@@ -11,8 +11,8 @@ from logic.database.data_migrations import main as update, lenn
 from logic.database.main_parse import main_parse as up
 from logic.cook_url import all_get_url
 from logic.cook_parse_cars import parse_main as cars
+from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
-from logic.cook_parse_prices import parse_main as prices
 
 
 async def update_database(ctx):
@@ -68,41 +68,14 @@ async def send_pdf_job(*args):
     await redis.enqueue_job('send_pdf', *args)
 
 
-async def parse_prices(ctx):
-    await prices(check_price_job)
-
-
-async def check_price(ctx, result):
-    async with database() as db:
-        data_cursor = await db.execute(f"""
-        SELECT user.tel_id, ucars.id, ucars.url, ucars.price FROM ucars
-        INNER JOIN user on user.id = ucars.user_id
-        ORDER BY ucars.url """)
-        base_data = await data_cursor.fetchall()
-        for car in result:
-            for row in (row for row in base_data if row[2] == car[1] and row[3] != car[0]):
-                await bot.send_message(row[0],
-                                       f'Старая цена - {row[3]}$\n'
-                                       f'Текущая цена - {car[0]}$\n'
-                                       f'Разница - {abs(row[3]-car[0])}$\n'
-                                       f'{car[1]}')
-                await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
-        await db.commit()
-
-
-async def check_price_job(result):
-    redis = await create_pool(RedisSettings())
-    await redis.enqueue_job('check_price', result)
-
-
 class Work:
-    functions = [parse_cars, send_car, send_pdf, check_price]
+    functions = [parse_cars, send_car, send_pdf]
     cron_jobs = [
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_DELTA)},
              minute={00},
              run_at_startup=False),   # парсинг новых объявлений
-        cron(parse_prices,
+        cron(parse_prices_job,
              hour={i for i in range(1, 24, 3)},
              minute={00},
              run_at_startup=True),  # проверка цен
