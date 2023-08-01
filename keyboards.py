@@ -43,14 +43,13 @@ def result_menu_kb():
         InlineKeyboardButton(
             text="🖼 Отмена",
             callback_data="start_menu_help_hide")]]
-    state_class = [('1','1'), ('2','1'), ('3','1'), ('4','1'), ('5','1'), ('6','1'), ('7','8'), ('8','1'), ('9','1'), ('10','1')]
-    buttons.append([[
-            InlineKeyboardButton(
-                text=i[0],
-                callback_data=i[1]),
-            InlineKeyboardButton(
-                text=i[0],
-                callback_data=i[1])] for i in state_class])
+    state_class = [(['brand', 'cb_brand'], ['model', 'cb_model']),
+                   (['year_from', 'cb_year_from'], ['year_to', 'cb_year_to']),
+                   (['price_from', 'cb_price_from'], ['price_to', 'cb_price_to']),
+                   (['dimension_from', 'cb_dimension_from'], ['dimension_to', 'cb_dimension_to'])]
+    buttons.extend([
+        [InlineKeyboardButton(text=i[0][0], callback_data=i[0][1]),
+        InlineKeyboardButton(text=i[1][0], callback_data=i[1][1])] for i in state_class])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
@@ -147,8 +146,7 @@ async def stalk_menu_kb(callback, db, help_flag=False):
                 callback_data=f's_{i[1]}_show'),
             InlineKeyboardButton(
                 text='Удалить',
-                callback_data=f's_{i[1]}_del')]
-            for i in search_params]
+                callback_data=f's_{i[1]}_del')] for i in search_params]
     buttons.append([
         InlineKeyboardButton(
             text='Назад',
