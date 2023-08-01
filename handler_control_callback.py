@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime as datatime_datatime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
@@ -10,7 +9,7 @@ from logic.database.config import database
 from classes import CreateCar
 from classes import bot
 from keyboards import multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb, \
-    add_stalk
+    add_stalk_kb
 from work import send_pdf_job
 
 
@@ -292,6 +291,9 @@ async def delete_search(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'add_stalk')
 async def delete_search(callback: CallbackQuery):
+    # добавление слежки вручную
     await callback.message.edit_text(
         'Здесь пока пусто',
-        reply_markup=add_stalk)
+        reply_markup=add_stalk_kb)
+
+

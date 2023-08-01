@@ -34,18 +34,25 @@ def start_menu_kb(help_flag):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-result_menu_kb = InlineKeyboardMarkup(
+def result_menu_kb():
     # меню сформированного фильтра
-    inline_keyboard=[[
+    buttons = [[
         InlineKeyboardButton(
             text="📝 Сохранить фильтр",
             callback_data="save_search"),
         InlineKeyboardButton(
             text="🖼 Отмена",
-            callback_data="start_menu_help_hide")], [
-        InlineKeyboardButton(
-            text="🔎 Помощь",
-            callback_data="start_menu_help_show")]])
+            callback_data="start_menu_help_hide")]]
+    state_class = [('1','1'), ('2','1'), ('3','1'), ('4','1'), ('5','1'), ('6','1'), ('7','8'), ('8','1'), ('9','1'), ('10','1')]
+    buttons.append([[
+            InlineKeyboardButton(
+                text=i[0],
+                callback_data=i[1]),
+            InlineKeyboardButton(
+                text=i[0],
+                callback_data=i[1])] for i in state_class])
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
 
 bot_functions_kb = InlineKeyboardMarkup(
     # меню сформированного фильтра
@@ -77,8 +84,7 @@ async def params_menu_kb(callback, db, help_flag=False):
                 callback_data=f'f_{i[2]}_{i[1]}'),
             InlineKeyboardButton(
                 text='Удалить',
-                callback_data=f'f_{i[2]}_del')]
-            for i in search_params]
+                callback_data=f'f_{i[2]}_del')] for i in search_params]
     buttons.append([
         InlineKeyboardButton(
             text='Назад',
@@ -157,7 +163,7 @@ async def stalk_menu_kb(callback, db, help_flag=False):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-add_stalk = InlineKeyboardMarkup(
+add_stalk_kb = InlineKeyboardMarkup(
     # меню добавление слежки
     inline_keyboard=[[
         InlineKeyboardButton(

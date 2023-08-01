@@ -5,7 +5,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
 from keyboards import multi_row_kb, result_menu_kb
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
-from logic.constant import SB, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION
+from logic.constant import SB, EB, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION
 
 
 router = Router()
@@ -13,6 +13,7 @@ router = Router()
 
 @router.message(Command(commands=["show"]))
 @router.message(F.text.casefold() == "show")
+@router.message(F.text == EB)
 async def get_rusult(message: Message, state: FSMContext):
     await state.set_state('finish_choosing')
     data = await state.get_data()
@@ -27,7 +28,7 @@ async def get_rusult(message: Message, state: FSMContext):
         )
         await message.answer(
             text='Управление фильтром:',
-            reply_markup=result_menu_kb,
+            reply_markup=result_menu_kb(),
         )
     else:
         await message.answer(

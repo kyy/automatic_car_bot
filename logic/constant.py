@@ -4,6 +4,7 @@ REPORT_PARSE_LIMIT_PAGES = 5  # лимит страниц парсиинга д�
 
 SS = '+'    # split symbol in filter
 SB = '?'    # skip button on keyboards
+EB = '>>|'    # end button on keyboards
 
 # constants of columns:keyboards: max = 8, default = 4
 COL_MOTOR = 3
@@ -28,10 +29,10 @@ ONLINER_API = 'ab.onliner.by'
 MOTOR_DICT = {'бензин': 'b', 'бензин (пропан-бутан)': 'bpb', 'бензин (метан)': 'bm', 'бензин (гибрид)': 'bg',
               'дизель': 'd', 'дизель (гибрид)': 'dg', 'электро': 'e'}
 
-MOTOR = [SB] + \
+MOTOR = [SB, EB] + \
         ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
 
-TRANSMISSION = [SB] + ['автомат', 'механика']
+TRANSMISSION = [SB, EB] + ['автомат', 'механика']
 
 HEADERS = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '

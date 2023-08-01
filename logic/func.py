@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import lru_cache
 from .decorators import timed_lru_cache
 import numpy as np
-from logic.constant import ABW_ROOT, SS, SB, MOTOR_DICT, ONLINER_ROOT
+from logic.constant import ABW_ROOT, SS, SB, EB, MOTOR_DICT, ONLINER_ROOT
 from logic.database.config import database
 from logic.cook_url import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw
@@ -89,7 +89,7 @@ async def get_models(brand: str) -> list[str]:
                                   f"INNER JOIN brands on brands.id =  models.brand_id "
                                   f"WHERE brands.[unique] = '{brand}'")
         rows = await cursor.fetchall()
-        models = [SB]
+        models = [SB, EB]
         for brand in rows:
             models.append(brand[0])
     return models
@@ -97,17 +97,17 @@ async def get_models(brand: str) -> list[str]:
 
 @lru_cache()
 def get_years(from_year: int = 1990, to_year=datetime.now().year) -> list[str]:
-    return [SB] + [str(i) for i in range(from_year, to_year + 1)]
+    return [SB, EB] + [str(i) for i in range(from_year, to_year + 1)]
 
 
 @lru_cache()
 def get_dimension(from_dim: float = 1, to_dim: float = 9, step: float = 0.1) -> list[str]:
-    return [SB] + [str(round(i, 1)) for i in np.arange(from_dim, to_dim + step, step)]
+    return [SB, EB] + [str(round(i, 1)) for i in np.arange(from_dim, to_dim + step, step)]
 
 
 @lru_cache()
 def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> list[str]:
-    return [SB] + [str(i) for i in range(from_cost, to_cost - step, step)]
+    return [SB, EB] + [str(i) for i in range(from_cost, to_cost - step, step)]
 
 
 # encode from strings = 'Citroen|C4|b|a|-|-|-|-|-|-' or list to full description
