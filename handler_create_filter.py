@@ -20,7 +20,6 @@ async def get_rusult(message: Message, state: FSMContext):
     c = []
     for item in data:
         c.append(data[item])
-
     if len(c) > 0 and c[0] != SB:
         await message.answer(
             text=decode_filter_short(lists=c),
