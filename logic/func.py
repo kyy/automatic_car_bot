@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import lru_cache
 from .decorators import timed_lru_cache
 import numpy as np
-from logic.constant import ABW_ROOT, SS, SB, EB, MOTOR_DICT, ONLINER_ROOT
+from logic.constant import ABW_ROOT, SS, SB, MOTOR_DICT, ONLINER_ROOT
 from logic.database.config import database
 from logic.cook_url import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw

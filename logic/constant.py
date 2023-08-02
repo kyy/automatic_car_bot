@@ -2,9 +2,9 @@
 WORK_PARSE_DELTA = 2   # частота проверки новых обявллений в часах
 REPORT_PARSE_LIMIT_PAGES = 5  # лимит страниц парсиинга для отчета
 
+CF = '<<', '[]', '>>'
 SS = '+'    # split symbol in filter
 SB = '?'    # skip button on keyboards
-EB = '>>|'    # end button on keyboards
 
 # constants of columns:keyboards: max = 8, default = 4
 COL_MOTOR = 3
