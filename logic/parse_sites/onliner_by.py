@@ -5,6 +5,8 @@ from logic.decorators import timed_lru_cache
 
 
 def count_cars_onliner(url):
+    if url is None:
+        return 0
     try:
         r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r['total'])
@@ -75,7 +77,7 @@ def json_parse_onliner(json_data, work):
 def car_json_by_id(id_car):
     url = f'https://ab.onliner.by/sdapi/ab.api/vehicles/{id_car}'
     try:
-        r = requests.get(url, headers=headers).json()
+        r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r['price']['converted']['USD']['amount'][:-3])
     except requests.exceptions.RequestException:
         return False

@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import
-from logic.constant import SB
+from logic.constant import FSB, FSB, SB
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
@@ -80,16 +80,16 @@ async def help_hide_stalk_menu(callback: CallbackQuery):
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
-    await state.update_data(chosen_brand=SB,
-                            chosen_model=SB,
-                            chosen_motor=SB,
-                            chosen_transmission=SB,
-                            chosen_year_from=SB,
-                            chosen_year_to=SB,
-                            chosen_cost_min=SB,
-                            chosen_cost_max=SB,
-                            chosen_dimension_min=SB,
-                            chosen_dimension_max=SB,
+    await state.update_data(chosen_brand=FSB,
+                            chosen_model=FSB,
+                            chosen_motor=FSB,
+                            chosen_transmission=FSB,
+                            chosen_year_from=FSB,
+                            chosen_year_to=FSB,
+                            chosen_cost_min=FSB,
+                            chosen_cost_max=FSB,
+                            chosen_dimension_min=FSB,
+                            chosen_dimension_max=FSB,
                             )
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
@@ -107,7 +107,7 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     c = []
     for item in data:
-        c.append(data[item])
+        c.append(data[item].replace(SB, FSB))
     car_code = code_filter_short(c)
     user_id = callback.from_user.id
     async with database() as db:

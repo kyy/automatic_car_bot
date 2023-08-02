@@ -12,7 +12,14 @@ nest_asyncio.apply()
 
 
 def urls(av, abw, onliner, work):
-    return [*json_links_av(av, work), *json_links_abw(abw), *json_links_onliner(onliner, work)]
+    cars = []
+    if av:
+        cars.extend([*json_links_av(av, work)])
+    if abw:
+        cars.extend([*json_links_abw(abw)])
+    if onliner:
+        cars.extend([*json_links_onliner(onliner, work)])
+    return cars
 
 
 async def bound_fetch_av(semaphore, url, session, result, work):

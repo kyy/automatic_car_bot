@@ -1,3 +1,5 @@
+from string import ascii_lowercase
+
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import Bot
 from pydantic_settings import BaseSettings, SettingsConfigDict

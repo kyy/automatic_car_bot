@@ -4,6 +4,8 @@ from logic.decorators import timed_lru_cache
 
 
 def count_cars_abw(url):
+    if url is None:
+        return 0
     try:
         r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r['pagination']['total'])

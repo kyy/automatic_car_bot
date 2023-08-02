@@ -2,7 +2,7 @@ from datetime import datetime
 import asyncio
 import numpy as np
 from logic.decorators import timed_lru_cache
-from .constant import SS, SB
+from .constant import SS, FSB
 from .database.config import database
 
 
@@ -25,7 +25,7 @@ async def get_url_av(car_input, db, work):
     motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
     brand = car_input['brands[0][brand]=']
     model = car_input['brands[0][model]=']
-    if model != SB:
+    if model != FSB:
         cursor = await db.execute(f"select brands.av_by, models.av_by  from brands "
                                   f"inner join models on brands.id = models.brand_id "
                                   f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
@@ -37,7 +37,7 @@ async def get_url_av(car_input, db, work):
                                   f"inner join models on brands.id = models.brand_id "
                                   f"where brands.[unique] = '{brand}'")
         rows = await cursor.fetchall()
-        car_input['brands[0][model]='] = SB
+        car_input['brands[0][model]='] = FSB
         car_input['brands[0][brand]='] = rows[0][0]
 
     if car_input['engine_type[0]='] in motor:
@@ -47,7 +47,7 @@ async def get_url_av(car_input, db, work):
 
     new_part = []
     for key in car_input:
-        if car_input[key] != SB:
+        if car_input[key] != FSB:
             new_part.append(str(key)+str(car_input[key]))
     new_part_url = '&'.join(new_part)
     if work is True:
@@ -74,7 +74,7 @@ async def get_url_abw(car_input, db):
 
     car_input = car_input.split(SS)
     for i in range(len(car_input) - 2):
-        if car_input[i + 2] == SB:
+        if car_input[i + 2] == FSB:
             car_input[i + 2] = min_max_values[i]
 
     # База данных
@@ -96,7 +96,7 @@ async def get_url_abw(car_input, db):
     brand = car_input['brand_']
     model = car_input['model_']
 
-    if model != SB:
+    if model != FSB:
         cursor = await db.execute(f"select brands.abw_by, models.abw_by  from brands "
                                   f"inner join models on brands.id = models.brand_id "
                                   f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
@@ -108,7 +108,7 @@ async def get_url_abw(car_input, db):
                                   f"inner join models on brands.id = models.brand_id "
                                   f"where brands.[unique] = '{brand}'")
         rows = await cursor.fetchall()
-        car_input['model_'] = SB
+        car_input['model_'] = FSB
         car_input['brand_'] = rows[0][0]
 
     if (car_input['brand_'] and car_input['model_']) is not None:
@@ -121,8 +121,8 @@ async def get_url_abw(car_input, db):
                  f"transmission_{car_input['transmission_']}", f"year_{car_input['year_']}:{car_input['year_max']}",
                  f"price_{car_input['price_']}:{car_input['price_max']}",
                  f"volume_{car_input['volume_']}:{car_input['volume_max']}", '?sort=new']
-        if SB in param:
-            param.remove(SB)       # удаляем '?' если не выбраны все модели
+        if FSB in param:
+            param.remove(FSB)       # удаляем '?' если не выбраны все модели
         new_part_url = '/'.join(param)
         full_url = f'https://b.abw.by/api/adverts/cars/list/{new_part_url}'
         return full_url
@@ -137,10 +137,10 @@ async def get_url_onliner(car_input, db):
 
     # База данных
     car_input = dict(zip(param_input, car_input.split(SS)))
-    if car_input['engine_capacity[from]='] != SB:
+    if car_input['engine_capacity[from]='] != FSB:
         car_input['engine_capacity[from]='] = int(car_input['engine_capacity[from]='])
         car_input['engine_capacity[from]='] /= 1000
-    if car_input['engine_capacity[to]='] != SB:
+    if car_input['engine_capacity[to]='] != FSB:
         car_input['engine_capacity[to]='] = int(car_input['engine_capacity[to]='])
         car_input['engine_capacity[to]='] /= 1000
     transmission = {'a': 'automatic', 'm': 'mechanical'}
@@ -148,7 +148,7 @@ async def get_url_onliner(car_input, db):
              'd': 'diesel', 'dg': 'diesel&hybrid=true', 'e': 'electric'}
     brand = car_input['car[0][manufacturer]=']
     model = car_input['car[0][model]=']
-    if model != SB:
+    if model != FSB:
         cursor = await db.execute(f"select brands.onliner_by, models.onliner_by  from brands "
                                   f"inner join models on brands.id = models.brand_id "
                                   f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
@@ -160,7 +160,7 @@ async def get_url_onliner(car_input, db):
                                   f"inner join models on brands.id = models.brand_id "
                                   f"where brands.[unique] = '{brand}'")
         rows = await cursor.fetchall()
-        car_input['car[0][model]='] = SB
+        car_input['car[0][model]='] = FSB
         car_input['car[0][manufacturer]='] = rows[0][0]
 
     if (car_input['car[0][manufacturer]='] and car_input['car[0][model]=']) is not None:
@@ -171,7 +171,7 @@ async def get_url_onliner(car_input, db):
 
         new_part = []
         for key in car_input:
-            if car_input[key] != SB:
+            if car_input[key] != FSB:
                 new_part.append(str(key) + str(car_input[key]))
         new_part.append("order=created_at:desc")
         new_part.append("price[currency]=USD")
