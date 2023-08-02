@@ -10,9 +10,10 @@ def single_row_kb(items: list[str]) -> ReplyKeyboardMarkup:
 
 def multi_row_kb(items: list[str], columns: int = 4, **kwargs) -> ReplyKeyboardMarkup:
     kb = [KeyboardButton(text=i) for i in items]
-    kb = [kb[i:i + columns] for i in range(0, len(kb), columns)]  # группирум на подсписки длинной collumns
-    return ReplyKeyboardMarkup(**kwargs, keyboard=kb, resize_keyboard=True)
-
+    kb = [kb[i:i + columns] for i in range(0, len(kb), columns)]  # группируем на подсписки длинной collumns
+    kb_control = [[KeyboardButton(text="<<"), KeyboardButton(text="[]"), KeyboardButton(text=">>")]]
+    kb_control.extend(kb)
+    return ReplyKeyboardMarkup(**kwargs, keyboard=kb_control, resize_keyboard=True)
 
 
 def start_menu_kb(help_flag):
