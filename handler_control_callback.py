@@ -185,7 +185,7 @@ async def options_search(callback: CallbackQuery):
     all_count = [all_av, all_abw, all_onliner]
     cars_count = sum(all_count)
     await callback.message.edit_text(
-        f"{decode_filter_short(filter_name[0])[7:].replace('<', '').replace('>', '')}\n"
+        f"{decode_filter_short(filter_name[0][7:].replace(FSB, SB))}\n"
         f"\n"
         f"Найдено:\n"
         f"<a href='{av_l}'>av.by</a> - {all_av}.\n"

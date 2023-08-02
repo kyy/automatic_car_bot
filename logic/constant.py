@@ -4,9 +4,10 @@ REPORT_PARSE_LIMIT_PAGES = 5  # лимит страниц парсиинга д�
 
 
 SS = '+'    # split symbol in filter
-SB = '>>'    # skip button on keyboards
-FSB = '?'
-CF = ['<<', '[]', SB]
+SB = '[выбрать все]'    # skip button on keyboards
+FSB = '?'    # skip-liter in filter
+EB = '[закончить]'
+CF = ['[<<]', EB, SB]    # keys for creating filters
 
 # constants of columns:keyboards: max = 8, default = 4
 COL_MOTOR = 3

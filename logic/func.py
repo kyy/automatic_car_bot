@@ -118,19 +118,19 @@ def decode_filter_short(string: str = None, lists: list = None, sep: str = SS):
 
         if c[2] in motor_dict_reverse:
             c[2] = motor_dict_reverse[c[2]]
-        if c[8] != FSB:
+        if c[8] != SB:
             c[8] = str(int(c[8]) / 1000)
-        if c[9] != FSB:
+        if c[9] != SB:
             c[9] = str(int(c[9]) / 1000)
-        if c[3] != FSB:
+        if c[3] != SB:
             c[3] = 'автомат' if c[3] == 'a' else 'механика'
     else:
         c = lists
-    text = f"{c[0].replace(FSB, '<все бренды>')} {c[1].replace(FSB, '<все модели>')} " \
-           f"{c[2].replace(FSB, '<все типы двигателей>')} {c[3].replace(FSB, '<все типы трансмиссий>')} " \
-           f"с {c[4].replace(FSB, get_years()[1])}  по {c[5].replace(FSB, str(datetime.now().year))} г " \
-           f"от {c[6].replace(FSB, get_cost()[1])}  до {c[7].replace(FSB, str(get_cost()[-1]))} $ " \
-           f"от {c[8].replace(FSB, get_dimension()[1])}  до {c[9].replace(FSB, str(get_dimension()[-1]))} л"
+    text = f"{c[0].replace(SB, 'все бренды')} {c[1].replace(SB, 'все модели')} " \
+           f"{c[2].replace(SB, 'все типы двигателей')} {c[3].replace(SB, 'все типы трансмиссий')} " \
+           f"с {c[4].replace(SB, get_years()[1])}  по {c[5].replace(SB, str(datetime.now().year))} г " \
+           f"от {c[6].replace(SB, get_cost()[1])}  до {c[7].replace(SB, str(get_cost()[-1]))} $ " \
+           f"от {c[8].replace(SB, get_dimension()[1])}  до {c[9].replace(SB, str(get_dimension()[-1]))} л"
     return text if lists else text.replace('\n', ' | ')
 
 

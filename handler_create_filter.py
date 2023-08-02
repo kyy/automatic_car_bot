@@ -5,14 +5,14 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
 from keyboards import multi_row_kb, result_menu_kb
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
-from logic.constant import FSB, CF, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION, SB
+from logic.constant import (FSB, CF, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION, SB, EB)
 
 router = Router()
 
 
 @router.message(Command(commands=["show"]))
 @router.message(F.text.casefold() == "show")
-@router.message(F.text == CF[1])
+@router.message(F.text == EB)
 async def get_rusult(message: Message, state: FSMContext):
     await state.set_state('finish_choosing')
     data = await state.get_data()
@@ -38,16 +38,16 @@ async def get_rusult(message: Message, state: FSMContext):
 @router.message(Command(commands=["car"]))
 @router.message(F.text.casefold() == "car")
 async def brand_chosen(message: Message, state: FSMContext):
-    await state.update_data(chosen_brand=FSB,
-                            chosen_model=FSB,
-                            chosen_motor=FSB,
-                            chosen_transmission=FSB,
-                            chosen_year_from=FSB,
-                            chosen_year_to=FSB,
-                            chosen_cost_min=FSB,
-                            chosen_cost_max=FSB,
-                            chosen_dimension_min=FSB,
-                            chosen_dimension_max=FSB,
+    await state.update_data(chosen_brand=SB,
+                            chosen_model=SB,
+                            chosen_motor=SB,
+                            chosen_transmission=SB,
+                            chosen_year_from=SB,
+                            chosen_year_to=SB,
+                            chosen_cost_min=SB,
+                            chosen_cost_max=SB,
+                            chosen_dimension_min=SB,
+                            chosen_dimension_max=SB,
                             )
     await message.answer(
         text="Выберите бренд автомобиля:",
