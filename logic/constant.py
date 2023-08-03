@@ -7,7 +7,7 @@ SS = '+'    # split symbol in filter
 SB = '[выбрать все]'    # skip button on keyboards
 FSB = '?'    # skip-liter in filter
 EB = '[закончить]'
-CF = ['[<<]', EB, SB]    # keys for creating filters
+CF = [EB, SB]    # 1st row of keyboard in creating filters
 
 # constants of columns:keyboards: max = 8, default = 4
 COL_MOTOR = 3

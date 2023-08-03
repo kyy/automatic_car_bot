@@ -7,6 +7,7 @@ from keyboards import multi_row_kb, result_menu_kb
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
 from logic.constant import (FSB, CF, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION, SB, EB)
 
+
 router = Router()
 
 
@@ -18,8 +19,8 @@ async def get_rusult(message: Message, state: FSMContext):
     data = await state.get_data()
     c = []
     for item in data:
-        c.append(data[item])
-    if len(c) > 0 and c[0] != FSB:
+        c.append(data[item].replace(FSB, SB))
+    if len(c) > 0 and c[0] != SB:
         await message.answer(
             text=decode_filter_short(lists=c),
             reply_markup=ReplyKeyboardRemove()
@@ -312,5 +313,3 @@ async def finish_chosen(message: Message, state: FSMContext):
         )
         return finish_chosen
     await get_rusult(message=message, state=state)
-
-

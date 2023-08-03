@@ -42,7 +42,7 @@ def result_menu_kb():
     buttons = [[
         InlineKeyboardButton(
             text="📝 Сохранить фильтр",
-            callback_data="save_search"),
+            callback_data="save_search")], [
         InlineKeyboardButton(
             text="🖼 Отмена",
             callback_data="start_menu_help_hide")]]
