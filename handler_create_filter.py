@@ -19,8 +19,8 @@ async def get_rusult(message: Message, state: FSMContext):
     data = await state.get_data()
     c = []
     for item in data:
-        c.append(data[item].replace(FSB, SB))
-    if len(c) > 0 and c[0] != SB:
+        c.append(data[item].replace(SB, FSB))
+    if len(c) > 0 and c[0] != FSB:
         await message.answer(
             text=decode_filter_short(lists=c),
             reply_markup=ReplyKeyboardRemove()

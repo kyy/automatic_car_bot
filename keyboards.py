@@ -79,7 +79,7 @@ async def params_menu_kb(callback, db, help_flag=False):
     else:
         buttons = [[
             InlineKeyboardButton(
-                text=decode_filter_short(i[0][7:].replace(FSB, SB)),
+                text=decode_filter_short(i[0][7:]),
                 callback_data=f'f_{i[2]}_show'),
             InlineKeyboardButton(
                 text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'),

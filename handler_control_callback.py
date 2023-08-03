@@ -185,7 +185,7 @@ async def options_search(callback: CallbackQuery):
     all_count = [all_av, all_abw, all_onliner]
     cars_count = sum(all_count)
     await callback.message.edit_text(
-        f"{decode_filter_short(filter_name[0][7:].replace(FSB, SB))}\n"
+        f"{decode_filter_short(filter_name[0][7:])}\n"
         f"\n"
         f"Найдено:\n"
         f"<a href='{av_l}'>av.by</a> - {all_av}.\n"
@@ -220,7 +220,7 @@ async def report_search(callback: CallbackQuery):
                   'abw': [abw_l, all_abw],
                   'onliner': [onliner_l, all_onliner]}
     await bot.send_message(user_id, 'готовим отчет')
-    await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars.replace(FSB, SB)), filter_name[0])
+    await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
 
 
 @router.callback_query(F.data == 'bot_functions')
