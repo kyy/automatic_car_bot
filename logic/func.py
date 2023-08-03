@@ -37,7 +37,8 @@ async def filter_import(callback, db):
     async with db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
         filter_name = await select_filter_cursor.fetchone()     # фильтр-код ('filter=...',)
-    cars = filter_name[0][7:]    # удаляем 'filter='
+    cars = filter_name[0][7:] # удаляем 'filter='
+    print(cars)
     return filter_id, filter_name, cars
 
 

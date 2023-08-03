@@ -220,7 +220,7 @@ async def report_search(callback: CallbackQuery):
                   'abw': [abw_l, all_abw],
                   'onliner': [onliner_l, all_onliner]}
     await bot.send_message(user_id, 'готовим отчет')
-    await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
+    await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars.replace(FSB, SB)), filter_name[0])
 
 
 @router.callback_query(F.data == 'bot_functions')
