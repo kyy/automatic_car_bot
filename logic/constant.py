@@ -16,8 +16,8 @@ COL_COST = 5
 COL_DIMENSION = 8
 
 # root links
-AV_ROOT = 'https://av.by/'
-ABW_ROOT = 'https://abw.by/cars'
+AV_ROOT = 'https://cars.av.by/'
+ABW_ROOT = 'https://abw.by/'
 ONLINER_ROOT = 'https://ab.onliner.by/'
 
 # api links
