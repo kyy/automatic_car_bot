@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
-from logic.constant import CF, FSB, SB
+from logic.constant import CF
 from logic.func import decode_filter_short
 
 

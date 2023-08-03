@@ -3,7 +3,6 @@ import pandas as pd
 from fpdf import FPDF, ViewerPreferences
 import qrcode
 from datetime import datetime
-from logic.decorators import timed_lru_cache
 
 
 class PDF(FPDF):

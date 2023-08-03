@@ -16,6 +16,7 @@ bot = Bot(token=config.BOT_TOKEN)
 
 
 class CreateCar(StatesGroup):
+    start_choosing = State()
     brand_choosing = State()
     model_choosing = State()
     motor_choosing = State()
@@ -27,3 +28,4 @@ class CreateCar(StatesGroup):
     dimension_choosing = State()
     dimensionm_choosing = State()
     finish_choosing = State()
+    add_url_stalk = State()

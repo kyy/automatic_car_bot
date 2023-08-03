@@ -80,17 +80,6 @@ async def help_hide_stalk_menu(callback: CallbackQuery):
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
-    await state.update_data(chosen_brand=FSB,
-                            chosen_model=FSB,
-                            chosen_motor=FSB,
-                            chosen_transmission=FSB,
-                            chosen_year_from=FSB,
-                            chosen_year_to=FSB,
-                            chosen_cost_min=FSB,
-                            chosen_cost_max=FSB,
-                            chosen_dimension_min=FSB,
-                            chosen_dimension_max=FSB,
-                            )
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_kb(
@@ -98,7 +87,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
             input_field_placeholder='имя бренда',
         )
     )
-    await state.set_state(CreateCar.brand_choosing)
+    await state.set_state(CreateCar.start_choosing)
 
 
 @router.callback_query(F.data == 'save_search')
@@ -290,10 +279,9 @@ async def delete_search(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'add_stalk')
-async def delete_search(callback: CallbackQuery):
+async def delete_search(callback: CallbackQuery, state: FSMContext):
     # добавление слежки вручную
+    await state.set_state(CreateCar.add_url_stalk)
     await callback.message.edit_text(
-        'Здесь пока пусто',
+        'Отправьте сюда ссылку на обявление, мможно отправить несколько через пробел',
         reply_markup=add_stalk_kb)
-
-

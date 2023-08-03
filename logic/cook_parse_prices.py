@@ -67,11 +67,12 @@ async def check_price(result):
         base_data = await data_cursor.fetchall()
         for car in result:
             for row in (row for row in base_data if row[2] == car[1] and row[3] != car[0]):
-                await bot.send_message(row[0],
-                                       f'Старая цена - {row[3]}$\n'
-                                       f'Текущая цена - {car[0]}$\n'
-                                       f'Разница - {abs(row[3] - car[0])}$\n'
-                                       f'{car[1]}')
+                if car[0] != 0:
+                    await bot.send_message(row[0],
+                                           f'Старая цена - {row[3]}$\n'
+                                           f'Текущая цена - {car[0]}$\n'
+                                           f'Разница - {abs(row[3] - car[0])}$\n'
+                                           f'{car[1]}')
                 await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
         await db.commit()
 

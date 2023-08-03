@@ -1,14 +1,37 @@
+import asyncio
+
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from classes import CreateCar
-from aiogram.types import Message, ReplyKeyboardRemove
+from classes import CreateCar, bot
+from aiogram.types import Message, ReplyKeyboardRemove, ChatPermissions, ChatMemberUpdated
 from aiogram.filters import Command
 from keyboards import multi_row_kb, result_menu_kb
+from logic.database.config import database
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
 from logic.constant import (FSB, CF, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION, SB, EB)
 
 
 router = Router()
+
+
+@router.message(CreateCar.add_url_stalk)
+async def get_rusult(message: Message):
+    mes = message.text
+    tel_id = message.from_user.id
+    urls = [i for i in mes.split(' ')]
+    for url in urls:
+        async with database() as db:
+            check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
+            check_id = await check_id_cursor.fetchone()
+            check_url_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
+            check_url = await check_url_cursor.fetchall()
+            if url not in [i[0] for i in check_url]:
+                await db.execute(f"""INSERT INTO ucars (user_id, url, price) 
+                                     VALUES ('{check_id[0]}', '{url}', 0)""")
+                await bot.send_message(tel_id, f'{url} добавлено', disable_web_page_preview=True)
+                await db.commit()
+            else:
+                await bot.send_message(tel_id, f'{url} уже отслеживается', disable_web_page_preview=True)
 
 
 @router.message(Command(commands=["show"]))
@@ -38,6 +61,7 @@ async def get_rusult(message: Message, state: FSMContext):
 
 @router.message(Command(commands=["car"]))
 @router.message(F.text.casefold() == "car")
+@router.message(CreateCar.start_choosing)
 async def brand_chosen(message: Message, state: FSMContext):
     await state.update_data(chosen_brand=SB,
                             chosen_model=SB,
