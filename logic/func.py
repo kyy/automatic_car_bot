@@ -115,7 +115,6 @@ def decode_filter_short(string: str = None, lists: list = None, sep: str = SS):
     motor_dict_reverse = dict(zip(MOTOR_DICT.values(), MOTOR_DICT.keys()))
     if lists is None:
         c = (string.split(sep=sep))
-
         if c[2] in motor_dict_reverse:
             c[2] = motor_dict_reverse[c[2]]
         if c[8] != FSB:

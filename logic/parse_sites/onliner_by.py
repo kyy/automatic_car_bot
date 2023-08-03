@@ -51,11 +51,11 @@ def json_parse_onliner(json_data, work):
         year = r_t['specs']['year']
         km = r_t['specs']['odometer']['value']
         dimension = r_t['specs']['engine']['capacity']
-        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель')
-        transmis = r_t['specs']['transmission'].replace('mechanical ', 'механика').replace('automatic', 'автомат')
-        color = r_t['specs']['color']
-        drive = r_t['specs']['drivetrain']
-        typec = r_t['specs']['body_type']
+        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель').replace(None, '')
+        transmis = r_t['specs']['transmission'].replace('mechanical', 'механика').replace('automatic', 'автомат')
+        color = r_t['specs']['color'].replace('skyblue', 'св-синий').replace('red', 'красный').replace('black', 'черный').replace('white', 'белый').replace('silver', 'серебро').replace('grey', 'серый').replace('blue', 'синий').replace('orange', 'апельсин').replace('other', 'другой').replace('brown', 'коричневый')
+        drive = r_t['specs']['drivetrain'].replace('front', 'передний').replace('all', 'полный')
+        typec = r_t['specs']['body_type'].replace('suv', 'внедорожник').replace('hatchback', 'хачбек').replace('sedna', 'седан')
         # brand = r_t['manufacturer']['name']
         # model = r_t['model']['name']
         # generation = r_t['generation']['name']

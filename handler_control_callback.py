@@ -4,12 +4,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import
-from logic.constant import FSB, FSB, SB
+from logic.constant import FSB, SB
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
-from keyboards import multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb, \
-    add_stalk_kb
+from keyboards import (
+    multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb, add_stalk_kb,
+)
 from work import send_pdf_job
 
 
@@ -283,5 +284,5 @@ async def delete_search(callback: CallbackQuery, state: FSMContext):
     # добавление слежки вручную
     await state.set_state(CreateCar.add_url_stalk)
     await callback.message.edit_text(
-        'Отправьте сюда ссылку на обявление, мможно отправить несколько через пробел',
+        'Отправьте сюда ссылку на обявление у которого хотите оследить изменение цены. Можно отправить несколько через пробел',
         reply_markup=add_stalk_kb)
