@@ -25,12 +25,12 @@ async def get_rusult(message: Message, state: FSMContext):
         c.append(data[item].replace(SB, FSB))
     if len(c) > 0 and c[0] != FSB:
         await message.answer(
-            text=decode_filter_short(lists=c),
+            text='Проверьте данные, если еобходимо отредактируйте перед сохранением.',
             reply_markup=ReplyKeyboardRemove()
         )
         await message.answer(
             text='Управление фильтром:',
-            reply_markup=result_menu_kb(),
+            reply_markup=result_menu_kb(fsm=c),
         )
     else:
         await message.answer(

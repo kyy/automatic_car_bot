@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
-from logic.constant import CF
+from logic.constant import CF, SS
 from logic.func import decode_filter_short
 
 
@@ -37,8 +37,14 @@ def start_menu_kb(help_flag):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def result_menu_kb():
+def result_menu_kb(fsm):
     # меню сформированного фильтра
+    f = (decode_filter_short(lists=fsm)).split(' | ')
+    state_class = [([f[0], 'edit_search'], [f[1], 'cb_model']),
+                   ([f[2], 'cb_motor'], [f[3], 'cb_transmission']),
+                   ([f[4], 'cb_year_from'], [f[5], 'cb_year_to']),
+                   ([f[6], 'cb_price_from'], [f[7], 'cb_price_to']),
+                   ([f[8], 'cb_dimension_from'], [f[9], 'cb_dimension_to'])]
     buttons = [[
         InlineKeyboardButton(
             text="📝 Сохранить фильтр",
@@ -46,11 +52,7 @@ def result_menu_kb():
         InlineKeyboardButton(
             text="🖼 Отмена",
             callback_data="start_menu_help_hide")]]
-    state_class = [(['brand', 'edit_search'], ['model', 'cb_model']),
-                   (['motor', 'cb_motor'], ['transmission', 'cb_transmission']),
-                   (['year_from', 'cb_year_from'], ['year_to', 'cb_year_to']),
-                   (['price_from', 'cb_price_from'], ['price_to', 'cb_price_to']),
-                   (['dimension_from', 'cb_dimension_from'], ['dimension_to', 'cb_dimension_to'])]
+
     buttons.extend([
         [InlineKeyboardButton(text=i[0][0], callback_data=i[0][1]),
         InlineKeyboardButton(text=i[1][0], callback_data=i[1][1])] for i in state_class])

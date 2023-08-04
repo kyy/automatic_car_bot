@@ -347,6 +347,7 @@ async def edit_year_from(callback: CallbackQuery, state: FSMContext):
     # изменить год от
     data = await state.get_data()
     year = data['chosen_year_to']
+    year = get_years()[-1] if year == SB else year
     await callback.message.answer(
             text="Теперь, выберите с какого года:",
             reply_markup=multi_row_kb(
@@ -381,6 +382,7 @@ async def edit_price_from(callback: CallbackQuery, state: FSMContext):
     # изменить цена от
     data = await state.get_data()
     cost = data['chosen_cost_max']
+    cost = get_cost()[-1] if cost == SB else cost
     await callback.message.answer(
             text="Теперь, выберите начальную цену:",
             reply_markup=multi_row_kb(
@@ -415,6 +417,7 @@ async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
     # изменить объем от
     data = await state.get_data()
     dimension = data['chosen_dimension_max']
+    dimension = get_dimension()[-1] if dimension == SB else dimension
     await callback.message.answer(
             text="Теперь, выберите минимальный объем двигателя:",
             reply_markup=multi_row_kb(
