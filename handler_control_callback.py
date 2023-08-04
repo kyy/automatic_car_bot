@@ -2,15 +2,17 @@ from datetime import datetime as datatime_datatime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
+
+from handler_create_filter import get_rusult
 from logic.cook_parse_cars import parse_main
-from logic.func import get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import
-from logic.constant import FSB, SB
+from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
+                        get_years, get_cost, get_dimension,)
+from logic.constant import FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
-from keyboards import (
-    multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb, add_stalk_kb,
-)
+from keyboards import (multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb,
+                       add_stalk_kb,)
 from work import send_pdf_job
 
 
@@ -286,3 +288,143 @@ async def delete_search(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(
         'Отправьте сюда ссылку на обявление у которого хотите оследить изменение цены. Можно отправить несколько через пробел',
         reply_markup=add_stalk_kb)
+
+
+@router.callback_query(F.data == 'cb_model')
+async def edit_model(callback: CallbackQuery, state: FSMContext):
+    # изменить модель
+    data = await state.get_data()
+    brand = data['chosen_brand']
+    await callback.message.answer(
+            text="Теперь, выберите модель:",
+            reply_markup=multi_row_kb(
+                await get_models(brand),
+                input_field_placeholder='имя модели')
+            )
+    await state.set_state(CreateCar.model_choosing)
+
+
+@router.callback_query(F.data == 'cb_motor')
+async def edit_motor(callback: CallbackQuery, state: FSMContext):
+    # изменить двигатель
+    await callback.message.answer(
+            text="Теперь, выберите тип топлива:",
+            reply_markup=multi_row_kb(
+                MOTOR,
+                input_field_placeholder='тип топлива',
+                columns = COL_MOTOR,
+            )
+        )
+    await state.set_state(CreateCar.motor_choosing)
+
+
+@router.callback_query(F.data == 'cb_transmission')
+async def edit_transmission(callback: CallbackQuery, state: FSMContext):
+    # изменить двигатель
+    await callback.message.answer(
+            text="Теперь, выберите тип трансмиссии:",
+            reply_markup=multi_row_kb(
+                TRANSMISSION,
+                input_field_placeholder='тип трансмиссии'
+            )
+        )
+    await state.set_state(CreateCar.transmission_choosing)
+
+
+@router.callback_query(F.data == 'cb_year_from')
+async def edit_year_from(callback: CallbackQuery, state: FSMContext):
+    # изменить год от
+    await callback.message.answer(
+            text="Теперь, выберите с какого года:",
+            reply_markup=multi_row_kb(
+                get_years(),
+                input_field_placeholder='год от',
+                columns=COL_YEARS,
+            )
+        )
+    await state.set_state(CreateCar.year_choosing)
+
+
+@router.callback_query(F.data == 'cb_year_to')
+async def edit_year_to(callback: CallbackQuery, state: FSMContext):
+    # изменить го до
+    data = await state.get_data()
+    year = data['chosen_year_from']
+    if year == SB:
+        year = get_years()[1]
+    await callback.message.answer(
+            text="Теперь, выберите по какой год:",
+            reply_markup=multi_row_kb(
+                get_years(from_year=int(year)),
+                input_field_placeholder='год по',
+                columns=COL_YEARS,
+            )
+        )
+    await state.set_state(CreateCar.yearm_choosing)
+
+
+@router.callback_query(F.data == 'cb_price_from')
+async def edit_price_from(callback: CallbackQuery, state: FSMContext):
+    # изменить цена от
+    await callback.message.answer(
+            text="Теперь, выберите начальную цену:",
+            reply_markup=multi_row_kb(
+                get_cost(),
+                input_field_placeholder='стоимость от',
+                columns=COL_COST,
+            )
+        )
+    await state.set_state(CreateCar.cost_choosing)
+
+
+@router.callback_query(F.data == 'cb_price_to')
+async def edit_price_to(callback: CallbackQuery, state: FSMContext):
+    # изменить цена до
+    data = await state.get_data()
+    cost = data['chosen_cost_min']
+    if cost == SB:
+        cost = get_cost()[1]
+    print(cost)
+    await callback.message.answer(
+            text="Теперь, выберите максимальную цену:",
+            reply_markup=multi_row_kb(
+                get_cost(from_cost=int(cost)),
+                input_field_placeholder='стоимость до',
+                columns=COL_COST,
+            )
+        )
+    await state.set_state(CreateCar.dimension_choosing)
+
+
+@router.callback_query(F.data == 'cb_dimension_from')
+async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
+    # изменить объем от
+    await callback.message.answer(
+            text="Теперь, выберите минимальный объем двигателя:",
+            reply_markup=multi_row_kb(
+                get_dimension(),
+                input_field_placeholder='объем двигателя от',
+                columns=COL_DIMENSION,
+            )
+        )
+    await state.set_state(CreateCar.dimensionm_choosing)
+
+
+@router.callback_query(F.data == 'cb_dimension_to')
+async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
+    # изменить объем до
+    data = await state.get_data()
+    dimension = data['chosen_dimension_min']
+    if dimension == SB:
+        dimension = get_dimension()[1]
+    print(dimension)
+    await callback.message.answer(
+            text="Теперь, выберите максимальный объем двигателя:",
+            reply_markup=multi_row_kb(
+                get_dimension(from_dim=float(dimension)),
+                input_field_placeholder='объем двигателя до',
+                columns=COL_DIMENSION,
+            )
+        )
+    await state.set_state(CreateCar.finish_choosing)
+

@@ -318,7 +318,7 @@ async def finish_chosen(message: Message, state: FSMContext):
 
 
 @router.message(CreateCar.add_url_stalk)
-async def get_rusult(message: Message):
+async def add_stalk(message: Message):
     #  добавление ссылок через чат для отслеживания
     mes = message.text
     tel_id = message.from_user.id

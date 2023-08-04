@@ -47,6 +47,7 @@ def result_menu_kb():
             text="🖼 Отмена",
             callback_data="start_menu_help_hide")]]
     state_class = [(['brand', 'cb_brand'], ['model', 'cb_model']),
+                   (['motor', 'cb_motor'], ['transmission', 'cb_transmission']),
                    (['year_from', 'cb_year_from'], ['year_to', 'cb_year_to']),
                    (['price_from', 'cb_price_from'], ['price_to', 'cb_price_to']),
                    (['dimension_from', 'cb_dimension_from'], ['dimension_to', 'cb_dimension_to'])]
@@ -130,7 +131,7 @@ def car_message_kb():
 
 
 async def stalk_menu_kb(callback, db, help_flag=False):
-    # меню списка слкжки
+    # меню списка слежки
     help_callback = 'stalk_menu_help_show' if help_flag is True else 'stalk_menu_help_hide'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     user_id = callback.from_user.id
