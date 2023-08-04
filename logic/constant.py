@@ -46,3 +46,14 @@ HEADERS_JSON = {
                       'Chrome/109.0.0.0 Safari/537.36',
         'accept': '*/*',
         'content-type': 'application/json'}
+
+default = {'chosen_brand': SB,
+     'chosen_model': SB,
+     'chosen_motor': SB,
+     'chosen_transmission': SB,
+     'chosen_year_from': SB,
+     'chosen_year_to': SB,
+     'chosen_cost_min': SB,
+     'chosen_cost_max': SB,
+     'chosen_dimension_min': SB,
+     'chosen_dimension_max': SB}

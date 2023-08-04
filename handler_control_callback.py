@@ -7,7 +7,7 @@ from handler_create_filter import get_rusult
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension,)
-from logic.constant import FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION
+from logic.constant import FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION, default
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
@@ -83,17 +83,7 @@ async def help_hide_stalk_menu(callback: CallbackQuery):
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
-    await state.update_data(chosen_brand=SB,
-                            chosen_model=SB,
-                            chosen_motor=SB,
-                            chosen_transmission=SB,
-                            chosen_year_from=SB,
-                            chosen_year_to=SB,
-                            chosen_cost_min=SB,
-                            chosen_cost_max=SB,
-                            chosen_dimension_min=SB,
-                            chosen_dimension_max=SB,
-                            )
+    await state.update_data(default)
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),
@@ -355,10 +345,12 @@ async def edit_transmission(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_year_from')
 async def edit_year_from(callback: CallbackQuery, state: FSMContext):
     # изменить год от
+    data = await state.get_data()
+    year = data['chosen_year_to']
     await callback.message.answer(
             text="Теперь, выберите с какого года:",
             reply_markup=multi_row_kb(
-                get_years(),
+                get_years(to_year=int(year)),
                 input_field_placeholder='год от',
                 columns=COL_YEARS,
             )
@@ -387,10 +379,12 @@ async def edit_year_to(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_price_from')
 async def edit_price_from(callback: CallbackQuery, state: FSMContext):
     # изменить цена от
+    data = await state.get_data()
+    cost = data['chosen_cost_max']
     await callback.message.answer(
             text="Теперь, выберите начальную цену:",
             reply_markup=multi_row_kb(
-                get_cost(),
+                get_cost(to_cost=int(cost)),
                 input_field_placeholder='стоимость от',
                 columns=COL_COST,
             )
@@ -419,10 +413,12 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_dimension_from')
 async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
     # изменить объем от
+    data = await state.get_data()
+    dimension = data['chosen_dimension_max']
     await callback.message.answer(
             text="Теперь, выберите минимальный объем двигателя:",
             reply_markup=multi_row_kb(
-                get_dimension(),
+                get_dimension(to_dim=float(dimension)),
                 input_field_placeholder='объем двигателя от',
                 columns=COL_DIMENSION,
             )
@@ -437,7 +433,6 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
     dimension = data['chosen_dimension_min']
     if dimension == SB:
         dimension = get_dimension()[1]
-    print(dimension)
     await callback.message.answer(
             text="Теперь, выберите максимальный объем двигателя:",
             reply_markup=multi_row_kb(
@@ -447,4 +442,3 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
             )
         )
     await state.set_state(CreateCar.finish_choosing)
-

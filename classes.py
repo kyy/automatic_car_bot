@@ -1,8 +1,8 @@
-from string import ascii_lowercase
-
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import Bot
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from logic.constant import FSB
 
 
 class Settings(BaseSettings):
@@ -16,6 +16,7 @@ bot = Bot(token=config.BOT_TOKEN)
 
 
 class CreateCar(StatesGroup):
+
     start_choosing = State()
     brand_choosing = State()
     model_choosing = State()

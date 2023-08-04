@@ -8,7 +8,7 @@ from keyboards import multi_row_kb, result_menu_kb
 from logic.database.config import database
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
 from logic.constant import (FSB, CF, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION, SB, EB,
-                            AV_ROOT, ABW_ROOT)
+                            AV_ROOT, ABW_ROOT, default)
 
 
 router = Router()
@@ -43,17 +43,7 @@ async def get_rusult(message: Message, state: FSMContext):
 @router.message(F.text.casefold() == "car")
 @router.message(CreateCar.start_choosing)
 async def brand_chosen(message: Message, state: FSMContext):
-    await state.update_data(chosen_brand=SB,
-                            chosen_model=SB,
-                            chosen_motor=SB,
-                            chosen_transmission=SB,
-                            chosen_year_from=SB,
-                            chosen_year_to=SB,
-                            chosen_cost_min=SB,
-                            chosen_cost_max=SB,
-                            chosen_dimension_min=SB,
-                            chosen_dimension_max=SB,
-                            )
+    await state.update_data(default)
     await message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),
@@ -86,8 +76,8 @@ async def model_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.model_choosing)
 async def motor_chosen(message: Message, state: FSMContext):
-    user_data = await state.get_data()
-    if message.text in await get_models(user_data['chosen_brand']) or message.text in CF:
+    data = await state.get_data()
+    if message.text in await get_models(data['chosen_brand']) or message.text in CF:
         await state.update_data(chosen_model=message.text)
         await message.answer(
             text="Теперь, выберите тип топлива:",
@@ -102,7 +92,7 @@ async def motor_chosen(message: Message, state: FSMContext):
             text="Я не знаю такой модели.\n"
                  "Пожалуйста, выберите один из вариантов из списка ниже:",
             reply_markup=multi_row_kb(
-                await get_models(user_data['chosen_brand']),
+                await get_models(data['chosen_brand']),
                 input_field_placeholder='имя модели'
             )
         )
@@ -138,11 +128,14 @@ async def transmission_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.transmission_choosing)
 async def from_year_chosen(message: Message, state: FSMContext):
     if message.text in (TRANSMISSION + CF):
+        data = await state.get_data()
+        year = data['chosen_year_to']
+        year = get_years()[-1] if year == SB else year
         await state.update_data(chosen_transmission=message.text)
         await message.answer(
             text="Теперь, выберите с какого года:",
             reply_markup=multi_row_kb(
-                get_years(),
+                get_years(to_year=int(year)),
                 input_field_placeholder='год от',
                 columns=COL_YEARS,
             )
@@ -189,14 +182,16 @@ async def to_year_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.yearm_choosing)
 async def min_cost_chosen(message: Message, state: FSMContext):
-    user_data = await state.get_data()
-    year = get_years()[1] if SB == user_data['chosen_year_from'] else user_data['chosen_year_from']
+    data = await state.get_data()
+    year = get_years()[1] if SB == data['chosen_year_from'] else data['chosen_year_from']
     if message.text in (get_years(from_year=int(year)) + CF):
         await state.update_data(chosen_year_to=message.text)
+        cost = data['chosen_cost_max']
+        cost = get_cost()[-1] if cost == SB else cost
         await message.answer(
             text="Теперь, выберите начальную цену:",
             reply_markup=multi_row_kb(
-                get_cost(),
+                get_cost(to_cost=int(cost)),
                 input_field_placeholder='стоимость от',
                 columns=COL_COST,
             )
@@ -244,14 +239,16 @@ async def max_cost_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.dimension_choosing)
 async def min_dimension_chosen(message: Message, state: FSMContext):
-    user_data = await state.get_data()
-    cost = get_cost()[1] if SB == user_data['chosen_cost_min'] else user_data['chosen_cost_min']
+    data = await state.get_data()
+    cost = get_cost()[1] if SB == data['chosen_cost_min'] else data['chosen_cost_min']
     if message.text in (get_cost(from_cost=int(cost)) + CF):
         await state.update_data(chosen_cost_max=message.text)
+        dimension = data['chosen_dimension_max']
+        dimension = get_dimension()[-1] if dimension == SB else dimension
         await message.answer(
             text="Теперь, выберите минимальный объем двигателя:",
             reply_markup=multi_row_kb(
-                get_dimension(),
+                get_dimension(to_dim=float(dimension)),
                 input_field_placeholder='объем двигателя от',
                 columns=COL_DIMENSION,
             )
@@ -261,7 +258,7 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
             text="Цена введена не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
             reply_markup=multi_row_kb(
-                get_cost(from_cost=int(user_data['chosen_cost_min'])),
+                get_cost(from_cost=int(data['chosen_cost_min'])),
                 input_field_placeholder='стоимость до',
                 columns=COL_COST,
             )
@@ -299,9 +296,9 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.finish_choosing)
 async def finish_chosen(message: Message, state: FSMContext):
-    user_data = await state.get_data()
-    dimension = get_dimension()[1] if SB == user_data['chosen_dimension_min'] \
-        else user_data['chosen_dimension_min']
+    data = await state.get_data()
+    dimension = get_dimension()[1] if SB == data['chosen_dimension_min'] \
+        else data['chosen_dimension_min']
     if message.text in (get_dimension(from_dim=float(dimension)) + CF):
         await state.update_data(chosen_dimension_max=message.text)
     else:
@@ -309,7 +306,7 @@ async def finish_chosen(message: Message, state: FSMContext):
             text="Объем введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
             reply_markup=multi_row_kb(
-                get_dimension(from_dim=float(user_data['chosen_dimension_min'])),
+                get_dimension(from_dim=float(data['chosen_dimension_min'])),
                 input_field_placeholder='объем до',
             )
         )
@@ -324,7 +321,7 @@ async def add_stalk(message: Message):
     tel_id = message.from_user.id
     entities = message.entities or []
     for url in entities:
-        if url.type == 'url':  #  ищем ссылки в сообщении
+        if url.type == 'url':
             url = url.extract_from(mes)
             if url[:13] in (AV_ROOT + ABW_ROOT):
                 async with database() as db:

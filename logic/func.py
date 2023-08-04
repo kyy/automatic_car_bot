@@ -125,7 +125,6 @@ def decode_filter_short(string: str = None, lists: list = None, sep: str = SS):
             c[3] = 'автомат' if c[3] == 'a' else 'механика'
     else:
         c = lists
-        print(c)
     text = f"{c[0].replace(FSB, 'все бренды')} {c[1].replace(FSB, 'все модели')} " \
            f"{c[2].replace(FSB, 'все типы двигателей')} {c[3].replace(FSB, 'все типы трансмиссий')} " \
            f"с {c[4].replace(FSB, get_years()[1])}  по {c[5].replace(FSB, str(datetime.now().year))} г " \
