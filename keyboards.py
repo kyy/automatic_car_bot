@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
-from logic.constant import CF, SB
+from logic.constant import CF
 from logic.func import decode_filter_short
 
 
@@ -12,9 +12,7 @@ def single_row_kb(items: list[str]) -> ReplyKeyboardMarkup:
 def multi_row_kb(items: list[str], columns: int = 4, del_sb=False, **kwargs) -> ReplyKeyboardMarkup:
     kb = [KeyboardButton(text=i) for i in items]
     kb = [kb[i:i + columns] for i in range(0, len(kb), columns)]  # группируем на подсписки длинной columns
-    kb_control = [[KeyboardButton(text=i) for i in CF]]
-    if del_sb is True:
-        kb_control = [[KeyboardButton(text=i) for i in CF[:-1]]]
+    kb_control = [[KeyboardButton(text=i) for i in (CF[:-1] if del_sb is True else CF)]]
     kb_control.extend(kb)
     return ReplyKeyboardMarkup(**kwargs, keyboard=kb_control, resize_keyboard=True)
 

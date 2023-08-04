@@ -319,11 +319,12 @@ async def finish_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.add_url_stalk)
 async def get_rusult(message: Message):
+    #  добавление ссылок через чат для отслеживания
     mes = message.text
     tel_id = message.from_user.id
     entities = message.entities or []
     for url in entities:
-        if url.type == 'url':
+        if url.type == 'url':  #  ищем ссылки в сообщении
             url = url.extract_from(mes)
             if url[:13] in (AV_ROOT + ABW_ROOT):
                 async with database() as db:
