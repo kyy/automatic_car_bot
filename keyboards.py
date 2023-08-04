@@ -46,7 +46,7 @@ def result_menu_kb():
         InlineKeyboardButton(
             text="🖼 Отмена",
             callback_data="start_menu_help_hide")]]
-    state_class = [(['brand', 'cb_brand'], ['model', 'cb_model']),
+    state_class = [(['brand', 'edit_search'], ['model', 'cb_model']),
                    (['motor', 'cb_motor'], ['transmission', 'cb_transmission']),
                    (['year_from', 'cb_year_from'], ['year_to', 'cb_year_to']),
                    (['price_from', 'cb_price_from'], ['price_to', 'cb_price_to']),

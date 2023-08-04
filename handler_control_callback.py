@@ -83,14 +83,23 @@ async def help_hide_stalk_menu(callback: CallbackQuery):
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
+    await state.update_data(chosen_brand=SB,
+                            chosen_model=SB,
+                            chosen_motor=SB,
+                            chosen_transmission=SB,
+                            chosen_year_from=SB,
+                            chosen_year_to=SB,
+                            chosen_cost_min=SB,
+                            chosen_cost_max=SB,
+                            chosen_dimension_min=SB,
+                            chosen_dimension_max=SB,
+                            )
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
-        reply_markup=multi_row_kb(
-            await get_brands(),
+        reply_markup=multi_row_kb(await get_brands(), del_sb=True),
             input_field_placeholder='имя бренда',
         )
-    )
-    await state.set_state(CreateCar.start_choosing)
+    await state.set_state(CreateCar.brand_choosing)
 
 
 @router.callback_query(F.data == 'save_search')
@@ -290,6 +299,18 @@ async def delete_search(callback: CallbackQuery, state: FSMContext):
         reply_markup=add_stalk_kb)
 
 
+@router.callback_query(F.data == 'edit_search')
+async def brand_chosen(callback: CallbackQuery, state: FSMContext):
+    # создать фильтр
+    await state.update_data(chosen_model=SB)  # сбрасываем модель при смене бренда
+    await callback.message.answer(
+        text="Выберите бренд автомобиля:",
+        reply_markup=multi_row_kb(await get_brands(), del_sb=True),
+            input_field_placeholder='имя бренда',
+        )
+    await state.set_state(CreateCar.brand_choosing)
+
+
 @router.callback_query(F.data == 'cb_model')
 async def edit_model(callback: CallbackQuery, state: FSMContext):
     # изменить модель
@@ -384,7 +405,6 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
     cost = data['chosen_cost_min']
     if cost == SB:
         cost = get_cost()[1]
-    print(cost)
     await callback.message.answer(
             text="Теперь, выберите максимальную цену:",
             reply_markup=multi_row_kb(
