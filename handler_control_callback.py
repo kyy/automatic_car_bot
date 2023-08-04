@@ -214,6 +214,12 @@ async def report_search(callback: CallbackQuery):
     await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
 
 
+@router.callback_query(F.data == 'comparison')
+async def report_search(callback: CallbackQuery):
+    # заказ сравнения
+    pass
+
+
 @router.callback_query(F.data == 'bot_functions')
 async def bot_functions(callback: CallbackQuery):
     #   описание бота
@@ -231,9 +237,13 @@ async def bot_functions(callback: CallbackQuery):
 @router.callback_query(F.data == 'message_delete')
 async def message_delete(callback: CallbackQuery):
     # удалить сообщение
-    await bot.delete_message(
-        chat_id=callback.from_user.id,
-        message_id=callback.message.message_id, )
+    await callback.message.delete()
+
+
+@router.callback_query(F.data == 'message_favorite')
+async def message_delete(callback: CallbackQuery):
+    # добавить в избранное
+    await callback.message.forward()
 
 
 @router.callback_query(F.data == 'car_follow')

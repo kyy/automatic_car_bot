@@ -52,7 +52,6 @@ def result_menu_kb(fsm):
         InlineKeyboardButton(
             text="🖼 Отмена",
             callback_data="start_menu_help_hide")]]
-
     buttons.extend([
         [InlineKeyboardButton(text=i[0][0], callback_data=i[0][1]),
         InlineKeyboardButton(text=i[1][0], callback_data=i[1][1])] for i in state_class])
@@ -132,6 +131,14 @@ def car_message_kb():
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
+def car_price_message_kb():
+    buttons = [[
+        InlineKeyboardButton(
+            text="Удалить",
+            callback_data="message_delete")]]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
 async def stalk_menu_kb(callback, db, help_flag=False):
     # меню списка слежки
     help_callback = 'stalk_menu_help_show' if help_flag is True else 'stalk_menu_help_hide'
@@ -160,10 +167,13 @@ async def stalk_menu_kb(callback, db, help_flag=False):
         InlineKeyboardButton(
             text='Добавить ссылку',
             callback_data='add_stalk')])
-    buttons.append([
+    buttons.extend([[
+        InlineKeyboardButton(
+            text='Сравнить все машины',
+            callback_data='comparison')], [
         InlineKeyboardButton(
             text=help_text,
-            callback_data=help_callback)])
+            callback_data=help_callback)]])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 

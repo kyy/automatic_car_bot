@@ -94,7 +94,7 @@ def json_parse_av(json_data, work):
 def car_json_by_id(id_car):
     url = f'https://api.av.by/offers/{id_car}'
     try:
-        r = requests.get(url, headers=headers).json()
+        r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r['price']['usd']['amount'])
     except requests.exceptions.RequestException:
         return False

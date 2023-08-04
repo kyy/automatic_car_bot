@@ -19,7 +19,6 @@ def urls(av, abw, onliner, work):
         cars.extend([*json_links_abw(abw)])
     if onliner:
         cars.extend([*json_links_onliner(onliner, work)])
-
     return cars
 
 

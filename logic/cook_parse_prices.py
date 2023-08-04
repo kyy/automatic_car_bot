@@ -2,6 +2,7 @@ import asyncio
 from aiohttp import ClientSession
 
 from classes import bot
+from keyboards import car_price_message_kb
 from .constant import HEADERS, ONLINER_API, AV_API
 from logic.database.config import database
 
@@ -72,7 +73,9 @@ async def check_price(result):
                                            f'Старая цена - {row[3]}$\n'
                                            f'Текущая цена - {car[0]}$\n'
                                            f'Разница - {abs(row[3] - car[0])}$\n'
-                                           f'{car[1]}')
+                                           f'{car[1]}',
+                                           reply_markup=car_price_message_kb(),
+                                           )
                 await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
         await db.commit()
 
