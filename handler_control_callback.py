@@ -264,7 +264,6 @@ async def car_stalk(callback: CallbackQuery):
 async def pagination(callback: CallbackQuery):
     async with database() as db:
         page = int(callback.data.split('_')[0])
-        print(page)
         await callback.message.edit_text(
             'Список слежки',
             reply_markup=await stalk_menu_kb(callback, db, True, page))

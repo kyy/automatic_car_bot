@@ -153,18 +153,18 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
         pass
     else:
         lsp = len(search_params)
-        per_page = 2
+        per_page = 3
         pages = (lsp // per_page + 1) if (lsp % per_page != 0) else (lsp // per_page)
         cb_next = 2
         cb_prev = pages
         if cur_page == 1:
-            search_params = [i for i in search_params[0:per_page]]
+            search_params = search_params[0:per_page]
         elif pages == cur_page:
-            search_params = [i for i in search_params[pages*per_page-1:]]
+            search_params = search_params[cur_page*per_page-per_page:]
             cb_next = 1
             cb_prev = pages - 1
         elif pages > cur_page > 1:
-            search_params = [i for i in search_params[cur_page*per_page-per_page:cur_page*per_page]]
+            search_params = search_params[cur_page*per_page-per_page:cur_page*per_page]
             cb_next = cur_page + 1
             cb_prev = cur_page - 1
 
@@ -176,20 +176,16 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
             InlineKeyboardButton(
                 text='Удалить',
                 callback_data=f's_{i[1]}_del')] for i in search_params]
-
-
         buttons.append([
             InlineKeyboardButton(
                 text='<<',
                 callback_data=f'{cb_prev}_prev'),
             InlineKeyboardButton(
                 text=f'{cur_page}/{pages}',
-                callback_data='__'),
+                callback_data='1_prev'),
             InlineKeyboardButton(
                 text='>>',
                 callback_data=f'{cb_next}_next')])
-
-
     buttons.append([
         InlineKeyboardButton(
             text='Назад',
