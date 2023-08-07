@@ -202,7 +202,7 @@ async def report_search(callback: CallbackQuery):
         return await bot.send_message(user_id, "Ошибка при сборе данных.\n")
     async with database() as db:
         await callback.message.edit_text("Сбор данных.",
-                                         reply_markup=await params_menu_kb(callback, db),
+                                         reply_markup=await params_menu_kb(callback, db, True),
                                          disable_web_page_preview=True,
                                          parse_mode="HTML", )
     link_count = {'av': [av_l, all_av],
@@ -232,12 +232,6 @@ async def message_delete(callback: CallbackQuery):
     await callback.message.delete()
 
 
-@router.callback_query(F.data == 'message_favorite')
-async def message_delete(callback: CallbackQuery):
-    #   добавить в избранное
-    await callback.message.forward()
-
-
 @router.callback_query(F.data == 'car_follow')
 async def car_follow(callback: CallbackQuery):
     #   Добавить в слежку
@@ -264,6 +258,21 @@ async def car_stalk(callback: CallbackQuery):
         await callback.message.edit_text(
             'Список слежки',
             reply_markup=await stalk_menu_kb(callback, db, True))
+
+
+@router.callback_query((F.data.endswith('_prev')) | (F.data.endswith('_next')))
+async def pagination(callback: CallbackQuery):
+    async with database() as db:
+        page = int(callback.data.split('_')[0])
+        print(page)
+        if callback.data.endswith('_next'):
+            page += 1
+        elif callback.data.endswith('_prev'):
+            page -= 1
+        await callback.message.edit_text(
+            'Список слежки',
+            reply_markup=await stalk_menu_kb(callback, db, True, page))
+
 
 
 @router.callback_query((F.data.startswith('s_')) & (F.data.endswith('_del')))
@@ -447,3 +456,4 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
             )
         )
     await state.set_state(CreateCar.finish_choosing)
+
