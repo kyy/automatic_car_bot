@@ -2,8 +2,6 @@ from datetime import datetime as datatime_datatime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-
-from handler_create_filter import get_rusult
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension,)
@@ -21,7 +19,7 @@ router = Router()
 
 @router.callback_query(F.data == 'start_menu_help_show')
 async def help_show_start_menu(callback: CallbackQuery):
-    # показать помощь главном меню
+    #   показать помощь главном меню
     await callback.message.edit_text(
         'БОТ поможет вам найти подходящий автомобиль. '
         'Просто создайте и сохраните необходимый поиск-фильтр, и БОТ начнет вам присылать свежие обявления.\n'
@@ -36,7 +34,7 @@ async def help_show_start_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'start_menu_help_hide')
 async def help_hide_params_menu(callback: CallbackQuery):
-    # скрыть помощь главном меню
+    #   скрыть помощь главном меню
     await callback.message.edit_text(
         'Главное меню',
         reply_markup=start_menu_kb(True))
@@ -44,7 +42,7 @@ async def help_hide_params_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'params_menu_help_show')
 async def help_show_params_menu(callback: CallbackQuery):
-    # отобразить помощь списка фильтров
+    #   отобразить помощь списка фильтров
     async with database() as db:
         await callback.message.edit_text(
             'Нажав на фильтр можно заказать сравнительный отчет о всех активных объявлениях.\n'
@@ -55,7 +53,7 @@ async def help_show_params_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'params_menu_help_hide')
 async def help_hide_params_menu(callback: CallbackQuery):
-    # скрыть помощь списка фильтров
+    #   скрыть помощь списка фильтров
     async with database() as db:
         await callback.message.edit_text(
             'Список фильтров',
@@ -64,7 +62,7 @@ async def help_hide_params_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'stalk_menu_help_show')
 async def help_show_stalk_menu(callback: CallbackQuery):
-    # показать помощь слежки меню
+    #   показать помощь слежки меню
     async with database() as db:
         await callback.message.edit_text(
             'БОТ уведомит вас о изменениях цен на машины в этом списке. ',
@@ -73,7 +71,7 @@ async def help_show_stalk_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'stalk_menu_help_hide')
 async def help_hide_stalk_menu(callback: CallbackQuery):
-    # скрыть помощь слежки меню
+    #   скрыть помощь слежки меню
     async with database() as db:
         await callback.message.edit_text(
             'Список слежки',
@@ -82,7 +80,7 @@ async def help_hide_stalk_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
-    # создать фильтр
+    #   создать фильтр
     await state.update_data(default)
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
@@ -94,7 +92,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'save_search')
 async def save_search(callback: CallbackQuery, state: FSMContext):
-    # сохранение фильтра
+    #   сохранение фильтра
     data = await state.get_data()
     c = []
     for item in data:
@@ -124,7 +122,7 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'show_search')
 async def show_search(callback: CallbackQuery):
-    # список фильтров
+    #   список фильтров
     async with database() as db:
         await callback.message.edit_text(
             'Список фильтров',
@@ -154,7 +152,7 @@ async def edit_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
-    # удаление фильтра
+    #   удаление фильтра
     async with database() as db:
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
@@ -170,7 +168,7 @@ async def delete_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
 async def options_search(callback: CallbackQuery):
-    # опции фильтра, отображение кол-ва объявлений
+    #   опции фильтра, отображение кол-ва объявлений
     filter_id, filter_name, cars = await filter_import(callback, database())
     av_jsn, abw_jsn, onliner_jsn, all_av, all_abw, all_onliner, av_l, abw_l, onliner_l = await car_multidata(cars)
     all_count = [all_av, all_abw, all_onliner]
@@ -192,7 +190,7 @@ async def options_search(callback: CallbackQuery):
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_rep')))
 async def report_search(callback: CallbackQuery):
-    # заказ отчета
+    #   заказ отчета
     user_id = callback.from_user.id
     filter_id, filter_name, cars = await filter_import(callback, database())
     av_jsn, abw_jsn, onliner_jsn, all_av, all_abw, all_onliner, av_l, abw_l, onliner_l = await car_multidata(cars)
@@ -230,19 +228,19 @@ async def bot_functions(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'message_delete')
 async def message_delete(callback: CallbackQuery):
-    # удалить сообщение
+    #   удалить сообщение
     await callback.message.delete()
 
 
 @router.callback_query(F.data == 'message_favorite')
 async def message_delete(callback: CallbackQuery):
-    # добавить в избранное
+    #   добавить в избранное
     await callback.message.forward()
 
 
 @router.callback_query(F.data == 'car_follow')
 async def car_follow(callback: CallbackQuery):
-    # Добавить в слежку
+    #   Добавить в слежку
     tel_id =callback.from_user.id
     message = callback.message.text.split('\n')
     async with database() as db:

@@ -323,7 +323,7 @@ async def add_stalk(message: Message):
     for url in entities:
         if url.type == 'url':
             url = url.extract_from(mes)
-            if url[:13] in (AV_ROOT + ABW_ROOT):
+            if url[:13] in chain(AV_ROOT, ABW_ROOT):
                 async with database() as db:
                     check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
                     check_id = await check_id_cursor.fetchone()
