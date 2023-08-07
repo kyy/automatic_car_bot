@@ -181,13 +181,13 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
         buttons.append([
             InlineKeyboardButton(
                 text='<<',
-                callback_data=f'{cb_prev+1}_prev'),
+                callback_data=f'{cb_prev}_prev'),
             InlineKeyboardButton(
                 text=f'{cur_page}/{pages}',
                 callback_data='__'),
             InlineKeyboardButton(
                 text='>>',
-                callback_data=f'{cb_next-1}_next')])
+                callback_data=f'{cb_next}_next')])
 
 
     buttons.append([

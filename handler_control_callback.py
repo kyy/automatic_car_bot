@@ -265,10 +265,6 @@ async def pagination(callback: CallbackQuery):
     async with database() as db:
         page = int(callback.data.split('_')[0])
         print(page)
-        if callback.data.endswith('_next'):
-            page += 1
-        elif callback.data.endswith('_prev'):
-            page -= 1
         await callback.message.edit_text(
             'Список слежки',
             reply_markup=await stalk_menu_kb(callback, db, True, page))
