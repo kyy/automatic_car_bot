@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
-from logic.constant import CF, SS
+from logic.constant import CF
 from logic.func import decode_filter_short
 
 
@@ -14,7 +14,7 @@ def multi_row_kb(items: list[str], columns: int = 4, del_sb=False, **kwargs) -> 
     kb = [kb[i:i + columns] for i in range(0, len(kb), columns)]  # группируем на подсписки длинной columns
     kb_control = [[KeyboardButton(text=i) for i in (CF[:-1] if del_sb is True else CF)]]
     kb_control.extend(kb)
-    return ReplyKeyboardMarkup(**kwargs, keyboard=kb_control, resize_keyboard=True)
+    return ReplyKeyboardMarkup(**kwargs, keyboard=kb_control, resize_keyboard=False)
 
 
 def start_menu_kb(help_flag):
@@ -168,9 +168,6 @@ async def stalk_menu_kb(callback, db, help_flag=False):
             text='Добавить ссылку',
             callback_data='add_stalk')])
     buttons.extend([[
-        InlineKeyboardButton(
-            text='Сравнить все машины',
-            callback_data='comparison')], [
         InlineKeyboardButton(
             text=help_text,
             callback_data=help_callback)]])

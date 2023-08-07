@@ -214,12 +214,6 @@ async def report_search(callback: CallbackQuery):
     await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
 
 
-@router.callback_query(F.data == 'comparison')
-async def report_search(callback: CallbackQuery):
-    # заказ сравнения
-    pass
-
-
 @router.callback_query(F.data == 'bot_functions')
 async def bot_functions(callback: CallbackQuery):
     #   описание бота
