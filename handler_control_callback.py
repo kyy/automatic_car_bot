@@ -137,7 +137,9 @@ async def edit_search(callback: CallbackQuery):
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
         user_id = check_id[0]
-        params_id = callback.data.split('_')[1]  #{udata.id}_{udata.is_active}
+        cd = callback.data
+        params_id = cd.split('_')[1]
+        page = int(cd.split('_')[2])
         status_cursor = await db.execute(f"""SELECT is_active FROM udata 
                                              WHERE id='{params_id}' AND user_id = '{user_id}'""")
         status = await status_cursor.fetchone()
@@ -147,7 +149,7 @@ async def edit_search(callback: CallbackQuery):
         await db.commit()
         await callback.message.edit_text(
             'Cписок фильтров',
-            reply_markup=await params_menu_kb(callback, db, True))
+            reply_markup=await params_menu_kb(callback, db, True, page))
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
@@ -157,13 +159,15 @@ async def delete_search(callback: CallbackQuery):
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
-        params_id = callback.data.split('_')[1]
+        cd = callback.data
+        params_id = cd.split('_')[1]
+        page = int(cd.split('_')[2])
         await db.execute(f"""DELETE FROM udata 
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
         await callback.message.edit_text(
             'Список фильтров',
-            reply_markup=await params_menu_kb(callback, db, True))
+            reply_markup=await params_menu_kb(callback, db, True, page))
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_show')))
@@ -286,13 +290,15 @@ async def delete_search(callback: CallbackQuery):
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
-        params_id = callback.data.split('_')[1]
+        cd = callback.data
+        params_id = cd.split('_')[1]
+        page = int(cd.split('_')[2])
         await db.execute(f"""DELETE FROM ucars
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
         await callback.message.edit_text(
             'Список слежки',
-            reply_markup=await stalk_menu_kb(callback, db, True))
+            reply_markup=await stalk_menu_kb(callback, db, True, page))
 
 
 @router.callback_query(F.data == 'add_stalk')

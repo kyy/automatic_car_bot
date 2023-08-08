@@ -15,6 +15,8 @@ COL_YEARS = 5
 COL_COST = 5
 COL_DIMENSION = 8
 
+PAGINATION = 3
+
 # root links
 AV_ROOT = 'https://cars.av.by/'
 ABW_ROOT = 'https://abw.by/'

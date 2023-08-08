@@ -156,7 +156,7 @@ def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1, ):
     :param cur_page: number of current page from callback
     :param per_page: number of items per page
     :param ikb: InlineKeyboardButton
-    :return: data, number of all pages, buttons ([<<], [1/23], [>>])
+    :return: data, buttons ([<<], [1/23], [>>])
     Handler example:
             @router.callback_query((F.data.endswith('{:param name}_prev')) | (F.data.endswith('{:param name}_next')))
             async def pagination_params(callback: CallbackQuery):

@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
-from logic.constant import CF
+from logic.constant import CF, PAGINATION
 from logic.func import decode_filter_short, pagination
 
 
@@ -83,7 +83,7 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
             data=search_params,
             name='params',
             ikb=InlineKeyboardButton,
-            per_page=10,
+            per_page=PAGINATION,
             cur_page=cur_page)
         buttons = [[
             InlineKeyboardButton(
@@ -91,10 +91,10 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
                 callback_data=f'f_{i[2]}_show'),
             InlineKeyboardButton(
                 text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'),
-                callback_data=f'f_{i[2]}_{i[1]}'),
+                callback_data=f'f_{i[2]}_{cur_page}_{i[1]}'),
             InlineKeyboardButton(
                 text='Удалить',
-                callback_data=f'f_{i[2]}_del')] for i in search_params]
+                callback_data=f'f_{i[2]}_{cur_page}_del')] for i in search_params]
         buttons.append(pagination_b)
     buttons.append([
         InlineKeyboardButton(
@@ -163,7 +163,7 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
             data=search_params,
             name='stalk',
             ikb=InlineKeyboardButton,
-            per_page=10,
+            per_page=PAGINATION,
             cur_page=cur_page)
         buttons = [[
             InlineKeyboardButton(
@@ -172,7 +172,7 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
                 callback_data=f's_{i[1]}_show'),
             InlineKeyboardButton(
                 text='Удалить',
-                callback_data=f's_{i[1]}_del')] for i in search_params]
+                callback_data=f's_{i[1]}_{cur_page}_del')] for i in search_params]
         buttons.append(pagination_b)
     buttons.append([
         InlineKeyboardButton(
