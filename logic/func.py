@@ -26,7 +26,8 @@ def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json):
     av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
     try:
         abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-    except:
+    except Exception as e:
+        print(e)
         abw_link = ABW_ROOT
     onliner_link = onliner_url_filter(cars, onliner_link_json)
     return av_link, onliner_link, abw_link
@@ -37,7 +38,7 @@ async def filter_import(callback, db):
     async with db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
         filter_name = await select_filter_cursor.fetchone()     # фильтр-код ('filter=...',)
-    cars = filter_name[0][7:] # удаляем 'filter='
+    cars = filter_name[0][7:]   # удаляем 'filter='
     return filter_id, filter_name, cars
 
 
@@ -57,17 +58,18 @@ def onliner_url_filter(car_input, link):
     try:
         car = car_input.split(SS)
         brand, model = car[0:2]
-        brands = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
+        brands: dict = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
         link = link.split('vehicles?')[1]
         brand_slug = brands[brand][1]
         if model != FSB:
-            models = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
+            models: dict = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
             model_slug = models[brand][model][2]
             url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
         else:
             url = f'https://ab.onliner.by/{brand_slug}?{link}'
         return url
-    except:
+    except Exception as e:
+        print(e)
         return ONLINER_ROOT
 
 
@@ -146,15 +148,23 @@ def code_filter_short(cc: list = None):
     return 'filter=' + SS.join(cc)
 
 
-def pagination(data: iter, name: str,  IKB, per_page=3, cur_page=1, ):
+def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1, ):
     """
     Разбиваем итерируемую последовательность на страницы
     :param data: our data
     :param name: cb_name indention
     :param cur_page: number of current page from callback
     :param per_page: number of items per page
-    :param IKB: InlineKeyboardButton
+    :param ikb: InlineKeyboardButton
     :return: data, number of all pages, buttons ([<<], [1/23], [>>])
+    Handler example:
+            @router.callback_query((F.data.endswith('{:param name}_prev')) | (F.data.endswith('{:param name}_next')))
+            async def pagination_params(callback: CallbackQuery):
+            async with database() as db:
+                page = int(callback.data.split('_')[0])
+                await callback.message.edit_text(
+                    'keyboard',
+                    reply_markup=await params_menu_kb(:param cur_page))
     """
     lsp = len(data)
     pages = (lsp // per_page + 1) if (lsp % per_page != 0) else (lsp // per_page)
@@ -172,7 +182,7 @@ def pagination(data: iter, name: str,  IKB, per_page=3, cur_page=1, ):
             data = data[cur_page * per_page - per_page:cur_page * per_page]
             cb_next = cur_page + 1
             cb_prev = cur_page - 1
-        buttons = [IKB(text='<<', callback_data=f'{cb_prev}_{name}_prev'),
-                   IKB(text=f'{cur_page}/{pages}', callback_data=f'1_{name}_prev'),
-                   IKB(text='>>', callback_data=f'{cb_next}_{name}_next')]
+        buttons = [ikb(text='<<', callback_data=f'{cb_prev}_{name}_prev'),
+                   ikb(text=f'{cur_page}/{pages}', callback_data=f'1_{name}_prev'),
+                   ikb(text='>>', callback_data=f'{cb_next}_{name}_next')]
     return data, buttons

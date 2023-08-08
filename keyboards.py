@@ -82,7 +82,7 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
         search_params, pagination_b = pagination(
             data=search_params,
             name='params',
-            IKB=InlineKeyboardButton,
+            ikb=InlineKeyboardButton,
             per_page=10,
             cur_page=cur_page)
         buttons = [[
@@ -162,7 +162,7 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
         search_params, pagination_b = pagination(
             data=search_params,
             name='stalk',
-            IKB=InlineKeyboardButton,
+            ikb=InlineKeyboardButton,
             per_page=10,
             cur_page=cur_page)
         buttons = [[
