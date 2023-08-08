@@ -15,7 +15,7 @@ COL_YEARS = 5
 COL_COST = 5
 COL_DIMENSION = 8
 
-PAGINATION = 3
+PAGINATION = 5
 
 # root links
 AV_ROOT = 'https://cars.av.by/'
@@ -50,12 +50,12 @@ HEADERS_JSON = {
         'content-type': 'application/json'}
 
 default = {'chosen_brand': SB,
-     'chosen_model': SB,
-     'chosen_motor': SB,
-     'chosen_transmission': SB,
-     'chosen_year_from': SB,
-     'chosen_year_to': SB,
-     'chosen_cost_min': SB,
-     'chosen_cost_max': SB,
-     'chosen_dimension_min': SB,
-     'chosen_dimension_max': SB}
+           'chosen_model': SB,
+           'chosen_motor': SB,
+           'chosen_transmission': SB,
+           'chosen_year_from': SB,
+           'chosen_year_to': SB,
+           'chosen_cost_min': SB,
+           'chosen_cost_max': SB,
+           'chosen_dimension_min': SB,
+           'chosen_dimension_max': SB}

@@ -17,65 +17,47 @@ from work import send_pdf_job
 router = Router()
 
 
-@router.callback_query(F.data == 'start_menu_help_show')
+@router.callback_query(F.data.startswith('start_menu_help'))
 async def help_show_start_menu(callback: CallbackQuery):
-    #   показать помощь главном меню
-    await callback.message.edit_text(
-        'БОТ поможет вам найти подходящий автомобиль. '
-        'Просто создайте и сохраните необходимый поиск-фильтр, и БОТ начнет вам присылать свежие обявления.\n'
-        '- Открыть главное меню - /start.\n'
-        '- Cоздать фильтр  - /car.\n'
-        '- Если необходимо оставить параметр пустым выбирайте - [?].\n'
-        '- Если хотите прпустить шаги с выбором параметров нажмите [menu]->[/show].\n'
-        '- Сохраненные фильтры можно отключить или удалить в управлнии фильтрами.\n'
-        '- Узнать больше команд /help.',
-        reply_markup=start_menu_kb(False))
+    #   показать/скрыть помощь главном меню
+    cd = callback.data.split('_')
+    text_false = 'БОТ поможет вам найти подходящий автомобиль.'\
+                 'Просто создайте и сохраните необходимый поиск-фильтр, и БОТ начнет вам присылать свежие обявления.\n'\
+                 '- Открыть главное меню - /start.\n'\
+                 '- Cоздать фильтр  - /car.\n'\
+                 '- Если необходимо оставить параметр пустым выбирайте - [?].\n'\
+                 '- Если хотите прпустить шаги с выбором параметров нажмите [menu]->[/show].\n'\
+                 '- Сохраненные фильтры можно отключить или удалить в управлнии фильтрами.\n'\
+                 '- Узнать больше команд /help.'
+    text_true = 'Главное меню'
+    help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
+    await callback.message.edit_text(text, reply_markup=start_menu_kb(help_flag), parse_mode='HTML')
 
 
-@router.callback_query(F.data == 'start_menu_help_hide')
-async def help_hide_params_menu(callback: CallbackQuery):
-    #   скрыть помощь главном меню
-    await callback.message.edit_text(
-        'Главное меню',
-        reply_markup=start_menu_kb(True))
-
-
-@router.callback_query(F.data == 'params_menu_help_show')
+@router.callback_query(F.data.startswith('params_menu_help'))
 async def help_show_params_menu(callback: CallbackQuery):
-    #   отобразить помощь списка фильтров
+    #   показать/скрыть  помощь списка фильтров
     async with database() as db:
-        await callback.message.edit_text(
-            'Нажав на фильтр можно заказать сравнительный отчет о всех активных объявлениях.\n'
-            'Отчет представляет собой PDF-файл, нажав на марку в файле можно перейти к обявлению на сайте.',
-            'Отчет содержит, VIN, сколько дней опубликовано объявление, город... и многое другое.',
-            reply_markup=await params_menu_kb(callback, db, False))
+        cd = callback.data.split('_')
+        page = int(cd[4])
+        text_false = 'Нажав на фильтр можно заказать сравнительный отчет о всех активных объявлениях.\n'\
+                     'Отчет представляет собой PDF-файл, нажав на марку в файле можно перейти к обявлению на сайте.'\
+                     'Отчет содержит, VIN, сколько дней опубликовано объявление, город... и многое другое.'
+        text_true = 'Список фильтров'
+        help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
+        await callback.message.edit_text(text, reply_markup=await params_menu_kb(callback, db, help_flag, page))
 
 
-@router.callback_query(F.data == 'params_menu_help_hide')
-async def help_hide_params_menu(callback: CallbackQuery):
-    #   скрыть помощь списка фильтров
-    async with database() as db:
-        await callback.message.edit_text(
-            'Список фильтров',
-            reply_markup=await params_menu_kb(callback, db, True))
-
-
-@router.callback_query(F.data == 'stalk_menu_help_show')
+@router.callback_query(F.data.startswith('stalk_menu_help'))
 async def help_show_stalk_menu(callback: CallbackQuery):
-    #   показать помощь слежки меню
+    #   показать/скрыть помощь слежки меню
     async with database() as db:
-        await callback.message.edit_text(
-            'БОТ уведомит вас о изменениях цен на машины в этом списке. ',
-            reply_markup=await stalk_menu_kb(callback, db, False))
-
-
-@router.callback_query(F.data == 'stalk_menu_help_hide')
-async def help_hide_stalk_menu(callback: CallbackQuery):
-    #   скрыть помощь слежки меню
-    async with database() as db:
-        await callback.message.edit_text(
-            'Список слежки',
-            reply_markup=await stalk_menu_kb(callback, db, True))
+        cd = callback.data.split('_')
+        page = int(cd[4])
+        text_false = 'БОТ уведомит вас о изменениях цен на машины в этом списке.'
+        text_true = 'Список cлежки'
+        help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
+        await callback.message.edit_text(text, reply_markup=await stalk_menu_kb(callback, db, help_flag, page))
 
 
 @router.callback_query(F.data == 'create_search')
@@ -85,7 +67,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),
-            input_field_placeholder='имя бренда',
+        input_field_placeholder='имя бренда',
         )
     await state.set_state(CreateCar.brand_choosing)
 
@@ -113,11 +95,10 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
                 f"INSERT INTO udata(user_id, search_param, is_active) "
                 f"VALUES (?, ?, ?)", [(user_id[0], car_code, 1), ])
             await db.commit()
-        await callback.message.edit_text(
-        'Теперь мы будем присылать вам свежие объявления\n'
-        'Узнать все текущие объявления можно сформировав отчет в управлении фильтрами.\n'
-        'При возникновении трудноситей жми [Помощь].\n',
-        reply_markup=await params_menu_kb(callback, db, help_flag=True))
+        await callback.message.edit_text('Теперь мы будем присылать вам свежие объявления\n'
+                                         'Все текущие объявления можно сформировть как отчет в управлении фильтрами.\n'
+                                         'При возникновении трудноситей жми [Помощь].\n',
+                                         reply_markup=await params_menu_kb(callback, db, help_flag=True))
 
 
 @router.callback_query(F.data == 'show_search')
@@ -137,9 +118,9 @@ async def edit_search(callback: CallbackQuery):
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
         user_id = check_id[0]
-        cd = callback.data
-        params_id = cd.split('_')[1]
-        page = int(cd.split('_')[2])
+        cd = callback.data.split('_')
+        params_id = cd[1]
+        page = int(cd[2])
         status_cursor = await db.execute(f"""SELECT is_active FROM udata 
                                              WHERE id='{params_id}' AND user_id = '{user_id}'""")
         status = await status_cursor.fetchone()
@@ -159,9 +140,9 @@ async def delete_search(callback: CallbackQuery):
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
-        cd = callback.data
-        params_id = cd.split('_')[1]
-        page = int(cd.split('_')[2])
+        cd = callback.data.split('_')
+        params_id = cd[1]
+        page = int(cd[2])
         await db.execute(f"""DELETE FROM udata 
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
@@ -219,15 +200,14 @@ async def report_search(callback: CallbackQuery):
 @router.callback_query(F.data == 'bot_functions')
 async def bot_functions(callback: CallbackQuery):
     #   описание бота
-    await callback.message.edit_text(
-        "Основные функции:\n"
-        "- Автоматическая рассылка пользователям свежих обявлений. "
-        "- Отслеживание изменения цен.\n"
-        "- Формирование отчета с текущими обявлениями.\n"
-        "tel: <a href='https://t.me/Xibolba'>@Xibolba</a>\ne-mail: insider_2012@mail.ru\n",
-         reply_markup=bot_functions_kb,
-         disable_web_page_preview=True,
-         parse_mode="HTML", )
+    await callback.message.edit_text("Основные функции:\n"
+                                     "- Автоматическая рассылка пользователям свежих обявлений. "
+                                     "- Отслеживание изменения цен.\n"
+                                     "- Формирование отчета с текущими обявлениями.\n"
+                                     "tel: <a href='https://t.me/Xibolba'>@Xibolba</a>\ne-mail: insider_2012@mail.ru\n",
+                                     reply_markup=bot_functions_kb,
+                                     disable_web_page_preview=True,
+                                     parse_mode="HTML", )
 
 
 @router.callback_query(F.data == 'message_delete')
@@ -239,7 +219,7 @@ async def message_delete(callback: CallbackQuery):
 @router.callback_query(F.data == 'car_follow')
 async def car_follow(callback: CallbackQuery):
     #   Добавить в слежку
-    tel_id =callback.from_user.id
+    tel_id = callback.from_user.id
     message = callback.message.text.split('\n')
     async with database() as db:
         check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
@@ -282,7 +262,6 @@ async def pagination_params(callback: CallbackQuery):
             reply_markup=await params_menu_kb(callback, db, True, page))
 
 
-
 @router.callback_query((F.data.startswith('s_')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
     # удаление из слежки
@@ -290,9 +269,9 @@ async def delete_search(callback: CallbackQuery):
         user_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
         check_id = await select_id_cursor.fetchone()
-        cd = callback.data
-        params_id = cd.split('_')[1]
-        page = int(cd.split('_')[2])
+        cd = callback.data.split('_')
+        params_id = cd[1]
+        page = int(cd[2])
         await db.execute(f"""DELETE FROM ucars
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
@@ -306,7 +285,7 @@ async def delete_search(callback: CallbackQuery, state: FSMContext):
     # добавление слежки вручную
     await state.set_state(CreateCar.add_url_stalk)
     await callback.message.edit_text(
-        'Отправьте сюда ссылку на обявление у которого хотите оследить изменение цены. Можно отправить несколько через пробел',
+        'Отправьте сюда ссылку на обявление. Можно отправить несколько через пробел',
         reply_markup=add_stalk_kb)
 
 
@@ -317,7 +296,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),
-            input_field_placeholder='имя бренда',
+        input_field_placeholder='имя бренда',
         )
     await state.set_state(CreateCar.brand_choosing)
 
@@ -344,7 +323,7 @@ async def edit_motor(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 MOTOR,
                 input_field_placeholder='тип топлива',
-                columns = COL_MOTOR,
+                columns=COL_MOTOR,
             )
         )
     await state.set_state(CreateCar.motor_choosing)
@@ -466,4 +445,3 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
             )
         )
     await state.set_state(CreateCar.finish_choosing)
-

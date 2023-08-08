@@ -19,7 +19,7 @@ def multi_row_kb(items: list[str], columns: int = 4, del_sb=False, **kwargs) -> 
 
 def start_menu_kb(help_flag):
     # главное меню
-    help_callback = 'start_menu_help_show' if help_flag is True else 'start_menu_help_hide'
+    help_callback = f'start_menu_help_show' if help_flag is True else 'start_menu_help_hide'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     buttons = [[
         InlineKeyboardButton(
@@ -68,7 +68,7 @@ bot_functions_kb = InlineKeyboardMarkup(
 
 async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка фильтров
-    help_callback = 'params_menu_help_show' if help_flag is True else 'params_menu_help_hide'
+    help_callback = f'params_menu_help_show_{cur_page}' if help_flag is True else f'params_menu_help_hide_{cur_page}'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     user_id = callback.from_user.id
     search_params_cursor = await db.execute(f"SELECT udata.search_param, udata.is_active, udata.id FROM user "
@@ -148,7 +148,7 @@ def car_price_message_kb():
 
 async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка слежки
-    help_callback = 'stalk_menu_help_show' if help_flag is True else 'stalk_menu_help_hide'
+    help_callback = f'stalk_menu_help_show_{cur_page}' if help_flag is True else f'stalk_menu_help_hide_{cur_page}'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
     user_id = callback.from_user.id
     search_params_cursor = await db.execute(f"SELECT ucars.url, ucars.id FROM user "
