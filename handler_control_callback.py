@@ -260,13 +260,22 @@ async def car_stalk(callback: CallbackQuery):
             reply_markup=await stalk_menu_kb(callback, db, True))
 
 
-@router.callback_query((F.data.endswith('_prev')) | (F.data.endswith('_next')))
-async def pagination(callback: CallbackQuery):
+@router.callback_query((F.data.endswith('_stalk_prev')) | (F.data.endswith('_stalk_next')))
+async def pagination_stalk(callback: CallbackQuery):
     async with database() as db:
         page = int(callback.data.split('_')[0])
         await callback.message.edit_text(
             'Список слежки',
             reply_markup=await stalk_menu_kb(callback, db, True, page))
+
+
+@router.callback_query((F.data.endswith('_params_prev')) | (F.data.endswith('_params_next')))
+async def pagination_params(callback: CallbackQuery):
+    async with database() as db:
+        page = int(callback.data.split('_')[0])
+        await callback.message.edit_text(
+            'Список фильтров',
+            reply_markup=await params_menu_kb(callback, db, True, page))
 
 
 

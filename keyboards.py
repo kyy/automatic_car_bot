@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
 from logic.constant import CF
-from logic.func import decode_filter_short
+from logic.func import decode_filter_short, pagination
 
 
 def single_row_kb(items: list[str]) -> ReplyKeyboardMarkup:
@@ -54,7 +54,7 @@ def result_menu_kb(fsm):
             callback_data="start_menu_help_hide")]]
     buttons.extend([
         [InlineKeyboardButton(text=i[0][0], callback_data=i[0][1]),
-        InlineKeyboardButton(text=i[1][0], callback_data=i[1][1])] for i in state_class])
+         InlineKeyboardButton(text=i[1][0], callback_data=i[1][1])] for i in state_class])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
@@ -66,7 +66,7 @@ bot_functions_kb = InlineKeyboardMarkup(
             callback_data="start_menu_help_hide")]])
 
 
-async def params_menu_kb(callback, db, help_flag=False):
+async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка фильтров
     help_callback = 'params_menu_help_show' if help_flag is True else 'params_menu_help_hide'
     help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
@@ -79,6 +79,12 @@ async def params_menu_kb(callback, db, help_flag=False):
     if search_params == buttons:
         pass
     else:
+        search_params, pagination_b = pagination(
+            data=search_params,
+            name='params',
+            IKB=InlineKeyboardButton,
+            per_page=10,
+            cur_page=cur_page)
         buttons = [[
             InlineKeyboardButton(
                 text=decode_filter_short(i[0][7:]),
@@ -89,6 +95,7 @@ async def params_menu_kb(callback, db, help_flag=False):
             InlineKeyboardButton(
                 text='Удалить',
                 callback_data=f'f_{i[2]}_del')] for i in search_params]
+        buttons.append(pagination_b)
     buttons.append([
         InlineKeyboardButton(
             text='Назад',
@@ -152,22 +159,12 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     if search_params == buttons:
         pass
     else:
-        lsp = len(search_params)
-        per_page = 3
-        pages = (lsp // per_page + 1) if (lsp % per_page != 0) else (lsp // per_page)
-        cb_next = 2
-        cb_prev = pages
-        if cur_page == 1:
-            search_params = search_params[0:per_page]
-        elif pages == cur_page:
-            search_params = search_params[cur_page*per_page-per_page:]
-            cb_next = 1
-            cb_prev = pages - 1
-        elif pages > cur_page > 1:
-            search_params = search_params[cur_page*per_page-per_page:cur_page*per_page]
-            cb_next = cur_page + 1
-            cb_prev = cur_page - 1
-
+        search_params, pagination_b = pagination(
+            data=search_params,
+            name='stalk',
+            IKB=InlineKeyboardButton,
+            per_page=10,
+            cur_page=cur_page)
         buttons = [[
             InlineKeyboardButton(
                 text=' '.join(i[0].split('/')[3:]),
@@ -176,16 +173,7 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
             InlineKeyboardButton(
                 text='Удалить',
                 callback_data=f's_{i[1]}_del')] for i in search_params]
-        buttons.append([
-            InlineKeyboardButton(
-                text='<<',
-                callback_data=f'{cb_prev}_prev'),
-            InlineKeyboardButton(
-                text=f'{cur_page}/{pages}',
-                callback_data='1_prev'),
-            InlineKeyboardButton(
-                text='>>',
-                callback_data=f'{cb_next}_next')])
+        buttons.append(pagination_b)
     buttons.append([
         InlineKeyboardButton(
             text='Назад',

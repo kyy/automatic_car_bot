@@ -144,3 +144,35 @@ def code_filter_short(cc: list = None):
     if cc[9] != FSB:
         cc[9] = str(int(cc[9].replace('.', '')) * 100)
     return 'filter=' + SS.join(cc)
+
+
+def pagination(data: iter, name: str,  IKB, per_page=3, cur_page=1, ):
+    """
+    Разбиваем итерируемую последовательность на страницы
+    :param data: our data
+    :param name: cb_name indention
+    :param cur_page: number of current page from callback
+    :param per_page: number of items per page
+    :param IKB: InlineKeyboardButton
+    :return: data, number of all pages, buttons ([<<], [1/23], [>>])
+    """
+    lsp = len(data)
+    pages = (lsp // per_page + 1) if (lsp % per_page != 0) else (lsp // per_page)
+    cb_next = 2
+    cb_prev = pages
+    buttons = []
+    if lsp > per_page:
+        if cur_page == 1:
+            data = data[0:per_page]
+        elif pages == cur_page:
+            data = data[cur_page * per_page - per_page:]
+            cb_next = 1
+            cb_prev = pages - 1
+        elif pages > cur_page > 1:
+            data = data[cur_page * per_page - per_page:cur_page * per_page]
+            cb_next = cur_page + 1
+            cb_prev = cur_page - 1
+        buttons = [IKB(text='<<', callback_data=f'{cb_prev}_{name}_prev'),
+                   IKB(text=f'{cur_page}/{pages}', callback_data=f'1_{name}_prev'),
+                   IKB(text='>>', callback_data=f'{cb_next}_{name}_next')]
+    return data, buttons
