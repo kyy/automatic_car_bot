@@ -116,7 +116,6 @@ async def get_url_abw(car_input, db):
             car_input['engine_'] = motor[car_input['engine_']]
         if car_input['transmission_'] in transmission:
             car_input['transmission_'] = transmission[car_input['transmission_']]
-
         param = [f"{car_input['brand_']}", f"{car_input['model_']}", f"engine_{car_input['engine_']}",
                  f"transmission_{car_input['transmission_']}", f"year_{car_input['year_']}:{car_input['year_max']}",
                  f"price_{car_input['price_']}:{car_input['price_max']}",
