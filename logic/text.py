@@ -32,5 +32,10 @@ TXT = {
         "- Формирование отчета с текущими обявлениями.\n"
         "tel: <a href='https://t.me/Xibolba'>@Xibolba</a>\ne-mail: insider_2012@mail.ru\n"
     ,
+    'show_help': '❓ Помощь',
+    'hide_help': '❗ Помощь',
+    'cancel': '❌ Отмена',
+    'save': '✅ Сохранить',
+
 }
 

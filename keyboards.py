@@ -2,6 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
 from logic.constant import CF, PAGINATION
 from logic.func import decode_filter_short, pagination
+from logic.text import TXT
 
 
 def single_row_kb(items: list[str]) -> ReplyKeyboardMarkup:
@@ -20,17 +21,17 @@ def multi_row_kb(items: list[str], columns: int = 4, del_sb=False, **kwargs) -> 
 def start_menu_kb(help_flag):
     # главное меню
     help_callback = f'start_menu_help_show' if help_flag is True else 'start_menu_help_hide'
-    help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
+    help_text = TXT['show_help'] if help_flag is True else TXT['hide_help']
     buttons = [[
         InlineKeyboardButton(
-            text="🖼 Бот",
-            callback_data="bot_functions"),
+            text="🔎 Настроить автопоиск",
+            callback_data="show_search")], [
         InlineKeyboardButton(
-            text="🖼 Поиск",
-            callback_data="show_search"),
-        InlineKeyboardButton(
-            text="🖼 Слежка",
+            text="💰 Оследить изменение цены",
             callback_data="show_stalk")], [
+        InlineKeyboardButton(
+            text="💪 Мои возможности",
+            callback_data="bot_functions")], [
         InlineKeyboardButton(
             text=help_text,
             callback_data=help_callback)]]
@@ -47,10 +48,10 @@ def result_menu_kb(fsm):
                    ([f[8], 'cb_dimension_from'], [f[9], 'cb_dimension_to'])]
     buttons = [[
         InlineKeyboardButton(
-            text="📝 Сохранить фильтр",
+            text=TXT['save'],
             callback_data="save_search")], [
         InlineKeyboardButton(
-            text="🖼 Отмена",
+            text=TXT['cancel'],
             callback_data="start_menu_help_hide")]]
     buttons.extend([
         [InlineKeyboardButton(text=i[0][0], callback_data=i[0][1]),
@@ -69,7 +70,7 @@ bot_functions_kb = InlineKeyboardMarkup(
 async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка фильтров
     help_callback = f'params_menu_help_show_{cur_page}' if help_flag is True else f'params_menu_help_hide_{cur_page}'
-    help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
+    help_text = TXT['show_help'] if help_flag is True else TXT['hide_help']
     user_id = callback.from_user.id
     search_params_cursor = await db.execute(f"SELECT udata.search_param, udata.is_active, udata.id FROM user "
                                             f"INNER JOIN udata on user.id = udata.user_id "
@@ -149,7 +150,7 @@ def car_price_message_kb():
 async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка слежки
     help_callback = f'stalk_menu_help_show_{cur_page}' if help_flag is True else f'stalk_menu_help_hide_{cur_page}'
-    help_text = "🔎 Помощь" if help_flag is True else "🔎 Скрыть помощь"
+    help_text = TXT['show_help'] if help_flag is True else TXT['hide_help']
     user_id = callback.from_user.id
     search_params_cursor = await db.execute(f"SELECT ucars.url, ucars.id FROM user "
                                             f"INNER JOIN ucars on user.id = ucars.user_id "
