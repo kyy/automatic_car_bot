@@ -4,13 +4,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
-                        get_years, get_cost, get_dimension,)
+                        get_years, get_cost, get_dimension)
 from logic.constant import FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION, default
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
 from keyboards import (multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb,
-                       add_stalk_kb,)
+                       add_stalk_kb)
+from logic.text import TXT
 from work import send_pdf_job
 
 
@@ -21,14 +22,7 @@ router = Router()
 async def help_show_start_menu(callback: CallbackQuery):
     #   показать/скрыть помощь главном меню
     cd = callback.data.split('_')
-    text_false = 'БОТ поможет вам найти подходящий автомобиль.'\
-                 'Просто создайте и сохраните необходимый поиск-фильтр, и БОТ начнет вам присылать свежие обявления.\n'\
-                 '- Открыть главное меню - /start.\n'\
-                 '- Cоздать фильтр  - /car.\n'\
-                 '- Если необходимо оставить параметр пустым выбирайте - [?].\n'\
-                 '- Если хотите прпустить шаги с выбором параметров нажмите [menu]->[/show].\n'\
-                 '- Сохраненные фильтры можно отключить или удалить в управлнии фильтрами.\n'\
-                 '- Узнать больше команд /help.'
+    text_false = TXT['start_menu_help']
     text_true = 'Главное меню'
     help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
     await callback.message.edit_text(text, reply_markup=start_menu_kb(help_flag), parse_mode='HTML')
@@ -40,9 +34,7 @@ async def help_show_params_menu(callback: CallbackQuery):
     async with database() as db:
         cd = callback.data.split('_')
         page = int(cd[4])
-        text_false = 'Нажав на фильтр можно заказать сравнительный отчет о всех активных объявлениях.\n'\
-                     'Отчет представляет собой PDF-файл, нажав на марку в файле можно перейти к обявлению на сайте.'\
-                     'Отчет содержит, VIN, сколько дней опубликовано объявление, город... и многое другое.'
+        text_false = TXT['params_menu_help']
         text_true = 'Список фильтров'
         help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
         await callback.message.edit_text(text, reply_markup=await params_menu_kb(callback, db, help_flag, page))
@@ -54,7 +46,7 @@ async def help_show_stalk_menu(callback: CallbackQuery):
     async with database() as db:
         cd = callback.data.split('_')
         page = int(cd[4])
-        text_false = 'БОТ уведомит вас о изменениях цен на машины в этом списке.'
+        text_false = TXT['stalk_menu_help']
         text_true = 'Список cлежки'
         help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
         await callback.message.edit_text(text, reply_markup=await stalk_menu_kb(callback, db, help_flag, page))
@@ -95,9 +87,7 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
                 f"INSERT INTO udata(user_id, search_param, is_active) "
                 f"VALUES (?, ?, ?)", [(user_id[0], car_code, 1), ])
             await db.commit()
-        await callback.message.edit_text('Теперь мы будем присылать вам свежие объявления\n'
-                                         'Все текущие объявления можно сформировть как отчет в управлении фильтрами.\n'
-                                         'При возникновении трудноситей жми [Помощь].\n',
+        await callback.message.edit_text(TXT['save_search'],
                                          reply_markup=await params_menu_kb(callback, db, help_flag=True))
 
 
@@ -200,11 +190,7 @@ async def report_search(callback: CallbackQuery):
 @router.callback_query(F.data == 'bot_functions')
 async def bot_functions(callback: CallbackQuery):
     #   описание бота
-    await callback.message.edit_text("Основные функции:\n"
-                                     "- Автоматическая рассылка пользователям свежих обявлений. "
-                                     "- Отслеживание изменения цен.\n"
-                                     "- Формирование отчета с текущими обявлениями.\n"
-                                     "tel: <a href='https://t.me/Xibolba'>@Xibolba</a>\ne-mail: insider_2012@mail.ru\n",
+    await callback.message.edit_text(TXT['bot_info'],
                                      reply_markup=bot_functions_kb,
                                      disable_web_page_preview=True,
                                      parse_mode="HTML", )
