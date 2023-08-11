@@ -10,3 +10,4 @@ def database():
     :return:
     """
     return aiosqlite.connect(database=f'{db_name}')
+

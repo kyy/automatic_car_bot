@@ -2,8 +2,6 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram import Bot
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from logic.constant import FSB
-
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')

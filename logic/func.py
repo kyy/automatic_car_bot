@@ -24,11 +24,12 @@ def get_count_cars(av_link_json, abw_link_json, onliner_link_json):
 def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json):
     # сслыки на страницы с фильтром поиска
     av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
-    try:
-        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-    except Exception as e:
-        print(e)
-        abw_link = ABW_ROOT
+    abw_link = ABW_ROOT
+    if abw_link_json is not None:
+        try:
+            abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
+        except Exception as e:
+            print('func.get_search_links:', e)
     onliner_link = onliner_url_filter(cars, onliner_link_json)
     return av_link, onliner_link, abw_link
 
@@ -55,22 +56,29 @@ async def car_multidata(cars):
 
 @timed_lru_cache(300)
 def onliner_url_filter(car_input, link):
-    try:
-        car = car_input.split(SS)
-        brand, model = car[0:2]
-        brands: dict = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
-        link = link.split('vehicles?')[1]
-        brand_slug = brands[brand][1]
-        if model != FSB:
-            models: dict = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
-            model_slug = models[brand][model][2]
-            url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
-        else:
-            url = f'https://ab.onliner.by/{brand_slug}?{link}'
-        return url
-    except Exception as e:
-        print(e)
-        return ONLINER_ROOT
+    """
+    Ссылка на сайт
+    :param car_input:фильтр-код 
+    :param link: ссылка на json
+    :return: 
+    """
+    if link is not None:
+        try:
+            car = car_input.split(SS)
+            brand, model = car[0:2]
+            brands: dict = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
+            link = link.split('vehicles?')[1]
+            brand_slug = brands[brand][1]
+            if model != FSB:
+                models: dict = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
+                model_slug = models[brand][model][2]
+                url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
+            else:
+                url = f'https://ab.onliner.by/{brand_slug}?{link}'
+            return url
+        except Exception as e:
+            print('func.onliner_url_filter', e)
+    return ONLINER_ROOT
 
 
 @cached(ttl=300, cache=Cache.MEMORY, key='brands', namespace="get_brands")
