@@ -233,6 +233,7 @@ async def car_stalk(callback: CallbackQuery):
 
 @router.callback_query((F.data.endswith('_stalk_prev')) | (F.data.endswith('_stalk_next')))
 async def pagination_stalk(callback: CallbackQuery):
+    # список слежки пагинация
     async with database() as db:
         page = int(callback.data.split('_')[0])
         await callback.message.edit_text(
@@ -242,6 +243,7 @@ async def pagination_stalk(callback: CallbackQuery):
 
 @router.callback_query((F.data.endswith('_params_prev')) | (F.data.endswith('_params_next')))
 async def pagination_params(callback: CallbackQuery):
+    # список фильтров пагинация
     async with database() as db:
         page = int(callback.data.split('_')[0])
         await callback.message.edit_text(
@@ -387,7 +389,7 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     cost = data['chosen_cost_min']
     if cost == SB:
-        cost = get_cost()[1]
+        cost = get_cost()[0]
     await callback.message.answer(
             text=TXT['f_price_to'],
             reply_markup=multi_row_kb(
@@ -422,7 +424,7 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     dimension = data['chosen_dimension_min']
     if dimension == SB:
-        dimension = get_dimension()[1]
+        dimension = get_dimension()[0]
     await callback.message.answer(
             text=TXT['f_dimension_to'],
             reply_markup=multi_row_kb(

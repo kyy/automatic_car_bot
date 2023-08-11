@@ -155,9 +155,9 @@ async def from_year_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.year_choosing)
 async def to_year_chosen(message: Message, state: FSMContext):
-    if message.text in chain(list(get_years()), CF):
-        year = get_years()[1] if message.text == SB else message.text
-        await state.update_data(chosen_year_from=message.text)
+    year = get_years()[0] if message.text == SB else message.text
+    if year in chain(list(get_years()), CF):
+        await state.update_data(chosen_year_from=year)
         await message.answer(
             text="Теперь, выберите по какой год:",
             reply_markup=multi_row_kb(
@@ -167,11 +167,14 @@ async def to_year_chosen(message: Message, state: FSMContext):
             )
         )
     else:
+        data = await state.get_data()
+        year = data['chosen_year_to']
+        year = get_years()[-1] if year == SB else year
         await message.answer(
             text="Год от введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
             reply_markup=multi_row_kb(
-                get_years(),
+                get_years(from_year=int(get_years()[0]), to_year=int(year)),
                 input_field_placeholder='год от',
                 columns=COL_YEARS,
             )
@@ -183,7 +186,7 @@ async def to_year_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.yearm_choosing)
 async def min_cost_chosen(message: Message, state: FSMContext):
     data = await state.get_data()
-    year = get_years()[1] if SB == data['chosen_year_from'] else data['chosen_year_from']
+    year = get_years()[0] if SB == data['chosen_year_from'] else data['chosen_year_from']
     if message.text in chain(get_years(from_year=int(year)), CF):
         await state.update_data(chosen_year_to=message.text)
         cost = data['chosen_cost_max']
@@ -213,7 +216,7 @@ async def min_cost_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.cost_choosing)
 async def max_cost_chosen(message: Message, state: FSMContext):
     if message.text in chain(get_cost(), CF):
-        cost = get_cost()[1] if message.text == SB else message.text
+        cost = get_cost()[0] if message.text == SB else message.text
         await state.update_data(chosen_cost_min=message.text)
         await message.answer(
             text="Теперь, выберите максимальную цену:",
@@ -240,11 +243,12 @@ async def max_cost_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.dimension_choosing)
 async def min_dimension_chosen(message: Message, state: FSMContext):
     data = await state.get_data()
-    cost = get_cost()[1] if SB == data['chosen_cost_min'] else data['chosen_cost_min']
+    cost = get_cost()[0] if SB == data['chosen_cost_min'] else data['chosen_cost_min']
     if message.text in chain(get_cost(from_cost=int(cost)), CF):
         await state.update_data(chosen_cost_max=message.text)
         dimension = data['chosen_dimension_max']
         dimension = get_dimension()[-1] if dimension == SB else dimension
+        print(dimension)
         await message.answer(
             text="Теперь, выберите минимальный объем двигателя:",
             reply_markup=multi_row_kb(
@@ -270,7 +274,7 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.dimensionm_choosing)
 async def max_dimension_chosen(message: Message, state: FSMContext):
     if message.text in chain(get_dimension(), CF):
-        dimension = get_dimension()[1] if message.text == SB else message.text
+        dimension = get_dimension()[0] if message.text == SB else message.text
         await state.update_data(chosen_dimension_min=message.text)
         await message.answer(
             text="Теперь, выберите максимальный объем двигателя:",
@@ -297,7 +301,7 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.finish_choosing)
 async def finish_chosen(message: Message, state: FSMContext):
     data = await state.get_data()
-    dimension = get_dimension()[1] if SB == data['chosen_dimension_min'] \
+    dimension = get_dimension()[0] if SB == data['chosen_dimension_min'] \
         else data['chosen_dimension_min']
     if message.text in (get_dimension(from_dim=float(dimension)) + CF):
         await state.update_data(chosen_dimension_max=message.text)
