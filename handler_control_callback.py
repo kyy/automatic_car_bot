@@ -22,8 +22,8 @@ router = Router()
 async def help_show_start_menu(callback: CallbackQuery):
     #   показать/скрыть помощь главном меню
     cd = callback.data.split('_')
-    text_false = TXT['start_menu_help']
-    text_true = 'Главное меню'
+    text_false = TXT['info_start_menu_help']
+    text_true = TXT['info_start_menu']
     help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
     await callback.message.edit_text(text, reply_markup=start_menu_kb(help_flag), parse_mode='HTML')
 
@@ -34,8 +34,8 @@ async def help_show_params_menu(callback: CallbackQuery):
     async with database() as db:
         cd = callback.data.split('_')
         page = int(cd[4])
-        text_false = TXT['params_menu_help']
-        text_true = 'Список фильтров'
+        text_false = TXT['info_filter_menu_help']
+        text_true = TXT['info_filter_menu']
         help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
         await callback.message.edit_text(text, reply_markup=await params_menu_kb(callback, db, help_flag, page))
 
@@ -46,8 +46,8 @@ async def help_show_stalk_menu(callback: CallbackQuery):
     async with database() as db:
         cd = callback.data.split('_')
         page = int(cd[4])
-        text_false = TXT['stalk_menu_help']
-        text_true = 'Список cлежки'
+        text_false = TXT['info_stalk_menu_help']
+        text_true = TXT['info_stalk_menu']
         help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
         await callback.message.edit_text(text, reply_markup=await stalk_menu_kb(callback, db, help_flag, page))
 
@@ -87,8 +87,9 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
                 f"INSERT INTO udata(user_id, search_param, is_active) "
                 f"VALUES (?, ?, ?)", [(user_id[0], car_code, 1), ])
             await db.commit()
-        await callback.message.edit_text(TXT['save_search'],
-                                         reply_markup=await params_menu_kb(callback, db, help_flag=True))
+        await callback.message.edit_text(
+            TXT['info_save_search'],
+            reply_markup=await params_menu_kb(callback, db, help_flag=True))
 
 
 @router.callback_query(F.data == 'show_search')
@@ -96,7 +97,7 @@ async def show_search(callback: CallbackQuery):
     #   список фильтров
     async with database() as db:
         await callback.message.edit_text(
-            'Список фильтров',
+            TXT['info_filter_menu'],
             reply_markup=await params_menu_kb(callback, db, True))
 
 
@@ -119,7 +120,7 @@ async def edit_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{user_id}'""")
         await db.commit()
         await callback.message.edit_text(
-            'Cписок фильтров',
+            TXT['info_filter_menu'],
             reply_markup=await params_menu_kb(callback, db, True, page))
 
 
@@ -137,7 +138,7 @@ async def delete_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
         await callback.message.edit_text(
-            'Список фильтров',
+            TXT['info_filter_menu'],
             reply_markup=await params_menu_kb(callback, db, True, page))
 
 
@@ -149,14 +150,14 @@ async def options_search(callback: CallbackQuery):
     all_count = [all_av, all_abw, all_onliner]
     cars_count = sum(all_count)
     await callback.message.edit_text(
-        f"{decode_filter_short(filter_name[0][7:])}\n"
-        f"\n"
-        f"Найдено:\n"
-        f"<a href='{av_l}'>av.by</a> - {all_av}.\n"
-        f"<a href='{abw_l}'>abw.by</a> - {all_abw}.\n"
-        f"<a href='{onliner_l}'>onliner.by</a> - {all_onliner}.\n"
-        f"\n"
-        f"Действует ограничение до ~125 объявлений с 1 ресурса.\n",
+        text=TXT['info_filter'].format(
+            decode_filter_short=decode_filter_short(filter_name[0][7:]),
+            av_l=av_l,
+            all_av=all_av,
+            abw_l=abw_l,
+            all_abw=all_abw,
+            onliner_l=onliner_l,
+            all_onliner=all_onliner),
         reply_markup=filter_menu_kb(callback, cars_count),
         disable_web_page_preview=True,
         parse_mode="HTML",
@@ -174,23 +175,23 @@ async def report_search(callback: CallbackQuery):
         await parse_main(av_jsn, abw_jsn, onliner_jsn, user_id, name_time_stump)
     except Exception as e:
         print(e, 'Ошибка в parse_main')
-        return await bot.send_message(user_id, "Ошибка при сборе данных.\n")
+        return await bot.send_message(user_id, TXT['msg_error'])
     async with database() as db:
-        await callback.message.edit_text("Сбор данных.",
+        await callback.message.edit_text(TXT['msg_collect_data'],
                                          reply_markup=await params_menu_kb(callback, db, True),
                                          disable_web_page_preview=True,
                                          parse_mode="HTML", )
     link_count = {'av': [av_l, all_av],
                   'abw': [abw_l, all_abw],
                   'onliner': [onliner_l, all_onliner]}
-    await bot.send_message(user_id, 'готовим отчет')
+    await bot.send_message(user_id, TXT['msg_cooking_rep'])
     await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
 
 
 @router.callback_query(F.data == 'bot_functions')
 async def bot_functions(callback: CallbackQuery):
     #   описание бота
-    await callback.message.edit_text(TXT['bot_info'],
+    await callback.message.edit_text(TXT['info_bot'],
                                      reply_markup=bot_functions_kb,
                                      disable_web_page_preview=True,
                                      parse_mode="HTML", )
@@ -226,7 +227,7 @@ async def car_stalk(callback: CallbackQuery):
     # список слежки
     async with database() as db:
         await callback.message.edit_text(
-            'Список слежки',
+            TXT['info_stalk_menu'],
             reply_markup=await stalk_menu_kb(callback, db, True))
 
 
@@ -235,7 +236,7 @@ async def pagination_stalk(callback: CallbackQuery):
     async with database() as db:
         page = int(callback.data.split('_')[0])
         await callback.message.edit_text(
-            'Список слежки',
+            TXT['info_stalk_menu'],
             reply_markup=await stalk_menu_kb(callback, db, True, page))
 
 
@@ -244,7 +245,7 @@ async def pagination_params(callback: CallbackQuery):
     async with database() as db:
         page = int(callback.data.split('_')[0])
         await callback.message.edit_text(
-            'Список фильтров',
+            TXT['info_filter_menu'],
             reply_markup=await params_menu_kb(callback, db, True, page))
 
 
@@ -262,7 +263,7 @@ async def delete_search(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
         await callback.message.edit_text(
-            'Список слежки',
+            TXT['info_stalk_menu'],
             reply_markup=await stalk_menu_kb(callback, db, True, page))
 
 
@@ -271,7 +272,7 @@ async def delete_search(callback: CallbackQuery, state: FSMContext):
     # добавление слежки вручную
     await state.set_state(CreateCar.add_url_stalk)
     await callback.message.edit_text(
-        'Отправьте сюда ссылку на обявление. Можно отправить несколько через пробел',
+        TXT['info_add_stalk_menu'],
         reply_markup=add_stalk_kb)
 
 
@@ -280,9 +281,9 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
     await state.update_data(chosen_model=SB)  # сбрасываем модель при смене бренда
     await callback.message.answer(
-        text="Выберите бренд автомобиля:",
+        text=TXT['f_brand'],
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),
-        input_field_placeholder='имя бренда',
+        input_field_placeholder=TXT['fi_brand'],
         )
     await state.set_state(CreateCar.brand_choosing)
 
@@ -293,10 +294,10 @@ async def edit_model(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     brand = data['chosen_brand']
     await callback.message.answer(
-            text="Теперь, выберите модель:",
+            text=TXT['f_model'],
             reply_markup=multi_row_kb(
                 await get_models(brand),
-                input_field_placeholder='имя модели')
+                input_field_placeholder=TXT['fi_model'])
             )
     await state.set_state(CreateCar.model_choosing)
 
@@ -305,10 +306,10 @@ async def edit_model(callback: CallbackQuery, state: FSMContext):
 async def edit_motor(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
     await callback.message.answer(
-            text="Теперь, выберите тип топлива:",
+            text=TXT['f_motor'],
             reply_markup=multi_row_kb(
                 MOTOR,
-                input_field_placeholder='тип топлива',
+                input_field_placeholder=TXT['fi_motor'],
                 columns=COL_MOTOR,
             )
         )
@@ -319,10 +320,10 @@ async def edit_motor(callback: CallbackQuery, state: FSMContext):
 async def edit_transmission(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
     await callback.message.answer(
-            text="Теперь, выберите тип трансмиссии:",
+            text=TXT['f_transmission'],
             reply_markup=multi_row_kb(
                 TRANSMISSION,
-                input_field_placeholder='тип трансмиссии'
+                input_field_placeholder=TXT['fi_transmission']
             )
         )
     await state.set_state(CreateCar.transmission_choosing)
@@ -335,10 +336,10 @@ async def edit_year_from(callback: CallbackQuery, state: FSMContext):
     year = data['chosen_year_to']
     year = get_years()[-1] if year == SB else year
     await callback.message.answer(
-            text="Теперь, выберите с какого года:",
+            text=TXT['f_year_from'],
             reply_markup=multi_row_kb(
                 get_years(to_year=int(year)),
-                input_field_placeholder='год от',
+                input_field_placeholder=TXT['fi_year_from'],
                 columns=COL_YEARS,
             )
         )
@@ -353,10 +354,10 @@ async def edit_year_to(callback: CallbackQuery, state: FSMContext):
     if year == SB:
         year = get_years()[1]
     await callback.message.answer(
-            text="Теперь, выберите по какой год:",
+            text=TXT['f_year_to'],
             reply_markup=multi_row_kb(
                 get_years(from_year=int(year)),
-                input_field_placeholder='год по',
+                input_field_placeholder=TXT['fi_year_to'],
                 columns=COL_YEARS,
             )
         )
@@ -370,10 +371,10 @@ async def edit_price_from(callback: CallbackQuery, state: FSMContext):
     cost = data['chosen_cost_max']
     cost = get_cost()[-1] if cost == SB else cost
     await callback.message.answer(
-            text="Теперь, выберите начальную цену:",
+            text=TXT['f_price_from'],
             reply_markup=multi_row_kb(
                 get_cost(to_cost=int(cost)),
-                input_field_placeholder='стоимость от',
+                input_field_placeholder=TXT['fi_price_from'],
                 columns=COL_COST,
             )
         )
@@ -388,10 +389,10 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
     if cost == SB:
         cost = get_cost()[1]
     await callback.message.answer(
-            text="Теперь, выберите максимальную цену:",
+            text=TXT['f_price_to'],
             reply_markup=multi_row_kb(
                 get_cost(from_cost=int(cost)),
-                input_field_placeholder='стоимость до',
+                input_field_placeholder=TXT['fi_price_to'],
                 columns=COL_COST,
             )
         )
@@ -405,10 +406,10 @@ async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
     dimension = data['chosen_dimension_max']
     dimension = get_dimension()[-1] if dimension == SB else dimension
     await callback.message.answer(
-            text="Теперь, выберите минимальный объем двигателя:",
+            text=TXT['f_dimension_from'],
             reply_markup=multi_row_kb(
                 get_dimension(to_dim=float(dimension)),
-                input_field_placeholder='объем двигателя от',
+                input_field_placeholder=TXT['f_dimension_from'],
                 columns=COL_DIMENSION,
             )
         )
@@ -423,10 +424,10 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
     if dimension == SB:
         dimension = get_dimension()[1]
     await callback.message.answer(
-            text="Теперь, выберите максимальный объем двигателя:",
+            text=TXT['f_dimension_to'],
             reply_markup=multi_row_kb(
                 get_dimension(from_dim=float(dimension)),
-                input_field_placeholder='объем двигателя до',
+                input_field_placeholder=TXT['f_dimension_to'],
                 columns=COL_DIMENSION,
             )
         )

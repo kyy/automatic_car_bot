@@ -21,16 +21,16 @@ def multi_row_kb(items: list[str], columns: int = 4, del_sb=False, **kwargs) -> 
 def start_menu_kb(help_flag):
     # главное меню
     help_callback = f'start_menu_help_show' if help_flag is True else 'start_menu_help_hide'
-    help_text = TXT['show_help'] if help_flag is True else TXT['hide_help']
+    help_text = TXT['btn_show_help'] if help_flag is True else TXT['btn_hide_help']
     buttons = [[
         InlineKeyboardButton(
-            text="🔎 Настроить автопоиск",
+            text=TXT['btn_search'],
             callback_data="show_search")], [
         InlineKeyboardButton(
-            text="💰 Оследить изменение цены",
+            text=TXT['btn_stalk'],
             callback_data="show_stalk")], [
         InlineKeyboardButton(
-            text="💪 Мои возможности",
+            text=TXT['btn_info'],
             callback_data="bot_functions")], [
         InlineKeyboardButton(
             text=help_text,
@@ -48,10 +48,10 @@ def result_menu_kb(fsm):
                    ([f[8], 'cb_dimension_from'], [f[9], 'cb_dimension_to'])]
     buttons = [[
         InlineKeyboardButton(
-            text=TXT['save'],
+            text=TXT['btn_save'],
             callback_data="save_search")], [
         InlineKeyboardButton(
-            text=TXT['cancel'],
+            text=TXT['btn_cancel'],
             callback_data="start_menu_help_hide")]]
     buttons.extend([
         [InlineKeyboardButton(text=i[0][0], callback_data=i[0][1]),
@@ -63,14 +63,14 @@ bot_functions_kb = InlineKeyboardMarkup(
     # меню сформированного фильтра
     inline_keyboard=[[
         InlineKeyboardButton(
-            text="Назад",
+            text=TXT['btn_back'],
             callback_data="start_menu_help_hide")]])
 
 
 async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка фильтров
     help_callback = f'params_menu_help_show_{cur_page}' if help_flag is True else f'params_menu_help_hide_{cur_page}'
-    help_text = TXT['show_help'] if help_flag is True else TXT['hide_help']
+    help_text = TXT['btn_show_help'] if help_flag is True else TXT['btn_hide_help']
     user_id = callback.from_user.id
     search_params_cursor = await db.execute(f"SELECT udata.search_param, udata.is_active, udata.id FROM user "
                                             f"INNER JOIN udata on user.id = udata.user_id "
@@ -91,19 +91,20 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
                 text=decode_filter_short(i[0][7:]),
                 callback_data=f'f_{i[2]}_show'),
             InlineKeyboardButton(
-                text=str(i[1]).replace('1', 'Отключить').replace('0', 'Активировать'),
+                text=str(i[1]).replace('1', TXT['btn_off']).replace('0', TXT['btn_on']),
                 callback_data=f'f_{i[2]}_{cur_page}_{i[1]}'),
             InlineKeyboardButton(
-                text='Удалить',
+                text=TXT['btn_delete'],
                 callback_data=f'f_{i[2]}_{cur_page}_del')] for i in search_params]
         buttons.append(pagination_b)
     buttons.append([
         InlineKeyboardButton(
-            text='Назад',
-            callback_data='start_menu_help_hide'),
-        InlineKeyboardButton(
-            text='Добавить фильтр',
+            text=TXT['btn_add_filter'],
             callback_data='create_search')])
+    buttons.append([
+        InlineKeyboardButton(
+            text=TXT['btn_back'],
+            callback_data='start_menu_help_hide')])
     buttons.append([
         InlineKeyboardButton(
             text=help_text,
@@ -116,25 +117,26 @@ def filter_menu_kb(callback, cars_count):
     filter_id = callback.data.split('_')[1]
     buttons = [[
         InlineKeyboardButton(
-            text="🖼 Главное меню",
-            callback_data="start_menu_help_hide")], [
+            text=TXT['btn_back'],
+            callback_data="show_search"),
         InlineKeyboardButton(
-            text="Назад",
-            callback_data="show_search")]]
+            text=TXT['btn_start_menu'],
+            callback_data="start_menu_help_hide")]]
     if cars_count > 0:
-        buttons[0].insert(0, InlineKeyboardButton(
-            text="📝 Создать отчет",
-            callback_data=f'f_{filter_id}_rep'))
+        buttons.insert(0,
+                       [InlineKeyboardButton(
+                           text=TXT['btn_rep_filter'],
+                           callback_data=f'f_{filter_id}_rep')])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def car_message_kb():
     buttons = [[
         InlineKeyboardButton(
-            text="Отслеживать цену",
+            text=TXT['btn_stalk_price'],
             callback_data="car_follow"),
         InlineKeyboardButton(
-            text="Удалить",
+            text=TXT['btn_delete'],
             callback_data="message_delete")]]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -142,7 +144,7 @@ def car_message_kb():
 def car_price_message_kb():
     buttons = [[
         InlineKeyboardButton(
-            text="Удалить",
+            text=TXT['btn_delete'],
             callback_data="message_delete")]]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -150,7 +152,7 @@ def car_price_message_kb():
 async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка слежки
     help_callback = f'stalk_menu_help_show_{cur_page}' if help_flag is True else f'stalk_menu_help_hide_{cur_page}'
-    help_text = TXT['show_help'] if help_flag is True else TXT['hide_help']
+    help_text = TXT['btn_show_help'] if help_flag is True else TXT['btn_hide_help']
     user_id = callback.from_user.id
     search_params_cursor = await db.execute(f"SELECT ucars.url, ucars.id FROM user "
                                             f"INNER JOIN ucars on user.id = ucars.user_id "
@@ -172,15 +174,15 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
                 url=i[0],
                 callback_data=f's_{i[1]}_show'),
             InlineKeyboardButton(
-                text='Удалить',
+                text=TXT['btn_delete'],
                 callback_data=f's_{i[1]}_{cur_page}_del')] for i in search_params]
         buttons.append(pagination_b)
     buttons.append([
         InlineKeyboardButton(
-            text='Назад',
+            text=TXT['btn_back'],
             callback_data='start_menu_help_hide'),
         InlineKeyboardButton(
-            text='Добавить ссылку',
+            text=TXT['btn_add_stalk_url'],
             callback_data='add_stalk')])
     buttons.append([
         InlineKeyboardButton(
@@ -193,5 +195,5 @@ add_stalk_kb = InlineKeyboardMarkup(
     # меню добавление слежки
     inline_keyboard=[[
         InlineKeyboardButton(
-            text="Назад",
+            text=TXT['btn_back'],
             callback_data="show_stalk")]])

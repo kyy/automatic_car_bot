@@ -10,6 +10,8 @@ from logic.parse_sites.av_by import count_cars_av
 from logic.parse_sites.onliner_by import count_cars_onliner
 from aiocache import cached, Cache
 
+from .text import TXT
+
 
 @timed_lru_cache(300)
 def get_count_cars(av_link_json, abw_link_json, onliner_link_json):
@@ -190,7 +192,7 @@ def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1, ):
             data = data[cur_page * per_page - per_page:cur_page * per_page]
             cb_next = cur_page + 1
             cb_prev = cur_page - 1
-        buttons = [ikb(text='<<', callback_data=f'{cb_prev}_{name}_prev'),
+        buttons = [ikb(text=TXT['page_left'], callback_data=f'{cb_prev}_{name}_prev'),
                    ikb(text=f'{cur_page}/{pages}', callback_data=f'1_{name}_prev'),
-                   ikb(text='>>', callback_data=f'{cb_next}_{name}_next')]
+                   ikb(text=TXT['page_right'], callback_data=f'{cb_next}_{name}_next')]
     return data, buttons
