@@ -85,7 +85,8 @@ async def av_brands(db, av_b, l_av_b):
     if l_av_bd == 0:
         await db.executemany("""
             INSERT INTO brands([unique], av_by) 
-            VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
+            VALUES(?, ?)
+            """, br_to_tuple(av_b))    # noqa заполняем пустую таблицу
         await db.commit()
         print('+ brands - av_by')
     else:
@@ -101,10 +102,10 @@ async def av_brands(db, av_b, l_av_b):
         for item in av_bd:
             if item[0] in av_b:
                 update.append((item[1], item[0], av_b[item[0]][0]))
-            else:
-                await db.execute(f"""
-                    DELETE FROM brands 
-                    WHERE id={item[1]}""")    # удаляем неактуальные бренды
+            # else:
+            #     await db.execute(f"""
+            #         DELETE FROM brands
+            #         WHERE id={item[1]}""")    # удаляем неактуальные бренды
         await db.executemany("""
             REPLACE INTO brands(id, [unique], av_by) 
             VALUES(?, ?, ?)""", update)      # обновляем все бренды
@@ -121,14 +122,10 @@ async def av_models(db, av_m, l_av_m):
     :param db: инструкция к БД
     :return: None
     """
-    cursor_av_b = await db.execute("""
-        SELECT id, [unique] FROM brands;""")
-    cursor_av_m = await db.execute("""
-        SELECT id, [unique], brand_id FROM models;""")
-    cursor_av_bm = await db.execute("""
-        SELECT brands.[unique], models.[unique], models.id FROM brands
-        INNER JOIN models ON brands.id = models.brand_id
-                """)
+    cursor_av_b = await db.execute("""SELECT id, [unique] FROM brands;""")
+    cursor_av_m = await db.execute("""SELECT id, [unique], brand_id FROM models;""")
+    cursor_av_bm = await db.execute("""SELECT brands.[unique], models.[unique], models.id FROM brands 
+                                        INNER JOIN models ON brands.id = models.brand_id""")
     av_bd_b = await cursor_av_b.fetchall()
     av_bd_m = await cursor_av_m.fetchall()
     av_bd_bm = await cursor_av_bm.fetchall()
@@ -155,12 +152,12 @@ async def av_models(db, av_m, l_av_m):
     else:
         print(f'---> моделей: БД/av.by  {l_av_bd_m}/{l_av_m}')
 
-        for brand_model in av_bd_bm:
-            if brand_model[1] not in av_m[brand_model[0]]:
-                await db.execute(f"""
-                DELETE FROM models
-                WHERE id={brand_model[2]}
-                """)    # чистим базу от неактуальных моделей
+        # for brand_model in av_bd_bm:
+        #     if brand_model[1] not in av_m[brand_model[0]]:
+        #         await db.execute(f"""
+        #         DELETE FROM models
+        #         WHERE id={brand_model[2]}
+        #         """)    # чистим базу от неактуальных моделей
         for brand in av_m:
             for model in av_m[brand]:
                 if (brand, model) not in [i[0:2] for i in av_bd_bm]:

@@ -1,8 +1,13 @@
+import asyncio
+
 import numpy as np
 import requests
+from aiohttp import ClientSession
 from tqdm import tqdm
 import os.path
 
+from logic.constant import HEADERS, ABW_API, ONLINER_API, AV_API
+from logic.database.config import database
 
 headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -58,11 +63,12 @@ def checking_new_models_av(lenn):
 def av_get_from_json_brands():
     url = 'https://api.av.by/home/filters/home/init'
     r = requests.get(url, headers=headers).json()
+    rr = requests.get('https://api.av.by/offer-types/cars/landings/', headers).json()
     brands = {}
     for car in tqdm(r['blocks'][0]['rows'][0]['propertyGroups'][0]['properties'][0]['value'][0][1]['options']):
         id = car['id']
         name = car['label']
-        rr = requests.get('https://api.av.by/offer-types/cars/landings/', headers).json()
+
         for ids in rr['seo']['links']:
             if ids['label'] == name:
                 slug = ids['url'].split('/')[-1]
@@ -174,3 +180,4 @@ def main_parse(lenn):
         create_folders()    # создаем папки 'buffer' и 'parse'
         parse()
         return True
+
