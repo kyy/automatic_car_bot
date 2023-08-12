@@ -106,7 +106,7 @@ async def transmission_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 MOTOR,
                 input_field_placeholder='тип топлива',
-                columns=COL_MOTOR) )
+                columns=COL_MOTOR))
         return transmission_chosen
     await state.set_state(CreateCar.transmission_choosing)
 
@@ -164,7 +164,8 @@ async def to_year_chosen(message: Message, state: FSMContext):
 @router.message(CreateCar.yearm_choosing)
 async def min_cost_chosen(message: Message, state: FSMContext):
     data = await state.get_data()
-    year = get_years()[0] if SB == data['chosen_year_from'] else data['chosen_year_from']
+    year = data['chosen_year_from']
+    year = get_years()[0] if SB == year else year
     if message.text in chain(get_years(from_year=int(year)), CF):
         await state.update_data(chosen_year_to=message.text)
         cost = data['chosen_cost_max']
@@ -182,7 +183,7 @@ async def min_cost_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_years(from_year=int(year)),
                 input_field_placeholder='год по',
-                columns=COL_YEARS) )
+                columns=COL_YEARS))
         return min_cost_chosen
     await state.set_state(CreateCar.cost_choosing)
 
@@ -199,18 +200,21 @@ async def max_cost_chosen(message: Message, state: FSMContext):
                 input_field_placeholder='стоимость до',
                 columns=COL_COST))
     else:
+        data = await state.get_data()
+        cost = data['chosen_cost_max']
+        cost = get_cost()[-1] if cost == SB else cost
         await message.answer(
             text="Цена введена не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
             reply_markup=multi_row_kb(
-                get_cost(),
+                get_cost(to_cost=int(cost)),
                 input_field_placeholder='стоимость от',
                 columns=COL_COST))
         return max_cost_chosen
-    await state.set_state(CreateCar.dimension_choosing)
+    await state.set_state(CreateCar.costm_choosing)
 
 
-@router.message(CreateCar.dimension_choosing)
+@router.message(CreateCar.costm_choosing)
 async def min_dimension_chosen(message: Message, state: FSMContext):
     data = await state.get_data()
     cost = get_cost()[0] if SB == data['chosen_cost_min'] else data['chosen_cost_min']
@@ -234,10 +238,10 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
                 input_field_placeholder='стоимость до',
                 columns=COL_COST))
         return min_dimension_chosen
-    await state.set_state(CreateCar.dimensionm_choosing)
+    await state.set_state(CreateCar.dimension_choosing)
 
 
-@router.message(CreateCar.dimensionm_choosing)
+@router.message(CreateCar.dimension_choosing)
 async def max_dimension_chosen(message: Message, state: FSMContext):
     dimension = get_dimension()[0] if message.text == SB else message.text
     if dimension in chain(get_dimension(), CF):
@@ -251,18 +255,19 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
     else:
         data = await state.get_data()
         dimension = data['chosen_dimension_max']
+        dimension = get_dimension()[-1] if dimension == SB else dimension
         await message.answer(
             text="Объем введен не верно.\n"
                  "Пожалуйста, выберите одно из названий из списка ниже:",
             reply_markup=multi_row_kb(
-                get_dimension(from_dim=float(get_dimension()[0]), to_dim=float(dimension)),
+                get_dimension(to_dim=float(dimension)),
                 input_field_placeholder='объем двигателя от',
                 columns=COL_DIMENSION))
         return max_dimension_chosen
-    await state.set_state(CreateCar.finish_choosing)
+    await state.set_state(CreateCar.dimensionm_choosing)
 
 
-@router.message(CreateCar.finish_choosing)
+@router.message(CreateCar.dimensionm_choosing)
 async def finish_chosen(message: Message, state: FSMContext):
     data = await state.get_data()
     dimension = data['chosen_dimension_min']

@@ -26,5 +26,4 @@ class CreateCar(StatesGroup):
     costm_choosing = State()
     dimension_choosing = State()
     dimensionm_choosing = State()
-    finish_choosing = State()
     add_url_stalk = State()

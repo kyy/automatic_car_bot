@@ -398,7 +398,7 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
                 columns=COL_COST,
             )
         )
-    await state.set_state(CreateCar.dimension_choosing)
+    await state.set_state(CreateCar.costm_choosing)
 
 
 @router.callback_query(F.data == 'cb_dimension_from')
@@ -415,7 +415,7 @@ async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
                 columns=COL_DIMENSION,
             )
         )
-    await state.set_state(CreateCar.dimensionm_choosing)
+    await state.set_state(CreateCar.dimension_choosing)
 
 
 @router.callback_query(F.data == 'cb_dimension_to')
@@ -433,4 +433,4 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
                 columns=COL_DIMENSION,
             )
         )
-    await state.set_state(CreateCar.finish_choosing)
+    await state.set_state(CreateCar.dimensionm_choosing)
