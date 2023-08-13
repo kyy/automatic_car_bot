@@ -4,7 +4,7 @@ from aiogram.types import FSInputFile
 from arq import create_pool, cron
 from arq.connections import RedisSettings
 from classes import bot
-from keyboards import car_message_kb
+from keyboards import car_message_kb, delete_message_kb
 from logic.constant import WORK_PARSE_DELTA
 from logic.database.config import database
 from logic.database.data_migrations import main as update, lenn
@@ -50,13 +50,17 @@ async def send_car_job(tel_id, result):
         await redis.enqueue_job('send_car', tel_id, car)
 
 
-async def send_pdf(ctx, user_id, link_count, name_time_stump, decode_filter_short, filter_name):
-    await do_pdf(user_id, link_count, name_time_stump, decode_filter_short, filter_name)
+async def send_pdf(ctx, user_id, link_count, name_time_stump, decode_f_s, filter_name):
+    await do_pdf(user_id, link_count, name_time_stump, decode_f_s, filter_name)
     bf = f'logic/buffer/{name_time_stump}'
     os.remove(f'{bf}.npy')
     if os.path.exists(f'{bf}.pdf'):
         file = FSInputFile(f'{bf}.pdf')
-        await bot.send_document(user_id, document=file)
+        await bot.send_document(chat_id=user_id,
+                                document=file,
+                                caption=decode_f_s,
+                                reply_markup=delete_message_kb(),
+                                parse_mode='HTML')
         os.remove(f'{bf}.pdf')
     else:
         print(f'{name_time_stump}.pdf не найден')

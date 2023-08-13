@@ -191,10 +191,10 @@ async def report_search(callback: CallbackQuery):
     try:
         await parse_main(av_jsn, abw_jsn, onliner_jsn, user_id, name_time_stump)
     except Exception as e:
-        print(e, 'Ошибка в parse_main')
+        print(e, 'handler_control_callback.report_search.parse_main')
         return await bot.send_message(user_id, TXT['msg_error'])
     async with database() as db:
-        await callback.message.edit_text(TXT['msg_collect_data'],
+        await callback.message.edit_text(TXT['info_filter_menu'],
                                          reply_markup=await params_menu_kb(callback, db, True),
                                          disable_web_page_preview=True,
                                          parse_mode="HTML", )

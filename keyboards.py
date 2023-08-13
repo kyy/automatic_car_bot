@@ -140,7 +140,7 @@ def car_message_kb():
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def car_price_message_kb():
+def delete_message_kb():
     buttons = [[
         InlineKeyboardButton(
             text=TXT['btn_delete'],
