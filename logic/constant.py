@@ -6,7 +6,7 @@ REPORT_PARSE_LIMIT_PAGES = 5  # лимит страниц парсиинга д�
 SS = '+'    # split symbol in filter
 SB = '✅ выбрать все'    # skip button on keyboards
 FSB = '?'    # skip-liter in filter
-EB = '❎ закончить'
+EB = '❎ завершить'
 CF = [EB, SB]    # 1st row of keyboard in creating filters
 
 # constants of columns:keyboards: max = 8, default = 4
@@ -16,6 +16,8 @@ COL_COST = 5
 COL_DIMENSION = 8
 
 PAGINATION = 5
+
+COST_STEP = 2500   # param:step in func.get_cost
 
 # root links
 AV_ROOT = 'https://cars.av.by/'
@@ -59,3 +61,4 @@ default = {'chosen_brand': SB,
            'chosen_cost_max': SB,
            'chosen_dimension_min': SB,
            'chosen_dimension_max': SB}
+

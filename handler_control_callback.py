@@ -5,7 +5,8 @@ from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension)
-from logic.constant import FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION, default
+from logic.constant import (FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION, default,
+                            COST_STEP)
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
@@ -68,28 +69,46 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 async def save_search(callback: CallbackQuery, state: FSMContext):
     #   сохранение фильтра
     data = await state.get_data()
-    c = []
-    for item in data:
-        c.append(data[item].replace(SB, FSB))
-    car_code = code_filter_short(c)
     user_id = callback.from_user.id
-    async with database() as db:
-        check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{user_id}'")
-        check_id = await check_id_cursor.fetchone()
-        if check_id is None:
-            await db.execute(f"INSERT INTO user (tel_id) VALUES ('{user_id}')")
-        user_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{user_id}'")
-        user_id = await user_id_cursor.fetchone()
-        check_filter_cursor = await db.execute(f"SELECT search_param FROM udata WHERE user_id = '{user_id[0]}'")
-        check_filter = await check_filter_cursor.fetchall()
-        if car_code not in [i[0] for i in check_filter]:
-            await db.executemany(
-                f"INSERT INTO udata(user_id, search_param, is_active) "
-                f"VALUES (?, ?, ?)", [(user_id[0], car_code, 1), ])
-            await db.commit()
-        await callback.message.edit_text(
-            TXT['info_save_search'],
-            reply_markup=await params_menu_kb(callback, db, help_flag=True))
+    price_from = data['chosen_cost_min']
+    price_to = data['chosen_cost_max']
+    dimension_from = data['chosen_dimension_min']
+    dimension_to = data['chosen_dimension_max']
+    year_from = data['chosen_year_from']
+    year_to = data['chosen_year_to']
+    price_from = get_cost()[0] if price_from == SB else price_from
+    price_to = get_cost()[-1] if price_to == SB else price_to
+    dimension_from = get_dimension()[0] if dimension_from == SB else dimension_from
+    dimension_to = get_dimension()[-1] if dimension_to == SB else dimension_to
+    year_from = get_years()[0] if year_from == SB else year_from
+    year_to = get_years()[-1] if year_to == SB else year_to
+    if all([
+        int(price_from) < int(price_to),
+        float(dimension_from) <= float(dimension_to),
+        int(year_from) <= int(year_to)]):
+        c = []
+        [c.append(data[item].replace(SB, FSB)) for item in data]
+        car_code = code_filter_short(c)
+        user_id = callback.from_user.id
+        async with database() as db:
+            check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{user_id}'")
+            check_id = await check_id_cursor.fetchone()
+            if check_id is None:
+                await db.execute(f"INSERT INTO user (tel_id) VALUES ('{user_id}')")
+            user_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{user_id}'")
+            user_id = await user_id_cursor.fetchone()
+            check_filter_cursor = await db.execute(f"SELECT search_param FROM udata WHERE user_id = '{user_id[0]}'")
+            check_filter = await check_filter_cursor.fetchall()
+            if car_code not in [i[0] for i in check_filter]:
+                await db.executemany(
+                    f"INSERT INTO udata(user_id, search_param, is_active) "
+                    f"VALUES (?, ?, ?)", [(user_id[0], car_code, 1), ])
+                await db.commit()
+            await callback.message.edit_text(
+                TXT['info_save_search'],
+                reply_markup=await params_menu_kb(callback, db, help_flag=True))
+    else:
+        await bot.send_message(user_id, 'Неверные условия поиска')
 
 
 @router.callback_query(F.data == 'show_search')
@@ -160,8 +179,7 @@ async def options_search(callback: CallbackQuery):
             all_onliner=all_onliner),
         reply_markup=filter_menu_kb(callback, cars_count),
         disable_web_page_preview=True,
-        parse_mode="HTML",
-    )
+        parse_mode="HTML")
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_rep')))
@@ -285,8 +303,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(
         text=TXT['f_brand'],
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),
-        input_field_placeholder=TXT['fi_brand'],
-        )
+        input_field_placeholder=TXT['fi_brand'])
     await state.set_state(CreateCar.brand_choosing)
 
 
@@ -299,8 +316,7 @@ async def edit_model(callback: CallbackQuery, state: FSMContext):
             text=TXT['f_model'],
             reply_markup=multi_row_kb(
                 await get_models(brand),
-                input_field_placeholder=TXT['fi_model'])
-            )
+                input_field_placeholder=TXT['fi_model']))
     await state.set_state(CreateCar.model_choosing)
 
 
@@ -312,9 +328,7 @@ async def edit_motor(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 MOTOR,
                 input_field_placeholder=TXT['fi_motor'],
-                columns=COL_MOTOR,
-            )
-        )
+                columns=COL_MOTOR))
     await state.set_state(CreateCar.motor_choosing)
 
 
@@ -325,9 +339,7 @@ async def edit_transmission(callback: CallbackQuery, state: FSMContext):
             text=TXT['f_transmission'],
             reply_markup=multi_row_kb(
                 TRANSMISSION,
-                input_field_placeholder=TXT['fi_transmission']
-            )
-        )
+                input_field_placeholder=TXT['fi_transmission']))
     await state.set_state(CreateCar.transmission_choosing)
 
 
@@ -342,9 +354,7 @@ async def edit_year_from(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_years(to_year=int(year)),
                 input_field_placeholder=TXT['fi_year_from'],
-                columns=COL_YEARS,
-            )
-        )
+                columns=COL_YEARS))
     await state.set_state(CreateCar.year_choosing)
 
 
@@ -353,16 +363,13 @@ async def edit_year_to(callback: CallbackQuery, state: FSMContext):
     # изменить го до
     data = await state.get_data()
     year = data['chosen_year_from']
-    if year == SB:
-        year = get_years()[1]
+    year = get_years()[1] if year == SB else year
     await callback.message.answer(
             text=TXT['f_year_to'],
             reply_markup=multi_row_kb(
                 get_years(from_year=int(year)),
                 input_field_placeholder=TXT['fi_year_to'],
-                columns=COL_YEARS,
-            )
-        )
+                columns=COL_YEARS))
     await state.set_state(CreateCar.yearm_choosing)
 
 
@@ -377,9 +384,7 @@ async def edit_price_from(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_cost(to_cost=int(cost)),
                 input_field_placeholder=TXT['fi_price_from'],
-                columns=COL_COST,
-            )
-        )
+                columns=COL_COST))
     await state.set_state(CreateCar.cost_choosing)
 
 
@@ -388,16 +393,13 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
     # изменить цена до
     data = await state.get_data()
     cost = data['chosen_cost_min']
-    if cost == SB:
-        cost = get_cost()[0]
+    cost = get_cost()[0] if cost == SB else cost
     await callback.message.answer(
             text=TXT['f_price_to'],
             reply_markup=multi_row_kb(
-                get_cost(from_cost=int(cost)),
+                get_cost(from_cost=int(cost) + COST_STEP),
                 input_field_placeholder=TXT['fi_price_to'],
-                columns=COL_COST,
-            )
-        )
+                columns=COL_COST))
     await state.set_state(CreateCar.costm_choosing)
 
 
@@ -412,9 +414,7 @@ async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_dimension(to_dim=float(dimension)),
                 input_field_placeholder=TXT['f_dimension_from'],
-                columns=COL_DIMENSION,
-            )
-        )
+                columns=COL_DIMENSION))
     await state.set_state(CreateCar.dimension_choosing)
 
 
@@ -430,7 +430,5 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_dimension(from_dim=float(dimension)),
                 input_field_placeholder=TXT['f_dimension_to'],
-                columns=COL_DIMENSION,
-            )
-        )
+                columns=COL_DIMENSION))
     await state.set_state(CreateCar.dimensionm_choosing)

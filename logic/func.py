@@ -114,11 +114,11 @@ def get_years(from_year: int = 1990, to_year=datetime.now().year) -> list[str]:
 
 @lru_cache()
 def get_dimension(from_dim: float = 1, to_dim: float = 9, step: float = 0.1) -> list[str]:
-    return [str(round(i, 1)) for i in np.arange(from_dim, to_dim-step, step)]
+    return [str(round(i, 1)) for i in np.arange(from_dim, to_dim, step)]
 
 
 @lru_cache()
-def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500) -> list[str]:
+def get_cost(from_cost: int = 500, to_cost: int = 100000, step: int = 2500):
     return [str(i) for i in range(from_cost, to_cost, step)]
 
 
@@ -192,7 +192,7 @@ def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1, ):
             data = data[cur_page * per_page - per_page:cur_page * per_page]
             cb_next = cur_page + 1
             cb_prev = cur_page - 1
-        buttons = [ikb(text=TXT['page_left'], callback_data=f'{cb_prev}_{name}_prev'),
+        buttons = [ikb(text=TXT['btn_page_left'], callback_data=f'{cb_prev}_{name}_prev'),
                    ikb(text=f'{cur_page}/{pages}', callback_data=f'1_{name}_prev'),
-                   ikb(text=TXT['page_right'], callback_data=f'{cb_next}_{name}_next')]
+                   ikb(text=TXT['btn_page_right'], callback_data=f'{cb_next}_{name}_next')]
     return data, buttons

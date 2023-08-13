@@ -31,7 +31,7 @@ def start_menu_kb(help_flag):
             callback_data="show_stalk")], [
         InlineKeyboardButton(
             text=TXT['btn_info'],
-            callback_data="bot_functions")], [
+            callback_data="bot_functions"),
         InlineKeyboardButton(
             text=help_text,
             callback_data=help_callback)]]
@@ -46,16 +46,16 @@ def result_menu_kb(fsm):
                    ([f[4], 'cb_year_from'], [f[5], 'cb_year_to']),
                    ([f[6], 'cb_price_from'], [f[7], 'cb_price_to']),
                    ([f[8], 'cb_dimension_from'], [f[9], 'cb_dimension_to'])]
-    buttons = [[
+    buttons = [
+        [InlineKeyboardButton(text=i[0][0], callback_data=i[0][1]),
+         InlineKeyboardButton(text=i[1][0], callback_data=i[1][1])] for i in state_class]
+    buttons.extend([[
         InlineKeyboardButton(
             text=TXT['btn_save'],
             callback_data="save_search")], [
         InlineKeyboardButton(
             text=TXT['btn_cancel'],
-            callback_data="start_menu_help_hide")]]
-    buttons.extend([
-        [InlineKeyboardButton(text=i[0][0], callback_data=i[0][1]),
-         InlineKeyboardButton(text=i[1][0], callback_data=i[1][1])] for i in state_class])
+            callback_data="start_menu_help_hide")]])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
