@@ -5,7 +5,7 @@ commands = [
         BotCommand(
             command='/start',
             description="Главное меню",
-            full_description=' Отобразит главное меню в любой необъодимый момент.'
+            full_description=' Отобразит главное меню в любой необходимый момент.'
         ),
 
         BotCommand(
@@ -25,7 +25,7 @@ commands = [
             command='/reset',
             description='Прервать действие',
             full_description=' Отменит текущее действие.'
-                             ' Скроет клавиатуру'
+                             ' Скроет клавиатуру и очистит параметры текущего фильтра.'
         ),
         BotCommand(
             command='/com',

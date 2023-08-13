@@ -104,8 +104,7 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     buttons.append([
         InlineKeyboardButton(
             text=TXT['btn_back'],
-            callback_data='start_menu_help_hide')])
-    buttons.append([
+            callback_data='start_menu_help_hide'),
         InlineKeyboardButton(
             text=help_text,
             callback_data=help_callback)])
@@ -159,8 +158,6 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
                                             f"WHERE user.tel_id = {user_id}")
     search_params = await search_params_cursor.fetchall()
     buttons = []
-
-
     if search_params == buttons:
         pass
     else:
@@ -181,12 +178,12 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
         buttons.append(pagination_buttons)
     buttons.append([
         InlineKeyboardButton(
-            text=TXT['btn_back'],
-            callback_data='start_menu_help_hide'),
-        InlineKeyboardButton(
             text=TXT['btn_add_stalk_url'],
             callback_data='add_stalk')])
     buttons.append([
+        InlineKeyboardButton(
+            text=TXT['btn_back'],
+            callback_data='start_menu_help_hide'),
         InlineKeyboardButton(
             text=help_text,
             callback_data=help_callback)])

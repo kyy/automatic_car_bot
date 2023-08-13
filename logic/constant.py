@@ -15,7 +15,7 @@ COL_YEARS = 5
 COL_COST = 5
 COL_DIMENSION = 8
 
-PAGINATION = 2
+PAGINATION = 5
 
 COST_STEP = 2500   # param:step in func.get_cost
 

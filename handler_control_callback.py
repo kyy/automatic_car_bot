@@ -82,10 +82,9 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
     dimension_to = get_dimension()[-1] if dimension_to == SB else dimension_to
     year_from = get_years()[0] if year_from == SB else year_from
     year_to = get_years()[-1] if year_to == SB else year_to
-    if all([
-        int(price_from) < int(price_to),
-        float(dimension_from) <= float(dimension_to),
-        int(year_from) <= int(year_to)]):
+    if all([int(price_from) < int(price_to),
+            float(dimension_from) <= float(dimension_to),
+            int(year_from) <= int(year_to)]):
         c = []
         [c.append(data[item].replace(SB, FSB)) for item in data]
         car_code = code_filter_short(c)
@@ -108,7 +107,7 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
                 TXT['info_save_search'],
                 reply_markup=await params_menu_kb(callback, db, help_flag=True))
     else:
-        await bot.send_message(user_id, 'Неверные условия поиска')
+        await bot.send_message(user_id, TXT['msg_wrong_filter'])
 
 
 @router.callback_query(F.data == 'show_search')

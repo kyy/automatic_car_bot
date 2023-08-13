@@ -37,8 +37,11 @@ async def cancel_handler(message: Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     if current_state != 'CreateCar:show_filter':
         logging.info("Cancelling state %r", current_state)
-        await message.answer("Отмена", reply_markup=ReplyKeyboardRemove())
+        await state.clear()
+        await message.answer(TXT['msg_reset'], reply_markup=ReplyKeyboardRemove())
         await message.answer(TXT['info_start_menu'], reply_markup=start_menu_kb(True))
+    elif current_state:
+        await message.answer(TXT['msg_reset_error'], reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(Command(commands=["help"]))
