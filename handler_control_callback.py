@@ -270,7 +270,7 @@ async def pagination_params(callback: CallbackQuery):
 
 
 @router.callback_query((F.data.startswith('s_')) & (F.data.endswith('_del')))
-async def delete_search(callback: CallbackQuery):
+async def delete_stulk(callback: CallbackQuery):
     # удаление из слежки
     async with database() as db:
         user_id = callback.from_user.id
@@ -288,7 +288,7 @@ async def delete_search(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'add_stalk')
-async def delete_search(callback: CallbackQuery, state: FSMContext):
+async def add_stulk_from_message(callback: CallbackQuery, state: FSMContext):
     # добавление слежки вручную
     await state.set_state(CreateCar.add_url_stalk)
     await callback.message.edit_text(

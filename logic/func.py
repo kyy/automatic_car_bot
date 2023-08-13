@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import lru_cache
 from .decorators import timed_lru_cache
 import numpy as np
-from logic.constant import ABW_ROOT, SS, MOTOR_DICT, ONLINER_ROOT, FSB
+from logic.constant import ABW_ROOT, SS, MOTOR_DICT, ONLINER_ROOT, FSB, PAGINATION
 from logic.database.config import database
 from logic.cook_url import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw
@@ -166,7 +166,7 @@ def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1, ):
     :param cur_page: number of current page from callback
     :param per_page: number of items per page
     :param ikb: InlineKeyboardButton
-    :return: data, buttons ([<<], [1/23], [>>])
+    :return: data, buttons ([<<], [1/23], [>>]), del_pages (callback for correctly deleting)
     Handler example:
             @router.callback_query((F.data.endswith('{:param name}_prev')) | (F.data.endswith('{:param name}_next')))
             async def pagination_params(callback: CallbackQuery):
@@ -195,4 +195,7 @@ def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1, ):
         buttons = [ikb(text=TXT['btn_page_left'], callback_data=f'{cb_prev}_{name}_prev'),
                    ikb(text=f'{cur_page}/{pages}', callback_data=f'1_{name}_prev'),
                    ikb(text=TXT['btn_page_right'], callback_data=f'{cb_next}_{name}_next')]
-    return data, buttons
+    del_page = cur_page
+    if cur_page == pages:
+        del_page = pages - 1 if (lsp % per_page == 1) and cur_page > 1 else cur_page
+    return data, buttons, del_page

@@ -80,7 +80,7 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     if search_params == buttons:
         pass
     else:
-        search_params, pagination_b = pagination(
+        search_params, pagination_buttons, del_pages = pagination(
             data=search_params,
             name='params',
             ikb=InlineKeyboardButton,
@@ -95,8 +95,8 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
                 callback_data=f'f_{i[2]}_{cur_page}_{i[1]}'),
             InlineKeyboardButton(
                 text=TXT['btn_delete'],
-                callback_data=f'f_{i[2]}_{cur_page}_del')] for i in search_params]
-        buttons.append(pagination_b)
+                callback_data=f'f_{i[2]}_{del_pages}_del')] for i in search_params]
+        buttons.append(pagination_buttons)
     buttons.append([
         InlineKeyboardButton(
             text=TXT['btn_add_filter'],
@@ -159,10 +159,12 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
                                             f"WHERE user.tel_id = {user_id}")
     search_params = await search_params_cursor.fetchall()
     buttons = []
+
+
     if search_params == buttons:
         pass
     else:
-        search_params, pagination_b = pagination(
+        search_params, pagination_buttons, del_page = pagination(
             data=search_params,
             name='stalk',
             ikb=InlineKeyboardButton,
@@ -175,8 +177,8 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
                 callback_data=f's_{i[1]}_show'),
             InlineKeyboardButton(
                 text=TXT['btn_delete'],
-                callback_data=f's_{i[1]}_{cur_page}_del')] for i in search_params]
-        buttons.append(pagination_b)
+                callback_data=f's_{i[1]}_{del_page}_del')] for i in search_params]
+        buttons.append(pagination_buttons)
     buttons.append([
         InlineKeyboardButton(
             text=TXT['btn_back'],
