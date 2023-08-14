@@ -8,7 +8,6 @@ def count_cars_abw(url):
         return 0
     try:
         r = requests.get(url, headers=HEADERS_JSON).json()
-        print(int(r['pagination']['total']))
         return int(r['pagination']['total'])
     except Exception as e:
         print(e)

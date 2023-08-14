@@ -169,7 +169,7 @@ async def options_search(callback: CallbackQuery):
     cars_count = sum(all_count)
     await callback.message.edit_text(
         text=TXT['info_filter'].format(
-            decode_filter_short=decode_filter_short(filter_name[0][7:]),
+            decode_filter_short=decode_filter_short(cars),
             av_l=av_l,
             all_av=all_av,
             abw_l=abw_l,
@@ -202,7 +202,7 @@ async def report_search(callback: CallbackQuery):
                   'abw': [abw_l, all_abw],
                   'onliner': [onliner_l, all_onliner]}
     await bot.send_message(user_id, TXT['msg_cooking_rep'])
-    await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name[0])
+    await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name)
 
 
 @router.callback_query(F.data == 'bot_functions')
