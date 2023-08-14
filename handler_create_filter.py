@@ -7,7 +7,7 @@ from keyboards import multi_row_kb, result_menu_kb
 from logic.database.config import database
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
 from logic.constant import (FSB, CF, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION, SB, EB,
-                            AV_ROOT, ABW_ROOT, default)
+                            AV_ROOT, ABW_ROOT, DEFAULT)
 from logic.text import TXT
 from itertools import chain
 
@@ -41,7 +41,7 @@ async def get_rusult(message: Message, state: FSMContext):
 @router.message((F.text.casefold() == "filter") | (F.text.casefold() == "f"))
 @router.message(CreateCar.start_choosing)
 async def brand_chosen(message: Message, state: FSMContext):
-    await state.update_data(default)
+    await state.update_data(DEFAULT)
     await message.answer(
         text=TXT['f_brand'],
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),

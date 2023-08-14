@@ -51,7 +51,7 @@ HEADERS_JSON = {
         'accept': '*/*',
         'content-type': 'application/json'}
 
-default = {'chosen_brand': SB,
+DEFAULT = {'chosen_brand': SB,
            'chosen_model': SB,
            'chosen_motor': SB,
            'chosen_transmission': SB,
@@ -62,3 +62,11 @@ default = {'chosen_brand': SB,
            'chosen_dimension_min': SB,
            'chosen_dimension_max': SB}
 
+SUBSCRIPTION = {
+    'max_filters': 2,
+    'max_stulk': 2,
+    'max_pdf': 2,
+}
+
+
+'https://habr.com/ru/companies/vk/articles/528490/'

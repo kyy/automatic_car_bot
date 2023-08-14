@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension)
-from logic.constant import (FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION, default,
+from logic.constant import (FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION, DEFAULT,
                             COST_STEP)
 from logic.database.config import database
 from classes import CreateCar
@@ -56,7 +56,7 @@ async def help_show_stalk_menu(callback: CallbackQuery):
 @router.callback_query(F.data == 'create_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     #   создать фильтр
-    await state.update_data(default)
+    await state.update_data(DEFAULT)
     await callback.message.answer(
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),
