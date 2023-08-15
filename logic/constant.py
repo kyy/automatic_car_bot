@@ -1,6 +1,8 @@
 
-WORK_PARSE_DELTA = 2   # частота проверки новых обявллений в часах
-REPORT_PARSE_LIMIT_PAGES = 5  # лимит страниц парсиинга для отчета
+WORK_PARSE_CARS_DELTA = 2   # частота проверки новых объявллений в часах
+WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часах
+
+REPORT_PARSE_LIMIT_PAGES = 5  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)
 
 
 SS = '+'    # split symbol in filter

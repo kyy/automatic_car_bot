@@ -8,8 +8,8 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 import handler_common
-import handler_control_callback
-import handler_create_filter
+import handler_callback
+import handler_message
 from classes import config
 
 
@@ -50,8 +50,8 @@ def main():
     dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.USER_IN_CHAT)  # FSM !
     dp.startup.register(on_startup)
     dp.include_router(handler_common.router)
-    dp.include_router(handler_create_filter.router)
-    dp.include_router(handler_control_callback.router)
+    dp.include_router(handler_message.router)
+    dp.include_router(handler_callback.router)
     app = web.Application()
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=MAIN_BOT_PATH)
     setup_application(app, dp, bot=bot)

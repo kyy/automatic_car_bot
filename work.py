@@ -5,7 +5,7 @@ from arq import create_pool, cron
 from arq.connections import RedisSettings
 from classes import bot
 from keyboards import car_message_kb, delete_message_kb
-from logic.constant import WORK_PARSE_DELTA
+from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA
 from logic.database.config import database
 from logic.database.data_migrations import main as update, lenn
 from logic.database.main_parse import main_parse as up
@@ -76,16 +76,16 @@ class Work:
     functions = [parse_cars, send_car, send_pdf]
     cron_jobs = [
         cron(parse_cars_job,
-             hour={i for i in range(1, 24, WORK_PARSE_DELTA)},
+             hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
              run_at_startup=False),   # парсинг новых объявлений
         cron(parse_prices_job,
-             hour={i for i in range(1, 24, 3)},
+             hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
              run_at_startup=False),  # проверка цен
         cron(update_database,
              hour={00},
              minute={15},
-             max_tries=3,
-             run_at_startup=True),  # обновление БД
+             max_tries=1,
+             run_at_startup=False),  # обновление БД
     ]

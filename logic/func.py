@@ -118,7 +118,7 @@ def get_years(from_year: int = 1990, to_year=datetime.now().year) -> list[str]:
 
 
 @lru_cache()
-def get_dimension(from_dim: float = 1, to_dim: float = 9, step: float = 0.1) -> list[str]:
+def get_dimension(from_dim: float = 1, to_dim: float = 9.1, step: float = 0.1) -> list[str]:
     return [str(round(i, 1)) for i in np.arange(from_dim, to_dim, step)]
 
 

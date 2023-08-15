@@ -78,7 +78,6 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
         c = []
         [c.append(data[item].replace(SB, FSB)) for item in data]
         car_code = code_filter_short(c)
-        user_id = callback.from_user.id
 
         async with database() as db:
             check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{user_id}'")
@@ -86,17 +85,20 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
             if check_id is None:
                 await db.execute(f"INSERT INTO user (tel_id) VALUES ('{user_id}')")
             user_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{user_id}'")
-            user_id = await user_id_cursor.fetchone()
-            check_filter_cursor = await db.execute(f"SELECT search_param FROM udata WHERE user_id = '{user_id[0]}'")
+            tel_id = await user_id_cursor.fetchone()
+            check_filter_cursor = await db.execute(f"SELECT search_param FROM udata WHERE user_id = '{tel_id[0]}'")
             check_filter = await check_filter_cursor.fetchall()
             if car_code not in [i[0] for i in check_filter]:
                 await db.executemany(
                     f"INSERT INTO udata(user_id, search_param, is_active) "
-                    f"VALUES (?, ?, ?)", [(user_id[0], car_code, 1), ])
+                    f"VALUES (?, ?, ?)", [(tel_id[0], car_code, 1), ])
                 await db.commit()
-            await callback.message.edit_text(
-                TXT['info_save_search'],
-                reply_markup=await params_menu_kb(callback, db, help_flag=True))
+                await state.set_state(None)
+                await callback.message.edit_text(
+                    TXT['info_save_search'],
+                    reply_markup=await params_menu_kb(callback, db, help_flag=True))
+            else:
+                await bot.send_message(user_id, TXT['msg_dublicate_filter'])
     else:
         await bot.send_message(user_id, TXT['msg_wrong_filter'])
 
@@ -293,6 +295,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'edit_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
+    await callback.message.delete()
     await state.update_data(chosen_model=SB)  # сбрасываем модель при смене бренда
     await callback.message.answer(
         text=TXT['f_brand'],
@@ -304,6 +307,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_model')
 async def edit_model(callback: CallbackQuery, state: FSMContext):
     # изменить модель
+    await callback.message.delete()
     data = await state.get_data()
     brand = data['chosen_brand']
     await callback.message.answer(
@@ -318,6 +322,7 @@ async def edit_model(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_motor')
 async def edit_motor(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
+    await callback.message.delete()
     await callback.message.answer(
             text=TXT['f_motor'],
             reply_markup=multi_row_kb(
@@ -330,6 +335,7 @@ async def edit_motor(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_transmission')
 async def edit_transmission(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
+    await callback.message.delete()
     await callback.message.answer(
             text=TXT['f_transmission'],
             reply_markup=multi_row_kb(
@@ -341,6 +347,7 @@ async def edit_transmission(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_year_from')
 async def edit_year_from(callback: CallbackQuery, state: FSMContext):
     # изменить год от
+    await callback.message.delete()
     data = await state.get_data()
     year = data['chosen_year_to']
     year = get_years()[-1] if year == SB else year
@@ -356,6 +363,7 @@ async def edit_year_from(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_year_to')
 async def edit_year_to(callback: CallbackQuery, state: FSMContext):
     # изменить год до
+    await callback.message.delete()
     data = await state.get_data()
     year = data['chosen_year_from']
     year = get_years()[1] if year == SB else year
@@ -371,6 +379,7 @@ async def edit_year_to(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_price_from')
 async def edit_price_from(callback: CallbackQuery, state: FSMContext):
     # изменить цена от
+    await callback.message.delete()
     data = await state.get_data()
     cost = data['chosen_cost_max']
     cost = get_cost()[-1] if cost == SB else cost
@@ -386,6 +395,7 @@ async def edit_price_from(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_price_to')
 async def edit_price_to(callback: CallbackQuery, state: FSMContext):
     # изменить цена до
+    await callback.message.delete()
     data = await state.get_data()
     cost = data['chosen_cost_min']
     cost = get_cost()[0] if cost == SB else cost
@@ -401,6 +411,7 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_dimension_from')
 async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
     # изменить объем от
+    await callback.message.delete()
     data = await state.get_data()
     dimension = data['chosen_dimension_max']
     dimension = get_dimension()[-1] if dimension == SB else dimension
@@ -416,6 +427,7 @@ async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_dimension_to')
 async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
     # изменить объем до
+    await callback.message.delete()
     data = await state.get_data()
     dimension = data['chosen_dimension_min']
     if dimension == SB:

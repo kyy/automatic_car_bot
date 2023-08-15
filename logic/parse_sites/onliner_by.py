@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime
-from logic.constant import WORK_PARSE_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
+from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
 from logic.decorators import timed_lru_cache
 
 
@@ -62,7 +62,7 @@ def json_parse_onliner(json_data, work):
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
-            if fresh_minutes <= WORK_PARSE_DELTA * 60:
+            if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
                 car.append([str(url), str(price)])
         else:
             car.append([
