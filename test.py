@@ -1,6 +1,7 @@
+import asyncio
 from datetime import datetime, timedelta
 
-
+from logic.database.config import database
 
 data_now = datetime.today().date()   # сегодняшняя дата
 
@@ -16,6 +17,12 @@ else:
     print('Подписка истечет через',  str(current).replace('days', 'дней').replace('day', 'день').split(',')[0])
     print('Подписка истечет ',  subscription_data)
 
+
+string_data = '2026-01-31'
+
+
+newdata = datetime.strptime(string_data, "%Y-%m-%d").date()
+print(newdata)
 
 if __name__ == '__main__':
     pass

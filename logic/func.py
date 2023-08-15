@@ -204,3 +204,56 @@ def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1, ):
     if cur_page == pages:
         del_page = pages - 1 if (lsp % per_page == 1) and cur_page > 1 else cur_page
     return data, buttons, del_page
+
+
+async def is_subscriber(user_id: int) -> bool:
+    """
+    Проверяем истекла ли подписка
+    :param user_id: user.tel_id
+    :return: True if subs is active
+    """
+    async with database() as db:
+        subscription_data_cursor = await db.execute(f"""SELECT subs from user WHERE tel_id = '{user_id}'""")
+        subscription_data = await subscription_data_cursor.fetchone()[0]
+        subscription_data = datetime.strptime(subscription_data, "%Y-%m-%d").date()
+        data_now = datetime.today().date()
+        return True if data_now < subscription_data else False
+
+
+async def off_is_active(user_id: int, max_urls: int = 5, max_filters: int = 5, subs: bool = True) -> None:
+    """
+    Отключаем включенные фильтры и ссылки не более значений max_...
+    :param user_id: tel_id
+    :param max_urls: максимальное кол-во ссылок
+    :param max_filters:  максимальное кол-во фильтров
+    :param subs: есть ли подписка
+    :return:
+    """
+    if subs is True:
+        pass
+    elif subs is False:
+        async with database() as db:
+            urls_cursor = await db.execute(f"""
+            SELECT ucars.id FROM ucars
+            INNER JOIN user on user.id = ucars.user_id
+            WHERE user.tel_id = {user_id} AND ucars.is_active = 1
+            """)
+            filters_cursor = await db.execute(f"""
+            SELECT udata.id FROM user 
+            INNER JOIN udata on user.id = udata.user_id
+            WHERE user.tel_id = {user_id} AND udata.is_active = 1
+            """)
+            urls = await urls_cursor.fetchall()
+            filters = await filters_cursor.fetchall()
+            urls = [i[0] for i in urls]
+            filters = [i[0] for i in filters]
+
+            if len(urls) > max_urls:
+                for uid in urls[max_urls:]:
+                    await db.execute(f"""UPDATE ucars SET is_active = 0 WHERE ucars.id = '{uid}'""")
+
+            if len(filters) > max_filters:
+                for fid in filters[max_filters:]:
+                    await db.execute(f"""UPDATE udata SET is_active = 0 WHERE udata.id = '{fid}'""")
+
+            await db.commit()

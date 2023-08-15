@@ -53,18 +53,6 @@ async def help_show_stalk_menu(callback: CallbackQuery):
         await callback.message.edit_text(text, reply_markup=await stalk_menu_kb(callback, db, help_flag, page))
 
 
-@router.callback_query(F.data == 'create_search')
-async def brand_chosen(callback: CallbackQuery, state: FSMContext):
-    #   создать фильтр
-    await state.update_data(DEFAULT)
-    await callback.message.answer(
-        text="Выберите бренд автомобиля:",
-        reply_markup=multi_row_kb(await get_brands(), del_sb=True),
-        input_field_placeholder='имя бренда',
-        )
-    await state.set_state(CreateCar.brand_choosing)
-
-
 @router.callback_query(F.data == 'save_search')
 async def save_search(callback: CallbackQuery, state: FSMContext):
     #   сохранение фильтра
@@ -290,6 +278,18 @@ async def add_stulk_from_message(callback: CallbackQuery, state: FSMContext):
         TXT['info_add_stalk_menu'], reply_markup=add_stalk_kb)
 
 
+@router.callback_query(F.data == 'create_search')
+async def brand_chosen(callback: CallbackQuery, state: FSMContext):
+    #   создать фильтр
+    await state.update_data(DEFAULT)
+    await callback.message.answer(
+        text="Выберите бренд автомобиля:",
+        reply_markup=multi_row_kb(await get_brands(), del_sb=True),
+        input_field_placeholder='имя бренда',
+        )
+    await state.set_state(CreateCar.brand_choosing)
+
+
 @router.callback_query(F.data == 'edit_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # создать фильтр
@@ -312,6 +312,7 @@ async def edit_model(callback: CallbackQuery, state: FSMContext):
                 await get_models(brand),
                 input_field_placeholder=TXT['fi_model']))
     await state.set_state(CreateCar.model_choosing)
+
 
 
 @router.callback_query(F.data == 'cb_motor')
@@ -426,3 +427,4 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
                 input_field_placeholder=TXT['f_dimension_to'],
                 columns=COL_DIMENSION))
     await state.set_state(CreateCar.dimensionm_choosing)
+

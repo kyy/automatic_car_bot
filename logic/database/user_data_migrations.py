@@ -22,7 +22,8 @@ async def create_tables(db):
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
             user_id INTEGER REFERENCES user (id) ON DELETE CASCADE,
             url TEXT (0, 128),
-            price INTEGER (0, 16)
+            price INTEGER (0, 16),
+            is_active INT DEFAULT 1
             )
             """)
         await db.commit()
