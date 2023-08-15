@@ -82,13 +82,16 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
     dimension_to = get_dimension()[-1] if dimension_to == SB else dimension_to
     year_from = get_years()[0] if year_from == SB else year_from
     year_to = get_years()[-1] if year_to == SB else year_to
+
     if all([int(price_from) < int(price_to),
             float(dimension_from) <= float(dimension_to),
             int(year_from) <= int(year_to)]):
+
         c = []
         [c.append(data[item].replace(SB, FSB)) for item in data]
         car_code = code_filter_short(c)
         user_id = callback.from_user.id
+
         async with database() as db:
             check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{user_id}'")
             check_id = await check_id_cursor.fetchone()
@@ -115,8 +118,7 @@ async def show_search(callback: CallbackQuery):
     #   список фильтров
     async with database() as db:
         await callback.message.edit_text(
-            TXT['info_filter_menu'],
-            reply_markup=await params_menu_kb(callback, db, True))
+            TXT['info_filter_menu'], reply_markup=await params_menu_kb(callback, db, True))
 
 
 @router.callback_query((F.data.startswith('f_')) & ((F.data.endswith('_0')) | (F.data.endswith('_1'))))
@@ -234,9 +236,7 @@ async def car_follow(callback: CallbackQuery):
             await db.execute(f"""INSERT INTO ucars (user_id, url, price) 
                                  VALUES ('{check_id[0]}', '{message[0]}', '{int(message[1][1:])}')""")
             await db.commit()
-        await bot.delete_message(
-            chat_id=tel_id,
-            message_id=callback.message.message_id)
+        await bot.delete_message(chat_id=tel_id, message_id=callback.message.message_id)
 
 
 @router.callback_query(F.data == 'show_stalk')
@@ -244,8 +244,7 @@ async def car_stalk(callback: CallbackQuery):
     # список слежки
     async with database() as db:
         await callback.message.edit_text(
-            TXT['info_stalk_menu'],
-            reply_markup=await stalk_menu_kb(callback, db, True))
+            TXT['info_stalk_menu'], reply_markup=await stalk_menu_kb(callback, db, True))
 
 
 @router.callback_query((F.data.endswith('_stalk_prev')) | (F.data.endswith('_stalk_next')))
@@ -254,8 +253,7 @@ async def pagination_stalk(callback: CallbackQuery):
     async with database() as db:
         page = int(callback.data.split('_')[0])
         await callback.message.edit_text(
-            TXT['info_stalk_menu'],
-            reply_markup=await stalk_menu_kb(callback, db, True, page))
+            TXT['info_stalk_menu'], reply_markup=await stalk_menu_kb(callback, db, True, page))
 
 
 @router.callback_query((F.data.endswith('_params_prev')) | (F.data.endswith('_params_next')))
@@ -264,8 +262,7 @@ async def pagination_params(callback: CallbackQuery):
     async with database() as db:
         page = int(callback.data.split('_')[0])
         await callback.message.edit_text(
-            TXT['info_filter_menu'],
-            reply_markup=await params_menu_kb(callback, db, True, page))
+            TXT['info_filter_menu'], reply_markup=await params_menu_kb(callback, db, True, page))
 
 
 @router.callback_query((F.data.startswith('s_')) & (F.data.endswith('_del')))
@@ -282,8 +279,7 @@ async def delete_stulk(callback: CallbackQuery):
                              WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
         await db.commit()
         await callback.message.edit_text(
-            TXT['info_stalk_menu'],
-            reply_markup=await stalk_menu_kb(callback, db, True, page))
+            TXT['info_stalk_menu'], reply_markup=await stalk_menu_kb(callback, db, True, page))
 
 
 @router.callback_query(F.data == 'add_stalk')
@@ -291,8 +287,7 @@ async def add_stulk_from_message(callback: CallbackQuery, state: FSMContext):
     # добавление слежки вручную
     await state.set_state(CreateCar.add_url_stalk)
     await callback.message.edit_text(
-        TXT['info_add_stalk_menu'],
-        reply_markup=add_stalk_kb)
+        TXT['info_add_stalk_menu'], reply_markup=add_stalk_kb)
 
 
 @router.callback_query(F.data == 'edit_search')
@@ -359,7 +354,7 @@ async def edit_year_from(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'cb_year_to')
 async def edit_year_to(callback: CallbackQuery, state: FSMContext):
-    # изменить го до
+    # изменить год до
     data = await state.get_data()
     year = data['chosen_year_from']
     year = get_years()[1] if year == SB else year

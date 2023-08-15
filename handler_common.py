@@ -16,13 +16,6 @@ async def all_commands(allcommands):
     return "   ".join(c_list)
 
 
-@router.message(Command(commands=["com"]))
-@router.message(Command(commands=["c"]))
-@router.message((F.text.casefold() == "com") | F.text.casefold() == "c")
-async def cmd_com(message: Message):
-    await message.answer(text=TXT['msg_com'].format(all_commands=await all_commands(commands)))
-
-
 @router.message(Command(commands=["start"]))
 @router.message(Command(commands=["s"]))
 @router.message((F.text.casefold() == "start") | (F.text.casefold() == "s"))
@@ -40,7 +33,7 @@ async def cancel_handler(message: Message, state: FSMContext) -> None:
         await state.clear()
         await message.answer(TXT['msg_reset'], reply_markup=ReplyKeyboardRemove())
         await message.answer(TXT['info_start_menu'], reply_markup=start_menu_kb(True))
-    elif current_state:
+    elif current_state == 'CreateCar:show_filter':
         await message.answer(TXT['msg_reset_error'], reply_markup=ReplyKeyboardRemove())
 
 
@@ -50,5 +43,5 @@ async def cancel_handler(message: Message, state: FSMContext) -> None:
 async def cmd_help(message: Message):
     c = ''
     for cmd in commands:
-        c += f'<b>{cmd.command}</b>\n{cmd.full_description}\n\n'
+        c += f'<b>{cmd.command}     {cmd.description}</b>\n{cmd.full_description}\n\n'
     await message.answer(c, parse_mode='HTML')
