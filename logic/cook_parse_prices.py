@@ -9,10 +9,16 @@ from logic.database.config import database
 
 async def json_links():
     async with database() as db:
-        av_urls_cursor = await db.execute(f"""SELECT url FROM ucars WHERE LOWER(url) LIKE 'https://cars.av.by/%'""")
+        av_urls_cursor = await db.execute(
+            f"""
+            SELECT url FROM ucars 
+            WHERE LOWER(url) LIKE 'https://cars.av.by/%' AND is_active = 1""")
         av_urls = await av_urls_cursor.fetchall()
         av_urls = [f"https://api.av.by/offers/{i[0].split('/')[-1]}" for i in av_urls]
-        onliner_urls_cursor = await db.execute(f"""SELECT url FROM ucars WHERE LOWER(url) LIKE 'https://ab.onliner.by/%'""")
+        onliner_urls_cursor = await db.execute(
+            f"""
+            SELECT url FROM ucars
+            WHERE LOWER(url) LIKE 'https://ab.onliner.by/%' AND is_active = 1""")
         onliner_urls = await onliner_urls_cursor.fetchall()
         onliner_urls = [f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1]}" for i in onliner_urls]
         return [*av_urls, *onliner_urls]

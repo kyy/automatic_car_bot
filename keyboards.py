@@ -153,7 +153,7 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     help_callback = f'stalk_menu_help_show_{cur_page}' if help_flag is True else f'stalk_menu_help_hide_{cur_page}'
     help_text = TXT['btn_show_help'] if help_flag is True else TXT['btn_hide_help']
     user_id = callback.from_user.id
-    search_params_cursor = await db.execute(f"SELECT ucars.url, ucars.id FROM user "
+    search_params_cursor = await db.execute(f"SELECT ucars.url, ucars.is_active, ucars.id FROM user "
                                             f"INNER JOIN ucars on user.id = ucars.user_id "
                                             f"WHERE user.tel_id = {user_id}")
     search_params = await search_params_cursor.fetchall()
@@ -171,10 +171,13 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
             InlineKeyboardButton(
                 text=' '.join(i[0].split('/')[3:]),
                 url=i[0],
-                callback_data=f's_{i[1]}_show'),
+                callback_data=f's_{i[2]}_show'),
+            InlineKeyboardButton(
+                text=str(i[1]).replace('1', TXT['btn_off']).replace('0', TXT['btn_on']),
+                callback_data=f's_{i[2]}_{cur_page}_{i[1]}'),
             InlineKeyboardButton(
                 text=TXT['btn_delete'],
-                callback_data=f's_{i[1]}_{del_page}_del')] for i in search_params]
+                callback_data=f's_{i[2]}_{del_page}_del')] for i in search_params]
         buttons.append(pagination_buttons)
     buttons.append([
         InlineKeyboardButton(

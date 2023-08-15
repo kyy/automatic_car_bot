@@ -134,6 +134,29 @@ async def edit_search(callback: CallbackQuery):
             reply_markup=await params_menu_kb(callback, db, True, page))
 
 
+@router.callback_query((F.data.startswith('s_')) & ((F.data.endswith('_0')) | (F.data.endswith('_1'))))
+async def edit_search(callback: CallbackQuery):
+    # включение/отключение слежки
+    async with database() as db:
+        user_id = callback.from_user.id
+        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
+        check_id = await select_id_cursor.fetchone()
+        user_id = check_id[0]
+        cd = callback.data.split('_')
+        params_id = cd[1]
+        page = int(cd[2])
+        status_cursor = await db.execute(f"""SELECT is_active FROM ucars 
+                                             WHERE id='{params_id}' AND user_id = '{user_id}'""")
+        status = await status_cursor.fetchone()
+        status_set = 0 if status[0] == 1 else 1
+        await db.execute(f"""UPDATE ucars SET is_active = '{status_set}'                     
+                             WHERE id='{params_id}' AND user_id = '{user_id}'""")
+        await db.commit()
+        await callback.message.edit_text(
+            TXT['info_stalk_menu'],
+            reply_markup=await stalk_menu_kb(callback, db, True, page))
+
+
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
     #   удаление фильтра
@@ -294,7 +317,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'edit_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
-    # создать фильтр
+    # изменить бренд
     await callback.message.delete()
     await state.update_data(chosen_model=SB)  # сбрасываем модель при смене бренда
     await callback.message.answer(
