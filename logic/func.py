@@ -219,51 +219,47 @@ async def check_subs_data(user_id: int) -> bool:
         return True if data_now < subscription_data else False
 
 
-async def off_is_active(max_urls: int = 5, max_filters: int = 5, subs: bool = True) -> None:
+async def off_is_active(max_urls: int = 5, max_filters: int = 5) -> None:
     """
     Отключаем включенные фильтры и ссылки не более значений max_...
     :param max_urls: максимальное кол-во ссылок
     :param max_filters:  максимальное кол-во фильтров
-    :param subs: есть ли подписка
     :return:
     """
-    if subs is True:
-        pass
-    elif subs is False:
-        async with database() as db:
-            await db.executescript(f"""
-            UPDATE ucars SET is_active = 0
-            WHERE id in (
-                SELECT id
-                    FROM (
-                        SELECT ucars.id,  ucars.user_id,
-                             ROW_NUMBER()
-                             OVER (
-                             PARTITION BY user_id
-                             ORDER BY ucars.id 
-                             ) RowNum
-                        FROM ucars
-                        INNER JOIN user on user.id = ucars.user_id
-                        WHERE  ucars.is_active = 1 AND vip = 0
-                    )
-            WHERE RowNum > {max_urls}
-            );
-            
-            UPDATE udata SET is_active = 0
-            WHERE id in (
-                SELECT id
-                    FROM (
-                        SELECT udata.id,  udata.user_id,
-                             ROW_NUMBER()
-                             OVER (
-                             PARTITION BY user_id
-                             ORDER BY udata.id 
-                             ) RowNum
-                        FROM udata
-                        INNER JOIN user on user.id = udata.user_id
-                        WHERE  udata.is_active = 1 AND vip = 0
-                    )
-            WHERE RowNum > {max_filters}
-            ) 
-            """)
-            await db.commit()
+    async with database() as db:
+        await db.executescript(f"""
+        UPDATE ucars SET is_active = 0
+        WHERE id in (
+            SELECT id
+                FROM (
+                    SELECT ucars.id,  ucars.user_id,
+                         ROW_NUMBER()
+                         OVER (
+                         PARTITION BY user_id
+                         ORDER BY ucars.id 
+                         ) RowNum
+                    FROM ucars
+                    INNER JOIN user on user.id = ucars.user_id
+                    WHERE  ucars.is_active = 1 AND vip = 0
+                )
+        WHERE RowNum > {max_urls}
+        );
+        
+        UPDATE udata SET is_active = 0
+        WHERE id in (
+            SELECT id
+                FROM (
+                    SELECT udata.id,  udata.user_id,
+                         ROW_NUMBER()
+                         OVER (
+                         PARTITION BY user_id
+                         ORDER BY udata.id 
+                         ) RowNum
+                    FROM udata
+                    INNER JOIN user on user.id = udata.user_id
+                    WHERE  udata.is_active = 1 AND vip = 0
+                )
+        WHERE RowNum > {max_filters}
+        ) 
+        """)
+        await db.commit()

@@ -13,11 +13,16 @@ from logic.cook_url import all_get_url
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
+from logic.func import off_is_active
 
 
 async def update_database(ctx):
     if up(lenn):
         asyncio.run(update(database()))
+
+
+async def reset_subs(ctx):
+    await off_is_active(max_urls=2, max_filters=2)
 
 
 async def parse_cars(ctx, item, work):
@@ -75,17 +80,30 @@ async def send_pdf_job(*args):
 class Work:
     functions = [parse_cars, send_car, send_pdf]
     cron_jobs = [
+
+        # парсинг новых объявлений
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=True),   # парсинг новых объявлений
+             run_at_startup=False),
+
+        # проверка цен
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=True),  # проверка цен
+             run_at_startup=False),
+
+        # сброс активных параметров, если кончилась подписка
+        cron(reset_subs,
+             hour={00},
+             minute={1},
+             max_tries=3,
+             run_at_startup=True),
+
+        # обновление БД
         cron(update_database,
              hour={00},
              minute={15},
              max_tries=1,
-             run_at_startup=False),  # обновление БД
+             run_at_startup=False),
     ]
