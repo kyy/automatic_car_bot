@@ -5,8 +5,7 @@ from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension)
-from logic.constant import (FSB, SB, MOTOR, COL_MOTOR, TRANSMISSION, COL_YEARS, COL_COST, COL_DIMENSION, DEFAULT,
-                            COST_STEP)
+from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, COST_STEP)
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
@@ -351,7 +350,7 @@ async def edit_motor(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 MOTOR,
                 input_field_placeholder=TXT['fi_motor'],
-                columns=COL_MOTOR))
+                columns=COL['MOTOR']))
     await state.set_state(CreateCar.motor_choosing)
 
 
@@ -379,7 +378,7 @@ async def edit_year_from(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_years(to_year=int(year)),
                 input_field_placeholder=TXT['fi_year_from'],
-                columns=COL_YEARS))
+                columns=COL['YEARS']))
     await state.set_state(CreateCar.year_choosing)
 
 
@@ -395,7 +394,7 @@ async def edit_year_to(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_years(from_year=int(year)),
                 input_field_placeholder=TXT['fi_year_to'],
-                columns=COL_YEARS))
+                columns=COL['YEARS']))
     await state.set_state(CreateCar.yearm_choosing)
 
 
@@ -411,7 +410,7 @@ async def edit_price_from(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_cost(to_cost=int(cost)),
                 input_field_placeholder=TXT['fi_price_from'],
-                columns=COL_COST))
+                columns=COL['COST']))
     await state.set_state(CreateCar.cost_choosing)
 
 
@@ -427,7 +426,7 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_cost(from_cost=int(cost) + COST_STEP),
                 input_field_placeholder=TXT['fi_price_to'],
-                columns=COL_COST))
+                columns=COL['COST']))
     await state.set_state(CreateCar.costm_choosing)
 
 
@@ -443,7 +442,7 @@ async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_dimension(to_dim=float(dimension)),
                 input_field_placeholder=TXT['f_dimension_from'],
-                columns=COL_DIMENSION))
+                columns=COL['DIMENSION']))
     await state.set_state(CreateCar.dimension_choosing)
 
 
@@ -460,6 +459,6 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_dimension(from_dim=float(dimension)),
                 input_field_placeholder=TXT['f_dimension_to'],
-                columns=COL_DIMENSION))
+                columns=COL['DIMENSION']))
     await state.set_state(CreateCar.dimensionm_choosing)
 

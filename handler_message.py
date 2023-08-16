@@ -6,8 +6,7 @@ from aiogram.filters import Command
 from keyboards import multi_row_kb, result_menu_kb
 from logic.database.config import database
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
-from logic.constant import (FSB, CF, COL_COST, COL_YEARS, COL_DIMENSION, COL_MOTOR, MOTOR, TRANSMISSION, SB, EB,
-                            AV_ROOT, ABW_ROOT, DEFAULT)
+from logic.constant import (FSB, CF, COL, MOTOR, TRANSMISSION, SB, EB, AV_ROOT, ABW_ROOT, DEFAULT)
 from logic.text import TXT
 from itertools import chain
 
@@ -31,6 +30,7 @@ async def get_rusult(message: Message, state: FSMContext):
             text=TXT['msg_last_filter'].format(decode_filter_short=decode_filter_short(lists=c)),
             reply_markup=ReplyKeyboardRemove())
     else:
+        await state.set_state(None)
         await message.answer(
             text=TXT['msg_empty_filter'],
             reply_markup=ReplyKeyboardRemove())
@@ -80,7 +80,7 @@ async def motor_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 MOTOR,
                 input_field_placeholder=TXT['fi_motor'],
-                columns=COL_MOTOR,))
+                columns=COL['MOTOR'],))
     else:
         await message.answer(
             text=TXT['msg_error_filter_input'],
@@ -107,7 +107,7 @@ async def transmission_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 MOTOR,
                 input_field_placeholder=TXT['fi_motor'],
-                columns=COL_MOTOR))
+                columns=COL['MOTOR']))
         return transmission_chosen
     await state.set_state(CreateCar.transmission_choosing)
 
@@ -125,7 +125,7 @@ async def from_year_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_years(to_year=int(year)),
                 input_field_placeholder=TXT['fi_year_from'],
-                columns=COL_YEARS))
+                columns=COL['YEARS']))
     else:
         await message.answer(
             text=TXT['msg_error_filter_input'],
@@ -147,7 +147,7 @@ async def to_year_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_years(from_year=int(year)),
                 input_field_placeholder=TXT['fi_year_to'],
-                columns=COL_YEARS))
+                columns=COL['YEARS']))
     else:
         data = await state.get_data()
         year = data['chosen_year_to']
@@ -157,7 +157,7 @@ async def to_year_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_years(from_year=int(get_years()[0]), to_year=int(year)),
                 input_field_placeholder=TXT['fi_year_from'],
-                columns=COL_YEARS))
+                columns=COL['YEARS']))
         return to_year_chosen
     await state.set_state(CreateCar.yearm_choosing)
 
@@ -177,14 +177,14 @@ async def min_cost_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_cost(to_cost=int(cost)),
                 input_field_placeholder=TXT['fi_price_from'],
-                columns=COL_COST))
+                columns=COL['COST']))
     else:
         await message.answer(
             text=TXT['msg_error_filter_input'],
             reply_markup=multi_row_kb(
                 get_years(from_year=int(year)),
                 input_field_placeholder=TXT['fi_year_to'],
-                columns=COL_YEARS))
+                columns=COL['YEARS']))
         return min_cost_chosen
     await state.set_state(CreateCar.cost_choosing)
 
@@ -200,7 +200,7 @@ async def max_cost_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_cost(from_cost=int(cost)),
                 input_field_placeholder=TXT['fi_price_to'],
-                columns=COL_COST))
+                columns=COL['COST']))
     else:
         data = await state.get_data()
         cost = data['chosen_cost_max']
@@ -210,7 +210,7 @@ async def max_cost_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_cost(to_cost=int(cost)),
                 input_field_placeholder=TXT['fi_price_from'],
-                columns=COL_COST))
+                columns=COL['COST']))
         return max_cost_chosen
     await state.set_state(CreateCar.costm_choosing)
 
@@ -229,14 +229,14 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_dimension(to_dim=float(dimension)),
                 input_field_placeholder=TXT['fi_dimension_from'],
-                columns=COL_DIMENSION))
+                columns=COL['DIMENSION']))
     else:
         await message.answer(
             text=TXT['msg_error_filter_input'],
             reply_markup=multi_row_kb(
                 get_cost(from_cost=int(data['chosen_cost_min'])),
                 input_field_placeholder=TXT['fi_price_to'],
-                columns=COL_COST))
+                columns=COL['COST']))
         return min_dimension_chosen
     await state.set_state(CreateCar.dimension_choosing)
 
@@ -252,7 +252,7 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_dimension(from_dim=float(dimension)),
                 input_field_placeholder=TXT['fi_dimension_to'],
-                columns=COL_DIMENSION))
+                columns=COL['DIMENSION']))
     else:
         data = await state.get_data()
         dimension = data['chosen_dimension_max']
@@ -262,7 +262,7 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 get_dimension(to_dim=float(dimension)),
                 input_field_placeholder=TXT['fi_dimension_from'],
-                columns=COL_DIMENSION))
+                columns=COL['DIMENSION']))
         return max_dimension_chosen
     await state.set_state(CreateCar.dimensionm_choosing)
 

@@ -9,7 +9,6 @@ from logic.parse_sites.abw_by import count_cars_abw
 from logic.parse_sites.av_by import count_cars_av
 from logic.parse_sites.onliner_by import count_cars_onliner
 from aiocache import cached, Cache
-
 from .text import TXT
 
 
@@ -206,7 +205,7 @@ def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1, ):
     return data, buttons, del_page
 
 
-async def is_subscriber(user_id: int) -> bool:
+async def check_subs_data(user_id: int) -> bool:
     """
     Проверяем истекла ли подписка
     :param user_id: user.tel_id
@@ -220,10 +219,9 @@ async def is_subscriber(user_id: int) -> bool:
         return True if data_now < subscription_data else False
 
 
-async def off_is_active(user_id: int, max_urls: int = 5, max_filters: int = 5, subs: bool = True) -> None:
+async def off_is_active(max_urls: int = 5, max_filters: int = 5, subs: bool = True) -> None:
     """
     Отключаем включенные фильтры и ссылки не более значений max_...
-    :param user_id: tel_id
     :param max_urls: максимальное кол-во ссылок
     :param max_filters:  максимальное кол-во фильтров
     :param subs: есть ли подписка
@@ -233,27 +231,39 @@ async def off_is_active(user_id: int, max_urls: int = 5, max_filters: int = 5, s
         pass
     elif subs is False:
         async with database() as db:
-            urls_cursor = await db.execute(f"""
-            SELECT ucars.id FROM ucars
-            INNER JOIN user on user.id = ucars.user_id
-            WHERE user.tel_id = {user_id} AND ucars.is_active = 1
+            await db.executescript(f"""
+            UPDATE ucars SET is_active = 0
+            WHERE id in (
+                SELECT id
+                    FROM (
+                        SELECT ucars.id,  ucars.user_id,
+                             ROW_NUMBER()
+                             OVER (
+                             PARTITION BY user_id
+                             ORDER BY ucars.id 
+                             ) RowNum
+                        FROM ucars
+                        INNER JOIN user on user.id = ucars.user_id
+                        WHERE  ucars.is_active = 1 AND vip = 0
+                    )
+            WHERE RowNum > {max_urls}
+            );
+            
+            UPDATE udata SET is_active = 0
+            WHERE id in (
+                SELECT id
+                    FROM (
+                        SELECT udata.id,  udata.user_id,
+                             ROW_NUMBER()
+                             OVER (
+                             PARTITION BY user_id
+                             ORDER BY udata.id 
+                             ) RowNum
+                        FROM udata
+                        INNER JOIN user on user.id = udata.user_id
+                        WHERE  udata.is_active = 1 AND vip = 0
+                    )
+            WHERE RowNum > {max_filters}
+            ) 
             """)
-            filters_cursor = await db.execute(f"""
-            SELECT udata.id FROM user 
-            INNER JOIN udata on user.id = udata.user_id
-            WHERE user.tel_id = {user_id} AND udata.is_active = 1
-            """)
-            urls = await urls_cursor.fetchall()
-            filters = await filters_cursor.fetchall()
-            urls = [i[0] for i in urls]
-            filters = [i[0] for i in filters]
-
-            if len(urls) > max_urls:
-                for uid in urls[max_urls:]:
-                    await db.execute(f"""UPDATE ucars SET is_active = 0 WHERE ucars.id = '{uid}'""")
-
-            if len(filters) > max_filters:
-                for fid in filters[max_filters:]:
-                    await db.execute(f"""UPDATE udata SET is_active = 0 WHERE udata.id = '{fid}'""")
-
             await db.commit()
