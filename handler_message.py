@@ -248,7 +248,7 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
     if dimension in chain(get_dimension(), CF):
         await state.update_data(chosen_dimension_min=dimension)
         await message.answer(
-            text=TXT['f_dimension_to'],
+            text=TXT['fi_dimension_to'],
             reply_markup=multi_row_kb(
                 get_dimension(from_dim=float(dimension)),
                 input_field_placeholder=TXT['fi_dimension_to'],

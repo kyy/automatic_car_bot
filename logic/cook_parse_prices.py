@@ -93,4 +93,3 @@ async def parse_main(ctx):
     loop.run_until_complete(future)
     await check_price(result)
     return result
-
