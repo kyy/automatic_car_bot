@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension)
-from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, COST_STEP)
+from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, COST_STEP, REPORT_PARSE_LIMIT_PAGES)
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
@@ -189,7 +189,8 @@ async def options_search(callback: CallbackQuery):
             abw_l=abw_l,
             all_abw=all_abw,
             onliner_l=onliner_l,
-            all_onliner=all_onliner),
+            all_onliner=all_onliner,
+            size=25 * REPORT_PARSE_LIMIT_PAGES),
         reply_markup=filter_menu_kb(callback, cars_count),
         disable_web_page_preview=True,
         parse_mode="HTML")

@@ -2,7 +2,7 @@ from datetime import datetime
 import asyncio
 import numpy as np
 from logic.decorators import timed_lru_cache
-from .constant import SS, FSB
+from .constant import SS, FSB, REPORT_PARSE_LIMIT_PAGES, PARSE_LIMIT_PAGES
 from .database.config import database
 
 
@@ -21,8 +21,8 @@ async def get_url_av(car_input, db, work):
 
     # База данных
     car_input = dict(zip(param_input, car_input.split(SS)))
-    transmission = {'a': '1', 'm': '2'}
-    motor = {'b': '1', 'bpb': '2', 'bm': '3', 'bg': '4', 'd': '5', 'dg': '6', 'e': '7'}
+    transmission = dict(a='1', m='2')
+    motor = dict(b='1', bpb='2', bm='3', bg='4', d='5', dg='6', e='7')
     brand = car_input['brands[0][brand]=']
     model = car_input['brands[0][model]=']
     if model != FSB:
@@ -81,7 +81,7 @@ async def get_url_abw(car_input, db):
     car_input = dict(zip(param_input, car_input))
     cost_selection: list = np.load('logic/database/parse/abw_price_list.npy', allow_pickle=True).tolist()  # noqa
     transmission = {'a': 'at', 'm': 'mt'}
-    motor = {'b': 'benzin', 'bpb': 'sug', 'bm': 'sug', 'bg': 'gibrid', 'd': 'dizel', 'dg': 'gibrid', 'e': 'elektro'}
+    motor = dict(b='benzin', bpb='sug', bm='sug', bg='gibrid', d='dizel', dg='gibrid', e='elektro')
 
     # решаем проблему селектора диапазона цены
     minimus = int(car_input['price_'])
@@ -181,13 +181,50 @@ async def get_url_onliner(car_input, db):
         return None
 
 
+@timed_lru_cache(300)
+async def get_url_kufar(car_input, db, work):
+    param_input = ['cbnd2=', 'cmdl2=', 'cre=', 'crg=', 'rgd=r:', 'rgd_max', 'prc=r:', 'prc_max', 'crca=r:', 'crca_max']
+
+    car_input = dict(zip(param_input, car_input.split(SS)))
+    transmission = dict(a='1', m='2')
+    motor = dict(b='v.or:1', bpb='v.or:3', bm='v.or:6', bg='v.or:4', d='v.or:2', dg='v.or:7', e='v.or:5')
+    brand = car_input['cbnd2=']
+    model = car_input['cmdl2=']
+    if model != FSB:
+        cursor = await db.execute(f"select brands.kufar_by, models.kufar_by  from brands "
+                                  f"inner join models on brands.id = models.brand_id "
+                                  f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
+        rows = await cursor.fetchall()
+        car_input['cbnd2='] = rows[0][0]
+        car_input['cmdl2='] = rows[0][1]
+    else:
+        cursor = await db.execute(f"select brands.kufar_by, models.kufar_by  from brands "
+                                  f"inner join models on brands.id = models.brand_id "
+                                  f"where brands.[unique] = '{brand}'")
+        rows = await cursor.fetchall()
+        car_input['cmdl2='] = FSB
+        car_input['cbnd2='] = rows[0][0]
+
+    if car_input['cre='] in motor:
+        car_input['cre='] = motor[car_input['cre=']]
+    if car_input['crg='] in transmission:
+        car_input['crg='] = transmission[car_input['crg=']]
+    new_part = []
+    for key in car_input:
+        if car_input[key] != FSB:
+            new_part.append(str(key) + str(car_input[key]))
+    new_part_url = '&'.join(new_part).replace('&rgd_max', ',').replace('&prc_max', ',').replace('&crca_max', ',')
+    size = REPORT_PARSE_LIMIT_PAGES * 25 if work is True else PARSE_LIMIT_PAGES * 25
+    full_url = f'https://api.kufar.by/search-api/v1/search/' \
+               f'rendered-paginated?cat=2010&sort=lst.d&typ=sell&lang=ru&size={size}&{new_part_url}'
+    return full_url
+
+
 async def all_get_url(link, work=False):
     async with database() as db:
-        return (asyncio.run(get_url_av(link, db, work)),
-                asyncio.run(get_url_abw(link, db)),
-                asyncio.run(get_url_onliner(link, db)),
-                )
-
-
-if __name__ == '__main__':
-    pass
+        return (
+            asyncio.run(get_url_av(link, db, work)),
+            asyncio.run(get_url_abw(link, db)),
+            asyncio.run(get_url_onliner(link, db)),
+            asyncio.run(get_url_kufar(link, db, work)),
+        )

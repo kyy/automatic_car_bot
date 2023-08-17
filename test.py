@@ -1,9 +1,11 @@
 import asyncio
 from datetime import datetime, timedelta
 
+import aiosqlite
 import numpy as np
 from tqdm import tqdm
 
+from logic.constant import FSB, SS
 from logic.database.config import database
 
 data_now = datetime.today().date()   # сегодняшняя дата
@@ -48,50 +50,61 @@ model = 'https://api.kufar.by/catalog/v1/nodes?tag=category_2010.mark_audi&view=
 brand = 'https://api.kufar.by/catalog/v1/nodes?tag=category_2010&view=taxonomy'
 search = 'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&cbnd2=category_2010.mark_gmc&cmdl2=category_2010.mark_gmc.model_terrain&cre=v.or:1&cur=USD&lang=ru&mlg=r:5000,999999&prc=r:6666,66666&rgd=r:2000,2023&size=30&sort=lst.d&typ=sell'
 
-def con() -> None:
-    url = 'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&cbnd2=category_2010.mark_audi&cur=BYR&cursor=eyJ0IjoiYWJzIiwiZiI6dHJ1ZSwicCI6Mn0%3D&lang=ru&size=100&sort=lst.d&typ=sell'
-    r = requests.get(url, headers=HEADERS).json()
-    car = []
-    for i in range(len(r['ads'])):
-        r_t = r['ads'][i]
-        published = r_t['list_time']
-        price = r_t['price_usd']
-        url = r_t['ad_link']
-        days = (datetime.now().date() - datetime.strptime(published.split('T')[0], '%Y-%m-%d').date()).days
-        motor = dimension = transmis = km = typec = drive = color = ''
-        for j in range(len(r_t['ad_parameters'])):
-            r_t = r['ads'][i]['ad_parameters'][j]
-            if r_t['p'] == 'area':
-                city = r_t['vl']
-            elif r_t['p'] == 'brand':
-                brand = r_t['vl']
-            elif r_t['p'] == 'cars_level_1':
-                model = r_t['vl']
-            elif r_t['p'] == 'full_vehicle_vin':
-                vin = r_t['v']
-            elif r_t['p'] == 'possible_exchange':
-                exchange = r_t['vl']
-            elif r_t['p'] == 'regdate':
-                year = r_t['vl']
-            elif r_t['p'] == 'mileage':
-                km = r_t['vl']
-            elif r_t['p'] == 'cars_capacity':
-                dimension = r_t['vl']
-            elif r_t['p'] == 'cars_engine':
-                motor = r_t['vl']
-            elif r_t['p'] == 'cars_gearbox':
-                transmis = r_t['vl']
-            elif r_t['p'] == 'cars_color':
-                color = r_t['vl']
-            elif r_t['p'] == 'cars_drive':
-                drive = r_t['vl']
-            elif r_t['p'] == 'cars_type':
-                typec = r_t['vl']
-        car.append([
-                str(url), 'comment', f'{str(brand)} {str(model)}', str(price), str(motor), str(dimension),
-                str(transmis), str(km), str(year), str(typec), str(drive), str(color), str(vin),
-                str(exchange), str(days), str(city)])
-    print(car)
+data = aiosqlite.connect(database='auto_db')
+
+async def get_url_kufar(db, car_input='BMW+X5+d+a+2000+2023+666+6666+1.120+250', work=False):
+
+    param_input = [
+        'cbnd2=',
+        'cmdl2=',
+        'cre=',
+        'crg=',
+        'rgd=r:',
+        'rgd_max',
+        'prc=r:',
+        'prc_max',
+        'crca=r:',
+        'crca_max'
+    ]
+
+    car_input = dict(zip(param_input, car_input.split(SS)))
+    transmission = dict(a='1', m='2')
+    motor = dict(b='v.or:1', bpb='v.or:3', bm='v.or:6', bg='v.or:4', d='v.or:2', dg='v.or:7', e='v.or:5')
+    brand = car_input['cbnd2=']
+    model = car_input['cmdl2=']
+    if model != FSB:
+        cursor = await db.execute(f"select brands.kufar_by, models.kufar_by  from brands "
+                                  f"inner join models on brands.id = models.brand_id "
+                                  f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
+        rows = await cursor.fetchall()
+        car_input['cbnd2='] = rows[0][0]
+        car_input['cmdl2='] = rows[0][1]
+    else:
+        cursor = await db.execute(f"select brands.kufar_by, models.kufar_by  from brands "
+                                  f"inner join models on brands.id = models.brand_id "
+                                  f"where brands.[unique] = '{brand}'")
+        rows = await cursor.fetchall()
+        car_input['cmdl2='] = FSB
+        car_input['cbnd2='] = rows[0][0]
+
+    if car_input['cre='] in motor:
+        car_input['cre='] = motor[car_input['cre=']]
+    if car_input['crg='] in transmission:
+        car_input['crg='] = transmission[car_input['crg=']]
+
+    new_part = []
+    for key in car_input:
+        if car_input[key] != FSB:
+            new_part.append(str(key)+str(car_input[key]))
+    new_part_url = '&'.join(new_part).replace('&rgd_max', ',').replace('&prc_max', ',').replace('&crca_max', ',')
+    if work is True:
+        new_part.append('creation_date=10')
+    full_url = f'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&sort=lst.d&typ=sell&lang=ru&size=30&{new_part_url}'
+
+
+async def main():
+    async with data as db:
+        await get_url_kufar(db=db)
 
 if __name__ == '__main__':
-    con()
+    asyncio.run(main())

@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime
-from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
+from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON
 from logic.decorators import timed_lru_cache
 
 
@@ -28,7 +28,7 @@ def json_parse_kufar(json_data, work):
         price = r_t['price_usd']
         url = r_t['ad_link']
         days = (datetime.now().date() - datetime.strptime(published.split('T')[0], '%Y-%m-%d').date()).days
-        motor = dimension = transmis = km = typec = drive = color = ''
+        motor = dimension = transmis = km = typec = drive = color = brand = model = year = exchange = city = vin = ''
         for j in range(len(r_t['ad_parameters'])):
             r_t = json_data['ads'][i]['ad_parameters'][j]
             if r_t['p'] == 'area':
