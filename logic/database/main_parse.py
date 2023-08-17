@@ -32,10 +32,7 @@ def checking_new_brands_av():
     except:
         n_brands_stor = 0
     print(n_brands_stor, n_brands_inet)
-    if n_brands_inet != n_brands_stor:
-        return False
-    else:
-        return True
+    return False if n_brands_inet != n_brands_stor else True
 
 
 def checking_new_models_av(lenn):
@@ -49,10 +46,7 @@ def checking_new_models_av(lenn):
         r = requests.get(f'{url}{brands[item][1]}', headers=headers).json()
         n_models_inet += len(r['seo']['links'])
     print(n_models_stor, n_models_inet)
-    if n_models_inet != n_models_stor:
-        return False
-    else:
-        return True
+    return False if n_models_inet != n_models_stor else True
 
 
 def av_get_from_json_brands():
@@ -151,6 +145,34 @@ def onliner_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}
     np.save(f'{folder}onliner_models.npy', brand_dict)
 
 
+def kufar_get_from_json_brands():
+    url = 'https://api.kufar.by/catalog/v1/nodes?tag=category_2010&view=taxonomy'
+    r = requests.get(url, headers=headers).json()
+    brands = {}
+    for car in tqdm(r):
+        id = car['value']
+        name = car['labels']['ru']
+        slug = id.split('mark_')[1].replace('_', '-')
+        brands.update({name: [id, slug]})
+    np.save(f'{folder}kufar_brands.npy', brands)
+
+
+def kufar_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
+    url = 'https://api.kufar.by/catalog/v1/nodes?tag=category_2010.{model}&view=taxonomy'
+    brands = np.load(f'{folder}kufar_brands.npy', allow_pickle=True).item()
+    brand_dict = {}
+    for item in tqdm(brands):
+        r = requests.get(url.format(model=brands[item][0]), headers=headers).json()
+        models_dict = {}
+        for car in r:
+            name = car['label']['ru']
+            id = car['value']
+            slug = id.split('mark_')[1].replace('_', '-').replace('.', '-')
+            models_dict.update({name: [id, name, slug]})
+        brand_dict.update({item: models_dict})
+    np.save(f'{folder}kufar_models.npy', brand_dict)
+
+
 def parse():
     av_get_from_json_brands()
     av_get_from_json_models()
@@ -158,6 +180,8 @@ def parse():
     abw_get_from_json_models()
     onliner_get_from_json_brands()
     onliner_get_from_json_models()
+    kufar_get_from_json_brands()
+    kufar_get_from_json_models()
 
 
 def main_parse(lenn):

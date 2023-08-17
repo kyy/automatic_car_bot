@@ -98,12 +98,14 @@ class Work:
              hour={00},
              minute={1},
              max_tries=3,
-             run_at_startup=True),
+             run_at_startup=False),
 
         # обновление БД
         cron(update_database,
-             hour={00},
-             minute={15},
-             max_tries=1,
-             run_at_startup=False),
+             weekday='sun',
+             hour={2},
+             minute={30},
+             max_tries=3,
+             timeout=900,
+             run_at_startup=True),
     ]
