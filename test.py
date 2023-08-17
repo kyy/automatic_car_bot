@@ -50,15 +50,48 @@ search = 'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&
 
 def con() -> None:
     url = 'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&cbnd2=category_2010.mark_audi&cur=BYR&cursor=eyJ0IjoiYWJzIiwiZiI6dHJ1ZSwicCI6Mn0%3D&lang=ru&size=100&sort=lst.d&typ=sell'
-    if url is None:
-        return 0
-    try:
-        r = requests.get(url, headers=HEADERS).json()
-        print(int(r['total']))
-        return int(r['total'])
-    except Exception as e:
-        print(e)
-        return 0
+    r = requests.get(url, headers=HEADERS).json()
+    car = []
+    for i in range(len(r['ads'])):
+        r_t = r['ads'][i]
+        published = r_t['list_time']
+        price = r_t['price_usd']
+        url = r_t['ad_link']
+        days = (datetime.now().date() - datetime.strptime(published.split('T')[0], '%Y-%m-%d').date()).days
+        motor = dimension = transmis = km = typec = drive = color = ''
+        for j in range(len(r_t['ad_parameters'])):
+            r_t = r['ads'][i]['ad_parameters'][j]
+            if r_t['p'] == 'area':
+                city = r_t['vl']
+            elif r_t['p'] == 'brand':
+                brand = r_t['vl']
+            elif r_t['p'] == 'cars_level_1':
+                model = r_t['vl']
+            elif r_t['p'] == 'full_vehicle_vin':
+                vin = r_t['v']
+            elif r_t['p'] == 'possible_exchange':
+                exchange = r_t['vl']
+            elif r_t['p'] == 'regdate':
+                year = r_t['vl']
+            elif r_t['p'] == 'mileage':
+                km = r_t['vl']
+            elif r_t['p'] == 'cars_capacity':
+                dimension = r_t['vl']
+            elif r_t['p'] == 'cars_engine':
+                motor = r_t['vl']
+            elif r_t['p'] == 'cars_gearbox':
+                transmis = r_t['vl']
+            elif r_t['p'] == 'cars_color':
+                color = r_t['vl']
+            elif r_t['p'] == 'cars_drive':
+                drive = r_t['vl']
+            elif r_t['p'] == 'cars_type':
+                typec = r_t['vl']
+        car.append([
+                str(url), 'comment', f'{str(brand)} {str(model)}', str(price), str(motor), str(dimension),
+                str(transmis), str(km), str(year), str(typec), str(drive), str(color), str(vin),
+                str(exchange), str(days), str(city)])
+    print(car)
 
 if __name__ == '__main__':
     con()

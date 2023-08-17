@@ -57,7 +57,7 @@ def json_parse_av(json_data, work):
         except:
             vin = ''
         generation = motor = dimension = transmission = km = typec = drive = color = ''
-        for j in range(len(json_data['adverts'][i]['properties'])):
+        for j in range(len(r_t['properties'])):
             r_t = json_data['adverts'][i]['properties'][j]
             if r_t['name'] == 'mileage_km':
                 km = r_t['value']

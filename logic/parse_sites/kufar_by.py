@@ -25,23 +25,38 @@ def json_parse_kufar(json_data, work):
     for i in range(len(json_data['ads'])):
         r_t = json_data['ads'][i]
         published = r_t['list_time']
-        price = r_t['paid_services']['price_usd']
+        price = r_t['price_usd']
         url = r_t['ad_link']
-        brand = r_t['ad_parameters'][2]['vl']
-        model = r_t['ad_parameters'][3]['vl']
-        generation = ''
-        days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
-        city = r_t['ad_parameters'][14]['vl']
-        vin = ''
-        exchange = ''
-        year = r_t['ad_parameters'][4]['vl']
-        km = r_t['specs']['odometer']['value']
-        dimension = r_t['ad_parameters'][7]['vl']
-        motor = r_t['ad_parameters'][6]['vl']
-        transmis = r_t['ad_parameters'][8]['vl']
-        color = r_t['ad_parameters'][11]['vl']
-        drive = r_t['ad_parameters'][10]['vl']
-        typec = r_t['ad_parameters'][9]['vl']
+        days = (datetime.now().date() - datetime.strptime(published.split('T')[0], '%Y-%m-%d').date()).days
+        motor = dimension = transmis = km = typec = drive = color = ''
+        for j in range(len(r_t['ad_parameters'])):
+            r_t = json_data['ads'][i]['ad_parameters'][j]
+            if r_t['p'] == 'area':
+                city = r_t['vl']
+            elif r_t['p'] == 'brand':
+                brand = r_t['vl']
+            elif r_t['p'] == 'cars_level_1':
+                model = r_t['vl']
+            elif r_t['p'] == 'full_vehicle_vin':
+                vin = r_t['v']
+            elif r_t['p'] == 'possible_exchange':
+                exchange = r_t['vl']
+            elif r_t['p'] == 'regdate':
+                year = r_t['vl']
+            elif r_t['p'] == 'mileage':
+                km = r_t['vl']
+            elif r_t['p'] == 'cars_capacity':
+                dimension = r_t['vl']
+            elif r_t['p'] == 'cars_engine':
+                motor = r_t['vl']
+            elif r_t['p'] == 'cars_gearbox':
+                transmis = r_t['vl']
+            elif r_t['p'] == 'cars_color':
+                color = r_t['vl']
+            elif r_t['p'] == 'cars_drive':
+                drive = r_t['vl']
+            elif r_t['p'] == 'cars_type':
+                typec = r_t['vl']
 
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
@@ -50,18 +65,7 @@ def json_parse_kufar(json_data, work):
                 car.append([str(url), str(price)])
         else:
             car.append([
-                str(url), 'comment', '{str(brand_model_gen)}', str(price), str(motor), str(dimension),
+                str(url), 'comment', f'{str(brand)} {str(model)}', str(price), str(motor), str(dimension),
                 str(transmis), str(km), str(year), str(typec), str(drive), str(color), str(vin),
-                str(exchange), str(days), str(city)
-            ])
+                str(exchange), str(days), str(city)])
     return car
-
-
-# -------------follow-price
-def car_json_by_id(id_car):
-    url = f'https://ab.kufar.by/sdapi/ab.api/vehicles/{id_car}'
-    try:
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        return int(r['price']['converted']['USD']['amount'][:-3])
-    except requests.exceptions.RequestException:
-        return False
