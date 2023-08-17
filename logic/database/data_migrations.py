@@ -23,21 +23,25 @@ def car_data():
     onliner_m = np.load(f'{folder}onliner_models.npy', allow_pickle=True).item()
     abw_b = np.load(f'{folder}abw_brands.npy', allow_pickle=True).item()
     onliner_b = np.load(f'{folder}onliner_brands.npy', allow_pickle=True).item()
-    return av_b, abw_m, av_m, onliner_m, abw_b, onliner_b
+    kufar_b = np.load(f'{folder}kufar_brands.npy', allow_pickle=True).item()
+    kufar_m = np.load(f'{folder}kufar_models.npy', allow_pickle=True).item()
+    return av_b, abw_m, av_m, onliner_m, abw_b, onliner_b, kufar_b, kufar_m
 
 
-def l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b):
+def l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b, kufar_b, kufar_m):
     l_av_b = len(av_b) # noqa
     l_av_m = lenn(av_m)  # noqa
     l_abw_b = len(abw_b) # noqa
     l_abw_m = lenn(abw_m)  # noqa
     l_onliner_b = len(onliner_b) # noqa
     l_onliner_m = lenn(onliner_m) # noqa
-    return l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m
+    l_kufar_b = len(kufar_b)  # noqa
+    l_kufar_m = lenn(kufar_m)  # noqa
+    return l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m, l_kufar_m, l_kufar_b
 
 
-def checking_null(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m):   # проверяем все ли файлы с данными
-    xxx = [l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m]
+def checking_null(*args):   # проверяем все ли файлы с данными
+    xxx = [*args]
     return all([x > 0 for x in xxx])
 
 
@@ -258,18 +262,20 @@ async def main(db: database()):
     Выполняем сценарий по созданию и наполнению БД
     :return: None
     """
-    av_b, abw_m, av_m, onliner_m, abw_b, onliner_b = car_data()
-    l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m = l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b)
+    av_b, abw_m, av_m, onliner_m, abw_b, onliner_b, kufar_b, kufar_m = car_data()
+    l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m, l_kufar_m, l_kufar_b = l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b, kufar_b, kufar_m)
     async with db:
-        if checking_null(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m):
+        if checking_null(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m, l_kufar_m, l_kufar_b):
             await create_tables(db)
             await user_data_migrations(db)
             await av_brands(db, av_b, l_av_b),
             await av_models(db, av_m, l_av_m),
             await add_brand(db, abw_b, 'abw_by', 1),
             await add_brand(db, onliner_b, 'onliner_by', 0),
+            await add_brand(db, kufar_b, 'kufar_by', 0),
             await add_model(db, abw_m, 'abw_by', 2),
             await add_model(db, onliner_m, 'onliner_by', 0),
+            await add_model(db, kufar_m, 'kufar_by', 0),
             await delete_dublicates(db, 'brands')
             await delete_dublicates(db, 'models')
         else:

@@ -158,14 +158,14 @@ def kufar_get_from_json_brands():
 
 
 def kufar_get_from_json_models():  # {Brand_name:{Model_name:[id, name, slug]}}
-    url = 'https://api.kufar.by/catalog/v1/nodes?tag=category_2010.{model}&view=taxonomy'
+    url = 'https://api.kufar.by/catalog/v1/nodes?tag={model}&view=taxonomy'
     brands = np.load(f'{folder}kufar_brands.npy', allow_pickle=True).item()
     brand_dict = {}
     for item in tqdm(brands):
         r = requests.get(url.format(model=brands[item][0]), headers=headers).json()
         models_dict = {}
         for car in r:
-            name = car['label']['ru']
+            name = car['labels']['ru']
             id = car['value']
             slug = id.split('mark_')[1].replace('_', '-').replace('.', '-')
             models_dict.update({name: [id, name, slug]})

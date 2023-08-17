@@ -49,19 +49,16 @@ brand = 'https://api.kufar.by/catalog/v1/nodes?tag=category_2010&view=taxonomy'
 search = 'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&cbnd2=category_2010.mark_gmc&cmdl2=category_2010.mark_gmc.model_terrain&cre=v.or:1&cur=USD&lang=ru&mlg=r:5000,999999&prc=r:6666,66666&rgd=r:2000,2023&size=30&sort=lst.d&typ=sell'
 
 def con() -> None:
-    url = 'https://api.kufar.by/catalog/v1/nodes&view=taxonomy?tag='
-    brands = np.load(f'logic/database/parse/', allow_pickle=True).item()
-    brand_dict = {}
-    for item in tqdm(brands):
-        r = requests.get(f'{url}{brands[item][0]}', headers=headers).json()
-        models_dict = {}
-        for car in r:
-            name = car['label']['ru']
-            id = car['value']
-            slug = id.split('mark_')[1].replace('_', '-').replace('.', '-')
-            models_dict.update({name: [id, name, slug]})
-        brand_dict.update({item: models_dict})
-    print(brands)
+    url = 'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&cbnd2=category_2010.mark_audi&cur=BYR&cursor=eyJ0IjoiYWJzIiwiZiI6dHJ1ZSwicCI6Mn0%3D&lang=ru&size=100&sort=lst.d&typ=sell'
+    if url is None:
+        return 0
+    try:
+        r = requests.get(url, headers=HEADERS).json()
+        print(int(r['total']))
+        return int(r['total'])
+    except Exception as e:
+        print(e)
+        return 0
 
 if __name__ == '__main__':
     con()

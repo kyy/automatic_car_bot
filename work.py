@@ -17,8 +17,8 @@ from logic.func import off_is_active
 
 
 async def update_database(ctx):
-    if up(lenn):
-        asyncio.run(update(database()))
+    #if up(lenn):
+    asyncio.run(update(database()))
 
 
 async def reset_subs(ctx):
