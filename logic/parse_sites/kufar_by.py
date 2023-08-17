@@ -17,32 +17,32 @@ def count_cars_kufar(url):
 
 @timed_lru_cache(300)
 def json_links_kufar(url):
-    return url if url else False
+    return [url, ] if url else False
 
 
 def json_parse_kufar(json_data, work):
     car = []
-    for i in range(len(json_data['adverts'])):
-        r_t = json_data['adverts'][i]
-        published = r_t['created_at']
-        price = r_t['price']['converted']['USD']['amount'].split('.')[0]
-        url = r_t['html_url']
-        brand_model_gen = r_t['title']
+    for i in range(len(json_data['ads'])):
+        r_t = json_data['ads'][i]
+        published = r_t['list_time']
+        price = r_t['paid_services']['price_usd']
+        url = r_t['ad_link']
+        brand = r_t['ad_parameters'][2]['vl']
+        model = r_t['ad_parameters'][3]['vl']
+        generation = ''
         days = (datetime.now().date() - datetime.strptime(r_t['created_at'].split('T')[0], '%Y-%m-%d').date()).days
-        city = r_t['location']['city']['name']
+        city = r_t['ad_parameters'][14]['vl']
         vin = ''
         exchange = ''
-        year = r_t['specs']['year']
+        year = r_t['ad_parameters'][4]['vl']
         km = r_t['specs']['odometer']['value']
-        dimension = r_t['specs']['engine']['capacity']
-        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель').replace('None', '')
-        transmis = r_t['specs']['transmission'].replace('mechanical', 'механика').replace('automatic', 'автомат')
-        color = r_t['specs']['color'].replace('skyblue', 'св-синий').replace('red', 'красный').replace('black', 'черный').replace('white', 'белый').replace('silver', 'серебро').replace('grey', 'серый').replace('blue', 'синий').replace('orange', 'апельсин').replace('other', 'другой').replace('brown', 'коричневый')
-        drive = r_t['specs']['drivetrain'].replace('front', 'передний').replace('all', 'полный')
-        typec = r_t['specs']['body_type'].replace('suv', 'внедорожник').replace('hatchback', 'хачбек').replace('sedan', 'седан').replace('universal', 'универсал').replace('minivan', 'минивен')
-        # brand = r_t['manufacturer']['name']
-        # model = r_t['model']['name']
-        # generation = r_t['generation']['name']
+        dimension = r_t['ad_parameters'][7]['vl']
+        motor = r_t['ad_parameters'][6]['vl']
+        transmis = r_t['ad_parameters'][8]['vl']
+        color = r_t['ad_parameters'][11]['vl']
+        drive = r_t['ad_parameters'][10]['vl']
+        typec = r_t['ad_parameters'][9]['vl']
+
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
@@ -50,7 +50,7 @@ def json_parse_kufar(json_data, work):
                 car.append([str(url), str(price)])
         else:
             car.append([
-                str(url), 'comment', f'{str(brand_model_gen)}', str(price), str(motor), str(dimension),
+                str(url), 'comment', '{str(brand_model_gen)}', str(price), str(motor), str(dimension),
                 str(transmis), str(km), str(year), str(typec), str(drive), str(color), str(vin),
                 str(exchange), str(days), str(city)
             ])
