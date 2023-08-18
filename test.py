@@ -52,59 +52,14 @@ search = 'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&
 
 data = aiosqlite.connect(database='auto_db')
 
-async def get_url_kufar(db, car_input='BMW+X5+d+a+2000+2023+666+6666+1.120+250', work=False):
-
-    param_input = [
-        'cbnd2=',
-        'cmdl2=',
-        'cre=',
-        'crg=',
-        'rgd=r:',
-        'rgd_max',
-        'prc=r:',
-        'prc_max',
-        'crca=r:',
-        'crca_max'
-    ]
-
-    car_input = dict(zip(param_input, car_input.split(SS)))
-    transmission = dict(a='1', m='2')
-    motor = dict(b='v.or:1', bpb='v.or:3', bm='v.or:6', bg='v.or:4', d='v.or:2', dg='v.or:7', e='v.or:5')
-    brand = car_input['cbnd2=']
-    model = car_input['cmdl2=']
-    if model != FSB:
-        cursor = await db.execute(f"select brands.kufar_by, models.kufar_by  from brands "
-                                  f"inner join models on brands.id = models.brand_id "
-                                  f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'")
-        rows = await cursor.fetchall()
-        car_input['cbnd2='] = rows[0][0]
-        car_input['cmdl2='] = rows[0][1]
-    else:
-        cursor = await db.execute(f"select brands.kufar_by, models.kufar_by  from brands "
-                                  f"inner join models on brands.id = models.brand_id "
-                                  f"where brands.[unique] = '{brand}'")
-        rows = await cursor.fetchall()
-        car_input['cmdl2='] = FSB
-        car_input['cbnd2='] = rows[0][0]
-
-    if car_input['cre='] in motor:
-        car_input['cre='] = motor[car_input['cre=']]
-    if car_input['crg='] in transmission:
-        car_input['crg='] = transmission[car_input['crg=']]
-
-    new_part = []
-    for key in car_input:
-        if car_input[key] != FSB:
-            new_part.append(str(key)+str(car_input[key]))
-    new_part_url = '&'.join(new_part).replace('&rgd_max', ',').replace('&prc_max', ',').replace('&crca_max', ',')
-    if work is True:
-        new_part.append('creation_date=10')
-    full_url = f'https://api.kufar.by/search-api/v1/search/rendered-paginated?cat=2010&sort=lst.d&typ=sell&lang=ru&size=30&{new_part_url}'
+def run():
+    r = requests.get(url='https://auto.kufar.by/react/api/user?apiName=set_statpoints_view&list_id=173703900')
+    print(r)
 
 
-async def main():
-    async with data as db:
-        await get_url_kufar(db=db)
+
+
+
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    run()

@@ -26,13 +26,13 @@ def urls(av, abw, onliner, kufar, work):
 
 
 async def bound_fetch(semaphore, url, session, result, work):
-    # try:
+    try:
         async with semaphore:
             await get_one(url, session, result, work)
-    # except Exception as e:
-    #     print(e, '[cook_parse_cars.bound_fetch]')
-    #     # Блокируем все таски на <> секунд в случае ошибки 429.
-    #     await asyncio.sleep(1)
+    except Exception as e:
+        print(e, '[cook_parse_cars.bound_fetch]')
+        # Блокируем все таски на <> секунд в случае ошибки 429.
+        await asyncio.sleep(1)
 
 
 async def get_one(url, session, result, work):

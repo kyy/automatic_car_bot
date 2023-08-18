@@ -209,6 +209,10 @@ async def get_url_kufar(car_input, db, work):
         car_input['cre='] = motor[car_input['cre=']]
     if car_input['crg='] in transmission:
         car_input['crg='] = transmission[car_input['crg=']]
+    car_input['crca=r:'] = int(car_input['crca=r:'])/10
+    car_input['crca_max'] = int(car_input['crca_max'])/10
+
+
     new_part = []
     for key in car_input:
         if car_input[key] != FSB:

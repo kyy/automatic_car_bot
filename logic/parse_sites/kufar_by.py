@@ -8,8 +8,8 @@ def count_cars_kufar(url):
     if url is None:
         return 0
     try:
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        return int(r['total'])
+        r = requests.get(url.replace('rendered-paginated?', 'count?'), headers=HEADERS_JSON).json()
+        return int(r['count'])
     except Exception as e:
         print(e, '[parse_sites.kufar_by.count_cars_kufar]')
         return 0
