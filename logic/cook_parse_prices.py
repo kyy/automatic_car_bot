@@ -28,7 +28,7 @@ async def bound_fetch_av(semaphore, url, session, result):
         async with semaphore:
             await get_one(url, session, result)
     except Exception as e:
-        print(e)
+        print(e, '[cook_parse_prices.bound_fetch_av]')
         # Блокируем все таски на <> секунд в случае ошибки 429.
         await asyncio.sleep(1)
 

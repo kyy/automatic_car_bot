@@ -2,27 +2,29 @@ from datetime import datetime
 from functools import lru_cache
 from .decorators import timed_lru_cache
 import numpy as np
-from logic.constant import ABW_ROOT, SS, MOTOR_DICT, ONLINER_ROOT, FSB
+from logic.constant import ABW_ROOT, SS, MOTOR_DICT, ONLINER_ROOT, FSB, KUFAR_ROOT
 from logic.database.config import database
 from logic.cook_url import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw
 from logic.parse_sites.av_by import count_cars_av
 from logic.parse_sites.onliner_by import count_cars_onliner
-from aiocache import cached, Cache
+from logic.parse_sites.kufar_by import count_cars_kufar
 from .text import TXT
+from aiocache import cached, Cache
 
 
 @timed_lru_cache(300)
-def get_count_cars(av_link_json, abw_link_json, onliner_link_json):
+def get_count_cars(av_link_json, abw_link_json, onliner_link_json, kufar_link_json):
     # считаем сколько обявлений из json файлов
     all_cars_av = count_cars_av(av_link_json)
     all_cars_abw = count_cars_abw(abw_link_json)
     all_cars_onliner = count_cars_onliner(onliner_link_json)
-    return all_cars_av, all_cars_abw, all_cars_onliner
+    all_cars_kufar = count_cars_kufar(kufar_link_json)
+    return all_cars_av, all_cars_abw, all_cars_onliner, all_cars_kufar
 
 
 @timed_lru_cache(300)
-def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json):
+def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json, kufar_link_json):
     # сслыки на страницы с фильтром поиска
     av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
     abw_link = ABW_ROOT
@@ -30,9 +32,10 @@ def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json):
         try:
             abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
         except Exception as e:
-            print('func.get_search_links:', e)
+            print('[func.get_search_links]', e)
     onliner_link = onliner_url_filter(cars, onliner_link_json)
-    return av_link, onliner_link, abw_link
+    kufar_link = KUFAR_ROOT
+    return av_link, onliner_link, abw_link, kufar_link
 
 
 async def filter_import(callback, db):
@@ -52,12 +55,12 @@ async def filter_import(callback, db):
 @cached(ttl=300, cache=Cache.MEMORY, namespace="car_multidata")
 async def car_multidata(cars):
     # cars - фильтр-код
-    av_link_json, abw_link_json, onliner_link_json = await all_get_url(cars)
-    all_cars_av, all_cars_abw, all_cars_onliner = get_count_cars(av_link_json, abw_link_json, onliner_link_json)
-    av_link, onliner_link, abw_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json)
-    return (av_link_json, abw_link_json, onliner_link_json,     # ссылки к файлу Json
-            all_cars_av, all_cars_abw, all_cars_onliner,    # количество объявлений
-            av_link, abw_link, onliner_link)    # ссылка на страницу на сайте
+    av_link_json, abw_link_json, onliner_link_json, kufar_link_json = await all_get_url(cars)
+    all_cars_av, all_cars_abw, all_cars_onliner, all_cars_kufar = get_count_cars(av_link_json, abw_link_json, onliner_link_json, kufar_link_json)
+    av_link, onliner_link, abw_link, kufar_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json, kufar_link_json)
+    return (av_link_json, abw_link_json, onliner_link_json, kufar_link_json,     # ссылки к файлу Json
+            all_cars_av, all_cars_abw, all_cars_onliner, all_cars_kufar,   # количество объявлений
+            av_link, abw_link, onliner_link, kufar_link)    # ссылка на страницу на сайте
 
 
 @timed_lru_cache(300)
@@ -83,7 +86,7 @@ def onliner_url_filter(car_input, link):
                 url = f'https://ab.onliner.by/{brand_slug}?{link}'
             return url
         except Exception as e:
-            print('func.onliner_url_filter', e)
+            print('[func.onliner_url_filter]', e)
     return ONLINER_ROOT
 
 

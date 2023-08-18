@@ -9,7 +9,7 @@ def count_cars_av(url):
         r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r['count'])
     except Exception as e:
-        print(e)
+        print(e, ['logic.parse_sites.av_by.count_cars_av'])
         return 0
 
 
@@ -47,7 +47,7 @@ def json_parse_av(json_data, work):
         # except:
         #     comments = ''
         days = r_t['originalDaysOnSale']    # дни в продаже
-        exchange = r_t['exchange']['label'].replace('Обмен ', '').replace(' обмен', '')
+        exchange = r_t['exchange']['label'].casefold().replace('Обмен ', '').replace(' обмен', '')
         city = r_t['shortLocationName']
         year = r_t['year']
         brand = r_t['properties'][0]['value']

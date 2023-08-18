@@ -11,7 +11,7 @@ def count_cars_onliner(url):
         r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r['total'])
     except Exception as e:
-        print(e)
+        print(e, '[parse_sites.onliner_by.count_cars_onliner]')
         return 0
 
 
@@ -50,12 +50,12 @@ def json_parse_onliner(json_data, work):
         exchange = ''
         year = r_t['specs']['year']
         km = r_t['specs']['odometer']['value']
-        dimension = r_t['specs']['engine']['capacity']
-        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель').replace('None', '')
+        dimension = str(r_t['specs']['engine']['capacity']).replace('None', '')
+        motor = r_t['specs']['engine']['type'].replace('gasoline', 'бензин').replace('diesel', 'дизель').replace('electric', 'электро')
         transmis = r_t['specs']['transmission'].replace('mechanical', 'механика').replace('automatic', 'автомат')
         color = r_t['specs']['color'].replace('skyblue', 'св-синий').replace('red', 'красный').replace('black', 'черный').replace('white', 'белый').replace('silver', 'серебро').replace('grey', 'серый').replace('blue', 'синий').replace('orange', 'апельсин').replace('other', 'другой').replace('brown', 'коричневый')
-        drive = r_t['specs']['drivetrain'].replace('front', 'передний').replace('all', 'полный')
-        typec = r_t['specs']['body_type'].replace('suv', 'внедорожник').replace('hatchback', 'хачбек').replace('sedan', 'седан').replace('universal', 'универсал').replace('minivan', 'минивен')
+        drive = r_t['specs']['drivetrain'].replace('front', 'передний').replace('all', 'полный').replace('rear', 'задний')
+        typec = r_t['specs']['body_type'].replace('suv', 'внедорожник').replace('hatchback', 'хачбек').replace('sedan', 'седан').replace('universal', 'универсал').replace('minivan', 'минивен').replace('cabriolet', 'кабриолет').replace('liftback', 'лифтбек')
         # brand = r_t['manufacturer']['name']
         # model = r_t['model']['name']
         # generation = r_t['generation']['name']

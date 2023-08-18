@@ -17,10 +17,12 @@ COST_STEP = 2500   # param:step in func.get_cost
 AV_ROOT = 'https://cars.av.by/'
 ABW_ROOT = 'https://abw.by/'
 ONLINER_ROOT = 'https://ab.onliner.by/'
+KUFAR_ROOT = 'https://auto.kufar.by/'
 
 AV_API = 'api.av.by'
 ABW_API = 'b.abw.by'
 ONLINER_API = 'ab.onliner.by'
+KUFAR_API = 'api.kufar.by'
 
 MOTOR_DICT = {
     'бензин': 'b',

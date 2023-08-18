@@ -80,7 +80,7 @@ async def get_url_abw(car_input, db):
     # База данных
     car_input = dict(zip(param_input, car_input))
     cost_selection: list = np.load('logic/database/parse/abw_price_list.npy', allow_pickle=True).tolist()  # noqa
-    transmission = {'a': 'at', 'm': 'mt'}
+    transmission = dict(a='at', m='mt')
     motor = dict(b='benzin', bpb='sug', bm='sug', bg='gibrid', d='dizel', dg='gibrid', e='elektro')
 
     # решаем проблему селектора диапазона цены
@@ -143,8 +143,8 @@ async def get_url_onliner(car_input, db):
         car_input['engine_capacity[to]='] = int(car_input['engine_capacity[to]='])
         car_input['engine_capacity[to]='] /= 1000
     transmission = {'a': 'automatic', 'm': 'mechanical'}
-    motor = {'b': 'gasoline', 'bpb': 'gasoline&gas=true', 'bm': 'gasoline&gas=true', 'bg': 'gasoline&hybrid=true',
-             'd': 'diesel', 'dg': 'diesel&hybrid=true', 'e': 'electric'}
+    motor = dict(b='gasoline', bpb='gasoline&gas=true', bm='gasoline&gas=true', bg='gasoline&hybrid=true', d='diesel',
+                 dg='diesel&hybrid=true', e='electric')
     brand = car_input['car[0][manufacturer]=']
     model = car_input['car[0][model]=']
     if model != FSB:
@@ -217,6 +217,7 @@ async def get_url_kufar(car_input, db, work):
     size = REPORT_PARSE_LIMIT_PAGES * 25 if work is True else PARSE_LIMIT_PAGES * 25
     full_url = f'https://api.kufar.by/search-api/v1/search/' \
                f'rendered-paginated?cat=2010&sort=lst.d&typ=sell&lang=ru&size={size}&{new_part_url}'
+    print(full_url)
     return full_url
 
 
