@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import lru_cache
 from .decorators import timed_lru_cache
 import numpy as np
-from logic.constant import ABW_ROOT, SS, MOTOR_DICT, ONLINER_ROOT, FSB, KUFAR_ROOT
+from logic.constant import SS, MOTOR_DICT, FSB, ROOT
 from logic.database.config import database
 from logic.cook_url import all_get_url
 from logic.parse_sites.abw_by import count_cars_abw
@@ -26,15 +26,10 @@ def get_count_cars(av_link_json, abw_link_json, onliner_link_json, kufar_link_js
 @timed_lru_cache(300)
 def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json, kufar_link_json):
     # сслыки на страницы с фильтром поиска
-    av_link = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
-    abw_link = ABW_ROOT
-    if abw_link_json is not None:
-        try:
-            abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-        except Exception as e:
-            print('[func.get_search_links]', e)
+    av_link = av_url_filter(av_link_json)
     onliner_link = onliner_url_filter(cars, onliner_link_json)
-    kufar_link = KUFAR_ROOT
+    kufar_link = kufar_url_filter(kufar_link_json)
+    abw_link = abw_url_filter(abw_link_json)
     return av_link, onliner_link, abw_link, kufar_link
 
 
@@ -55,12 +50,53 @@ async def filter_import(callback, db):
 @cached(ttl=300, cache=Cache.MEMORY, namespace="car_multidata")
 async def car_multidata(cars):
     # cars - фильтр-код
-    av_link_json, abw_link_json, onliner_link_json, kufar_link_json = await all_get_url(cars)
-    all_cars_av, all_cars_abw, all_cars_onliner, all_cars_kufar = get_count_cars(av_link_json, abw_link_json, onliner_link_json, kufar_link_json)
-    av_link, onliner_link, abw_link, kufar_link = get_search_links(cars, av_link_json, abw_link_json, onliner_link_json, kufar_link_json)
-    return (av_link_json, abw_link_json, onliner_link_json, kufar_link_json,     # ссылки к файлу Json
-            all_cars_av, all_cars_abw, all_cars_onliner, all_cars_kufar,   # количество объявлений
-            av_link, abw_link, onliner_link, kufar_link)    # ссылка на страницу на сайте
+    (
+        av_link_json,
+        abw_link_json,
+        onliner_link_json,
+        kufar_link_json,
+     ) = await all_get_url(cars)
+    (
+        all_cars_av,
+        all_cars_abw,
+        all_cars_onliner,
+        all_cars_kufar,
+    ) = get_count_cars(
+        av_link_json,
+        abw_link_json,
+        onliner_link_json,
+        kufar_link_json,
+    )
+    (
+        av_link,
+        onliner_link,
+        abw_link,
+        kufar_link
+    ) = get_search_links(
+        cars,
+        av_link_json,
+        abw_link_json,
+        onliner_link_json,
+        kufar_link_json,
+    )
+    return (
+        av_link_json,       # ссылки к файлу Json
+        abw_link_json,
+        onliner_link_json,
+        kufar_link_json,
+        all_cars_av,        # количество объявлений
+        all_cars_abw,
+        all_cars_onliner,
+        all_cars_kufar,
+        av_link,            # ссылка на страницу на сайте
+        abw_link,
+        onliner_link,
+        kufar_link,
+    )
+
+
+def av_url_filter(av_link_json):
+    return f"https://cars.av.by/filter?{av_link_json.split('?')[1]}" if av_link_json is not None else ROOT['AV']
 
 
 @timed_lru_cache(300)
@@ -71,23 +107,50 @@ def onliner_url_filter(car_input, link):
     :param link: ссылка на json
     :return: 
     """
-    if link is not None:
-        try:
-            car = car_input.split(SS)
-            brand, model = car[0:2]
-            brands: dict = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
-            link = link.split('vehicles?')[1]
-            brand_slug = brands[brand][1]
-            if model != FSB:
-                models: dict = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
-                model_slug = models[brand][model][2]
-                url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
-            else:
-                url = f'https://ab.onliner.by/{brand_slug}?{link}'
-            return url
-        except Exception as e:
-            print('[func.onliner_url_filter]', e)
-    return ONLINER_ROOT
+
+    try:
+        car = car_input.split(SS)
+        brand, model = car[0:2]
+        brands: dict = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
+        link = link.split('vehicles?')[1]
+        brand_slug = brands[brand][1]
+        if model != FSB:
+            models: dict = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
+            model_slug = models[brand][model][2]
+            url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
+        else:
+            url = f'https://ab.onliner.by/{brand_slug}?{link}'
+        return url if link is not None else ROOT['AV']
+    except Exception as e:
+        print('[func.onliner_url_filter]', e)
+        return ROOT['AV']
+
+
+
+def kufar_url_filter(kufar_link_json):
+    try:
+        kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
+        kufar_link = kuf[1].replace('_', '-').replace('.model', '')
+        kufar_link1, kufar_link2 = kufar_link, ''
+        if '&' in kufar_link:
+            kufar_link = kufar_link.split('&', 1)
+            kufar_link1, kufar_link2 = kufar_link[0], kufar_link[1]
+        kuf = kuf[0].split('/')[-1].replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
+        kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
+        return kufar_link if kufar_link_json is not None else ROOT['KUFAR']
+    except Exception as e:
+        print('[func.kufar_url_filter]', e)
+        return ROOT['KUFAR']
+
+
+def abw_url_filter(abw_link_json):
+    try:
+        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
+        return abw_link if abw_link_json is not None else ROOT['ABW']
+    except Exception as e:
+        print('[func.abw_url_filter]', e)
+        return ROOT['ABW']
+
 
 
 @cached(ttl=300, cache=Cache.MEMORY, key='brands', namespace="get_brands")

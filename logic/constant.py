@@ -14,15 +14,19 @@ COL = dict(MOTOR=3, YEARS=5, COST=5, DIMENSION=8)  # constants of columns:keyboa
 PAGINATION = 5
 COST_STEP = 2500   # param:step in func.get_cost
 
-AV_ROOT = 'https://cars.av.by/'
-ABW_ROOT = 'https://abw.by/'
-ONLINER_ROOT = 'https://ab.onliner.by/'
-KUFAR_ROOT = 'https://auto.kufar.by/'
+ROOT = dict(
+    AV='https://cars.av.by/',
+    ABW='https://abw.by/',
+    ONLINER='https://ab.onliner.by/',
+    KUFAR='https://auto.kufar.by/',
+)
 
-AV_API = 'api.av.by'
-ABW_API = 'b.abw.by'
-ONLINER_API = 'ab.onliner.by'
-KUFAR_API = 'api.kufar.by'
+API = dict(
+    AV='api.av.by',
+    ABW='b.abw.by',
+    ONLINER='ab.onliner.by',
+    KUFAR='api.kufar.by',
+)
 
 MOTOR_DICT = {
     'бензин': 'b',
@@ -31,7 +35,8 @@ MOTOR_DICT = {
     'бензин (гибрид)': 'bg',
     'дизель': 'd',
     'дизель (гибрид)': 'dg',
-    'электро': 'e'}
+    'электро': 'e',
+}
 
 MOTOR = ['бензин', 'дизель', 'электро', 'дизель (гибрид)', 'бензин (метан)', 'бензин (гибрид)', 'бензин (пропан-бутан)']
 

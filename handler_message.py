@@ -6,7 +6,7 @@ from aiogram.filters import Command
 from keyboards import multi_row_kb, result_menu_kb
 from logic.database.config import database
 from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
-from logic.constant import (FSB, CF, COL, MOTOR, TRANSMISSION, SB, EB, AV_ROOT, ABW_ROOT, DEFAULT)
+from logic.constant import (FSB, CF, COL, MOTOR, TRANSMISSION, SB, EB, ROOT, DEFAULT)
 from logic.text import TXT
 from itertools import chain
 
@@ -295,7 +295,7 @@ async def add_stalk(message: Message):
     for url in entities:
         if url.type == 'url':
             url = url.extract_from(mes)
-            if url[:19] in (AV_ROOT + ABW_ROOT) and len(url.split('/')) >= 4:
+            if url[:19] in (ROOT['AV'] + ROOT['ONLINER']) and len(url.split('/')) >= 4:
                 async with database() as db:
                     check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
                     check_id = await check_id_cursor.fetchone()

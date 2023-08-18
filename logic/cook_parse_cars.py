@@ -1,7 +1,7 @@
 import asyncio
 import numpy as np
 from aiohttp import ClientSession
-from .constant import HEADERS, AV_API, ONLINER_API, ABW_API, KUFAR_API
+from .constant import HEADERS, API
 from .parse_sites.abw_by import json_parse_abw, json_links_abw
 from .parse_sites.av_by import json_parse_av, json_links_av
 from .parse_sites.kufar_by import json_links_kufar, json_parse_kufar
@@ -38,13 +38,13 @@ async def bound_fetch(semaphore, url, session, result, work):
 async def get_one(url, session, result, work):
     async with session.get(url) as response:
         page_content = await response.json()
-        if url.split('/')[2] == AV_API:
+        if url.split('/')[2] == API['AV']:
             item = json_parse_av(page_content, work)
-        if url.split('/')[2] == ONLINER_API:
+        if url.split('/')[2] == API['ONLINER']:
             item = json_parse_onliner(page_content, work)
-        if url.split('/')[2] == ABW_API:
+        if url.split('/')[2] == API['ABW']:
             item = json_parse_abw(page_content, work)
-        if url.split('/')[2] == KUFAR_API:
+        if url.split('/')[2] == API['KUFAR']:
             item = json_parse_kufar(page_content, work)
         result += item
 

@@ -209,9 +209,14 @@ async def get_url_kufar(car_input, db, work):
         car_input['cre='] = motor[car_input['cre=']]
     if car_input['crg='] in transmission:
         car_input['crg='] = transmission[car_input['crg=']]
-    car_input['crca=r:'] = int(car_input['crca=r:'])/10
-    car_input['crca_max'] = int(car_input['crca_max'])/10
 
+    minimus_d = car_input['crca=r:']
+    maximus_d = car_input['crca_max']
+    car_input['crca=r:'] = int(minimus_d)/10 if minimus_d != FSB else minimus_d
+    car_input['crca_max'] = int(maximus_d)/10 if maximus_d != FSB else maximus_d
+
+    if car_input['cmdl2='] != FSB:
+        car_input['cbnd2='] = ''
 
     new_part = []
     for key in car_input:
@@ -220,8 +225,9 @@ async def get_url_kufar(car_input, db, work):
     new_part_url = '&'.join(new_part).replace('&rgd_max', ',').replace('&prc_max', ',').replace('&crca_max', ',')
     size = REPORT_PARSE_LIMIT_PAGES * 25 if work is True else PARSE_LIMIT_PAGES * 25
     full_url = f'https://api.kufar.by/search-api/v1/search/' \
-               f'rendered-paginated?cat=2010&sort=lst.d&typ=sell&lang=ru&size={size}&{new_part_url}'
-    print(full_url)
+               f'rendered-paginated?cat=2010&sort=lst.d&typ=sell&lang=ru&cur=USD&size={size}&{new_part_url}'
+    if car_input['cmdl2='] != FSB:
+        full_url = full_url.replace('cbnd2=&', '')
     return full_url
 
 

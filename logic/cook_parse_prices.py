@@ -2,7 +2,7 @@ import asyncio
 from aiohttp import ClientSession
 from classes import bot
 from keyboards import delete_message_kb
-from .constant import HEADERS, ONLINER_API, AV_API
+from .constant import HEADERS, API
 from logic.database.config import database
 
 
@@ -36,9 +36,9 @@ async def bound_fetch_av(semaphore, url, session, result):
 async def get_one(url, session, result):
     async with session.get(url) as response:
         page_content = await response.json()
-        if url.split('/')[2] == AV_API:
+        if url.split('/')[2] == API['AV']:
             item = json_parse_av(page_content)
-        if url.split('/')[2] == ONLINER_API:
+        if url.split('/')[2] == API['ONLINER']:
             item = json_parse_onliner(page_content)
         result += item
 
