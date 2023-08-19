@@ -4,6 +4,7 @@ from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEAD
 from logic.decorators import timed_lru_cache
 
 
+@timed_lru_cache(300)
 def count_cars_onliner(url):
     if url is None:
         return 0

@@ -27,8 +27,8 @@ async def reset_subs(ctx):
 
 async def parse_cars(ctx, item, work):
     car, tel_id, name = item[1][7:], item[0], item[2]
-    av_link_json, abw_link_json, onliner_link_json, kufar_link_json = await all_get_url(car, work)
-    await cars(av_link_json, abw_link_json, onliner_link_json, kufar_link_json, tel_id, name, work, send_car_job)
+    json = await all_get_url(car, work)
+    await cars(json, tel_id, name, work, send_car_job)
 
 
 async def parse_cars_job(ctx):

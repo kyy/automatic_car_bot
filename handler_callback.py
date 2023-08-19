@@ -178,20 +178,21 @@ async def delete_search(callback: CallbackQuery):
 async def options_search(callback: CallbackQuery):
     #   опции фильтра, отображение кол-ва объявлений
     filter_id, filter_name, cars = await filter_import(callback, database())
-    av_jsn, abw_jsn, onliner_jsn, kufar_jsn, all_av, all_abw, all_onliner, all_kufar, av_l, abw_l, onliner_l, kufar_l = await car_multidata(cars)
-    all_count = [all_av, all_abw, all_onliner, all_kufar]
-    cars_count = sum(all_count)
+    multidata = await car_multidata(cars)
+    count = multidata['count']
+    link = multidata['link']
+    cars_count = sum([int(i) for i in count.values()])
     await callback.message.edit_text(
         text=TXT['info_filter'].format(
             decode_filter_short=decode_filter_short(cars),
-            av_l=av_l,
-            all_av=all_av,
-            abw_l=abw_l,
-            all_abw=all_abw,
-            onliner_l=onliner_l,
-            all_onliner=all_onliner,
-            kufar_l=kufar_l,
-            all_kufar=all_kufar,
+            av_l=link['av_link'],
+            all_av=count['all_av'],
+            abw_l=link['abw_link'],
+            all_abw=count['all_abw'],
+            onliner_l=link['onliner_link'],
+            all_onliner=count['all_onliner'],
+            kufar_l=link['kufar_link'],
+            all_kufar=count['all_kufar'],
             size=25 * REPORT_PARSE_LIMIT_PAGES),
         reply_markup=filter_menu_kb(callback, cars_count),
         disable_web_page_preview=True,
@@ -203,22 +204,20 @@ async def report_search(callback: CallbackQuery):
     #   заказ отчета
     user_id = callback.from_user.id
     filter_id, filter_name, cars = await filter_import(callback, database())
-    av_jsn, abw_jsn, onliner_jsn, kufar_jsn, all_av, all_abw, all_onliner, all_kufar, av_l, abw_l, onliner_l, kufar_l = await car_multidata(cars)
+    multidata = await car_multidata(cars)
     name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
-    # try:
-    await parse_main(av_jsn, abw_jsn, onliner_jsn, kufar_jsn, user_id, name_time_stump)
-    # except Exception as e:
-    #     print(e, 'handler_control_callback.report_search.parse_main')
-    #     return await bot.send_message(user_id, TXT['msg_error'])
+    try:
+        await parse_main(multidata['json'], tel_id=user_id, name=name_time_stump)
+    except Exception as e:
+        print(e, 'handler_control_callback.report_search.parse_main')
+        return await bot.send_message(user_id, TXT['msg_error'])
     async with database() as db:
         await callback.message.edit_text(TXT['info_filter_menu'],
                                          reply_markup=await params_menu_kb(callback, db, True),
                                          disable_web_page_preview=True,
                                          parse_mode="HTML", )
-    link_count = {'av': [av_l, all_av],
-                  'abw': [abw_l, all_abw],
-                  'onliner': [onliner_l, all_onliner],
-                  'kufar': [kufar_l, all_kufar]}
+    link_count = dict(link=multidata['link'], count=multidata['count'])
+
     await bot.send_message(user_id, TXT['msg_cooking_rep'])
     await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name)
 

@@ -13,24 +13,32 @@ from .text import TXT
 from aiocache import cached, Cache
 
 
-@timed_lru_cache(300)
-def get_count_cars(av_link_json, abw_link_json, onliner_link_json, kufar_link_json):
+def get_count_cars(json):
     # считаем сколько обявлений из json файлов
-    all_cars_av = count_cars_av(av_link_json)
-    all_cars_abw = count_cars_abw(abw_link_json)
-    all_cars_onliner = count_cars_onliner(onliner_link_json)
-    all_cars_kufar = count_cars_kufar(kufar_link_json)
-    return all_cars_av, all_cars_abw, all_cars_onliner, all_cars_kufar
+    all_cars_av = count_cars_av(json['av_json'])
+    all_cars_abw = count_cars_abw(json['abw_json'])
+    all_cars_onliner = count_cars_onliner(json['onliner_json'])
+    all_cars_kufar = count_cars_kufar(json['kufar_json'])
+    return dict(
+        all_av=all_cars_av,
+        all_abw=all_cars_abw,
+        all_onliner=all_cars_onliner,
+        all_kufar=all_cars_kufar,
+    )
 
 
-@timed_lru_cache(300)
-def get_search_links(cars, av_link_json, abw_link_json, onliner_link_json, kufar_link_json):
+def get_search_links(cars, json):
     # сслыки на страницы с фильтром поиска
-    av_link = av_url_filter(av_link_json)
-    onliner_link = onliner_url_filter(cars, onliner_link_json)
-    kufar_link = kufar_url_filter(kufar_link_json)
-    abw_link = abw_url_filter(abw_link_json)
-    return av_link, onliner_link, abw_link, kufar_link
+    av_link = av_url_filter(json['av_json'])
+    onliner_link = onliner_url_filter(cars, json['onliner_json'])
+    kufar_link = kufar_url_filter(json['kufar_json'])
+    abw_link = abw_url_filter(json['abw_json'])
+    return dict(
+        av_link=av_link,
+        onliner_link=onliner_link,
+        abw_link=abw_link,
+        kufar_link=kufar_link,
+    )
 
 
 async def filter_import(callback, db):
@@ -47,54 +55,19 @@ async def filter_import(callback, db):
     return filter_id, filter_name[0], cars
 
 
-@cached(ttl=300, cache=Cache.MEMORY, namespace="car_multidata")
 async def car_multidata(cars):
     # cars - фильтр-код
-    (
-        av_link_json,
-        abw_link_json,
-        onliner_link_json,
-        kufar_link_json,
-     ) = await all_get_url(cars)
-    (
-        all_cars_av,
-        all_cars_abw,
-        all_cars_onliner,
-        all_cars_kufar,
-    ) = get_count_cars(
-        av_link_json,
-        abw_link_json,
-        onliner_link_json,
-        kufar_link_json,
-    )
-    (
-        av_link,
-        onliner_link,
-        abw_link,
-        kufar_link
-    ) = get_search_links(
-        cars,
-        av_link_json,
-        abw_link_json,
-        onliner_link_json,
-        kufar_link_json,
-    )
-    return (
-        av_link_json,       # ссылки к файлу Json
-        abw_link_json,
-        onliner_link_json,
-        kufar_link_json,
-        all_cars_av,        # количество объявлений
-        all_cars_abw,
-        all_cars_onliner,
-        all_cars_kufar,
-        av_link,            # ссылка на страницу на сайте
-        abw_link,
-        onliner_link,
-        kufar_link,
-    )
+    json = await all_get_url(cars)
+    count = get_count_cars(json)
+    link = get_search_links(cars, json)
+    return dict(
+        json=json,
+        count=count,
+        link=link,
+        )
 
 
+@timed_lru_cache(300)
 def av_url_filter(av_link_json):
     return f"https://cars.av.by/filter?{av_link_json.split('?')[1]}" if av_link_json is not None else ROOT['AV']
 
@@ -126,7 +99,7 @@ def onliner_url_filter(car_input, link):
         return ROOT['AV']
 
 
-
+@timed_lru_cache(300)
 def kufar_url_filter(kufar_link_json):
     try:
         kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
@@ -135,7 +108,8 @@ def kufar_url_filter(kufar_link_json):
         if '&' in kufar_link:
             kufar_link = kufar_link.split('&', 1)
             kufar_link1, kufar_link2 = kufar_link[0], kufar_link[1]
-        kuf = kuf[0].split('/')[-1].replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
+        kuf = kuf[0].split('/')[-1]\
+            .replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
         kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
         return kufar_link if kufar_link_json is not None else ROOT['KUFAR']
     except Exception as e:
@@ -150,7 +124,6 @@ def abw_url_filter(abw_link_json):
     except Exception as e:
         print('[func.abw_url_filter]', e)
         return ROOT['ABW']
-
 
 
 @cached(ttl=300, cache=Cache.MEMORY, key='brands', namespace="get_brands")

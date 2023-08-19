@@ -233,9 +233,9 @@ async def get_url_kufar(car_input, db, work):
 
 async def all_get_url(link, work=False):
     async with database() as db:
-        return (
-            asyncio.run(get_url_av(link, db, work)),
-            asyncio.run(get_url_abw(link, db)),
-            asyncio.run(get_url_onliner(link, db)),
-            asyncio.run(get_url_kufar(link, db, work)),
+        return dict(
+            av_json=asyncio.run(get_url_av(link, db, work)),
+            abw_json=asyncio.run(get_url_abw(link, db)),
+            onliner_json=asyncio.run(get_url_onliner(link, db)),
+            kufar_json=asyncio.run(get_url_kufar(link, db, work)),
         )

@@ -7,51 +7,77 @@ from datetime import datetime
 
 class PDF(FPDF):
 
-    def imports(self):
-        self.filter_full = None
+    def __init__(
+            self,
+            orientation="portrait",
+            unit="mm",
+            format="A4",
+            font_cache_dir="DEPRECATED",
+    ):
+        super().__init__(orientation, unit, format, font_cache_dir)
         self.filter_short = None
-        self.av_by_link = None
-        self.abw_by_link = None
-        self.onliner_by_link = None
+        self.filter_full = None
+
+        self.av_link = None
+        self.abw_link = None
+        self.onliner_link = None
+        self.kufar_link = None
+
+        self.av_count = None
+        self.abw_count = None
+        self.onliner_count = None
+        self.kufar_count = None
 
     def header(self):
         # Rendering QRC:
-        if self.av_by_link[1] != 0:
-            img_av = qrcode.make(self.av_by_link[0])
+        if self.av_count != 0:
+            img_av = qrcode.make(self.av_link)
             self.image(
                 img_av.get_image(),
                 x=273,
                 y=3,
                 w=19,
-                link=self.av_by_link[0],
+                link=self.av_link,
                 title='av.by',
                 alt_text='av.by',
             )
-        if self.abw_by_link[1] != 0:
-            img_abw = qrcode.make(self.abw_by_link[0])
+
+        if self.abw_count != 0:
+            img_abw = qrcode.make(self.abw_link)
             self.image(
                 img_abw.get_image(),
                 x=252,
                 y=3,
                 w=19,
-                link=self.abw_by_link[0],
+                link=self.abw_link,
                 title='abw.by',
                 alt_text='abw.by',
             )
 
-        if self.onliner_by_link[1] != 0:
-            img_abw = qrcode.make(self.onliner_by_link[0])
+        if self.onliner_count != 0:
+            img_abw = qrcode.make(self.onliner_link)
             self.image(
                 img_abw.get_image(),
                 x=231,
                 y=3,
                 w=19,
-                link=self.onliner_by_link[0],
+                link=self.onliner_link,
                 title='onliner.by',
                 alt_text='onliner.by',
             )
 
-        # Rendering logo:
+        if self.kufar_count != 0:
+            img_abw = qrcode.make(self.kufar_link)
+            self.image(
+                img_abw.get_image(),
+                x=210,
+                y=3,
+                w=19,
+                link=self.kufar_link,
+                title='kufar.by',
+                alt_text='kufar.by',
+            )
+
         self.image(
             f"logic/static/logo.png",
             x=10,
@@ -66,10 +92,9 @@ class PDF(FPDF):
         self.cell(13)
         self.set_font(size=9)
         self.set_text_color(60, 60, 60)
-        self.cell(0, 0, f'{self.filter_short}', align="L")
-        self.cell(-57, -6, f'{datetime.now().date()}', align="R")
-        self.ln(4)
-        self.cell(220, -6, f'{datetime.now().time().strftime("%H:%M")}', align="R")
+        self.cell(0, 0, f'{self.filter_short} | {datetime.now().date()} | {datetime.now().time().strftime("%H:%M")}', align="L")
+        self.ln(6)
+        self.cell(150, -6, f'', align="R")
         self.ln(4)
         self.cell(13)
         self.cell(10, -8, f'{self.filter_full}', align="L")
@@ -137,7 +162,7 @@ class PDF(FPDF):
 
 async def do_pdf(
         message=None,
-        link=None,
+        link_count=None,
         name=None,
         filter_full='<filter full>',
         filter_short='<filter code>',
@@ -160,12 +185,23 @@ async def do_pdf(
             non_full_screen_page_mode="USE_OUTLINES",
         )
         pdf.add_font(fname=f'logic/static/DejaVuSansCondensed.ttf')
-        pdf.set_font('DejaVuSansCondensed', size=9)
+        pdf.set_font('DejaVuSansCondensed', size=8)
+
         pdf.filter_full = str(filter_full)
         pdf.filter_short = str(filter_short)
-        pdf.av_by_link = link.get('av')
-        pdf.abw_by_link = link.get('abw')
-        pdf.onliner_by_link = link.get('onliner')
+
+        link = link_count['link']
+        pdf.av_link = link['av_link']
+        pdf.abw_link = link['abw_link']
+        pdf.onliner_link = link['onliner_link']
+        pdf.kufar_link = link['kufar_link']
+
+        count = link_count['count']
+        pdf.av_count = count['all_av']
+        pdf.abw_count = count['all_abw']
+        pdf.onliner_count = count['all_onliner']
+        pdf.kufar_count = count['all_kufar']
+
         pdf.add_page()
         pdf.set_title("@AutomaticCar")
         pdf.set_author("@AutomaticCar")

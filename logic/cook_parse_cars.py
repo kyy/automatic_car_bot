@@ -12,8 +12,15 @@ import nest_asyncio
 nest_asyncio.apply()
 
 
-def urls(av, abw, onliner, kufar, work):
+def urls(json, work):
+
+    av = json['av_json']
+    abw = json['abw_json']
+    onliner = json['onliner_json']
+    kufar = json['kufar_json']
+
     cars = []
+
     if av:
         cars.extend([*json_links_av(av, work)])
     if abw:
@@ -62,7 +69,7 @@ async def run(allurls, result, work):
         await session.close()
 
 
-async def parse_main(av, abw, onliner, kufar, tel_id, name, work=False, send_car_job=None):
+async def parse_main(json, tel_id, name, work=False, send_car_job=None):
     """
     :param av: ссылка на json со всеми обявлениями
     :param abw: ссылка на json со всеми обявлениями
@@ -76,7 +83,7 @@ async def parse_main(av, abw, onliner, kufar, tel_id, name, work=False, send_car
     result = []
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(
-        run(urls(av, abw, onliner, kufar, work), result, work))
+        run(urls(json, work=work), result, work))
     loop.run_until_complete(future)
     if work is True:
         await send_car_job(tel_id, result)

@@ -3,7 +3,7 @@ from datetime import datetime
 from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
 from logic.decorators import timed_lru_cache
 
-
+@timed_lru_cache(300)
 def count_cars_av(url):
     try:
         r = requests.get(url, headers=HEADERS_JSON).json()
@@ -74,7 +74,7 @@ def json_parse_av(json_data, work):
             if r_t['name'] == 'drive_type':
                 drive = r_t['value'].replace('привод', '')
             if r_t['name'] == 'body_type':
-                typec = r_t['value']
+                typec = r_t['value'].replace('5 дв.', '')
             if r_t['name'] == 'generation':
                 generation = r_t['value']
         if work is True:

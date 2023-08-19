@@ -2,7 +2,7 @@ import requests
 from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
 from logic.decorators import timed_lru_cache
 
-
+@timed_lru_cache(300)
 def count_cars_abw(url):
     if url is None:
         return 0

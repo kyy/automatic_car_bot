@@ -4,6 +4,7 @@ from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON
 from logic.decorators import timed_lru_cache
 
 
+@timed_lru_cache(300)
 def count_cars_kufar(url):
     if url is None:
         return 0
@@ -25,7 +26,7 @@ def json_parse_kufar(json_data, work):
     for i in range(len(json_data['ads'])):
         r_t = json_data['ads'][i]
         published = r_t['list_time']
-        price = int(r_t['price_usd'])/100
+        price = int(float(r_t['price_usd'])/100)
         url = r_t['ad_link']
         days = (datetime.now().date() - datetime.strptime(published.split('T')[0], '%Y-%m-%d').date()).days
         motor = dimension = transmis = km = typec = drive = color = brand = model = year = exchange = city = vin = ''
@@ -45,6 +46,7 @@ def json_parse_kufar(json_data, work):
                 year = r_t['vl']
             elif r_t['p'] == 'mileage':
                 km = r_t['v'] if r_t['vl'] == '' else r_t['vl']
+                km = km.replace('км', '')
             elif r_t['p'] == 'cars_capacity':
                 dimension = r_t['vl'].replace('л', '')
             elif r_t['p'] == 'cars_engine':
