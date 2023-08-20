@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension)
-from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, COST_STEP, REPORT_PARSE_LIMIT_PAGES)
+from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM, REPORT_PARSE_LIMIT_PAGES)
 from logic.database.config import database
 from classes import CreateCar
 from classes import bot
@@ -427,7 +427,7 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(
             text=TXT['f_price_to'],
             reply_markup=multi_row_kb(
-                get_cost(from_cost=int(cost) + COST_STEP),
+                get_cost(from_cost=int(cost) + MM['STEP_COST']),
                 input_field_placeholder=TXT['fi_price_to'],
                 columns=COL['COST']))
     await state.set_state(CreateCar.costm_choosing)

@@ -1,3 +1,16 @@
+from datetime import datetime
+
+MM = dict(
+    MIN_YEAR=1990,
+    MAX_YEAR=datetime.now().year,
+    MIN_DIM=1,
+    MAX_DIM=9,
+    STEP_DIM=0.1,
+    MIN_COST=500,
+    MAX_COST=100000,
+    STEP_COST=2500,
+)
+
 WORK_PARSE_CARS_DELTA = 2   # частота проверки новых объявллений в часах
 WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часах
 REPORT_PARSE_LIMIT_PAGES = 4  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)
@@ -12,7 +25,6 @@ CF = [EB, SB]    # 1st row of keyboard in creating filters
 COL = dict(MOTOR=3, YEARS=5, COST=5, DIMENSION=8)  # constants of columns:keyboards: max = 8, default = 4
 
 PAGINATION = 5
-COST_STEP = 2500   # param:step in func.get_cost
 
 ROOT = dict(
     AV='https://cars.av.by/',

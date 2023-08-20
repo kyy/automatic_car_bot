@@ -2,8 +2,25 @@ from datetime import datetime
 import asyncio
 import numpy as np
 from logic.decorators import timed_lru_cache
-from .constant import SS, FSB, REPORT_PARSE_LIMIT_PAGES, PARSE_LIMIT_PAGES
+from .constant import SS, FSB, REPORT_PARSE_LIMIT_PAGES, PARSE_LIMIT_PAGES, MM
 from .database.config import database
+
+
+def max_min_params(car_input):
+    car_input = car_input.split(SS)
+    if car_input[4] == FSB:
+        car_input[4] = str(MM['MIN_YEAR'])
+    if car_input[5] == FSB:
+        car_input[5] = str(MM['MAX_YEAR'])
+    if car_input[6] == FSB:
+        car_input[6] = str(MM['MIN_COST'])
+    if car_input[7] == FSB:
+        car_input[7] = str(MM['MAX_COST'])
+    if car_input[8] == FSB:
+        car_input[8] = str(MM['MIN_DIM']*1000)
+    if car_input[9] == FSB:
+        car_input[9] = str(MM['MAX_DIM']*1000)
+    return '+'.join(car_input)
 
 
 @timed_lru_cache(300)
@@ -14,7 +31,7 @@ async def get_url_av(car_input, db, work):
     :param db: database
     :return: гет запрос
     """
-
+    car_input = max_min_params(car_input)
     # Входные параметры
     param_input = ['brands[0][brand]=', 'brands[0][model]=', 'engine_type[0]=', 'transmission_type=', 'year[min]=',
                    'year[max]=', 'price_usd[min]=', 'price_usd[max]=', 'engine_capacity[min]=', 'engine_capacity[max]=']
@@ -65,7 +82,7 @@ async def get_url_abw(car_input, db):
     :param db: database
     :return: гет запрос
     """
-
+    car_input = max_min_params(car_input)
     # Входные параметры
     param_input = ['brand_', 'model_', 'engine_', 'transmission_', 'year_',
                    'year_max', 'price_', 'price_max', 'volume_', 'volume_max']
@@ -133,17 +150,18 @@ async def get_url_abw(car_input, db):
 
 @timed_lru_cache(300)
 async def get_url_onliner(car_input, db):
+    car_input = max_min_params(car_input)
+
     param_input = ['car[0][manufacturer]=', 'car[0][model]=', 'engine_type[0]=', 'transmission[0]=', 'year[from]=',
                    'year[to]=', 'price[from]=', 'price[to]=', 'engine_capacity[from]=', 'engine_capacity[to]=']
 
     # База данных
     car_input = dict(zip(param_input, car_input.split(SS)))
     if car_input['engine_capacity[from]='] != FSB:
-        car_input['engine_capacity[from]='] = int(car_input['engine_capacity[from]='])
-        car_input['engine_capacity[from]='] /= 1000
+        car_input['engine_capacity[from]='] = float(car_input['engine_capacity[from]=']) / 1000
     if car_input['engine_capacity[to]='] != FSB:
-        car_input['engine_capacity[to]='] = int(car_input['engine_capacity[to]='])
-        car_input['engine_capacity[to]='] /= 1000
+        car_input['engine_capacity[to]='] = float(car_input['engine_capacity[to]=']) / 1000
+
     transmission = {'a': 'automatic', 'm': 'mechanical'}
     motor = dict(b='gasoline', bpb='gasoline&gas=true', bm='gasoline&gas=true', bg='gasoline&hybrid=true', d='diesel',
                  dg='diesel&hybrid=true', e='electric')
@@ -186,6 +204,7 @@ async def get_url_onliner(car_input, db):
 
 @timed_lru_cache(300)
 async def get_url_kufar(car_input, db, work):
+    car_input = max_min_params(car_input)
     param_input = ['cbnd2=', 'cmdl2=', 'cre=', 'crg=', 'rgd=r:', 'rgd_max', 'prc=r:', 'prc_max', 'crca=r:', 'crca_max']
 
     car_input = dict(zip(param_input, car_input.split(SS)))
@@ -215,8 +234,8 @@ async def get_url_kufar(car_input, db, work):
 
     minimus_d = car_input['crca=r:']
     maximus_d = car_input['crca_max']
-    car_input['crca=r:'] = int(minimus_d)/10 if minimus_d != FSB else minimus_d
-    car_input['crca_max'] = int(maximus_d)/10 if maximus_d != FSB else maximus_d
+    car_input['crca=r:'] = float(minimus_d)/10 if minimus_d != FSB else minimus_d
+    car_input['crca_max'] = float(maximus_d)/10 if maximus_d != FSB else maximus_d
 
     if car_input['cmdl2='] != FSB:
         car_input['cbnd2='] = ''
