@@ -1,7 +1,8 @@
 import requests
 from datetime import datetime
-from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
+from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES
 from logic.decorators import timed_lru_cache
+
 
 @timed_lru_cache(300)
 def count_cars_av(url):
@@ -19,9 +20,9 @@ def json_links_av(url, work):
         links_to_json = []
         r = requests.get(url, headers=HEADERS_JSON).json()
         page_count = r['pageCount']
-        if work is False:
-            if page_count >= REPORT_PARSE_LIMIT_PAGES:  # - - - - - - ограничение вывода страниц
-                page_count = REPORT_PARSE_LIMIT_PAGES   # - - - - - - для отчета
+        limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
+        if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
+                page_count = limit_page   # - - - - - - для отчета
         links_to_json.append(url)
         i = 1
         while page_count > 1:

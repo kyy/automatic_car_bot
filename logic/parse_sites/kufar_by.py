@@ -46,7 +46,7 @@ def json_parse_kufar(json_data, work):
                 year = r_t['vl']
             elif r_t['p'] == 'mileage':
                 km = r_t['v'] if r_t['vl'] == '' else r_t['vl']
-                km = km.replace('км', '')
+                km = str(km).replace('км', '')
             elif r_t['p'] == 'cars_capacity':
                 dimension = r_t['vl'].replace('л', '')
             elif r_t['p'] == 'cars_engine':
@@ -63,7 +63,7 @@ def json_parse_kufar(json_data, work):
                 typec = r_t['vl'].casefold()
 
         if work is True:
-            fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
+            fresh_minutes = datetime.now() - datetime.strptime(published[:-4], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
                 car.append([str(url), str(price)])

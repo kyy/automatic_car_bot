@@ -206,11 +206,11 @@ async def report_search(callback: CallbackQuery):
     filter_id, filter_name, cars = await filter_import(callback, database())
     multidata = await car_multidata(cars)
     name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
-    try:
-        await parse_main(multidata['json'], tel_id=user_id, name=name_time_stump)
-    except Exception as e:
-        print(e, 'handler_control_callback.report_search.parse_main')
-        return await bot.send_message(user_id, TXT['msg_error'])
+    # try:
+    await parse_main(multidata['json'], tel_id=user_id, name=name_time_stump)
+    # except Exception as e:
+    #     print(e, 'handler_control_callback.report_search.parse_main')
+    #     return await bot.send_message(user_id, TXT['msg_error'])
     async with database() as db:
         await callback.message.edit_text(TXT['info_filter_menu'],
                                          reply_markup=await params_menu_kb(callback, db, True),

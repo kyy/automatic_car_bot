@@ -38,6 +38,7 @@ async def bound_fetch(semaphore, url, session, result, work):
             await get_one(url, session, result, work)
     except Exception as e:
         print(e, '[cook_parse_cars.bound_fetch]')
+        print(url)
         # Блокируем все таски на <> секунд в случае ошибки 429.
         await asyncio.sleep(1)
 
@@ -47,11 +48,11 @@ async def get_one(url, session, result, work):
         page_content = await response.json()
         if url.split('/')[2] == API['AV']:
             item = json_parse_av(page_content, work)
-        if url.split('/')[2] == API['ONLINER']:
+        elif url.split('/')[2] == API['ONLINER']:
             item = json_parse_onliner(page_content, work)
-        if url.split('/')[2] == API['ABW']:
+        elif url.split('/')[2] == API['ABW']:
             item = json_parse_abw(page_content, work)
-        if url.split('/')[2] == API['KUFAR']:
+        elif url.split('/')[2] == API['KUFAR']:
             item = json_parse_kufar(page_content, work)
         result += item
 
@@ -71,9 +72,7 @@ async def run(allurls, result, work):
 
 async def parse_main(json, tel_id, name, work=False, send_car_job=None):
     """
-    :param av: ссылка на json со всеми обявлениями
-    :param abw: ссылка на json со всеми обявлениями
-    :param onliner: ссылка на json со всеми обявлениями
+    :param json: dict wit json files
     :param tel_id: id of telegram user
     :param name: id of filter or timestump
     :param work: True - задачи таска task_worker
