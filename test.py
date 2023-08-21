@@ -31,15 +31,24 @@ current = abs(data_now - subscription_data)   # осталось дней
 # print(newdata)
 
 
+async def json_urls():
+    async with database() as db:
+        av_urls_cursor = await db.execute(
+            f"""
+            SELECT url, id FROM ucars 
+            WHERE LOWER(url) LIKE 'https://cars.av.by/%' AND is_active = 1""")
+        av_urls = await av_urls_cursor.fetchall()
+        av_urls = [(f"https://api.av.by/offers/{i[0].split('/')[-1]}", i[1]) for i in av_urls]
+        onliner_urls_cursor = await db.execute(
+            f"""
+            SELECT url, id FROM ucars
+            WHERE LOWER(url) LIKE 'https://ab.onliner.by/%' AND is_active = 1""")
+        onliner_urls = await onliner_urls_cursor.fetchall()
+        onliner_urls = [(f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1]}", i[1]) for i in onliner_urls]
+        print([*av_urls, *onliner_urls])
+        return [*av_urls, *onliner_urls]
 
-URL = 'https://cars.av.by/acura/tsx/105530026123'
 
-r = requests.get(url=URL, headers=HEADERS)
-
-
-
-print(r)
 if __name__ == '__main__':
-    pass
-
+    print([i for i in ROOT.values()])
 
