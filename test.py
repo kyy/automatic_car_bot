@@ -30,8 +30,16 @@ current = abs(data_now - subscription_data)   # осталось дней
 # print(newdata)
 
 
-a = {'av_link': 'https://cars.av.by/filter?brands[0][brand]=1&brands[0][model]=3&engine_type[0]=5&year[min]=1990&year[max]=2023', 'onliner_link': 'https://ab.onliner.by/alfa-romeo/146?car[0][manufacturer]=3&car[0][model]=69&engine_type[0]=diesel&year[from]=1990&year[to]=2023&order=created_at:desc&price[currency]=USD', 'abw_link': 'https://abw.by/cars/brand_alfa-romeo/model_146/engine_dizel/transmission_at,mt/year_1990:2023/price_100:500000/volume_0.2:10.0/?sort=new', 'kufar_link': 'https://auto.kufar.by/l/cars/alfa-romeo-146?cur=USD&sort=lst.d&lang=ru&size=100&cre=v.or:2&rgd=r:1990,2023'}
 
+# dim = {}
+# [dim.update({j: i+1}) for i, j in enumerate([i for i in range(1000, 4100, 100)])]
+
+
+dim_k = [i for i in range(1000, 4100, 100)]
+dim_v = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 170, 173, 175, 180, 183, 190, 190, 200, 205, 205, 210, 211, 212, 213, 214, 220]
+dim = dict(zip(dim_k, dim_v))
 
 if __name__ == '__main__':
-    print(a['av_link'])
+    print(dim)
+
+

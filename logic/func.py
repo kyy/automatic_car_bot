@@ -69,23 +69,26 @@ async def car_multidata(cars):
 
 @timed_lru_cache(300)
 def av_url_filter(av_link_json):
-    return f"https://cars.av.by/filter?{av_link_json.split('?')[1]}" if av_link_json is not None else ROOT['AV']
+    if av_link_json is None:
+        return ROOT['AV']
+    return f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
 
 
 @timed_lru_cache(300)
-def onliner_url_filter(car_input, link):
+def onliner_url_filter(car_input, onliner_link_json):
     """
     Ссылка на сайт
     :param car_input:фильтр-код 
     :param link: ссылка на json
     :return: 
     """
-
+    if onliner_link_json is None:
+        return ROOT['ONLINER']
     try:
         car = car_input.split(SS)
         brand, model = car[0:2]
         brands: dict = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
-        link = link.split('vehicles?')[1]
+        link = onliner_link_json.split('vehicles?')[1]
         brand_slug = brands[brand][1]
         if model != FSB:
             models: dict = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
@@ -93,14 +96,16 @@ def onliner_url_filter(car_input, link):
             url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
         else:
             url = f'https://ab.onliner.by/{brand_slug}?{link}'
-        return url if link is not None else ROOT['AV']
+        return url
     except Exception as e:
         print('[func.onliner_url_filter]', e)
-        return ROOT['AV']
+        return ROOT['ONLINER']
 
 
 @timed_lru_cache(300)
 def kufar_url_filter(kufar_link_json):
+    if kufar_link_json is None:
+        return ROOT['KUFAR']
     try:
         kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
         kufar_link = kuf[1].replace('_', '-').replace('.model', '')
@@ -111,16 +116,18 @@ def kufar_url_filter(kufar_link_json):
         kuf = kuf[0].split('/')[-1]\
             .replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
         kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
-        return kufar_link if kufar_link_json is not None else ROOT['KUFAR']
+        return kufar_link
     except Exception as e:
         print('[func.kufar_url_filter]', e)
         return ROOT['KUFAR']
 
 
 def abw_url_filter(abw_link_json):
+    if abw_link_json is None:
+        return ROOT['ABW']
     try:
         abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-        return abw_link if abw_link_json is not None else ROOT['ABW']
+        return abw_link
     except Exception as e:
         print('[func.abw_url_filter]', e)
         return ROOT['ABW']

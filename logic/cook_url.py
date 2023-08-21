@@ -20,7 +20,7 @@ def max_min_params(car_input):
         car_input[8] = str(MM['MIN_DIM']*1000)
     if car_input[9] == FSB:
         car_input[9] = str(MM['MAX_DIM']*1000)
-    return '+'.join(car_input)
+    return car_input
 
 
 @timed_lru_cache(300)
@@ -37,7 +37,7 @@ async def get_url_av(car_input, db, work):
                    'year[max]=', 'price_usd[min]=', 'price_usd[max]=', 'engine_capacity[min]=', 'engine_capacity[max]=']
 
     # База данных
-    car_input = dict(zip(param_input, car_input.split(SS)))
+    car_input = dict(zip(param_input, car_input))
     transmission = dict(a='1', m='2')
     motor = dict(b='1', bpb='2', bm='3', bg='4', d='5', dg='6', e='7')
     brand = car_input['brands[0][brand]=']
@@ -90,7 +90,7 @@ async def get_url_abw(car_input, db):
     min_max_values = ['benzin,dizel,gibrid,sug', 'at,mt', '2000', datetime.now().year, '100', '500000', '0.2', '10.0']
     # цену выдумать нельзя, берется из селектора
 
-    car_input = car_input.split(SS)
+    car_input = car_input
     for i in range(len(car_input) - 2):
         if car_input[i + 2] == FSB:
             car_input[i + 2] = min_max_values[i]
@@ -156,7 +156,7 @@ async def get_url_onliner(car_input, db):
                    'year[to]=', 'price[from]=', 'price[to]=', 'engine_capacity[from]=', 'engine_capacity[to]=']
 
     # База данных
-    car_input = dict(zip(param_input, car_input.split(SS)))
+    car_input = dict(zip(param_input, car_input))
     if car_input['engine_capacity[from]='] != FSB:
         car_input['engine_capacity[from]='] = float(car_input['engine_capacity[from]=']) / 1000
     if car_input['engine_capacity[to]='] != FSB:
@@ -206,8 +206,7 @@ async def get_url_onliner(car_input, db):
 async def get_url_kufar(car_input, db, work):
     car_input = max_min_params(car_input)
     param_input = ['cbnd2=', 'cmdl2=', 'cre=', 'crg=', 'rgd=r:', 'rgd_max', 'prc=r:', 'prc_max', 'crca=r:', 'crca_max']
-
-    car_input = dict(zip(param_input, car_input.split(SS)))
+    car_input = dict(zip(param_input, car_input))
     transmission = dict(a='1', m='2')
     motor = dict(b='v.or:1', bpb='v.or:3', bm='v.or:6', bg='v.or:4', d='v.or:2', dg='v.or:7', e='v.or:5')
     brand = car_input['cbnd2=']
@@ -232,10 +231,17 @@ async def get_url_kufar(car_input, db, work):
     if car_input['crg='] in transmission:
         car_input['crg='] = transmission[car_input['crg=']]
 
+    dim_k = [i for i in range(1000, 4100, 100)]
+    dim_v = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 170, 173, 175, 180,
+             183, 190, 190, 200, 205, 205, 210, 211, 212, 213, 214, 220]
+    dim = dict(zip(dim_k, dim_v))
+
     minimus_d = car_input['crca=r:']
     maximus_d = car_input['crca_max']
-    car_input['crca=r:'] = float(minimus_d)/10 if minimus_d != FSB else minimus_d
-    car_input['crca_max'] = float(maximus_d)/10 if maximus_d != FSB else maximus_d
+
+    car_input['crca=r:'] = dim[int(minimus_d)] if (4000 > int(minimus_d) > 1000) and (int(minimus_d) in dim_k) else 1
+    car_input['crca_max'] = dim[int(maximus_d)] if (4000 > int(maximus_d) > 1000) and (int(maximus_d) in dim_k) else 230
+
 
     if car_input['cmdl2='] != FSB:
         car_input['cbnd2='] = ''
