@@ -295,7 +295,8 @@ async def add_stalk(message: Message):
     for url in entities:
         if url.type == 'url':
             url = url.extract_from(mes)
-            if url[:19] in (ROOT['AV'] + ROOT['ONLINER']) and len(url.split('/')) >= 4:
+            url_valid = f"{'/'.join(url.split('/')[:3])}/"
+            if url_valid in [''.join(i) for i in ROOT.values()] and len(url.split('/')) >= 4:
                 async with database() as db:
                     check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
                     check_id = await check_id_cursor.fetchone()

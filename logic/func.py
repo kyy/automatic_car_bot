@@ -79,7 +79,7 @@ def onliner_url_filter(car_input, onliner_link_json):
     """
     Ссылка на сайт
     :param car_input:фильтр-код 
-    :param link: ссылка на json
+    :param onliner_link_json: ссылка на json
     :return: 
     """
     if onliner_link_json is None:
@@ -158,17 +158,28 @@ async def get_models(brand: str) -> list[str]:
 
 
 @lru_cache()
-def get_years(from_year: int = MM['MIN_YEAR'], to_year=MM['MAX_YEAR']) -> list[str]:
+def get_years(
+        from_year: int = MM['MIN_YEAR'],
+        to_year=MM['MAX_YEAR']
+) -> list[str]:
     return [str(i) for i in range(from_year, to_year + 1)]
 
 
 @lru_cache()
-def get_dimension(from_dim: float = MM['MIN_DIM'], to_dim: float = MM['MAX_DIM']+0.1, step: float = MM['STEP_DIM']) -> list[str]:
+def get_dimension(
+        from_dim: float = MM['MIN_DIM'],
+        to_dim: float = MM['MAX_DIM']+0.1,
+        step: float = MM['STEP_DIM']
+) -> list[str]:
     return [str(round(i, 1)) for i in np.arange(from_dim, to_dim, step)]
 
 
 @lru_cache()
-def get_cost(from_cost: int = MM['MIN_COST'], to_cost: int = MM['MAX_COST']+MM['STEP_COST'], step: int = MM['STEP_COST']):
+def get_cost(
+        from_cost: int = MM['MIN_COST'],
+        to_cost: int = MM['MAX_COST']+MM['STEP_COST'],
+        step: int = MM['STEP_COST']
+) -> list[str]:
     return [str(i) for i in range(from_cost, to_cost, step)]
 
 

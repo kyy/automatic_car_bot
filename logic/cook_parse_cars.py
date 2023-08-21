@@ -1,6 +1,4 @@
 import asyncio
-from functools import lru_cache
-
 import numpy as np
 from aiohttp import ClientSession
 from .constant import HEADERS, API

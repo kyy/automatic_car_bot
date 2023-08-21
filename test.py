@@ -31,24 +31,17 @@ current = abs(data_now - subscription_data)   # осталось дней
 # print(newdata)
 
 
-async def json_urls():
-    async with database() as db:
-        av_urls_cursor = await db.execute(
-            f"""
-            SELECT url, id FROM ucars 
-            WHERE LOWER(url) LIKE 'https://cars.av.by/%' AND is_active = 1""")
-        av_urls = await av_urls_cursor.fetchall()
-        av_urls = [(f"https://api.av.by/offers/{i[0].split('/')[-1]}", i[1]) for i in av_urls]
-        onliner_urls_cursor = await db.execute(
-            f"""
-            SELECT url, id FROM ucars
-            WHERE LOWER(url) LIKE 'https://ab.onliner.by/%' AND is_active = 1""")
-        onliner_urls = await onliner_urls_cursor.fetchall()
-        onliner_urls = [(f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1]}", i[1]) for i in onliner_urls]
-        print([*av_urls, *onliner_urls])
-        return [*av_urls, *onliner_urls]
+url = 'https://auto.kufar.by/vi/197066435?rank=1&searchId=292d5de15259399298a61584dd8ed2e66114'
+url = f"{'/'.join(url.split('/')[:3])}/"
+data = [''.join(i) for i in ROOT.values()]
+print(url)
+print(data)
+if url in data and len(url.split('/')) >= 4:
+    print(True)
+else:
+    print(False)
 
 
 if __name__ == '__main__':
-    print([i for i in ROOT.values()])
+    pass
 
