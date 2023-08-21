@@ -1,11 +1,12 @@
 import asyncio
 from datetime import datetime, timedelta
-
+from bs4 import BeautifulSoup
+from lxml import etree
 import aiosqlite
 import numpy as np
+import requests
 from tqdm import tqdm
-
-from logic.constant import FSB, SS
+from logic.constant import FSB, SS, HEADERS, ROOT
 from logic.database.config import database
 
 data_now = datetime.today().date()   # сегодняшняя дата
@@ -31,15 +32,14 @@ current = abs(data_now - subscription_data)   # осталось дней
 
 
 
-# dim = {}
-# [dim.update({j: i+1}) for i, j in enumerate([i for i in range(1000, 4100, 100)])]
+URL = 'https://cars.av.by/acura/tsx/105530026123'
+
+r = requests.get(url=URL, headers=HEADERS)
 
 
-dim_k = [i for i in range(1000, 4100, 100)]
-dim_v = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 170, 173, 175, 180, 183, 190, 190, 200, 205, 205, 210, 211, 212, 213, 214, 220]
-dim = dict(zip(dim_k, dim_v))
 
+print(r)
 if __name__ == '__main__':
-    print(dim)
+    pass
 
 

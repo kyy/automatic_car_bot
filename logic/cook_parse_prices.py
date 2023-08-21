@@ -1,12 +1,13 @@
 import asyncio
+from lxml import etree
 from aiohttp import ClientSession
 from classes import bot
 from keyboards import delete_message_kb
-from .constant import HEADERS, API
+from .constant import HEADERS, API, ROOT
 from logic.database.config import database
 
 
-async def json_links():
+async def json_urls():
     async with database() as db:
         av_urls_cursor = await db.execute(
             f"""
@@ -23,24 +24,61 @@ async def json_links():
         return [*av_urls, *onliner_urls]
 
 
-async def bound_fetch_av(semaphore, url, session, result):
+async def html_urls():
+    async with database() as db:
+        kufar_abw_urls_cursor = await db.execute(
+            f"""
+            SELECT url FROM ucars
+            WHERE (LOWER(url) LIKE 'https://auto.kufar.by/vi/%' OR LOWER(url) LIKE 'https://abw.by/cars/detail/%')
+            AND is_active = 1""")
+        kufar_abw_urls = await kufar_abw_urls_cursor.fetchall()
+        kufar_abw_urls = [i[0] for i in kufar_abw_urls]
+        return [*kufar_abw_urls]
+
+
+async def bound_fetch_json(semaphore, url, session, result):
     try:
         async with semaphore:
-            await get_one(url, session, result)
+            await get_one_json(url, session, result)
     except Exception as e:
-        print(e, '[cook_parse_prices.bound_fetch_av]')
-        # Блокируем все таски на <> секунд в случае ошибки 429.
+        print(e, '[cook_parse_prices.bound_fetch_json]')
         await asyncio.sleep(1)
 
 
-async def get_one(url, session, result):
+async def bound_fetch_html(semaphore, url, session, result):
+    try:
+        async with semaphore:
+            await get_one_html(url, session, result)
+    except Exception as e:
+        print(e, '[cook_parse_prices.bound_fetch_html]')
+        await asyncio.sleep(1)
+
+
+async def get_one_json(url, session, result):
     async with session.get(url) as response:
-        page_content = await response.json()
-        if url.split('/')[2] == API['AV']:
-            item = json_parse_av(page_content)
-        if url.split('/')[2] == API['ONLINER']:
-            item = json_parse_onliner(page_content)
-        result += item
+        if response.status == 404:
+            pass
+        else:
+            page_content = await response.json()
+            if url.split('/')[2] == API['AV']:
+                item = json_parse_av(page_content)
+            if url.split('/')[2] == API['ONLINER']:
+                item = json_parse_onliner(page_content)
+            result += item
+
+
+async def get_one_html(url, session, result):
+    async with session.get(url) as response:
+        if response.status == 404:
+            pass
+        else:
+            page_content = await response.text()
+            page_content = etree.HTML(str(page_content))
+            if url.split('/')[2] == ROOT['ABW'].split('/')[2]:
+                item = html_parse_abw(page_content, url)
+            if url.split('/')[2] == ROOT['KUFAR'].split('/')[2]:
+                item = html_parse_kufar(page_content, url)
+            result += item
 
 
 def json_parse_av(json):
@@ -51,13 +89,31 @@ def json_parse_onliner(json):
     return [[int(json['price']['converted']['USD']['amount'][:-3]), str(json['html_url'])]]
 
 
-async def run(urls, result):
+def html_parse_abw(dom, url):
+    price = dom.xpath('//*[@class="price-usd"]')[0].text
+    price = price.replace(' ', '').replace('USD', '')
+    print(price, url)
+    return [[int(price), url]]
+
+
+def html_parse_kufar(dom, url):
+    price = dom.xpath('//*[@data-name="additional-price"]')[0].text
+    price = price.replace(' ', '').replace('$*', '')
+    print(price, url)
+    return [[int(price), url]]
+
+
+async def run(json, html, result):
     tasks = []
     semaphore = asyncio.Semaphore(20)
     async with ClientSession(headers=HEADERS) as session:
-        if urls:
-            for url in urls:
-                task = asyncio.ensure_future(bound_fetch_av(semaphore, url, session, result))
+        if json:
+            for url in json:
+                task = asyncio.ensure_future(bound_fetch_json(semaphore, url, session, result))
+                tasks.append(task)
+        if html:
+            for url in html:
+                task = asyncio.ensure_future(bound_fetch_html(semaphore, url, session, result))
                 tasks.append(task)
         # Ожидаем завершения всех наших задач.
         await asyncio.gather(*tasks)
@@ -66,6 +122,7 @@ async def run(urls, result):
 
 async def check_price(result):
     async with database() as db:
+        print(result)
         data_cursor = await db.execute(f"""
         SELECT user.tel_id, ucars.id, ucars.url, ucars.price FROM ucars
         INNER JOIN user on user.id = ucars.user_id
@@ -73,6 +130,7 @@ async def check_price(result):
         base_data = await data_cursor.fetchall()
         for car in result:
             for row in (row for row in base_data if row[2] == car[1] and row[3] != car[0]):
+                print(row)
                 if row[3] != 0:
                     await bot.send_message(row[0],
                                            f'Старая цена - {row[3]}$\n'
@@ -88,7 +146,7 @@ async def check_price(result):
 async def parse_main(ctx):
     result = []
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(await json_links(), result))
+    future = asyncio.ensure_future(run(await json_urls(), await html_urls(), result=result))
     loop.run_until_complete(future)
     await check_price(result)
     return result
