@@ -1,17 +1,18 @@
 import logging
-from aiohttp import web
-from aiogram import Bot, Dispatcher
 from typing import Any, Dict, Union
+
+from aiogram import Bot, Dispatcher
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
-from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-import handler_common
+from aiohttp import web
+
 import handler_callback
+import handler_common
 import handler_message
 from classes import config
-
 
 """
 https://localtunnel.github.io/www/
@@ -22,8 +23,7 @@ fast test:
 4. run webhook.py
 """
 
-
-BASE_URL = 'https://new-trees-glow.loca.lt'
+BASE_URL = "https://new-trees-glow.loca.lt"
 MAIN_BOT_TOKEN = config.BOT_TOKEN
 WEB_SERVER_HOST = "::"
 WEB_SERVER_PORT = 8350

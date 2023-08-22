@@ -1,10 +1,10 @@
-from aiogram.fsm.state import StatesGroup, State
 from aiogram import Bot
+from aiogram.fsm.state import StatesGroup, State
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
     BOT_TOKEN: str
 
 
@@ -14,7 +14,6 @@ bot = Bot(token=config.BOT_TOKEN)
 
 
 class CreateCar(StatesGroup):
-
     start_choosing = State()
     brand_choosing = State()
     model_choosing = State()

@@ -1,10 +1,10 @@
-import asyncio
-from typing import Callable, Dict, Any, Awaitable, Union
+from typing import Callable, Dict, Any, Awaitable
+from typing import Callable, Dict, Any, Awaitable
+
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
-from aiogram.utils.callback_answer import CallbackAnswer
+from aiogram.types import CallbackQuery, TelegramObject
 from aiogram.utils.chat_action import ChatActionSender
-from aiogram.types import CallbackQuery, Message, TelegramObject
 
 
 class ChatActionMiddleware(BaseMiddleware):
@@ -12,7 +12,7 @@ class ChatActionMiddleware(BaseMiddleware):
         self,
         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
         event: CallbackQuery,
-        data: Dict[str, Any]
+        data: Dict[str, Any],
     ) -> Any:
         long_operation_type = get_flag(data, "long_operation")
         bot = data["bot"]
@@ -21,9 +21,5 @@ class ChatActionMiddleware(BaseMiddleware):
             return await handler(event, data)
 
         # Если флаг есть
-        async with ChatActionSender(
-            bot=bot,
-            action=long_operation_type,
-            chat_id=event.from_user.id
-        ):
+        async with ChatActionSender(bot=bot, action=long_operation_type, chat_id=event.from_user.id):
             return await handler(event, data)

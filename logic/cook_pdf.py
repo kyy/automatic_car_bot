@@ -1,18 +1,18 @@
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
-from fpdf import FPDF, ViewerPreferences
 import qrcode
-from datetime import datetime
+from fpdf import FPDF, ViewerPreferences
 
 
 class PDF(FPDF):
-
     def __init__(
-            self,
-            orientation="portrait",
-            unit="mm",
-            format="A4",
-            font_cache_dir="DEPRECATED",
+        self,
+        orientation="portrait",
+        unit="mm",
+        format="A4",
+        font_cache_dir="DEPRECATED",
     ):
         super().__init__(orientation, unit, format, font_cache_dir)
         self.filter_short = None
@@ -38,8 +38,8 @@ class PDF(FPDF):
                 y=3,
                 w=19,
                 link=self.av_link,
-                title='av.by',
-                alt_text='av.by',
+                title="av.by",
+                alt_text="av.by",
             )
 
         if self.abw_count != 0:
@@ -50,8 +50,8 @@ class PDF(FPDF):
                 y=3,
                 w=19,
                 link=self.abw_link,
-                title='abw.by',
-                alt_text='abw.by',
+                title="abw.by",
+                alt_text="abw.by",
             )
 
         if self.onliner_count != 0:
@@ -62,8 +62,8 @@ class PDF(FPDF):
                 y=3,
                 w=19,
                 link=self.onliner_link,
-                title='onliner.by',
-                alt_text='onliner.by',
+                title="onliner.by",
+                alt_text="onliner.by",
             )
 
         if self.kufar_count != 0:
@@ -74,8 +74,8 @@ class PDF(FPDF):
                 y=3,
                 w=19,
                 link=self.kufar_link,
-                title='kufar.by',
-                alt_text='kufar.by',
+                title="kufar.by",
+                alt_text="kufar.by",
             )
 
         self.image(
@@ -84,20 +84,25 @@ class PDF(FPDF):
             y=10,
             w=8,
             link="https://t.me/AutomaticCarBot",
-            title='@AutomaticCarBot',
-            alt_text='@AutomaticCarBot',
+            title="@AutomaticCarBot",
+            alt_text="@AutomaticCarBot",
         )
 
         # Moving cursor to the right:
         self.cell(13)
         self.set_font(size=9)
         self.set_text_color(60, 60, 60)
-        self.cell(0, 0, f'{self.filter_short} | {datetime.now().date()} | {datetime.now().time().strftime("%H:%M")}', align="L")
+        self.cell(
+            0,
+            0,
+            f'{self.filter_short} | {datetime.now().date()} | {datetime.now().time().strftime("%H:%M")}',
+            align="L",
+        )
         self.ln(6)
-        self.cell(150, -6, f'', align="R")
+        self.cell(150, -6, f"", align="R")
         self.ln(4)
         self.cell(13)
-        self.cell(10, -8, f'{self.filter_full}', align="L")
+        self.cell(10, -8, f"{self.filter_full}", align="L")
         self.ln(5)
 
     def footer(self):
@@ -107,13 +112,14 @@ class PDF(FPDF):
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
-    def colored_table(self, headings, rows, links,
-                      col_widths=(9, 45, 14, 17, 8, 17, 14, 10, 24, 26, 23, 16, 28, 9, 21)):
+    def colored_table(
+        self, headings, rows, links, col_widths=(9, 45, 14, 17, 8, 17, 14, 10, 24, 26, 23, 16, 28, 9, 21)
+    ):
         self.render_table_header(headings=headings, col_widths=col_widths)
         line_height = self.font_size * 2.5
-        self.set_fill_color(240, 240, 240)    # цвет заливки строки
-        self.set_text_color(0)     # цвет текста в заливке
-        fill = False     # заливаем строку
+        self.set_fill_color(240, 240, 240)  # цвет заливки строки
+        self.set_text_color(0)  # цвет текста в заливке
+        fill = False  # заливаем строку
         j = 0
         for row in rows:
             if self.will_page_break(line_height):
@@ -122,7 +128,7 @@ class PDF(FPDF):
             link = links[j]
             j += 1
             for datum in row:
-                link_to_car = link if i == 1 else ''      # создаем ссылку во 2 столбце
+                link_to_car = link if i == 1 else ""  # создаем ссылку во 2 столбце
                 self.multi_cell(
                     w=col_widths[i],
                     h=line_height,
@@ -131,12 +137,12 @@ class PDF(FPDF):
                     border=1,
                     new_x="RIGHT",
                     new_y="TOP",
-                    max_line_height=self.font_size+1.2,
+                    max_line_height=self.font_size + 1.2,
                     link=link_to_car,
                     fill=fill,
                 )
                 i += 1
-            fill = not fill   # убираем заливку строки
+            fill = not fill  # убираем заливку строки
             self.ln(line_height)
 
     def render_table_header(self, headings, col_widths):
@@ -161,19 +167,15 @@ class PDF(FPDF):
 
 
 async def do_pdf(
-        message=None,
-        link_count=None,
-        name=None,
-        filter_full='<filter full>',
-        filter_short='<filter code>',
+    message=None,
+    link_count=None,
+    name=None,
+    filter_full="<filter full>",
+    filter_short="<filter code>",
 ):
     if get_data(message, name):
         data, col_names, links = get_data(message, name)
-        pdf = PDF(
-            orientation="L",
-            unit="mm",
-            format="A4"
-                  )
+        pdf = PDF(orientation="L", unit="mm", format="A4")
         pdf.page_mode = "FULL_SCREEN"
         pdf.viewer_preferences = ViewerPreferences(
             hide_toolbar=True,
@@ -184,42 +186,57 @@ async def do_pdf(
             display_doc_title=True,
             non_full_screen_page_mode="USE_OUTLINES",
         )
-        pdf.add_font(fname=f'logic/static/DejaVuSansCondensed.ttf')
-        pdf.set_font('DejaVuSansCondensed', size=8)
+        pdf.add_font(fname=f"logic/static/DejaVuSansCondensed.ttf")
+        pdf.set_font("DejaVuSansCondensed", size=8)
 
         pdf.filter_full = str(filter_full)
         pdf.filter_short = str(filter_short)
 
-        link = link_count['link']
-        pdf.av_link = link['av_link']
-        pdf.abw_link = link['abw_link']
-        pdf.onliner_link = link['onliner_link']
-        pdf.kufar_link = link['kufar_link']
+        link = link_count["link"]
+        pdf.av_link = link["av_link"]
+        pdf.abw_link = link["abw_link"]
+        pdf.onliner_link = link["onliner_link"]
+        pdf.kufar_link = link["kufar_link"]
 
-        count = link_count['count']
-        pdf.av_count = count['all_av']
-        pdf.abw_count = count['all_abw']
-        pdf.onliner_count = count['all_onliner']
-        pdf.kufar_count = count['all_kufar']
+        count = link_count["count"]
+        pdf.av_count = count["all_av"]
+        pdf.abw_count = count["all_abw"]
+        pdf.onliner_count = count["all_onliner"]
+        pdf.kufar_count = count["all_kufar"]
 
         pdf.add_page()
         pdf.set_title("@AutomaticCar")
         pdf.set_author("@AutomaticCar")
         pdf.colored_table(col_names, data, links)
-        return pdf.output(f'logic/buffer/{name}.pdf')
+        return pdf.output(f"logic/buffer/{name}.pdf")
 
 
 def get_data(message, name):
-    columns = ['#', 'марка', 'цена $', 'топливо', 'V, л', 'коробка', 'км', 'год',
-               'кузов', 'привод', 'цвет', 'VIN', 'обмен', 'дней', 'город']
+    columns = [
+        "#",
+        "марка",
+        "цена $",
+        "топливо",
+        "V, л",
+        "коробка",
+        "км",
+        "год",
+        "кузов",
+        "привод",
+        "цвет",
+        "VIN",
+        "обмен",
+        "дней",
+        "город",
+    ]
 
-    dataframe = pd.DataFrame(np.load(f'logic/buffer/{name}.npy', allow_pickle=True))
+    dataframe = pd.DataFrame(np.load(f"logic/buffer/{name}.npy", allow_pickle=True))
     if len(dataframe) > 0:
-        dataframe.insert(2, '#', [str(i + 1) for i in range(len(dataframe))])
+        dataframe.insert(2, "#", [str(i + 1) for i in range(len(dataframe))])
         df = dataframe.iloc[0:, 2:].to_numpy()
         links = dataframe.iloc[0:, 0].tolist()
-    # comments = dataframe.iloc[0:, 1].tolist()
-    # dataframe.to_excel(f'{message}{name}.xlsx', index=False) #экспорт в эксель
+        # comments = dataframe.iloc[0:, 1].tolist()
+        # dataframe.to_excel(f'{message}{name}.xlsx', index=False) #экспорт в эксель
         return df, columns, links
     else:
         return False

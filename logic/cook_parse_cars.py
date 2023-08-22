@@ -1,23 +1,23 @@
 import asyncio
+
+import nest_asyncio
 import numpy as np
 from aiohttp import ClientSession
+
 from .constant import HEADERS, API
 from .parse_sites.abw_by import json_parse_abw, json_links_abw
 from .parse_sites.av_by import json_parse_av, json_links_av
 from .parse_sites.kufar_by import json_links_kufar, json_parse_kufar
 from .parse_sites.onliner_by import json_parse_onliner, json_links_onliner
-import nest_asyncio
-
 
 nest_asyncio.apply()
 
 
 def urls(json, work):
-
-    av = json['av_json']
-    abw = json['abw_json']
-    onliner = json['onliner_json']
-    kufar = json['kufar_json']
+    av = json["av_json"]
+    abw = json["abw_json"]
+    onliner = json["onliner_json"]
+    kufar = json["kufar_json"]
 
     cars = []
 
@@ -37,7 +37,7 @@ async def bound_fetch(semaphore, url, session, result, work):
         async with semaphore:
             await get_one(url, session, result, work)
     except Exception as e:
-        print(e, '[cook_parse_cars.bound_fetch]')
+        print(e, "[cook_parse_cars.bound_fetch]")
         print(url)
         # Блокируем все таски на <> секунд в случае ошибки 429.
         await asyncio.sleep(1)
@@ -46,13 +46,13 @@ async def bound_fetch(semaphore, url, session, result, work):
 async def get_one(url, session, result, work):
     async with session.get(url) as response:
         page_content = await response.json()
-        if url.split('/')[2] == API['AV']:
+        if url.split("/")[2] == API["AV"]:
             item = json_parse_av(page_content, work)
-        elif url.split('/')[2] == API['ONLINER']:
+        elif url.split("/")[2] == API["ONLINER"]:
             item = json_parse_onliner(page_content, work)
-        elif url.split('/')[2] == API['ABW']:
+        elif url.split("/")[2] == API["ABW"]:
             item = json_parse_abw(page_content, work)
-        elif url.split('/')[2] == API['KUFAR']:
+        elif url.split("/")[2] == API["KUFAR"]:
             item = json_parse_kufar(page_content, work)
         result += item
 
@@ -81,11 +81,10 @@ async def parse_main(json, tel_id, name, work=False, send_car_job=None):
     """
     result = []
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(
-        run(urls(json, work=work), result, work))
+    future = asyncio.ensure_future(run(urls(json, work=work), result, work))
     loop.run_until_complete(future)
     if work is True:
         await send_car_job(tel_id, result)
     else:
-        np.save(f'logic/buffer/{name}.npy', result)
+        np.save(f"logic/buffer/{name}.npy", result)
     return result

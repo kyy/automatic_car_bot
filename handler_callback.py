@@ -1,19 +1,20 @@
 from datetime import datetime as datatime_datatime
+
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from logic.cook_parse_cars import parse_main
-from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
-                        get_years, get_cost, get_dimension, check_count_cars_active)
-from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM, REPORT_PARSE_LIMIT_PAGES)
-from logic.database.config import database
+
 from classes import CreateCar
 from classes import bot
 from keyboards import (multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb,
                        add_stalk_kb)
+from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM, REPORT_PARSE_LIMIT_PAGES)
+from logic.cook_parse_cars import parse_main
+from logic.database.config import database
+from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
+                        get_years, get_cost, get_dimension)
 from logic.text import TXT
 from work import send_pdf_job
-
 
 router = Router()
 
@@ -136,25 +137,32 @@ async def edit_search(callback: CallbackQuery):
 @router.callback_query((F.data.startswith('s_')) & ((F.data.endswith('_0')) | (F.data.endswith('_1'))))
 async def edit_search(callback: CallbackQuery):
     # включение/отключение слежки
+    tel_id = callback.from_user.id
     async with database() as db:
-        tel_id = callback.from_user.id
         select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {tel_id}""")
         check_id = await select_id_cursor.fetchone()
         user_id = check_id[0]
+
         cd = callback.data.split('_')
+
         params_id = cd[1]
         page = int(cd[2])
-        status_cursor = await db.execute(f"""SELECT is_active FROM ucars 
-                                             WHERE id='{params_id}' AND user_id = '{user_id}'""")
-        status = await status_cursor.fetchone()
-        status = status[0]
-        status_set = 0 if status == 1 else 1
-        await db.execute(f"""UPDATE ucars SET is_active = '{status_set}'                     
-                                 WHERE id='{params_id}' AND user_id = '{user_id}'""")
-        await db.commit()
-        await callback.message.edit_text(
-            TXT['info_stalk_menu'],
-            reply_markup=await stalk_menu_kb(callback, db, True, page))
+        status_car_active = (cd[3])
+        is_active = int(cd[4])
+
+        status_set = 0 if is_active == 1 else 1
+        message = TXT['msg_limit']
+        if status_car_active == 'True' or status_car_active == 'False' and is_active == 1:
+            await db.execute(f"""UPDATE ucars SET is_active = '{status_set}'                     
+                                     WHERE id='{params_id}' AND user_id = '{user_id}'""")
+            message = TXT['info_stalk_menu']
+            await db.commit()
+        try:
+            await callback.message.edit_text(
+                message,
+                reply_markup=await stalk_menu_kb(callback, db, True, page))
+        except Exception as e:
+            print(e, '[handler_callback.edit_search]')
 
 
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
@@ -218,7 +226,6 @@ async def report_search(callback: CallbackQuery):
                                          disable_web_page_preview=True,
                                          parse_mode="HTML", )
     link_count = dict(link=multidata['link'], count=multidata['count'])
-
     await bot.send_message(user_id, TXT['msg_cooking_rep'])
     await send_pdf_job(user_id, link_count, name_time_stump, decode_filter_short(cars), filter_name)
 
@@ -314,7 +321,7 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
         text="Выберите бренд автомобиля:",
         reply_markup=multi_row_kb(await get_brands(), del_sb=True),
         input_field_placeholder='имя бренда',
-        )
+    )
     await state.set_state(CreateCar.brand_choosing)
 
 
@@ -337,10 +344,10 @@ async def edit_model(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     brand = data['chosen_brand']
     await callback.message.answer(
-            text=TXT['f_model'],
-            reply_markup=multi_row_kb(
-                await get_models(brand),
-                input_field_placeholder=TXT['fi_model']))
+        text=TXT['f_model'],
+        reply_markup=multi_row_kb(
+            await get_models(brand),
+            input_field_placeholder=TXT['fi_model']))
     await state.set_state(CreateCar.model_choosing)
 
 
@@ -349,11 +356,11 @@ async def edit_motor(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
     await callback.message.delete()
     await callback.message.answer(
-            text=TXT['f_motor'],
-            reply_markup=multi_row_kb(
-                MOTOR,
-                input_field_placeholder=TXT['fi_motor'],
-                columns=COL['MOTOR']))
+        text=TXT['f_motor'],
+        reply_markup=multi_row_kb(
+            MOTOR,
+            input_field_placeholder=TXT['fi_motor'],
+            columns=COL['MOTOR']))
     await state.set_state(CreateCar.motor_choosing)
 
 
@@ -362,10 +369,10 @@ async def edit_transmission(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
     await callback.message.delete()
     await callback.message.answer(
-            text=TXT['f_transmission'],
-            reply_markup=multi_row_kb(
-                TRANSMISSION,
-                input_field_placeholder=TXT['fi_transmission']))
+        text=TXT['f_transmission'],
+        reply_markup=multi_row_kb(
+            TRANSMISSION,
+            input_field_placeholder=TXT['fi_transmission']))
     await state.set_state(CreateCar.transmission_choosing)
 
 
@@ -377,11 +384,11 @@ async def edit_year_from(callback: CallbackQuery, state: FSMContext):
     year = data['chosen_year_to']
     year = get_years()[-1] if year == SB else year
     await callback.message.answer(
-            text=TXT['f_year_from'],
-            reply_markup=multi_row_kb(
-                get_years(to_year=int(year)),
-                input_field_placeholder=TXT['fi_year_from'],
-                columns=COL['YEARS']))
+        text=TXT['f_year_from'],
+        reply_markup=multi_row_kb(
+            get_years(to_year=int(year)),
+            input_field_placeholder=TXT['fi_year_from'],
+            columns=COL['YEARS']))
     await state.set_state(CreateCar.year_choosing)
 
 
@@ -393,11 +400,11 @@ async def edit_year_to(callback: CallbackQuery, state: FSMContext):
     year = data['chosen_year_from']
     year = get_years()[1] if year == SB else year
     await callback.message.answer(
-            text=TXT['f_year_to'],
-            reply_markup=multi_row_kb(
-                get_years(from_year=int(year)),
-                input_field_placeholder=TXT['fi_year_to'],
-                columns=COL['YEARS']))
+        text=TXT['f_year_to'],
+        reply_markup=multi_row_kb(
+            get_years(from_year=int(year)),
+            input_field_placeholder=TXT['fi_year_to'],
+            columns=COL['YEARS']))
     await state.set_state(CreateCar.yearm_choosing)
 
 
@@ -409,11 +416,11 @@ async def edit_price_from(callback: CallbackQuery, state: FSMContext):
     cost = data['chosen_cost_max']
     cost = get_cost()[-1] if cost == SB else cost
     await callback.message.answer(
-            text=TXT['f_price_from'],
-            reply_markup=multi_row_kb(
-                get_cost(to_cost=int(cost)),
-                input_field_placeholder=TXT['fi_price_from'],
-                columns=COL['COST']))
+        text=TXT['f_price_from'],
+        reply_markup=multi_row_kb(
+            get_cost(to_cost=int(cost)),
+            input_field_placeholder=TXT['fi_price_from'],
+            columns=COL['COST']))
     await state.set_state(CreateCar.cost_choosing)
 
 
@@ -425,11 +432,11 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
     cost = data['chosen_cost_min']
     cost = get_cost()[0] if cost == SB else cost
     await callback.message.answer(
-            text=TXT['f_price_to'],
-            reply_markup=multi_row_kb(
-                get_cost(from_cost=int(cost) + MM['STEP_COST']),
-                input_field_placeholder=TXT['fi_price_to'],
-                columns=COL['COST']))
+        text=TXT['f_price_to'],
+        reply_markup=multi_row_kb(
+            get_cost(from_cost=int(cost) + MM['STEP_COST']),
+            input_field_placeholder=TXT['fi_price_to'],
+            columns=COL['COST']))
     await state.set_state(CreateCar.costm_choosing)
 
 
@@ -441,11 +448,11 @@ async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
     dimension = data['chosen_dimension_max']
     dimension = get_dimension()[-1] if dimension == SB else dimension
     await callback.message.answer(
-            text=TXT['f_dimension_from'],
-            reply_markup=multi_row_kb(
-                get_dimension(to_dim=float(dimension)),
-                input_field_placeholder=TXT['f_dimension_from'],
-                columns=COL['DIMENSION']))
+        text=TXT['f_dimension_from'],
+        reply_markup=multi_row_kb(
+            get_dimension(to_dim=float(dimension)),
+            input_field_placeholder=TXT['f_dimension_from'],
+            columns=COL['DIMENSION']))
     await state.set_state(CreateCar.dimension_choosing)
 
 
@@ -458,9 +465,9 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
     if dimension == SB:
         dimension = get_dimension()[0]
     await callback.message.answer(
-            text=TXT['f_dimension_to'],
-            reply_markup=multi_row_kb(
-                get_dimension(from_dim=float(dimension)),
-                input_field_placeholdrer=TXT['f_dimension_to'],
-                columns=COL['DIMENSION']))
+        text=TXT['f_dimension_to'],
+        reply_markup=multi_row_kb(
+            get_dimension(from_dim=float(dimension)),
+            input_field_placeholdrer=TXT['f_dimension_to'],
+            columns=COL['DIMENSION']))
     await state.set_state(CreateCar.dimensionm_choosing)

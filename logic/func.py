@@ -1,18 +1,20 @@
 from datetime import datetime
 from functools import lru_cache
-from .decorators import timed_lru_cache
+
 import numpy as np
+from aiocache import cached, Cache
+
 from logic.constant import (SS, MOTOR_DICT, FSB, ROOT, MM, SUBS_CARS_ADD_LIMIT, CARS_ADD_LIMIT, SUBS_FILTER_ADD_LIMIT,
                             FILTER_ADD_LIMIT, SUBS_CARS_ADD_LIMIT_ACTIVE, CARS_ADD_LIMIT_ACTIVE,
                             SUBS_FILTER_ADD_LIMIT_ACTIVE, FILTER_ADD_LIMIT_ACTIVE)
-from logic.database.config import database
 from logic.cook_url import all_get_url
+from logic.database.config import database
 from logic.parse_sites.abw_by import count_cars_abw
 from logic.parse_sites.av_by import count_cars_av
-from logic.parse_sites.onliner_by import count_cars_onliner
 from logic.parse_sites.kufar_by import count_cars_kufar
+from logic.parse_sites.onliner_by import count_cars_onliner
+from .decorators import timed_lru_cache
 from .text import TXT
-from aiocache import cached, Cache
 
 
 def get_count_cars(json):
@@ -49,10 +51,10 @@ async def filter_import(callback, db):
     :param db:
     :return: id, fullfilter name, filter without 'filter='
     """
-    filter_id = callback.data.split('_')[1]     # id фильтра
+    filter_id = callback.data.split('_')[1]  # id фильтра
     async with db:
         select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
-        filter_name = await select_filter_cursor.fetchone()     # фильтр-код ('filter=...',)
+        filter_name = await select_filter_cursor.fetchone()  # фильтр-код ('filter=...',)
         cars = filter_name[0][7:]
     return filter_id, filter_name[0], cars
 
@@ -66,7 +68,7 @@ async def car_multidata(cars):
         json=json,
         count=count,
         link=link,
-        )
+    )
 
 
 @timed_lru_cache(300)
@@ -115,7 +117,7 @@ def kufar_url_filter(kufar_link_json):
         if '&' in kufar_link:
             kufar_link = kufar_link.split('&', 1)
             kufar_link1, kufar_link2 = kufar_link[0], kufar_link[1]
-        kuf = kuf[0].split('/')[-1]\
+        kuf = kuf[0].split('/')[-1] \
             .replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
         kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
         return kufar_link
@@ -170,7 +172,7 @@ def get_years(
 @lru_cache()
 def get_dimension(
         from_dim: float = MM['MIN_DIM'],
-        to_dim: float = MM['MAX_DIM']+0.1,
+        to_dim: float = MM['MAX_DIM'] + 0.1,
         step: float = MM['STEP_DIM']
 ) -> list[str]:
     return [str(round(i, 1)) for i in np.arange(from_dim, to_dim, step)]
@@ -179,7 +181,7 @@ def get_dimension(
 @lru_cache()
 def get_cost(
         from_cost: int = MM['MIN_COST'],
-        to_cost: int = MM['MAX_COST']+MM['STEP_COST'],
+        to_cost: int = MM['MAX_COST'] + MM['STEP_COST'],
         step: int = MM['STEP_COST']
 ) -> list[str]:
     return [str(i) for i in range(from_cost, to_cost, step)]
@@ -221,7 +223,7 @@ def code_filter_short(cc: list = None):
     return 'filter=' + SS.join(cc)
 
 
-def pagination(data: iter, name: str,  ikb, per_page=3, cur_page=1):
+def pagination(data: iter, name: str, ikb, per_page=3, cur_page=1):
     """
     Разбиваем итерируемую последовательность на страницы
     :param data: our data
@@ -337,9 +339,10 @@ async def check_count_cars(u_id, bot):
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
+        vip = 0 if vip is None else vip
         status = True if vip == 1 and count < SUBS_CARS_ADD_LIMIT or vip == 0 and count < CARS_ADD_LIMIT else False
         limit = SUBS_CARS_ADD_LIMIT if vip == 1 else CARS_ADD_LIMIT
-        message = TXT['msg_cars_limit_subs'] if vip == 1 else TXT['msg_cars_limit']
+        message = TXT['msg_limit_subs'] if vip == 1 else TXT['msg_limit']
         if not status:
             await bot.send_message(u_id, message.format(limit=limit), disable_web_page_preview=True)
         return status
@@ -358,9 +361,10 @@ async def check_count_filters(u_id, bot):
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
+        vip = 0 if vip is None else vip
         status = True if vip == 1 and count < SUBS_FILTER_ADD_LIMIT or vip == 0 and count < FILTER_ADD_LIMIT else False
         limit = SUBS_FILTER_ADD_LIMIT if vip == 1 else FILTER_ADD_LIMIT
-        message = TXT['msg_filter_limit_subs'] if vip == 1 else TXT['msg_filter_limit']
+        message = TXT['msg_limit_subs'] if vip == 1 else TXT['msg_limit']
         if not status:
             await bot.send_message(u_id, message.format(limit=limit), disable_web_page_preview=True)
         return status
@@ -378,8 +382,8 @@ async def check_count_cars_active(u_id):
                                             WHERE user.tel_id = {u_id} AND ucars.is_active = 1""")
         user = await user_cursor.fetchone()
         count = user[0]
-        print(user)
         vip = user[1]
+        vip = 0 if vip is None else vip
         status = True if vip == 1 and count < SUBS_CARS_ADD_LIMIT_ACTIVE or vip == 0 and count < CARS_ADD_LIMIT_ACTIVE else False
         return status
 
@@ -397,5 +401,6 @@ async def check_count_filters_active(u_id):
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
+        vip = 0 if vip is None else vip
         status = True if vip == 1 and count < SUBS_FILTER_ADD_LIMIT_ACTIVE or vip == 0 and count < FILTER_ADD_LIMIT_ACTIVE else False
         return status
