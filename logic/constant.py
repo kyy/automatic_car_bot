@@ -16,6 +16,16 @@ WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часа
 REPORT_PARSE_LIMIT_PAGES = 4  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)
 PARSE_LIMIT_PAGES = 4   # лимит страниц парсиинга (1стр = 25 машин)
 
+CARS_ADD_LIMIT = 10
+FILTER_ADD_LIMIT = 10
+FILTER_ADD_LIMIT_ACTIVE = 2
+CARS_ADD_LIMIT_ACTIVE = 2
+
+SUBS_CARS_ADD_LIMIT = 50
+SUBS_FILTER_ADD_LIMIT = 50
+SUBS_FILTER_ADD_LIMIT_ACTIVE = 15
+SUBS_CARS_ADD_LIMIT_ACTIVE = 15
+
 SS = '+'    # split symbol in filter
 SB = '✅ выбрать все'    # skip button on keyboards
 FSB = '?'    # skip-liter in filter

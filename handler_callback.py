@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from logic.cook_parse_cars import parse_main
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
-                        get_years, get_cost, get_dimension)
+                        get_years, get_cost, get_dimension, check_count_cars_active)
 from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM, REPORT_PARSE_LIMIT_PAGES)
 from logic.database.config import database
 from classes import CreateCar
@@ -137,8 +137,8 @@ async def edit_search(callback: CallbackQuery):
 async def edit_search(callback: CallbackQuery):
     # включение/отключение слежки
     async with database() as db:
-        user_id = callback.from_user.id
-        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
+        tel_id = callback.from_user.id
+        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {tel_id}""")
         check_id = await select_id_cursor.fetchone()
         user_id = check_id[0]
         cd = callback.data.split('_')
@@ -147,9 +147,10 @@ async def edit_search(callback: CallbackQuery):
         status_cursor = await db.execute(f"""SELECT is_active FROM ucars 
                                              WHERE id='{params_id}' AND user_id = '{user_id}'""")
         status = await status_cursor.fetchone()
-        status_set = 0 if status[0] == 1 else 1
+        status = status[0]
+        status_set = 0 if status == 1 else 1
         await db.execute(f"""UPDATE ucars SET is_active = '{status_set}'                     
-                             WHERE id='{params_id}' AND user_id = '{user_id}'""")
+                                 WHERE id='{params_id}' AND user_id = '{user_id}'""")
         await db.commit()
         await callback.message.edit_text(
             TXT['info_stalk_menu'],
@@ -343,7 +344,6 @@ async def edit_model(callback: CallbackQuery, state: FSMContext):
     await state.set_state(CreateCar.model_choosing)
 
 
-
 @router.callback_query(F.data == 'cb_motor')
 async def edit_motor(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
@@ -464,4 +464,3 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
                 input_field_placeholdrer=TXT['f_dimension_to'],
                 columns=COL['DIMENSION']))
     await state.set_state(CreateCar.dimensionm_choosing)
-

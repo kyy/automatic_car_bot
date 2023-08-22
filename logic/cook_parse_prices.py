@@ -37,21 +37,21 @@ async def html_urls():
 
 
 async def bound_fetch_json(semaphore, url, session, result):
-    # try:
+    try:
         async with semaphore:
             await get_one_json(url, session, result)
-    # except Exception as e:
-    #     print(e, '[cook_parse_prices.bound_fetch_json]')
-    #     await asyncio.sleep(1)
+    except Exception as e:
+        print(e, '[cook_parse_prices.bound_fetch_json]')
+        await asyncio.sleep(1)
 
 
 async def bound_fetch_html(semaphore, url, session, result):
-    # try:
+    try:
         async with semaphore:
             await get_one_html(url, session, result)
-    # except Exception as e:
-    #     print(e, '[cook_parse_prices.bound_fetch_html]')
-    #     await asyncio.sleep(1)
+    except Exception as e:
+        print(e, '[cook_parse_prices.bound_fetch_html]')
+        await asyncio.sleep(1)
 
 
 async def get_one_json(url, session, result):

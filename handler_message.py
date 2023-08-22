@@ -5,7 +5,8 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
 from keyboards import multi_row_kb, result_menu_kb
 from logic.database.config import database
-from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
+from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short, \
+    check_count_cars, check_count_cars_active
 from logic.constant import (FSB, CF, COL, MOTOR, TRANSMISSION, SB, EB, ROOT, DEFAULT)
 from logic.text import TXT
 from itertools import chain
@@ -292,24 +293,28 @@ async def add_stalk(message: Message):
     tel_id = message.from_user.id
     entities = message.entities or []
     await message.delete()
-    for url in entities:
-        if url.type == 'url':
-            url = url.extract_from(mes)
-            url_valid = f"{'/'.join(url.split('/')[:3])}/"
-            if url_valid in [''.join(i) for i in ROOT.values()] and len(url.split('/')) >= 4:
-                async with database() as db:
-                    check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
-                    check_id = await check_id_cursor.fetchone()
-                    check_url_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
-                    check_url = await check_url_cursor.fetchall()
-                    if url not in [i[0] for i in check_url]:
-                        await db.execute(f"""INSERT INTO ucars (user_id, url, price)
-                                             VALUES ('{check_id[0]}', '{url}', 0)""")
-                        await db.commit()
-                        await bot.send_message(
-                            tel_id, TXT['msg_added_url'].format(url=url), disable_web_page_preview=True)
-                    else:
-                        await bot.send_message(
-                            tel_id, TXT['msg_stalking_url'].format(url=url), disable_web_page_preview=True)
-            else:
-                await bot.send_message(tel_id, TXT['msg_error_url'], disable_web_page_preview=True)
+    status_add_limit = await check_count_cars(tel_id, bot)
+    if status_add_limit:
+        for url in entities:
+            if url.type == 'url':
+                url = url.extract_from(mes)
+                url_valid = f"{'/'.join(url.split('/')[:3])}/"
+                if url_valid in [''.join(i) for i in ROOT.values()] and len(url.split('/')) >= 4:
+                    async with database() as db:
+                        check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
+                        check_id = await check_id_cursor.fetchone()
+                        check_url_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
+                        check_url = await check_url_cursor.fetchall()
+                        if url not in [i[0] for i in check_url]:
+                            status_is_active = await check_count_cars_active(tel_id)
+                            is_active = 1 if status_is_active else 0
+                            await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active)
+                                                 VALUES ('{check_id[0]}', '{url}', 0, {is_active})""")
+                            await db.commit()
+                            await bot.send_message(
+                                tel_id, TXT['msg_added_url'].format(url=url), disable_web_page_preview=True)
+                        else:
+                            await bot.send_message(
+                                tel_id, TXT['msg_stalking_url'].format(url=url), disable_web_page_preview=True)
+                else:
+                    await bot.send_message(tel_id, TXT['msg_error_url'], disable_web_page_preview=True)
