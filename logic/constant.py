@@ -11,15 +11,16 @@ MM = dict(
     STEP_COST=2500,
 )
 
-WORK_PARSE_CARS_DELTA = 2  # частота проверки новых объявллений в часах
+WORK_PARSE_CARS_DELTA = 1  # частота проверки новых объявллений в часах
 WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часах
+
 REPORT_PARSE_LIMIT_PAGES = 4  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)
 PARSE_LIMIT_PAGES = 4  # лимит страниц парсиинга (1стр = 25 машин)
 
 CARS_ADD_LIMIT = 10
 FILTER_ADD_LIMIT = 10
-FILTER_ADD_LIMIT_ACTIVE = 3
-CARS_ADD_LIMIT_ACTIVE = 3
+FILTER_ADD_LIMIT_ACTIVE = 5
+CARS_ADD_LIMIT_ACTIVE = 5
 
 SUBS_CARS_ADD_LIMIT = 50
 SUBS_FILTER_ADD_LIMIT = 50

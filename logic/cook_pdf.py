@@ -8,11 +8,11 @@ from fpdf import FPDF, ViewerPreferences
 
 class PDF(FPDF):
     def __init__(
-        self,
-        orientation="portrait",
-        unit="mm",
-        format="A4",
-        font_cache_dir="DEPRECATED",
+            self,
+            orientation="portrait",
+            unit="mm",
+            format="A4",
+            font_cache_dir="DEPRECATED",
     ):
         super().__init__(orientation, unit, format, font_cache_dir)
         self.filter_short = None
@@ -90,7 +90,6 @@ class PDF(FPDF):
 
         # Moving cursor to the right:
         self.cell(13)
-        self.set_font(size=9)
         self.set_text_color(60, 60, 60)
         self.cell(
             0,
@@ -108,15 +107,15 @@ class PDF(FPDF):
     def footer(self):
         self.set_y(-15)
         self.set_text_color(60, 60, 60)
-        self.set_font(size=9)
+        self.set_font(size=7)
         # Printing page number:
         self.cell(0, 10, f"страница {self.page_no()}/{{nb}}", align="C")
 
     def colored_table(
-        self, headings, rows, links, col_widths=(9, 45, 14, 17, 8, 17, 14, 10, 24, 26, 23, 16, 28, 9, 21)
+            self, headings, rows, links, col_widths=(9, 45, 14, 17, 8, 17, 14, 10, 22, 26, 21, 22, 26, 9, 21)
     ):
         self.render_table_header(headings=headings, col_widths=col_widths)
-        line_height = self.font_size * 2.5
+        line_height = self.font_size * 2.6
         self.set_fill_color(240, 240, 240)  # цвет заливки строки
         self.set_text_color(0)  # цвет текста в заливке
         fill = False  # заливаем строку
@@ -132,12 +131,12 @@ class PDF(FPDF):
                 self.multi_cell(
                     w=col_widths[i],
                     h=line_height,
-                    txt=datum,
+                    txt=datum,  # ограничиваем длину до 50 символов
                     align="L",
                     border=1,
                     new_x="RIGHT",
                     new_y="TOP",
-                    max_line_height=self.font_size + 1.2,
+                    max_line_height=self.font_size + 1.3,
                     link=link_to_car,
                     fill=fill,
                 )
@@ -146,7 +145,7 @@ class PDF(FPDF):
             self.ln(line_height)
 
     def render_table_header(self, headings, col_widths):
-        self.set_font(size=9)
+        self.font_size_pt = 8  # шрифт в таблице
         self.set_fill_color(60, 60, 60)
         self.set_text_color(240, 240, 240)
         self.set_draw_color(180, 180, 180)
@@ -154,7 +153,7 @@ class PDF(FPDF):
         for col_width, heading in zip(col_widths, headings):
             self.cell(
                 w=col_width,
-                h=5,
+                h=5.5,
                 txt=heading,
                 border=1,
                 align="C",
@@ -167,11 +166,11 @@ class PDF(FPDF):
 
 
 async def do_pdf(
-    message=None,
-    link_count=None,
-    name=None,
-    filter_full="<filter full>",
-    filter_short="<filter code>",
+        message=None,
+        link_count=None,
+        name=None,
+        filter_full="<filter full>",
+        filter_short="<filter code>",
 ):
     if get_data(message, name):
         data, col_names, links = get_data(message, name)

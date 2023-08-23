@@ -74,6 +74,7 @@ def json_parse_kufar(json_data, work):
             fresh_minutes = datetime.now() - datetime.strptime(published[:-4], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
+                print(url)
                 car.append([str(url), str(price)])
         else:
             car.append(

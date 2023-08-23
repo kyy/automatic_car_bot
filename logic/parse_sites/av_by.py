@@ -77,7 +77,7 @@ def json_parse_av(json_data, work):
             if r_t["name"] == "drive_type":
                 drive = r_t["value"].replace("привод", "")
             if r_t["name"] == "body_type":
-                typec = r_t["value"].replace("5 дв.", "")
+                typec = r_t["value"].replace("5 дв.", "").replace('грузопассажирский', 'гр.-пасс.')
             if r_t["name"] == "generation":
                 generation = r_t["value"]
         if work is True:

@@ -86,6 +86,7 @@ def json_parse_onliner(json_data, work):
             .replace("minivan", "минивен")
             .replace("cabriolet", "кабриолет")
             .replace("liftback", "лифтбек")
+            .replace("minibus", "миниавтобус")
         )
         # brand = r_t['manufacturer']['name']
         # model = r_t['model']['name']
