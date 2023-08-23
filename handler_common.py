@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from commands import commands
-from keyboards import start_menu_kb
+from keyboards import start_menu_kb, donate_kb
 from logic.text import TXT
 
 router = Router()
@@ -40,3 +40,10 @@ async def cmd_help(message: Message):
     for cmd in commands:
         c += f"<b>{cmd.command}     {cmd.description}</b>\n{cmd.full_description}\n\n"
     await message.answer(c, parse_mode="HTML")
+
+
+@router.message(Command(commands=["donate"]))
+@router.message(Command(commands=["d"]))
+@router.message((F.text.casefold() == "donate") | (F.text.casefold() == "d"))
+async def cmd_help(message: Message):
+    await message.answer(TXT['info_donate'], parse_mode="HTML", reply_markup=donate_kb())

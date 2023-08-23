@@ -187,3 +187,11 @@ add_stalk_kb = InlineKeyboardMarkup(
     # меню добавление слежки
     inline_keyboard=[[InlineKeyboardButton(text=TXT["btn_back"], callback_data="show_stalk")]]
 )
+
+
+def donate_kb():
+    # меню доната
+    buttons = [[InlineKeyboardButton(
+        text="сделать перевод",
+        url="https://yoomoney.ru/to/4100118330778097")]]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)

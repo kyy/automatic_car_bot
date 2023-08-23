@@ -264,7 +264,6 @@ async def car_follow(callback: CallbackQuery):
             check_url = await check_url_cursor.fetchall()
 
             if message[0] not in [i[0] for i in check_url]:
-
                 is_active = 1 if status_is_active else 0
 
                 await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active) 
