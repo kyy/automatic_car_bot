@@ -301,15 +301,18 @@ async def add_stalk(message: Message):
                 url_valid = f"{'/'.join(url.split('/')[:3])}/"
                 if url_valid in [''.join(i) for i in ROOT.values()] and len(url.split('/')) >= 4:
                     async with database() as db:
+
                         check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
                         check_id = await check_id_cursor.fetchone()
+
                         check_url_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
                         check_url = await check_url_cursor.fetchall()
+
                         if url not in [i[0] for i in check_url]:
                             status_is_active = await check_count_cars_active(tel_id)
                             is_active = 1 if status_is_active else 0
                             await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active)
-                                                 VALUES ('{check_id[0]}', '{url}', 0, {is_active})""")
+                                                 VALUES (?, ?, ?, ?)""", (check_id[0], url, 0, is_active))
                             await db.commit()
                             await bot.send_message(
                                 tel_id, TXT['msg_added_url'].format(url=url), disable_web_page_preview=True)

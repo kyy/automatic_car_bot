@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
 
 from logic.constant import CF, PAGINATION
-from logic.func import decode_filter_short, pagination, check_count_cars_active
+from logic.func import decode_filter_short, pagination, check_count_cars_active, check_count_filters_active
 from logic.text import TXT
 
 
@@ -68,13 +68,17 @@ bot_functions_kb = InlineKeyboardMarkup(
 
 async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка фильтров
+    tel_id = callback.from_user.id
+
+    status_filters_active = await check_count_filters_active(tel_id)
+
     help_callback = f"params_menu_help_show_{cur_page}" if help_flag is True else f"params_menu_help_hide_{cur_page}"
     help_text = TXT["btn_show_help"] if help_flag is True else TXT["btn_hide_help"]
-    user_id = callback.from_user.id
+
     search_params_cursor = await db.execute(
         f"SELECT udata.search_param, udata.is_active, udata.id FROM user "
         f"INNER JOIN udata on user.id = udata.user_id "
-        f"WHERE user.tel_id = {user_id}"
+        f"WHERE user.tel_id = {tel_id}"
     )
     search_params = await search_params_cursor.fetchall()
     buttons = []
@@ -89,7 +93,7 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
                 InlineKeyboardButton(text=decode_filter_short(i[0][7:]), callback_data=f"f_{i[2]}_show"),
                 InlineKeyboardButton(
                     text=str(i[1]).replace("1", TXT["btn_off"]).replace("0", TXT["btn_on"]),
-                    callback_data=f"f_{i[2]}_{cur_page}_{i[1]}",
+                    callback_data=f"f_{i[2]}_{cur_page}_{status_filters_active}_{i[1]}",
                 ),
                 InlineKeyboardButton(text=TXT["btn_delete"], callback_data=f"f_{i[2]}_{del_pages}_del"),
             ]
@@ -137,9 +141,9 @@ def delete_message_kb():
 
 async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     # меню списка слежки
-    user_id = callback.from_user.id
+    tel_id = callback.from_user.id
 
-    status_cars_active = await check_count_cars_active(user_id)
+    status_cars_active = await check_count_cars_active(tel_id)
 
     help_callback = f"stalk_menu_help_show_{cur_page}" if help_flag is True else f"stalk_menu_help_hide_{cur_page}"
     help_text = TXT["btn_show_help"] if help_flag is True else TXT["btn_hide_help"]
@@ -147,7 +151,7 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     search_params_cursor = await db.execute(
         f"SELECT ucars.url, ucars.is_active, ucars.id FROM user "
         f"INNER JOIN ucars on user.id = ucars.user_id "
-        f"WHERE user.tel_id = {user_id}"
+        f"WHERE user.tel_id = {tel_id}"
     )
     search_params = await search_params_cursor.fetchall()
     buttons = []

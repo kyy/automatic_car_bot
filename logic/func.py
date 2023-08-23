@@ -6,7 +6,7 @@ from aiocache import cached, Cache
 
 from logic.constant import (SS, MOTOR_DICT, FSB, ROOT, MM, SUBS_CARS_ADD_LIMIT, CARS_ADD_LIMIT, SUBS_FILTER_ADD_LIMIT,
                             FILTER_ADD_LIMIT, SUBS_CARS_ADD_LIMIT_ACTIVE, CARS_ADD_LIMIT_ACTIVE,
-                            SUBS_FILTER_ADD_LIMIT_ACTIVE, FILTER_ADD_LIMIT_ACTIVE)
+                            SUBS_FILTER_ADD_LIMIT_ACTIVE, FILTER_ADD_LIMIT_ACTIVE, SB)
 from logic.cook_url import all_get_url
 from logic.database.config import database
 from logic.parse_sites.abw_by import count_cars_abw
@@ -266,6 +266,30 @@ def pagination(data: iter, name: str, ikb, per_page=3, cur_page=1):
     return data, buttons, del_page
 
 
+async def valid_params_filter_on_save(tel_id, data, bot):
+    price_from = data['chosen_cost_min']
+    price_to = data['chosen_cost_max']
+    dimension_from = data['chosen_dimension_min']
+    dimension_to = data['chosen_dimension_max']
+    year_from = data['chosen_year_from']
+    year_to = data['chosen_year_to']
+    price_from = get_cost()[0] if price_from == SB else price_from
+    price_to = get_cost()[-1] if price_to == SB else price_to
+    dimension_from = get_dimension()[0] if dimension_from == SB else dimension_from
+    dimension_to = get_dimension()[-1] if dimension_to == SB else dimension_to
+    year_from = get_years()[0] if year_from == SB else year_from
+    year_to = get_years()[-1] if year_to == SB else year_to
+
+    status = all([int(price_from) < int(price_to),
+            float(dimension_from) <= float(dimension_to),
+            int(year_from) <= int(year_to)])
+
+    if not status:
+        await bot.send_message(tel_id, TXT['msg_wrong_filter'])
+
+    return status
+
+
 async def check_subs(user_id: int) -> bool:
     """
     Проверяем истекла ли подписка
@@ -326,60 +350,58 @@ async def off_is_active(max_urls: int = 5, max_filters: int = 5) -> None:
         await db.commit()
 
 
-async def check_count_cars(u_id, bot):
+async def check_count_cars(tel_id, bot):
     """
     Подсчитываем кол-во ссылок пользвателя в отслеживании цен проверяем лимиты
-    :param u_id: телеграм id
+    :param tel_id: телеграм id
     :return: True если можно сохранить
     """
     async with database() as db:
         user_cursor = await db.execute(f"""SELECT COUNT(ucars.id), user.vip FROM ucars
                                             INNER JOIN user on user.id = ucars.user_id
-                                            WHERE user.tel_id = {u_id}""")
+                                            WHERE user.tel_id = {tel_id}""")
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
         vip = 0 if vip is None else vip
         status = True if vip == 1 and count < SUBS_CARS_ADD_LIMIT or vip == 0 and count < CARS_ADD_LIMIT else False
-        limit = SUBS_CARS_ADD_LIMIT if vip == 1 else CARS_ADD_LIMIT
         message = TXT['msg_limit_subs'] if vip == 1 else TXT['msg_limit']
         if not status:
-            await bot.send_message(u_id, message.format(limit=limit), disable_web_page_preview=True)
+            await bot.send_message(tel_id, message, disable_web_page_preview=True)
         return status
 
 
-async def check_count_filters(u_id, bot):
+async def check_count_filters(tel_id, bot):
     """
     Подсчитываем кол-во фильтров пользвателя проверяем лимиты
-    :param u_id: телеграм id
+    :param tel_id: телеграм id
     :return: True если можно сохранить
     """
     async with database() as db:
         user_cursor = await db.execute(f"""SELECT COUNT(udata.id), user.vip FROM udata
                                             INNER JOIN user on user.id = udata.user_id
-                                            WHERE user.tel_id = {u_id}""")
+                                            WHERE user.tel_id = {tel_id}""")
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
         vip = 0 if vip is None else vip
         status = True if vip == 1 and count < SUBS_FILTER_ADD_LIMIT or vip == 0 and count < FILTER_ADD_LIMIT else False
-        limit = SUBS_FILTER_ADD_LIMIT if vip == 1 else FILTER_ADD_LIMIT
         message = TXT['msg_limit_subs'] if vip == 1 else TXT['msg_limit']
         if not status:
-            await bot.send_message(u_id, message.format(limit=limit), disable_web_page_preview=True)
+            await bot.send_message(tel_id, message, disable_web_page_preview=True)
         return status
 
 
-async def check_count_cars_active(u_id):
+async def check_count_cars_active(tel_id):
     """
     Отключает новые добавленные машины если лимит превышен
-    :param u_id: телеграм id
+    :param tel_id: телеграм id
     :return: True если можно сохранить
     """
     async with database() as db:
         user_cursor = await db.execute(f"""SELECT COUNT(ucars.id), user.vip FROM ucars
                                             INNER JOIN user on user.id = ucars.user_id
-                                            WHERE user.tel_id = {u_id} AND ucars.is_active = 1""")
+                                            WHERE user.tel_id = {tel_id} AND ucars.is_active = 1""")
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
@@ -388,16 +410,16 @@ async def check_count_cars_active(u_id):
         return status
 
 
-async def check_count_filters_active(u_id):
+async def check_count_filters_active(tel_id):
     """
     Отключает новые добавленные фильтры если лимит превышен
-    :param u_id: телеграм id
+    :param tel_id: телеграм id
     :return: True если можно сохранить
     """
     async with database() as db:
         user_cursor = await db.execute(f"""SELECT COUNT(udata.id), user.vip FROM udata
                                             INNER JOIN user on user.id = udata.user_id
-                                            WHERE user.tel_id = {u_id} AND udata.is_active = 1""")
+                                            WHERE user.tel_id = {tel_id} AND udata.is_active = 1""")
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
