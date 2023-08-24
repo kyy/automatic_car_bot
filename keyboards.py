@@ -191,7 +191,28 @@ add_stalk_kb = InlineKeyboardMarkup(
 
 def donate_kb():
     # меню доната
-    buttons = [[InlineKeyboardButton(
-        text="сделать перевод",
-        url="https://yoomoney.ru/to/4100118330778097")]]
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="сделать перевод",
+                url="https://yoomoney.ru/to/4100118330778097")
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def asky_kb():
+    # меню поделится ботом
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="Поделится в Telegram",
+                url="https://t.me/share/url?url=https://t.me/Automaticcarbot")
+        ],
+        [
+            InlineKeyboardButton(
+                text="Поделится в Vkontakte",
+                url="https://vk.com/share.php?url=https://t.me/Automaticcarbot")
+        ],
+    ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
