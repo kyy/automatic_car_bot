@@ -1,6 +1,5 @@
 from datetime import datetime as datatime_datatime
 
-import pyperclip
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery

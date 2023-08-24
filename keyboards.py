@@ -216,3 +216,20 @@ def asky_kb():
         ],
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def asky_kb():
+    # меню поделится ботом
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="Поделится в Telegram",
+                url="https://t.me/share/url?url=https://t.me/Automaticcarbot")
+        ],
+        [
+            InlineKeyboardButton(
+                text="Поделится в Vkontakte",
+                url="https://vk.com/share.php?url=https://t.me/Automaticcarbot")
+        ],
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)

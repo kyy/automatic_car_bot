@@ -8,7 +8,8 @@ async def create_tables(db):
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
             tel_id TEXT (0, 128),
             vip INT DEFAULT 0,
-            subs TEXT(0, 16) DEFAULT NULL
+            subs TEXT(0, 16) DEFAULT NULL,
+            ref INT DEFAULT 0
             );
             
             CREATE TABLE udata(
