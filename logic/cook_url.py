@@ -86,7 +86,6 @@ async def get_url_av(car_input, db, work):
     if work is True:
         new_part.append("creation_date=10")
     full_url = f"https://api.av.by/offer-types/cars/filters/main/init?{new_part_url}"
-    print(full_url)
     return full_url
 
 
@@ -178,7 +177,6 @@ async def get_url_abw(car_input, db):
             param.remove(FSB)  # удаляем '?' если не выбраны все модели
         new_part_url = "/".join(param)
         full_url = f"https://b.abw.by/api/adverts/cars/list/{new_part_url}"
-        print(full_url)
         return full_url
     else:
         return None
@@ -253,7 +251,6 @@ async def get_url_onliner(car_input, db):
         new_part.append("price[currency]=USD")
         new_part_url = "&".join(new_part)
         full_url = f"https://ab.onliner.by/sdapi/ab.api/search/vehicles?{new_part_url}"
-        print(full_url)
         return full_url
     else:
         return None
@@ -349,7 +346,6 @@ async def get_url_kufar(car_input, db, work):
     )
     if car_input["cmdl2="] != FSB:
         full_url = full_url.replace("cbnd2=&", "")
-    print(full_url)
     return full_url
 
 

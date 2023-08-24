@@ -1,7 +1,7 @@
 from datetime import datetime
 
 MM = dict(
-    MIN_YEAR=1990,
+    MIN_YEAR=2000,
     MAX_YEAR=datetime.now().year,
     MIN_DIM=1,
     MAX_DIM=9,
@@ -11,19 +11,21 @@ MM = dict(
     STEP_COST=2500,
 )
 
-WORK_PARSE_CARS_DELTA = 1  # частота проверки новых объявллений в часах
+WORK_PARSE_CARS_DELTA = 2  # частота проверки новых объявллений в часах
 WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часах
 
-REPORT_PARSE_LIMIT_PAGES = 4  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)
+REPORT_PARSE_LIMIT_PAGES = 2  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)
 PARSE_LIMIT_PAGES = 4  # лимит страниц парсиинга (1стр = 25 машин)
 
 CARS_ADD_LIMIT = 10
 FILTER_ADD_LIMIT = 10
+
 FILTER_ADD_LIMIT_ACTIVE = 5
 CARS_ADD_LIMIT_ACTIVE = 5
 
 SUBS_CARS_ADD_LIMIT = 50
 SUBS_FILTER_ADD_LIMIT = 50
+
 SUBS_FILTER_ADD_LIMIT_ACTIVE = 15
 SUBS_CARS_ADD_LIMIT_ACTIVE = 15
 
