@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import qrcode
 from fpdf import FPDF, ViewerPreferences
+import logging
 
 
 class PDF(FPDF):
@@ -172,6 +173,10 @@ async def do_pdf(
         filter_full="<filter full>",
         filter_short="<filter code>",
 ):
+
+    logging.getLogger('fontTools.subset').level = logging.WARN
+    logging.getLogger('fontTools.ttLib.ttFont').level = logging.WARN
+
     if get_data(message, name):
         data, col_names, links = get_data(message, name)
         pdf = PDF(orientation="L", unit="mm", format="A4")
