@@ -94,7 +94,7 @@ class Work:
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,
@@ -110,7 +110,7 @@ class Work:
              minute={30},
              max_tries=3,
              timeout=900,
-             run_at_startup=True),
+             run_at_startup=False),
     ]
 
 

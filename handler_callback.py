@@ -70,13 +70,10 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
         car_code = code_filter_short(c)
 
         async with database() as db:
-            check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{tel_id}'")
-            check_id = await check_id_cursor.fetchone()
-            if check_id is None:
-                await db.execute(f"INSERT INTO user (tel_id) VALUES ('{tel_id}')")
             user_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{tel_id}'")
             id_user = await user_id_cursor.fetchone()
-            check_filter_cursor = await db.execute(f"SELECT search_param FROM udata WHERE user_id = '{id_user[0]}'")
+            id_user = id_user[0]
+            check_filter_cursor = await db.execute(f"SELECT search_param FROM udata WHERE user_id = '{id_user}'")
             check_filter = await check_filter_cursor.fetchall()
 
             if car_code not in [i[0] for i in check_filter]:

@@ -1,21 +1,19 @@
 import logging
-
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
-
 from commands import commands
 from keyboards import start_menu_kb, donate_kb, asky_kb
+from logic.database.config import database
 from logic.text import TXT
+
 
 router = Router()
 
 
-async def all_commands(allcommands):
-    c_list = []
-    [(c_list.append(cmd.command)) for cmd in allcommands]
-    return "   ".join(c_list)
+def refer_id(text):
+    return text.split(' ')[1] if len(text.split()) > 1 else None
 
 
 @router.message(Command(commands=["start"]))
@@ -23,13 +21,26 @@ async def all_commands(allcommands):
 @router.message((F.text.casefold() == "start") | (F.text.casefold() == "s"))
 async def cmd_start(message: Message, state: FSMContext):
     current_state = await state.get_state()
-    if current_state != "CreateCar:show_filter":
-        logging.info("Cancelling state %r", current_state)
-        await state.set_state(None)
-        await state.clear()
-        await message.answer(TXT["info_start_menu"], reply_markup=start_menu_kb(True))
-    elif current_state == "CreateCar:show_filter":
-        await message.answer(TXT["msg_reset_error"], reply_markup=ReplyKeyboardRemove())
+    await state.clear()
+    logging.info("Cancelling state %r", current_state)
+    await message.answer(TXT["info_start_menu"], reply_markup=start_menu_kb(True))
+
+    text = message.text
+    ref_id = int(message.text.split(' ')[1]) if len(text.split()) > 1 else None
+    tel_id = message.from_user.id
+
+    async with database() as db:
+        check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{tel_id}'")
+        check_id = await check_id_cursor.fetchone()
+        if check_id is None:
+            await db.execute(
+                f"INSERT INTO user (tel_id) VALUES ({tel_id})")
+            logging.info("Added new user %r", tel_id)
+        elif ref_id:
+            await db.execute(f"UPDATE user SET ref = ref + 1 WHERE tel_id = {ref_id}")
+            logging.info("Reffered by %r", ref_id)
+
+        await db.commit()
 
 
 @router.message(Command(commands=["help"]))
@@ -53,4 +64,12 @@ async def cmd_help(message: Message):
 @router.message(Command(commands=["t"]))
 @router.message((F.text.casefold() == "tell") | (F.text.casefold() == "t"))
 async def cmd_help(message: Message):
-    await message.answer(TXT['info_asky'], parse_mode="HTML", reply_markup=asky_kb())
+    tel_id = message.from_user.id
+    async with database() as db:
+        ref_cursor = await db.execute(f"""SELECT ref FROM user WHERE tel_id = {tel_id}""")
+        ref = await ref_cursor.fetchone()
+        ref = ref[0]
+    await message.answer(
+        TXT['info_asky'].format(tel_id=tel_id, ref=ref),
+        parse_mode="HTML",
+        reply_markup=asky_kb(tel_id))

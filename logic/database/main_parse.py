@@ -186,7 +186,7 @@ def parse():
 
 def main_parse(lenn):
     if os.path.exists(f'{folder}av_brands.npy'):
-        if not all([checking_new_brands_av(), checking_new_models_av(lenn)]):
+        if any([checking_new_brands_av(), checking_new_models_av(lenn)]):
             print('Начинаем обновления')
             parse()
             return True
