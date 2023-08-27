@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
 
 from logic.constant import CF, PAGINATION
@@ -195,7 +195,9 @@ def donate_kb():
         [
             InlineKeyboardButton(
                 text="сделать перевод",
-                url="https://yoomoney.ru/to/4100118330778097")
+                web_app=WebAppInfo(url="https://yoomoney.ru/to/4100118330778097"),
+            ),
+
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)

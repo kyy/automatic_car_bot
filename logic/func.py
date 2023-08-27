@@ -3,16 +3,15 @@ from functools import lru_cache
 import numpy as np
 from aiocache import cached, Cache
 
-from logic.constant import (SS, MOTOR_DICT, FSB, ROOT, MM, SUBS_CARS_ADD_LIMIT, CARS_ADD_LIMIT, SUBS_FILTER_ADD_LIMIT,
+from logic.constant import (SS, MOTOR_DICT, FSB, MM, SUBS_CARS_ADD_LIMIT, CARS_ADD_LIMIT, SUBS_FILTER_ADD_LIMIT,
                             FILTER_ADD_LIMIT, SUBS_CARS_ADD_LIMIT_ACTIVE, CARS_ADD_LIMIT_ACTIVE,
                             SUBS_FILTER_ADD_LIMIT_ACTIVE, FILTER_ADD_LIMIT_ACTIVE, SB)
-from logic.cook_url import all_get_url
+from logic.cook_url import all_json, all_html
 from logic.database.config import database
 from logic.parse_sites.abw_by import count_cars_abw
 from logic.parse_sites.av_by import count_cars_av
 from logic.parse_sites.kufar_by import count_cars_kufar
 from logic.parse_sites.onliner_by import count_cars_onliner
-from .decorators import timed_lru_cache
 from .text import TXT
 
 
@@ -27,20 +26,6 @@ def get_count_cars(json):
         all_abw=all_cars_abw,
         all_onliner=all_cars_onliner,
         all_kufar=all_cars_kufar,
-    )
-
-
-def get_search_links(cars, json):
-    # сслыки на страницы с фильтром поиска
-    av_link = av_url_filter(json['av_json'])
-    onliner_link = onliner_url_filter(cars, json['onliner_json'])
-    kufar_link = kufar_url_filter(json['kufar_json'])
-    abw_link = abw_url_filter(json['abw_json'])
-    return dict(
-        av_link=av_link,
-        onliner_link=onliner_link,
-        abw_link=abw_link,
-        kufar_link=kufar_link,
     )
 
 
@@ -60,80 +45,14 @@ async def filter_import(callback, db):
 
 async def car_multidata(cars):
     # cars - фильтр-код
-    json = await all_get_url(cars)
+    json = await all_json(cars)
     count = get_count_cars(json)
-    link = get_search_links(cars, json)
+    link = all_html(cars, json)
     return dict(
         json=json,
         count=count,
         link=link,
     )
-
-
-@timed_lru_cache(300)
-def av_url_filter(av_link_json):
-    if av_link_json is None:
-        return ROOT['AV']
-    return f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
-
-
-@timed_lru_cache(300)
-def onliner_url_filter(car_input, onliner_link_json):
-    """
-    Ссылка на сайт
-    :param car_input:фильтр-код 
-    :param onliner_link_json: ссылка на json
-    :return: 
-    """
-    if onliner_link_json is None:
-        return ROOT['ONLINER']
-    try:
-        car = car_input.split(SS)
-        brand, model = car[0:2]
-        brands: dict = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
-        link = onliner_link_json.split('vehicles?')[1]
-        brand_slug = brands[brand][1]
-        if model != FSB:
-            models: dict = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
-            model_slug = models[brand][model][2]
-            url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
-        else:
-            url = f'https://ab.onliner.by/{brand_slug}?{link}'
-        return url
-    except Exception as e:
-        print('[func.onliner_url_filter]', e)
-        return ROOT['ONLINER']
-
-
-@timed_lru_cache(300)
-def kufar_url_filter(kufar_link_json):
-    if kufar_link_json is None:
-        return ROOT['KUFAR']
-    try:
-        kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
-        kufar_link = kuf[1].replace('_', '-').replace('.model', '')
-        kufar_link1, kufar_link2 = kufar_link, ''
-        if '&' in kufar_link:
-            kufar_link = kufar_link.split('&', 1)
-            kufar_link1, kufar_link2 = kufar_link[0], kufar_link[1]
-        kuf = kuf[0].split('/')[-1] \
-            .replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
-        kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
-        return kufar_link
-    except Exception as e:
-        print('[func.kufar_url_filter]', e)
-        return ROOT['KUFAR']
-
-
-def abw_url_filter(abw_link_json):
-    if abw_link_json is None:
-        return ROOT['ABW']
-    try:
-        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-        return abw_link
-    except Exception as e:
-        print('[func.abw_url_filter]', e)
-        return ROOT['ABW']
 
 
 @cached(ttl=300, cache=Cache.MEMORY, key='brands', namespace="get_brands")
@@ -280,8 +199,8 @@ async def valid_params_filter_on_save(tel_id, data, bot):
     year_to = get_years()[-1] if year_to == SB else year_to
 
     status = all([int(price_from) < int(price_to),
-            float(dimension_from) <= float(dimension_to),
-            int(year_from) <= int(year_to)])
+                  float(dimension_from) <= float(dimension_to),
+                  int(year_from) <= int(year_to)])
 
     if not status:
         await bot.send_message(tel_id, TXT['msg_wrong_filter'])
@@ -303,11 +222,9 @@ async def check_subs(user_id: int) -> bool:
         return True if data_now < subscription_data else False
 
 
-async def off_is_active(max_urls: int = 5, max_filters: int = 5) -> None:
+async def off_is_active() -> None:
     """
     Отключаем включенные фильтры и ссылки не более значений max_...
-    :param max_urls: максимальное кол-во ссылок
-    :param max_filters:  максимальное кол-во фильтров
     :return:
     """
     async with database() as db:
@@ -326,7 +243,7 @@ async def off_is_active(max_urls: int = 5, max_filters: int = 5) -> None:
                     INNER JOIN user on user.id = ucars.user_id
                     WHERE  ucars.is_active = 1 AND vip = 0
                 )
-        WHERE RowNum > {max_urls}
+        WHERE RowNum > {CARS_ADD_LIMIT_ACTIVE}
         );
         
         UPDATE udata SET is_active = 0
@@ -343,7 +260,7 @@ async def off_is_active(max_urls: int = 5, max_filters: int = 5) -> None:
                     INNER JOIN user on user.id = udata.user_id
                     WHERE  udata.is_active = 1 AND vip = 0
                 )
-        WHERE RowNum > {max_filters}
+        WHERE RowNum > {FILTER_ADD_LIMIT_ACTIVE}
         ) 
         """)
         await db.commit()
@@ -425,4 +342,3 @@ async def check_count_filters_active(tel_id):
         vip = 0 if vip is None else vip
         status = True if vip == 1 and count < SUBS_FILTER_ADD_LIMIT_ACTIVE or vip == 0 and count < FILTER_ADD_LIMIT_ACTIVE else False
         return status
-

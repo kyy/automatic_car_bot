@@ -1,8 +1,6 @@
 from datetime import datetime
-
 import requests
-
-from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON
+from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON, ROOT
 from logic.decorators import timed_lru_cache
 
 

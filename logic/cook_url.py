@@ -4,7 +4,7 @@ from datetime import datetime
 import numpy as np
 
 from logic.decorators import timed_lru_cache
-from .constant import SS, FSB, REPORT_PARSE_LIMIT_PAGES, PARSE_LIMIT_PAGES, MM
+from .constant import SS, FSB, REPORT_PARSE_LIMIT_PAGES, PARSE_LIMIT_PAGES, MM, ROOT
 from .database.config import database
 
 
@@ -349,7 +349,7 @@ async def get_url_kufar(car_input, db, work):
     return full_url
 
 
-async def all_get_url(link, work=False):
+async def all_json(link, work=False):
     async with database() as db:
         return dict(
             av_json=asyncio.run(get_url_av(link, db, work)),
@@ -357,3 +357,88 @@ async def all_get_url(link, work=False):
             onliner_json=asyncio.run(get_url_onliner(link, db)),
             kufar_json=asyncio.run(get_url_kufar(link, db, work)),
         )
+
+
+@timed_lru_cache(300)
+def onliner_url_filter(car_input, onliner_link_json):
+    """
+    Ссылка на сайт
+    :param car_input:фильтр-код
+    :param onliner_link_json: ссылка на json
+    :return:
+    """
+    if onliner_link_json is None:
+        return ROOT['ONLINER']
+    try:
+        car = car_input.split(SS)
+        brand, model = car[0:2]
+        brands: dict = np.load('logic/database/parse/onliner_brands.npy', allow_pickle=True).item()
+        link = onliner_link_json.split('vehicles?')[1]
+        brand_slug = brands[brand][1]
+        if model != FSB:
+            models: dict = np.load('logic/database/parse/onliner_models.npy', allow_pickle=True).item()
+            model_slug = models[brand][model][2]
+            url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
+        else:
+            url = f'https://ab.onliner.by/{brand_slug}?{link}'
+        return url
+    except Exception as e:
+        print('[cook_url.onliner_url_filter]', e)
+        return ROOT['ONLINER']
+
+
+@timed_lru_cache(300)
+def av_url_filter(av_link_json):
+    return ROOT['AV'] if av_link_json is None else f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
+
+
+@timed_lru_cache(300)
+def kufar_url_filter(kufar_link_json):
+    if kufar_link_json is None:
+        return ROOT['KUFAR']
+    try:
+        kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
+        kufar_link = kuf[1].replace('_', '-').replace('.model', '')
+        kufar_link1, kufar_link2 = kufar_link, ''
+        if '&' in kufar_link:
+            kufar_link = kufar_link.split('&', 1)
+            kufar_link1, kufar_link2 = kufar_link[0], kufar_link[1]
+        kuf = kuf[0].split('/')[-1] \
+            .replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
+        kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
+        return kufar_link
+    except Exception as e:
+        print('[cook_url.kufar_url_filter]', e)
+        return ROOT['KUFAR']
+
+
+@timed_lru_cache(300)
+def abw_url_filter(abw_link_json):
+    if abw_link_json is None:
+        return ROOT['ABW']
+    try:
+        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
+        return abw_link
+    except Exception as e:
+        print('[cook_url.abw_url_filter]', e)
+        return ROOT['ABW']
+
+
+def all_html(filter, json):
+    """
+    Получаем ссылки на человекочитаемые страницы
+    :param filter: фильтр код из бд
+    :param json: словарь с ссылками на json
+    :return:
+    """
+    # сслыки на страницы с фильтром поиска
+    av_link = av_url_filter(json['av_json'])
+    onliner_link = onliner_url_filter(filter, json['onliner_json'])
+    kufar_link = kufar_url_filter(json['kufar_json'])
+    abw_link = abw_url_filter(json['abw_json'])
+    return dict(
+        av_link=av_link,
+        onliner_link=onliner_link,
+        abw_link=abw_link,
+        kufar_link=kufar_link,
+    )

@@ -12,7 +12,7 @@ from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
-from logic.cook_url import all_get_url
+from logic.cook_url import all_json, all_html
 from logic.database.config import database
 from logic.database.data_migrations import lenn, main as update
 from logic.database.main_parse import main_parse as up
@@ -25,20 +25,21 @@ async def update_database(ctx):
 
 
 async def reset_subs(ctx):
-    await off_is_active(max_urls=2, max_filters=2)
+    await off_is_active()
 
 
 async def parse_cars(ctx, item, work):
-    car, tel_id, name = item[1][7:], item[0], item[2]
-    json = await all_get_url(car, work)
-    await cars(json, tel_id, name, work, send_car_job)
+    filter, tel_id, name = item[1][7:], item[0], item[2]
+    json = await all_json(filter, work)
+    html = all_html(filter, json)
+    await cars(json, html, tel_id, name, work, send_car_job)
 
 
 async def parse_cars_job(ctx):
     redis = await create_pool(RedisSettings())
     async with database() as db:
         select_filters_cursor = await db.execute(
-            f" SELECT user.tel_id, udata.search_param, udata.id FROM udata "  # noqa  
+            f"SELECT user.tel_id, udata.search_param, udata.id FROM udata "  # noqa  
             f"INNER JOIN user on user.id = udata.user_id "
             f"WHERE udata.is_active = 1 "
             f"ORDER BY udata.id ")
@@ -94,7 +95,7 @@ class Work:
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=False),
+             run_at_startup=True),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,

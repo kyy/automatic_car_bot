@@ -1,5 +1,4 @@
 from typing import Callable, Dict, Any, Awaitable
-from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
@@ -9,10 +8,10 @@ from aiogram.utils.chat_action import ChatActionSender
 
 class ChatActionMiddleware(BaseMiddleware):
     async def __call__(
-        self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
-        event: CallbackQuery,
-        data: Dict[str, Any],
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: CallbackQuery,
+            data: Dict[str, Any],
     ) -> Any:
         long_operation_type = get_flag(data, "long_operation")
         bot = data["bot"]

@@ -22,21 +22,37 @@
 import asyncio
 
 import aiosqlite
+import requests
 
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES
 from logic.database.config import database
+from logic.func import kufar_url_filter, abw_url_filter
 
-tel_id = 32344234
-ref_id = 514390056
-async def gg():
-    async with database() as db:
-        check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{tel_id}'")
-        check_id = await check_id_cursor.fetchone()
-        if check_id is None:
-            await db.executescript(
-                f"INSERT INTO user (tel_id) VALUES ({tel_id});"
-                f"UPDATE user SET ref = ref + 1 WHERE tel_id = {ref_id};")
-            await db.commit()
+url = 'https://b.abw.by/api/adverts/cars/list/brand_audi/model_a6/engine_benzin,dizel,gibrid,sug/transmission_at,mt/year_2000:2023/price_500:100000/volume_1000:9000/?sort=new'
+
+
+def html_links_abw(url=url, work=True):
+    url_html = abw_url_filter(url)
+    print(url_html)
+    try:
+        links_to_html = []
+        r = requests.get(url, headers=HEADERS).json()
+        page_count = r["pagination"]["pages"]
+        links_to_html.append(url_html)
+        i = 1
+        limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
+        if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
+            page_count = limit_page  # - - - - - - ограничение вывода страниц
+            while page_count > 1:
+                i += 1
+                links_to_html.append(f"{url_html}?page={i}")
+                page_count -= 1
+        print(links_to_html)
+        return links_to_html
+    except Exception as e:
+        print(e)
+        return False
 
 
 if __name__ == '__main__':
-    asyncio.run(gg())
+    html_links_abw()

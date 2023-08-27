@@ -20,7 +20,8 @@ async def json_urls():
             SELECT url, id FROM ucars
             WHERE LOWER(url) LIKE 'https://ab.onliner.by/%' AND is_active = 1""")
         onliner_urls = await onliner_urls_cursor.fetchall()
-        onliner_urls = [(f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1]}", i[1]) for i in onliner_urls]
+        onliner_urls = [(f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1]}", i[1]) for i in
+                        onliner_urls]
         return [*av_urls, *onliner_urls]
 
 
@@ -133,7 +134,6 @@ async def check_price(result):
         base_data = await data_cursor.fetchall()
         for car in result:
             for row in (row for row in base_data if row[2] == car[1] and row[3] != car[0]):
-                print(row)
                 if row[3] != 0:
                     await bot.send_message(row[0],
                                            f'Старая цена - {row[3]}$\n'

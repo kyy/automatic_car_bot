@@ -83,7 +83,7 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
 
                 await db.executemany(
                     "INSERT INTO udata(user_id, search_param, is_active) "
-                    "VALUES (?, ?, ?)", [(id_user[0], car_code, is_active), ])
+                    "VALUES (?, ?, ?)", [(id_user, car_code, is_active), ])
                 await db.commit()
                 await state.set_state(None)
                 await callback.message.edit_text(
@@ -214,9 +214,9 @@ async def report_search(callback: CallbackQuery):
     multidata = await car_multidata(cars)
     name_time_stump = (str(datatime_datatime.now())).replace(':', '.')
     try:
-        await parse_main(multidata['json'], tel_id=tel_id, name=name_time_stump)
+        await parse_main(multidata['json'], multidata['link'], tel_id=tel_id, name=name_time_stump)
     except Exception as e:
-        print(e, 'handler_control_callback.report_search.parse_main')
+        print(e, 'handler_callback.report_search.parse_main')
         return await bot.send_message(tel_id, TXT['msg_error'])
     async with database() as db:
         await callback.message.edit_text(TXT['info_filter_menu'],

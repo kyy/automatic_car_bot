@@ -1,6 +1,6 @@
 import requests
-
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES
+from logic.cook_url import abw_url_filter
 from logic.decorators import timed_lru_cache
 
 
@@ -34,6 +34,30 @@ def json_links_abw(url):
     except Exception as e:
         print(e)
         return False
+
+
+def html_links_abw(json, html, work):
+    try:
+        links_to_html = []
+        r = requests.get(json, headers=HEADERS).json()
+        page_count = r["pagination"]["pages"]
+        links_to_html.append(html)
+        i = 1
+        limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
+        if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
+            page_count = limit_page  # - - - - - - ограничение вывода страниц
+            while page_count > 1:
+                i += 1
+                links_to_html.append(f"{html}?page={i}")
+                page_count -= 1
+        return links_to_html
+    except Exception as e:
+        print(e)
+        return False
+
+
+def html_parse_abw(html_data, url, work):
+    return print(10 * '  /test/  ')
 
 
 def json_parse_abw(json_data, work):
