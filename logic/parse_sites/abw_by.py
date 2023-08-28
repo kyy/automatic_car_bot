@@ -3,7 +3,7 @@ from datetime import datetime
 import requests
 from lxml import etree
 
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES, WORK_PARSE_CARS_DELTA
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES
 from logic.decorators import timed_lru_cache
 
 
@@ -28,7 +28,7 @@ def json_links_abw(url):
         links_to_json.append(url)
         i = 1
         if page_count >= REPORT_PARSE_LIMIT_PAGES:  # - - - - - - ограничение вывода страниц
-            page_count = REPORT_PARSE_LIMIT_PAGES   # - - - - - - ограничение вывода страниц
+            page_count = REPORT_PARSE_LIMIT_PAGES  # - - - - - - ограничение вывода страниц
             while page_count > 1:
                 i += 1
                 links_to_json.append(f"{url}?page={i}")
@@ -44,6 +44,7 @@ def html_links_abw(html, work):
         links_to_html = []
         r = requests.get(html, headers=HEADERS).text
         dom = etree.HTML(str(r))
+
         cars = int(dom.xpath('//*[@class="list-proposal__quantity-bold"]/text()')[0].replace('\xa0', ''))
         page_count = cars // 20 if cars % 20 == 0 else cars // 20 + 1
 
@@ -51,7 +52,7 @@ def html_links_abw(html, work):
         i = 1
         limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
         if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
-            page_count = limit_page   # - - - - - - ограничение вывода страниц
+            page_count = limit_page  # - - - - - - ограничение вывода страниц
             while page_count > 1:
                 i += 1
                 links_to_html.append(f"{html}?page={i}")
@@ -70,16 +71,17 @@ def html_parse_abw(dom, work):
     for i in range(ln):
 
         brand = dom.xpath('//*[@class="classified-card__title"]/text()')[i].split(', ')[0]
-        price = dom.xpath('//*[@class="classified-card__usd"]/text()')[i].replace(' ', '').replace('≈', '').replace('USD', '')
+        price = dom.xpath('//*[@class="classified-card__usd"]/text()')[i].replace(' ', '').replace('≈', '').replace(
+            'USD', '')
         city = dom.xpath('//*[@class="classified-card__city"]/text()')[i]
         km = dom.xpath('//*[@class="classified-card__description"]/text()[1]')[i].replace(' км', '')
         info = dom.xpath('//*[@class="classified-card__description"]/text()[2]')[i].split(' / ')
-        year = info[0]
-        dimension = info[1].split(' ')[0]
-        motor = info[2]
-        transmission = info[3]
-        drive = info[4]
-        id_car = dom.xpath('//*[@class="lower-controls"]/button/@id')[i]
+        year = info[0].replace(' ', '').replace('г.', '')
+        dimension = info[1].split(' ')[0].replace('дизель', '').replace('бензин', '')
+        drive = info[-2]
+        transmission = info[-3]
+        motor = info[-4]
+        id_car = dom.xpath('//*[@class="lower-controls"]/button[1]/@id')[i]
         url = f'https://abw.by/cars/detail/{id_car}'
         data = dom.xpath('//*[@class="lower-time"]/text()')[i]
         published = ''
@@ -89,11 +91,12 @@ def html_parse_abw(dom, work):
         vin = ''
         exchange = ''
 
-        if work is True: pass
-            # fresh_minutes = datetime.now() - datetime.strptime(published, "%Y-%m-%dT%H:%M")
-            # fresh_minutes = fresh_minutes.total_seconds() / 60
-            # if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + 180:
-            #     car.append([str(url), str(price)])
+        if work is True:
+            pass
+        # fresh_minutes = datetime.now() - datetime.strptime(published, "%Y-%m-%dT%H:%M")
+        # fresh_minutes = fresh_minutes.total_seconds() / 60
+        # if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + 180:
+        #     car.append([str(url), str(price)])
 
         else:
             car.append(
@@ -116,6 +119,7 @@ def html_parse_abw(dom, work):
                     str(city),
                 ]
             )
+    return car
 
 
 def json_parse_abw(json_data, work):

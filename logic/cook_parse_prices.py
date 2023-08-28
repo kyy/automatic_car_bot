@@ -81,10 +81,13 @@ async def get_one_html(url, session, result):
         else:
             page_content = await response.text()
             page_content = etree.HTML(str(page_content))
+
             if url.split('/')[2] == ROOT['ABW'].split('/')[2]:
                 item = html_parse_abw(page_content, url)
+
             if url.split('/')[2] == ROOT['KUFAR'].split('/')[2]:
                 item = html_parse_kufar(page_content, url)
+
             result += item
 
 

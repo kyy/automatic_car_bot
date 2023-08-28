@@ -18,13 +18,9 @@ def count_cars_kufar(url):
 
 @timed_lru_cache(300)
 def json_links_kufar(url):
-    return (
-        [
-            url,
-        ]
-        if url
-        else False
-    )
+    if url == ROOT['KUFAR']:
+        return False
+    return [url, ] if url else False
 
 
 def json_parse_kufar(json_data, work):

@@ -30,16 +30,6 @@ def urls_json(json, work):
     return cars
 
 
-def urls_html(html, work):
-    abw = html["abw_link"]
-
-    cars = []
-
-    if abw:
-        cars.extend([*html_links_abw(abw, work)])
-    return cars
-
-
 async def bound_fetch_json(semaphore, url, session, result, work):
     try:
         async with semaphore:
@@ -68,35 +58,45 @@ async def get_one_json(url, session, result, work):
         result += item
 
 
+def urls_html(html, work):
+    abw = html["abw_link"]
+
+    cars = []
+
+    if abw and abw != ROOT['ABW']:
+        cars.extend([*html_links_abw(abw, work)])
+    return cars
+
+
 async def bound_fetch_html(semaphore, url, session, result, work):
     # try:
-        async with semaphore:
-            await get_one_html(url, session, result, work)
-    # except Exception as e:
-    #     print(e, "[cook_parse_cars.bound_fetch_html]")
-    #     print(url)
-    #     # Блокируем все таски на <> секунд в случае ошибки 429.
-    #     await asyncio.sleep(1)
+    async with semaphore:
+        await get_one_html(url, session, result, work)
+
+
+# except Exception as e:
+#     print(e, "[cook_parse_cars.bound_fetch_html]")
+#     print(url)
+#     # Блокируем все таски на <> секунд в случае ошибки 429.
+#     await asyncio.sleep(1)
 
 
 async def get_one_html(url, session, result, work):
     async with session.get(url) as response:
-        print(url)
-        print(response.status)
-        if response.status == 404:
-            pass
-        else:
-            page_content = await response.text()
-            page_content = etree.HTML(str(page_content))
-            print(page_content)
-            if url.split('/')[2] == ROOT['ABW'].split('/')[2]:
-                item = html_parse_abw(page_content, work)
+        # if response.status == 404:
+        #     pass
+        # else:
+        page_content = await response.text()
+        page_content = etree.HTML(str(page_content))
 
-            result += item
+        if url.split('/')[2] == ROOT['ABW'].split('/')[2]:
+            item = html_parse_abw(page_content, work)
+        result += item
 
 
 async def run(json, html, result, work):
     tasks = []
+
     semaphore = asyncio.Semaphore(20)
     async with ClientSession(headers=HEADERS) as session:
         if json:
@@ -107,9 +107,8 @@ async def run(json, html, result, work):
             for url in html:
                 task = asyncio.ensure_future(bound_fetch_html(semaphore, url, session, result, work))
                 tasks.append(task)
-        # Ожидаем завершения всех наших задач.
+
         await asyncio.gather(*tasks)
-        await session.close()
 
 
 async def parse_main(json, html, tel_id, name, work=False, send_car_job=None):
@@ -123,8 +122,12 @@ async def parse_main(json, html, tel_id, name, work=False, send_car_job=None):
     :return: result список машин с параметрами [[],[]...]
     """
     result = []
+
+    json_links = urls_json(json, work)
+    html_links = urls_html(html, work)
+
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(urls_json(json, work=work), urls_html(html, work=work), result, work))
+    future = asyncio.ensure_future(run(json_links, html_links, result, work))
     loop.run_until_complete(future)
     if work is True:
         await send_car_job(tel_id, result)

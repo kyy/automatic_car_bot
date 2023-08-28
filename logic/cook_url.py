@@ -397,16 +397,19 @@ def kufar_url_filter(kufar_link_json):
     if kufar_link_json is None:
         return ROOT['KUFAR']
     try:
-        kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
-        kufar_link = kuf[1].replace('_', '-').replace('.model', '')
-        kufar_link1, kufar_link2 = kufar_link, ''
-        if '&' in kufar_link:
-            kufar_link = kufar_link.split('&', 1)
-            kufar_link1, kufar_link2 = kufar_link[0], kufar_link[1]
-        kuf = kuf[0].split('/')[-1] \
-            .replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
-        kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
-        return kufar_link
+        if '=category_2010.mark_' in kufar_link_json:
+            kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
+            kufar_link = kuf[1].replace('_', '-').replace('.model', '')
+            kufar_link1, kufar_link2 = kufar_link, ''
+            if '&' in kufar_link:
+                kufar_link = kufar_link.split('&', 1)
+                kufar_link1, kufar_link2 = kufar_link[0], kufar_link[1]
+            kuf = kuf[0].split('/')[-1] \
+                .replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
+            kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
+            return kufar_link
+        else:
+            return ROOT['KUFAR']
     except Exception as e:
         print('[cook_url.kufar_url_filter]', e)
         return ROOT['KUFAR']
