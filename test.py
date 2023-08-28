@@ -1,6 +1,16 @@
-# import random
-# from datetime import datetime, timedelta
-#
+import random
+from datetime import datetime, timedelta
+
+from lxml import etree
+
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES
+from logic.cook_url import abw_url_filter
+from logic.database.config import database
+import asyncio
+import aiosqlite
+import requests
+
+
 # data_now = datetime.today().date()  # сегодняшняя дата
 # subscription_days = timedelta(days=900)  # купленные дни
 # subscription_data = data_now + subscription_days  # пишем в БД дату окончнаия
@@ -19,39 +29,63 @@
 #
 # sequence = 1, 2, 3
 # a = random.choice(sequence)
-import asyncio
 
-import aiosqlite
-import requests
 
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES
-from logic.database.config import database
-from logic.func import kufar_url_filter, abw_url_filter
 
-url = 'https://b.abw.by/api/adverts/cars/list/brand_audi/model_a6/engine_benzin,dizel,gibrid,sug/transmission_at,mt/year_2000:2023/price_500:100000/volume_1000:9000/?sort=new'
+url = 'https://abw.by/cars/engine_benzin,dizel,gibrid,sug/transmission_at,mt/year_2000:2023/price_500:100000/volume_1000:9000?sort=new'
 
 
 def html_links_abw(url=url, work=True):
-    url_html = abw_url_filter(url)
-    print(url_html)
-    try:
-        links_to_html = []
-        r = requests.get(url, headers=HEADERS).json()
-        page_count = r["pagination"]["pages"]
-        links_to_html.append(url_html)
-        i = 1
-        limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
-        if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
-            page_count = limit_page  # - - - - - - ограничение вывода страниц
-            while page_count > 1:
-                i += 1
-                links_to_html.append(f"{url_html}?page={i}")
-                page_count -= 1
-        print(links_to_html)
-        return links_to_html
-    except Exception as e:
-        print(e)
-        return False
+
+    car = []
+
+    r = requests.get(url, headers=HEADERS).text
+    dom = etree.HTML(str(r))
+
+    ln = len(dom.xpath('//*[@class="classified-card__title"]'))
+
+    for i in range(ln):
+
+        brand = dom.xpath('//*[@class="classified-card__title"]/text()')[i].split(', ')[0]
+        price = dom.xpath('//*[@class="classified-card__usd"]/text()')[i].replace(' ', '').replace('≈', '').replace('USD', '')
+        city = dom.xpath('//*[@class="classified-card__city"]/text()')[i]
+        km = dom.xpath('//*[@class="classified-card__description"]/text()[1]')[i].replace(' км', '')
+        info = dom.xpath('//*[@class="classified-card__description"]/text()[2]')[i].split(' / ')
+        year = info[0]
+        dimension = info[1].split(' ')[0]
+        motor = info[2]
+        transmission = info[3]
+        drive = info[4]
+        id_car = dom.xpath('//*[@class="lower-controls"]/button/@id')[i]
+        url = f'https://abw.by/cars/detail/{id_car}'
+        data = dom.xpath('//*[@class="lower-time"]/text()')[i]
+        days = ''
+        typec = ''
+        color = ''
+        vin = ''
+        exchange = ''
+        car.append(
+            [
+                str(url),
+                "comment",
+                str(brand),
+                str(price),
+                str(motor),
+                str(dimension),
+                str(transmission),
+                str(km),
+                str(year),
+                str(typec),
+                str(drive),
+                str(color),
+                str(vin),
+                str(exchange),
+                str(days),
+                str(city),
+            ]
+        )
+    count = int(dom.xpath('//*[@class="list-proposal__quantity-bold"]/text()')[0].replace('\xa0', ''))
+    print(count)
 
 
 if __name__ == '__main__':

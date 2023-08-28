@@ -6,7 +6,7 @@ from aiohttp import ClientSession
 
 from .constant import HEADERS, API, ROOT
 
-from .parse_sites.abw_by import json_parse_abw, html_links_abw, html_parse_abw
+from .parse_sites.abw_by import html_links_abw, html_parse_abw
 from .parse_sites.av_by import json_parse_av, json_links_av
 from .parse_sites.kufar_by import json_links_kufar, json_parse_kufar
 from .parse_sites.onliner_by import json_parse_onliner, json_links_onliner
@@ -30,14 +30,13 @@ def urls_json(json, work):
     return cars
 
 
-def urls_html(json, html, work):
-    abw_h = html["abw_link"]
-    abw_j = json["abw_json"]
+def urls_html(html, work):
+    abw = html["abw_link"]
 
     cars = []
 
-    if abw_h and abw_j:
-        cars.extend([*html_links_abw(abw_j, abw_h, work)])
+    if abw:
+        cars.extend([*html_links_abw(abw, work)])
     return cars
 
 
@@ -54,36 +53,44 @@ async def bound_fetch_json(semaphore, url, session, result, work):
 
 async def get_one_json(url, session, result, work):
     async with session.get(url) as response:
+
         page_content = await response.json()
+
         if url.split("/")[2] == API["AV"]:
             item = json_parse_av(page_content, work)
+
         elif url.split("/")[2] == API["ONLINER"]:
-            item = json_parse_abw(page_content, work)
+            item = json_parse_onliner(page_content, work)
+
         elif url.split("/")[2] == API["KUFAR"]:
             item = json_parse_kufar(page_content, work)
+
         result += item
 
 
 async def bound_fetch_html(semaphore, url, session, result, work):
-    try:
+    # try:
         async with semaphore:
             await get_one_html(url, session, result, work)
-    except Exception as e:
-        print(e, "[cook_parse_cars.bound_fetch_html]")
-        print(url)
-        # Блокируем все таски на <> секунд в случае ошибки 429.
-        await asyncio.sleep(1)
+    # except Exception as e:
+    #     print(e, "[cook_parse_cars.bound_fetch_html]")
+    #     print(url)
+    #     # Блокируем все таски на <> секунд в случае ошибки 429.
+    #     await asyncio.sleep(1)
 
 
 async def get_one_html(url, session, result, work):
     async with session.get(url) as response:
+        print(url)
+        print(response.status)
         if response.status == 404:
             pass
         else:
             page_content = await response.text()
             page_content = etree.HTML(str(page_content))
+            print(page_content)
             if url.split('/')[2] == ROOT['ABW'].split('/')[2]:
-                item = html_parse_abw(page_content, url, work)
+                item = html_parse_abw(page_content, work)
 
             result += item
 
@@ -117,7 +124,7 @@ async def parse_main(json, html, tel_id, name, work=False, send_car_job=None):
     """
     result = []
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(urls_json(json, work=work), urls_html(json, html, work=work), result, work))
+    future = asyncio.ensure_future(run(urls_json(json, work=work), urls_html(html, work=work), result, work))
     loop.run_until_complete(future)
     if work is True:
         await send_car_job(tel_id, result)

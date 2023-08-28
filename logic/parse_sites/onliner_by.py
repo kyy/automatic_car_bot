@@ -12,7 +12,7 @@ def count_cars_onliner(url):
         r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r["total"])
     except Exception as e:
-        print(e, "[parse_sites.onliner_by.count_cars_onliner]")
+        print(e, "[onliner_by.count_cars_onliner]")
         return 0
 
 
@@ -24,7 +24,7 @@ def json_links_onliner(url, work):
         page_count = r["page"]["last"]
         limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
         if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
-            page_count = limit_page  # - - - - - - для отчета
+            page_count = limit_page   # - - - - - - для отчета
         links_to_json.append(url)
         i = 1
         while page_count > 1:
@@ -33,7 +33,7 @@ def json_links_onliner(url, work):
             page_count -= 1
         return links_to_json
     except Exception as e:
-        print(e)
+        print(e, "[onliner_by.json_links_onliner]")
         return False
 
 

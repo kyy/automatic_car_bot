@@ -2,7 +2,7 @@ import logging
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message
 from commands import commands
 from keyboards import start_menu_kb, donate_kb, asky_kb
 from logic.database.config import database
@@ -10,10 +10,6 @@ from logic.text import TXT
 
 
 router = Router()
-
-
-def refer_id(text):
-    return text.split(' ')[1] if len(text.split()) > 1 else None
 
 
 @router.message(Command(commands=["start"]))
