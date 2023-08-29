@@ -84,6 +84,7 @@ def html_parse_abw(dom, work):
         id_car = dom.xpath('//*[@class="lower-controls"]/button[1]/@id')[i]
         url = f'https://abw.by/cars/detail/{id_car}'
         data = dom.xpath('//*[@class="lower-time"]/text()')[i]
+
         published = ''
         days = ''
         typec = ''
