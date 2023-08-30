@@ -1,6 +1,7 @@
 import random
 from datetime import datetime, timedelta
 
+from aiohttp import ClientSession
 from lxml import etree
 
 from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES
@@ -28,28 +29,52 @@ import requests
 #
 # sequence = 1, 2, 3
 # a = random.choice(sequence)
+from logic.parse_sites.abw_by import html_links_abw, html_links_cars_abw
 
 
-url = 'https://abw.by/cars/engine_benzin,dizel,gibrid,sug/transmission_at,mt/year_2000:2023/price_500:100000/volume_1000:9000?sort=new'
-
-data = '2 часов назад'
-
-
-def html_links_abw(data: str):
-    data_split = data.split(' ')
-    num = data_split[0]
-    if '' \
-       'секунд' in data:
-        return 0
-    elif 'несколько минут' in data:
-        return 1
-    elif 'минут' in data and type(int(num)) is int:
-        return int(num)
-    elif 'часов' in data and type(int(num)) is int:
-        return int(num) * 60
-    elif 'дней' in data and type(int(num)) is int:
-        return int(num) * 60 * 24
+def urls_html(html, work):
+    cars = []
+    return cars
 
 
+async def bound_fetch_html(semaphore, url, session, result):
+    async with semaphore:
+        async with session.get(url) as response:
+            page_content = await response.text()
+            page_content = etree.HTML(str(page_content))
+            pages = html_links_abw(abw, work)
+            item = ([*html_links_cars_abw(pages)])
+            result += item
+
+
+
+async def run(html, result, work):
+    tasks = []
+
+    semaphore = asyncio.Semaphore(20)
+    async with ClientSession(headers=HEADERS) as session:
+        if html:
+            for url in html:
+                task = asyncio.ensure_future(bound_fetch_html(semaphore, url, session, result, work))
+                tasks.append(task)
+
+        await asyncio.gather(*tasks)
+
+
+async def parse_main(json, html, tel_id, name, work=False, send_car_job=None):
+
+    result = []
+
+
+    html_links = urls_html(html, work)
+
+    loop = asyncio.get_event_loop()
+    future = asyncio.ensure_future(run(html_links, result, work))
+    loop.run_until_complete(future)
+    if work is True:
+        await send_car_job(tel_id, result)
+    else:
+        np.save(f"logic/buffer/{name}.npy", result)
+    return result
 if __name__ == '__main__':
-    print(html_links_abw(data))
+    pass

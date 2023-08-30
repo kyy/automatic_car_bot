@@ -1,11 +1,9 @@
 import asyncio
 import logging
 import os
-
 from aiogram.types import FSInputFile
 from arq import create_pool, cron, run_worker
 from arq.connections import RedisSettings
-
 from classes import bot
 from keyboards import car_message_kb, delete_message_kb
 from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA
@@ -89,13 +87,13 @@ class Work:
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=False),
+             run_at_startup=True),
 
         # проверка цен
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,

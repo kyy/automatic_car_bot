@@ -6,7 +6,7 @@ from aiohttp import ClientSession
 
 from .constant import HEADERS, API, ROOT
 
-from .parse_sites.abw_by import html_links_abw, html_parse_abw
+from .parse_sites.abw_by import html_links_abw, html_parse_abw, html_links_cars_abw
 from .parse_sites.av_by import json_parse_av, json_links_av
 from .parse_sites.kufar_by import json_links_kufar, json_parse_kufar
 from .parse_sites.onliner_by import json_parse_onliner, json_links_onliner
@@ -64,7 +64,9 @@ def urls_html(html, work):
     cars = []
 
     if abw and abw != ROOT['ABW']:
-        cars.extend([*html_links_abw(abw, work)])
+        pages = html_links_abw(abw, work)
+        cars.extend([*html_links_cars_abw(pages)])
+
     return cars
 
 

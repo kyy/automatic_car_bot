@@ -1,10 +1,63 @@
-from datetime import datetime
-
 import requests
 from lxml import etree
-
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES, WORK_PARSE_CARS_DELTA
 from logic.decorators import timed_lru_cache
+from datetime import datetime, timedelta
+
+
+def abw_data(data: str):
+    mon = {
+        'Сентября': 'Sep',
+        'Октября': 'Oct',
+        'Ноября': 'Nov',
+        'Декабря': 'Dec',
+        'Января': 'Jan',
+        'Февраля': 'Feb',
+        'Марта': "Mar",
+        'Апреля': 'Apr',
+        'Мая': 'May',
+        'Июня': 'Jun',
+        'Июля': 'Jul',
+        'Августа': 'Aug',
+    }
+    wee = {
+        'Понедельник': 1,
+        'Вторник': 2,
+        'Среда': 3,
+        'Четверг': 4,
+        'Пятница': 5,
+        'Суббота': 6,
+        'Воскресенье': 7,
+    }
+    d = datetime.today()
+    data_split = data.split(' ')
+    num = data_split[0].replace(',', '')
+    num1 = data_split[1]
+    num2 = data_split[-1]
+    if 'секунд' in data:
+        d = d
+    elif 'несколько минут' in data:
+        d = d - timedelta(minutes=2)
+    elif 'минут' in data and type(int(num)) is int:
+        d = d - timedelta(minutes=int(num))
+    elif 'часов' in data and type(int(num)) is int:
+        d = d - timedelta(hours=int(num))
+    elif 'дней' in data and type(int(num)) is int:
+        d = d - timedelta(days=int(num))
+    elif 'Сегодня' in data:
+        h, m = num2.split(':')
+        d = d - timedelta(hours=int(h), minutes=int(m))
+    elif 'Вчера' in data:
+        h, m = num2.split(':')
+        d = d - timedelta(days=1, hours=int(h), minutes=int(m))
+    elif num in [i for i in wee.keys()]:
+        h, m = num2.split(':')
+        days = d.isoweekday() - wee[num]
+        d = d - timedelta(days=days, hours=int(h), minutes=int(m))
+    elif num1 in [i for i in mon.keys()]:
+        data = data.replace(num1, mon[num1])
+        d = datetime.strptime(data, '%d %b %Y')
+    return d
 
 
 @timed_lru_cache(300)
@@ -63,63 +116,74 @@ def html_links_abw(html, work):
         return False
 
 
+def html_links_cars_abw(pages):
+    links_to_html = []
+    for i in pages:
+        r = requests.get(i, headers=HEADERS).text
+        dom = etree.HTML(str(r))
+        ln = len(dom.xpath('//*[@class="classified-card__title"]'))
+        for j in range(ln):
+            id_car = dom.xpath('//*[@class="lower-controls"]/button[1]/@id')[j]
+            url = f'https://abw.by/cars/detail/{id_car}'
+            links_to_html.append(url)
+    return links_to_html
+
+
 def html_parse_abw(dom, work):
     car = []
 
-    ln = len(dom.xpath('//*[@class="classified-card__title"]'))
+    brand = dom.xpath('//*[@class="header-title"]/text()')[0].split(', ')[0].replace('Продажа ', '')
+    price = dom.xpath('//*[@class="price-usd"]/text()')[0].replace(' ', '').replace('≈', '').replace('USD', '')
+    city = dom.xpath('//*[@class="city"]/text()')[0]
+    km = dom.xpath('//*[@class="description"]/text()[1]')[0].replace(' км', '')
+    info = dom.xpath('//*[@class="description"]/text()[2]')[0].split(' / ')
 
-    for i in range(ln):
+    year = info[0].replace(' ', '').replace('г.', '')
+    dimension = info[1].split(' ')[0].replace('дизель', '').replace('бензин', '')
+    drive = info[-2]
+    transmission = info[-3]
+    motor = info[-4]
 
-        brand = dom.xpath('//*[@class="classified-card__title"]/text()')[i].split(', ')[0]
-        price = dom.xpath('//*[@class="classified-card__usd"]/text()')[i].replace(' ', '').replace('≈', '').replace(
-            'USD', '')
-        city = dom.xpath('//*[@class="classified-card__city"]/text()')[i]
-        km = dom.xpath('//*[@class="classified-card__description"]/text()[1]')[i].replace(' км', '')
-        info = dom.xpath('//*[@class="classified-card__description"]/text()[2]')[i].split(' / ')
-        year = info[0].replace(' ', '').replace('г.', '')
-        dimension = info[1].split(' ')[0].replace('дизель', '').replace('бензин', '')
-        drive = info[-2]
-        transmission = info[-3]
-        motor = info[-4]
-        id_car = dom.xpath('//*[@class="lower-controls"]/button[1]/@id')[i]
-        url = f'https://abw.by/cars/detail/{id_car}'
-        data = dom.xpath('//*[@class="lower-time"]/text()')[i]
+    id_car = dom.xpath('//*[@class="controls"]/button[1]/@id')[0]
+    url = f'https://abw.by/cars/detail/{id_car}'
 
-        published = ''
-        days = ''
-        typec = ''
-        color = ''
-        vin = ''
-        exchange = ''
+    data = dom.xpath('//*[@class="header-actions"]/text()')[0]
+    # published = abw_data(data)
+    # days = (datetime.now() - published).days
+    days = ''
+    typec = ''
+    color = ''
+    vin = ''
+    exchange = ''
 
-        if work is True:
-            pass
-        # fresh_minutes = datetime.now() - datetime.strptime(published, "%Y-%m-%dT%H:%M")
-        # fresh_minutes = fresh_minutes.total_seconds() / 60
-        # if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + 180:
+    if work is True:pass
+        # fresh_minutes = (datetime.now() - published).total_seconds() / 60
+        # if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
+        #     print(data, published)
+        #     print(fresh_minutes)
         #     car.append([str(url), str(price)])
 
-        else:
-            car.append(
-                [
-                    str(url),
-                    "comment",
-                    str(brand),
-                    str(price),
-                    str(motor),
-                    str(dimension),
-                    str(transmission),
-                    str(km),
-                    str(year),
-                    str(typec),
-                    str(drive),
-                    str(color),
-                    str(vin),
-                    str(exchange),
-                    str(days),
-                    str(city),
-                ]
-            )
+    else:
+        car.append(
+            [
+                str(url),
+                "comment",
+                str(brand),
+                str(price),
+                str(motor),
+                str(dimension),
+                str(transmission),
+                str(km),
+                str(year),
+                str(typec),
+                str(drive),
+                str(color),
+                str(vin),
+                str(exchange),
+                str(days),
+                str(city),
+            ]
+        )
     return car
 
 
