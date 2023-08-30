@@ -3,7 +3,7 @@ from datetime import datetime
 import requests
 
 from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, ROOT
-from logic.decorators import timed_lru_cache
+from logic.decorators import timed_lru_cache, timeit
 
 
 @timed_lru_cache(300)

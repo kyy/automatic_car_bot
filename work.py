@@ -10,7 +10,7 @@ from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
-from logic.cook_url import all_json, all_html
+from logic.cook_url import all_json
 from logic.database.config import database
 from logic.database.data_migrations import lenn, main as update
 from logic.database.main_parse import main_parse as up
@@ -29,8 +29,7 @@ async def reset_subs(ctx):
 async def parse_cars(ctx, item, work):
     filter, tel_id, name = item[1][7:], item[0], item[2]
     json = await all_json(filter, work)
-    html = all_html(filter, json)
-    await cars(json, html, tel_id, name, work, send_car_job)
+    await cars(json, tel_id, name, work, send_car_job)
 
 
 async def parse_cars_job(ctx):

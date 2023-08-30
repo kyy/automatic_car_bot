@@ -216,7 +216,8 @@ async def report_search(callback: CallbackQuery):
     # try:
     json_links = multidata['json']
     html_links = multidata['link']
-    await parse_main(json=json_links, html=html_links, tel_id=tel_id, name=name_time_stump)
+    cars_count = multidata['count']
+    await parse_main(json=json_links, tel_id=tel_id, name=name_time_stump)
     # except Exception as e:
     #     print(e, 'handler_callback.report_search.parse_main')
     #     return await bot.send_message(tel_id, TXT['msg_error'])
@@ -225,7 +226,7 @@ async def report_search(callback: CallbackQuery):
                                          reply_markup=await params_menu_kb(callback, db, True),
                                          disable_web_page_preview=True,
                                          parse_mode="HTML", )
-    link_count = dict(link=multidata['link'], count=multidata['count'])
+    link_count = dict(link=html_links, count=cars_count)
     await bot.send_message(tel_id, TXT['msg_cooking_rep'])
     await send_pdf_job(tel_id, link_count, name_time_stump, decode_filter_short(cars), filter_name)
 

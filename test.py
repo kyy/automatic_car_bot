@@ -31,50 +31,5 @@ import requests
 # a = random.choice(sequence)
 from logic.parse_sites.abw_by import html_links_abw, html_links_cars_abw
 
-
-def urls_html(html, work):
-    cars = []
-    return cars
-
-
-async def bound_fetch_html(semaphore, url, session, result):
-    async with semaphore:
-        async with session.get(url) as response:
-            page_content = await response.text()
-            page_content = etree.HTML(str(page_content))
-            pages = html_links_abw(abw, work)
-            item = ([*html_links_cars_abw(pages)])
-            result += item
-
-
-
-async def run(html, result, work):
-    tasks = []
-
-    semaphore = asyncio.Semaphore(20)
-    async with ClientSession(headers=HEADERS) as session:
-        if html:
-            for url in html:
-                task = asyncio.ensure_future(bound_fetch_html(semaphore, url, session, result, work))
-                tasks.append(task)
-
-        await asyncio.gather(*tasks)
-
-
-async def parse_main(json, html, tel_id, name, work=False, send_car_job=None):
-
-    result = []
-
-
-    html_links = urls_html(html, work)
-
-    loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(html_links, result, work))
-    loop.run_until_complete(future)
-    if work is True:
-        await send_car_job(tel_id, result)
-    else:
-        np.save(f"logic/buffer/{name}.npy", result)
-    return result
 if __name__ == '__main__':
     pass

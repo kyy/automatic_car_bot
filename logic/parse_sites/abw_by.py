@@ -1,7 +1,10 @@
+import asyncio
+
 import requests
+from aiohttp import ClientSession
 from lxml import etree
 from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES, WORK_PARSE_CARS_DELTA
-from logic.decorators import timed_lru_cache
+from logic.decorators import timed_lru_cache, timeit, logger
 from datetime import datetime, timedelta
 
 
@@ -93,39 +96,38 @@ def json_links_abw(url):
 
 
 def html_links_abw(html, work):
-    try:
-        links_to_html = []
-        r = requests.get(html, headers=HEADERS).text
-        dom = etree.HTML(str(r))
-
-        cars = int(dom.xpath('//*[@class="list-proposal__quantity-bold"]/text()')[0].replace('\xa0', ''))
-        page_count = cars // 20 if cars % 20 == 0 else cars // 20 + 1
-
-        links_to_html.append(html)
-        i = 1
-        limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
-        if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
-            page_count = limit_page  # - - - - - - ограничение вывода страниц
-            while page_count > 1:
-                i += 1
-                links_to_html.append(f"{html}?page={i}")
-                page_count -= 1
-        return links_to_html
-    except Exception as e:
-        print(e, '[abw_by.html_links_abw]')
-        return False
-
-
-def html_links_cars_abw(pages):
+    # try:
     links_to_html = []
-    for i in pages:
-        r = requests.get(i, headers=HEADERS).text
-        dom = etree.HTML(str(r))
-        ln = len(dom.xpath('//*[@class="classified-card__title"]'))
-        for j in range(ln):
-            id_car = dom.xpath('//*[@class="lower-controls"]/button[1]/@id')[j]
-            url = f'https://abw.by/cars/detail/{id_car}'
-            links_to_html.append(url)
+    r = requests.get(html, headers=HEADERS).text
+    dom = etree.HTML(str(r))
+
+    cars = int(dom.xpath('//*[@class="list-proposal__quantity-bold"]/text()')[0].replace('\xa0', ''))
+    page_count = cars // 20 if cars % 20 == 0 else cars // 20 + 1
+
+    links_to_html.append(html)
+    i = 1
+    limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
+    if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
+        page_count = limit_page  # - - - - - - ограничение вывода страниц
+        while page_count > 1:
+            i += 1
+            links_to_html.append(f"{html}?page={i}")
+            page_count -= 1
+    return links_to_html
+
+
+# except Exception as e:
+#     print(e, '[abw_by.html_links_abw]')
+#     return False
+
+
+def html_links_cars_abw(dom):
+    links_to_html = []
+    ln = len(dom.xpath('//*[@class="classified-card__title"]'))
+    for j in range(ln):
+        id_car = dom.xpath('//*[@class="lower-controls"]/button[1]/@id')[j]
+        url = f'https://abw.by/cars/detail/{id_car}'
+        links_to_html.append(url)
     return links_to_html
 
 
@@ -148,20 +150,19 @@ def html_parse_abw(dom, work):
     url = f'https://abw.by/cars/detail/{id_car}'
 
     data = dom.xpath('//*[@class="header-actions"]/text()')[0]
-    # published = abw_data(data)
-    # days = (datetime.now() - published).days
     days = ''
     typec = ''
     color = ''
     vin = ''
     exchange = ''
 
-    if work is True:pass
-        # fresh_minutes = (datetime.now() - published).total_seconds() / 60
-        # if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
-        #     print(data, published)
-        #     print(fresh_minutes)
-        #     car.append([str(url), str(price)])
+    if work is True:
+        pass
+    # fresh_minutes = (datetime.now() - published).total_seconds() / 60
+    # if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
+    #     print(data, published)
+    #     print(fresh_minutes)
+    #     car.append([str(url), str(price)])
 
     else:
         car.append(
@@ -228,3 +229,34 @@ def json_parse_abw(json_data, work):
         if work is True:
             pass
     return car
+
+
+async def bf(semaphore, url, session, result):
+    async with semaphore:
+        async with session.get(url) as response:
+            page_content = await response.text()
+            page_content = etree.HTML(str(page_content))
+            item = ([*html_links_cars_abw(page_content)])
+            result += item
+
+
+async def run(html, result):
+    tasks = []
+    semaphore = asyncio.Semaphore(20)
+    async with ClientSession(headers=HEADERS) as session:
+        if html:
+            for url in html:
+                task = asyncio.ensure_future(bf(semaphore, url, session, result))
+                tasks.append(task)
+        await asyncio.gather(*tasks)
+
+
+async def parse_pages_abw(html, work):
+    result = []
+
+    html_links = html_links_abw(html, work)
+
+    loop = asyncio.get_event_loop()
+    future = asyncio.ensure_future(run(html_links, result))
+    loop.run_until_complete(future)
+    return result
