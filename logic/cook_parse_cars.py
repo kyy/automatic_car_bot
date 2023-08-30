@@ -37,16 +37,14 @@ def urls_json(json, work):
 
 
 async def bound_fetch_json(semaphore, url, session, result, work):
-    # try:
-    async with semaphore:
-        await get_one_json(url, session, result, work)
-
-
-# except Exception as e:
-#     print(e, "[cook_parse_cars.bound_fetch_json]")
-#     print(url)
-#     # Блокируем все таски на <> секунд в случае ошибки 429.
-#     await asyncio.sleep(1)
+    try:
+        async with semaphore:
+            await get_one_json(url, session, result, work)
+    except Exception as e:
+        print(e, "[cook_parse_cars.bound_fetch_json]")
+        print(url)
+        # Блокируем все таски на <> секунд в случае ошибки 429.
+        await asyncio.sleep(1)
 
 
 async def get_one_json(url, session, result, work):
