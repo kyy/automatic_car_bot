@@ -86,7 +86,7 @@ class Work:
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # проверка цен
         cron(parse_prices_job,

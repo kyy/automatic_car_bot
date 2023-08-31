@@ -161,25 +161,29 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
         search_params, pagination_buttons, del_page = pagination(
             data=search_params, name="stalk", ikb=InlineKeyboardButton, per_page=PAGINATION, cur_page=cur_page
         )
+
         buttons = [
             [
                 InlineKeyboardButton(text=" ".join(i[0].split("/")[3:]), url=i[0], callback_data=f"s_{i[2]}_show"),
-                InlineKeyboardButton(
-                    text=str(i[1]).replace("1", TXT["btn_off"]).replace("0", TXT["btn_on"]),
-                    callback_data=f"s_{i[2]}_{cur_page}_{status_cars_active}_{i[1]}",
-                ),
-                InlineKeyboardButton(text=TXT["btn_delete"], callback_data=f"s_{i[2]}_{del_page}_del"),
+
+                InlineKeyboardButton(text=str(i[1]).replace("1", TXT["btn_off"]).replace("0", TXT["btn_on"]),
+                                     callback_data=f"s_{i[2]}_{cur_page}_{status_cars_active}_{i[1]}"),
+
+                InlineKeyboardButton(text=TXT["btn_delete"], callback_data=f"s_{i[2]}_{del_page}_del")
             ]
             for i in search_params
         ]
         buttons.append(pagination_buttons)
+
     buttons.append([InlineKeyboardButton(text=TXT["btn_add_stalk_url"], callback_data="add_stalk")])
+
     buttons.append(
         [
             InlineKeyboardButton(text=TXT["btn_back"], callback_data="start_menu_help_hide"),
             InlineKeyboardButton(text=help_text, callback_data=help_callback),
         ]
     )
+
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 

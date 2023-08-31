@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import requests
@@ -12,7 +13,7 @@ def count_cars_av(url):
         r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r["count"])
     except Exception as e:
-        print(e, ["logic.parse_sites.av_by.count_cars_av"])
+        logging.error(f'<count_cars_av> {e}')
         return 0
 
 
@@ -33,7 +34,7 @@ def json_links_av(url, work):
             page_count -= 1
         return links_to_json
     except Exception as e:
-        print(e)
+        logging.error(f'<json_links_av> {e}')
         return False
 
 

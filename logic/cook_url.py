@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from datetime import datetime
 
 import numpy as np
@@ -26,7 +27,7 @@ def max_min_params(car_input):
 
 
 @timed_lru_cache(300)
-async def get_url_av(car_input, db, work):
+async def get_url_av(car_input, db):
     """
     Формируем гет запрос для av.by
     :param car_input: filter_short
@@ -82,10 +83,10 @@ async def get_url_av(car_input, db, work):
     for key in car_input:
         if car_input[key] != FSB:
             new_part.append(str(key) + str(car_input[key]))
+    new_part.append('&sort=4')
     new_part_url = "&".join(new_part)
-    if work is True:
-        new_part.append("creation_date=10")
     full_url = f"https://api.av.by/offer-types/cars/filters/main/init?{new_part_url}"
+    logging.info(f'<JSON> {full_url}')
     return full_url
 
 
@@ -177,6 +178,7 @@ async def get_url_abw(car_input, db):
             param.remove(FSB)  # удаляем '?' если не выбраны все модели
         new_part_url = "/".join(param)
         full_url = f"https://b.abw.by/api/adverts/cars/list/{new_part_url}"
+        logging.info(f'<JSON> {full_url}')
         return full_url
     else:
         return None
@@ -251,6 +253,7 @@ async def get_url_onliner(car_input, db):
         new_part.append("price[currency]=USD")
         new_part_url = "&".join(new_part)
         full_url = f"https://ab.onliner.by/sdapi/ab.api/search/vehicles?{new_part_url}"
+        logging.info(f'<JSON> {full_url}')
         return full_url
     else:
         return None
@@ -314,13 +317,14 @@ async def get_url_kufar(car_input, db, work):
     )
     if car_input["cmdl2="] != FSB:
         full_url = full_url.replace("cbnd2=&", "")
+    logging.info(f'<JSON> {full_url}')
     return full_url
 
 
 async def all_json(link, work=False):
     async with database() as db:
         return dict(
-            av_json=asyncio.run(get_url_av(link, db, work)),
+            av_json=asyncio.run(get_url_av(link, db)),
             abw_json=asyncio.run(get_url_abw(link, db)),
             onliner_json=asyncio.run(get_url_onliner(link, db)),
             kufar_json=asyncio.run(get_url_kufar(link, db, work)),
@@ -349,21 +353,28 @@ def onliner_url_filter(car_input, onliner_link_json):
             url = f'https://ab.onliner.by/{brand_slug}/{model_slug}?{link}'
         else:
             url = f'https://ab.onliner.by/{brand_slug}?{link}'
+        logging.info(f'<HTML> {url}')
         return url
     except Exception as e:
-        print('[cook_url.onliner_url_filter]', e)
+        logging.error(f'<onliner_url_filter> {e}')
         return ROOT['ONLINER']
 
 
 @timed_lru_cache(300)
 def av_url_filter(av_link_json):
-    return ROOT['AV'] if av_link_json is None else f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
+    url = ROOT['AV']
+    try:
+        url = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
+        logging.info(f'<HTML> {url}')
+    except Exception as e:
+        logging.error(f'<av_url_filter> {e}')
+        return url
+    return url
 
 
 @timed_lru_cache(300)
 def kufar_url_filter(kufar_link_json):
-    if kufar_link_json is None:
-        return ROOT['KUFAR']
+    kufar_link = ROOT['KUFAR']
     try:
         if '=category_2010.mark_' in kufar_link_json:
             kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
@@ -375,24 +386,23 @@ def kufar_url_filter(kufar_link_json):
             kuf = kuf[0].split('/')[-1] \
                 .replace('rendered-paginated?cat=2010', '').replace('&typ=sell', '').replace('&cur=USD', '')
             kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
-            return kufar_link
-        else:
-            return ROOT['KUFAR']
     except Exception as e:
-        print('[cook_url.kufar_url_filter]', e)
+        logging.error(f'<kufar_url_filter> {e}')
         return ROOT['KUFAR']
+    logging.info(f'<HTML> {kufar_link}')
+    return kufar_link
 
 
 @timed_lru_cache(300)
 def abw_url_filter(abw_link_json):
-    if abw_link_json is None:
-        return ROOT['ABW']
+    url = ROOT['ABW']
     try:
-        abw_link = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
-        return abw_link
+        url = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
     except Exception as e:
-        print('[cook_url.abw_url_filter]', e)
-        return ROOT['ABW']
+        logging.error(f'<abw_url_filter> {e}')
+        return url
+    logging.info(f'<HTML> {url}')
+    return url
 
 
 def all_html(filter, json):

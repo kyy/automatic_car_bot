@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime as datatime_datatime
 
 from aiogram import F, Router
@@ -16,6 +17,7 @@ from logic.func import (get_brands, decode_filter_short, code_filter_short, car_
                         check_count_filters_active, check_count_cars, check_count_cars_active)
 from logic.text import TXT
 from work import send_pdf_job
+
 
 router = Router()
 
@@ -219,7 +221,8 @@ async def report_search(callback: CallbackQuery):
     try:
         await parse_main(json=json_links, tel_id=tel_id, name=name_time_stump)
     except Exception as e:
-        print(e, 'handler_callback.report_search.parse_main')
+        logging.error(f'<handler_callback.report_search.parse_main> {e}')
+
         return await bot.send_message(tel_id, TXT['msg_error'])
     async with database() as db:
         await callback.message.edit_text(TXT['info_filter_menu'],
@@ -248,7 +251,7 @@ async def message_delete(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'car_follow')
 async def car_follow(callback: CallbackQuery):
-    #   Добавить в слежку из рассылки
+    #   добавить в слежку из рассылки
     tel_id = callback.from_user.id
 
     status_add_limit = await check_count_cars(tel_id, bot)

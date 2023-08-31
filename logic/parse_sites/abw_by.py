@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import requests
 from aiohttp import ClientSession
@@ -71,7 +72,7 @@ def count_cars_abw(url):
         r = requests.get(url, headers=HEADERS_JSON).json()
         return int(r["pagination"]["total"])
     except Exception as e:
-        print(e, '[abw_by.count_cars_abw]')
+        logging.error(f'<count_cars_abw> {e}')
         return 0
 
 
@@ -91,7 +92,7 @@ def json_links_abw(url):
                 page_count -= 1
         return links_to_json
     except Exception as e:
-        print(e, '[abw_by.json_links_abw]')
+        logging.error(f'<json_links_abw> {e}')
         return False
 
 

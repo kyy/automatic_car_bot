@@ -1,4 +1,6 @@
 import asyncio
+import logging
+
 from lxml import etree
 from aiohttp import ClientSession
 from classes import bot
@@ -42,7 +44,7 @@ async def bound_fetch_json(semaphore, url, session, result):
         async with semaphore:
             await get_one_json(url, session, result)
     except Exception as e:
-        print(e, '[cook_parse_prices.bound_fetch_json]')
+        logging.error(f'<cook_parse_cars.bound_fetch_json> {e}')
         await asyncio.sleep(1)
 
 
@@ -51,7 +53,7 @@ async def bound_fetch_html(semaphore, url, session, result):
         async with semaphore:
             await get_one_html(url, session, result)
     except Exception as e:
-        print(e, '[cook_parse_prices.bound_fetch_html]')
+        logging.error(f'<cook_parse_cars.bound_fetch_html> {e}')
         await asyncio.sleep(1)
 
 

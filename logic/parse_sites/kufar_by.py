@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 import requests
 from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON, ROOT
@@ -12,7 +13,7 @@ def count_cars_kufar(url):
         r = requests.get(url.replace("rendered-paginated?", "count?"), headers=HEADERS_JSON).json()
         return int(r["count"])
     except Exception as e:
-        print(e, "[parse_sites.kufar_by.count_cars_kufar]")
+        logging.error(f'<count_cars_kufar> {e}')
         return 0
 
 

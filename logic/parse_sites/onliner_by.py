@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 import requests
 from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES
@@ -10,9 +11,10 @@ def count_cars_onliner(url):
         return 0
     try:
         r = requests.get(url, headers=HEADERS_JSON).json()
-        return int(r["total"])
+        count = int(r["total"])
+        return count
     except Exception as e:
-        print(e, "[onliner_by.count_cars_onliner]")
+        logging.error(f'<count_cars_onliner> {e}')
         return 0
 
 
@@ -33,7 +35,7 @@ def json_links_onliner(url, work):
             page_count -= 1
         return links_to_json
     except Exception as e:
-        print(e, "[onliner_by.json_links_onliner]")
+        logging.error(f'<json_links_onliner> {e}')
         return False
 
 
@@ -86,12 +88,14 @@ def json_parse_onliner(json_data, work):
             .replace("liftback", "лифтбек")
             .replace("minibus", "миниавтобус")
         )
-        # brand = r_t['manufacturer']['name']
-        # model = r_t['model']['name']
-        # generation = r_t['generation']['name']
+        brand = r_t['manufacturer']['name']
+        model = r_t['model']['name']
+        generation = r_t['generation']['name']
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
+
+
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
                 car.append([str(url), str(price)])
         else:

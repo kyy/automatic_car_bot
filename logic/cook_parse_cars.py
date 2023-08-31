@@ -1,4 +1,6 @@
 import asyncio
+import logging
+
 import nest_asyncio
 import numpy as np
 
@@ -41,8 +43,7 @@ async def bound_fetch_json(semaphore, url, session, result, work):
         async with semaphore:
             await get_one_json(url, session, result, work)
     except Exception as e:
-        print(e, "[cook_parse_cars.bound_fetch_json]")
-        print(url)
+        logging.error(f'<cook_parse_cars.bound_fetch_json> {e}')
         # Блокируем все таски на <> секунд в случае ошибки 429.
         await asyncio.sleep(1)
 

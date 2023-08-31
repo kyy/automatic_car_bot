@@ -31,5 +31,18 @@ import requests
 # a = random.choice(sequence)
 from logic.parse_sites.abw_by import html_links_abw, html_links_cars_abw
 
+
+
+params = 'a', 'b', 'c', 'd'
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     pass
