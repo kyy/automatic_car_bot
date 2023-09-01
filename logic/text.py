@@ -75,6 +75,7 @@ TXT = dict(
     btn_add_stalk_url='+ Добавить машину',
     btn_page_left='<',
     btn_page_right='>',
+    btn_car_details='Подробности',
 
     msg_error='⚠ Произошла ошибка',
     msg_collect_data='⏳ Собираем данные',

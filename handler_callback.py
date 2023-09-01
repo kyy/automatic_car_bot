@@ -484,3 +484,11 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
             input_field_placeholdrer=TXT['f_dimension_to'],
             columns=COL['DIMENSION']))
     await state.set_state(CreateCar.dimensionm_choosing)
+
+
+
+
+@router.callback_query(F.data == 'car_details')
+async def car_details(callback: CallbackQuery, state: FSMContext):
+    tel_id = callback.from_user.id
+    bot.send_message(tel_id, "Тут отобразятся детали автомобиля")

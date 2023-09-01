@@ -61,7 +61,7 @@ def result_menu_kb(fsm):
 
 
 bot_functions_kb = InlineKeyboardMarkup(
-    # меню сформированного фильтра
+    # меню функций бота
     inline_keyboard=[[InlineKeyboardButton(text=TXT["btn_back"], callback_data="start_menu_help_hide")]]
 )
 
@@ -125,9 +125,11 @@ def filter_menu_kb(callback, cars_count):
 
 
 def car_message_kb():
+    # меню отследить или удалить сообщение
     buttons = [
         [
             InlineKeyboardButton(text=TXT["btn_stalk_price"], callback_data="car_follow"),
+            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data="car_details"),
             InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
         ]
     ]
@@ -135,7 +137,13 @@ def car_message_kb():
 
 
 def delete_message_kb():
-    buttons = [[InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete")]]
+    # меню удалить сообщение
+    buttons = [
+        [
+            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data="car_details"),
+            InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
+        ]
+    ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
