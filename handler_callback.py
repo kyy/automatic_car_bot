@@ -15,9 +15,9 @@ from logic.database.config import database
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension, valid_params_filter_on_save, check_count_filters,
                         check_count_filters_active, check_count_cars, check_count_cars_active)
+from logic.parse_sites.av_by import av_research
 from logic.text import TXT
 from work import send_pdf_job
-
 
 router = Router()
 
@@ -486,9 +486,20 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
     await state.set_state(CreateCar.dimensionm_choosing)
 
 
-
-
-@router.callback_query(F.data == 'car_details')
+@router.callback_query(F.data.endswith('_research'))
 async def car_details(callback: CallbackQuery, state: FSMContext):
     tel_id = callback.from_user.id
-    bot.send_message(tel_id, "Тут отобразятся детали автомобиля")
+    data = callback.data.split('_')
+    domen, car_id = data[0], data[1]
+
+    params = False
+    if 'av.by' in domen:
+        params = av_research(car_id)
+    elif 'onliner.by' in domen:
+        pass
+    elif 'kufar.by' in domen:
+        pass
+    elif 'abw.by' in domen:
+        pass
+    text = params if params else 'Не удалось ничего узнать'
+    await bot.send_message(tel_id, text=text)

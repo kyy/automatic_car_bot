@@ -4,7 +4,7 @@ import logging
 from lxml import etree
 from aiohttp import ClientSession
 from classes import bot
-from keyboards import delete_message_kb
+from keyboards import car_price_message_kb
 from .constant import HEADERS, API, ROOT
 from logic.database.config import database
 
@@ -145,7 +145,7 @@ async def check_price(result):
                                            f'Текущая цена - {car[0]}$\n'
                                            f'Разница - {abs(row[3] - car[0])}$\n'
                                            f'{car[1]}',
-                                           reply_markup=delete_message_kb(),
+                                           reply_markup=car_price_message_kb(car[1]),
                                            )
                 await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
         await db.commit()

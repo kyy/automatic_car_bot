@@ -111,10 +111,25 @@ def json_parse_av(json_data, work):
 
 
 # -------------follow-price
-def car_json_by_id(id_car):
+def av_json_by_id(id_car):
     url = f"https://api.av.by/offers/{id_car}"
     try:
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        return int(r["price"]["usd"]["amount"])
+        return requests.get(url, headers=HEADERS_JSON).json()
     except requests.exceptions.RequestException:
         return False
+
+
+def av_research(id_car):
+    j = av_json_by_id(id_car)
+    days = j["originalDaysOnSale"]
+    status = j["publicStatus"]["label"]
+    price = j["price"]["usd"]["amount"]
+    descr = j["description"]
+    exchange = j["exchange"]["label"]
+    vin = j["metadata"]["vinInfo"]["vin"]
+    vin_check = j["metadata"]["vinInfo"]["checked"]
+    city = j["locationName"]
+    year = j["metadata"]["year"]
+    url = j["publicUrl"]
+    idc = j["id"]
+    return f"Статус: {status}\n Дней в продаже: {days}\n Цена: {price}\n VIN: {vin}\n VIN проверен: {vin_check}"

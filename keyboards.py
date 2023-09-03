@@ -124,12 +124,34 @@ def filter_menu_kb(callback, cars_count):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def car_message_kb():
+def car_message_kb(url):
     # меню отследить или удалить сообщение
+    """
+    :param url: полная ссылка на объявление
+    :return:
+    """
+    url = url.split('/')
+    car_id = url[-1]
+    domen = url[2]
+
     buttons = [
         [
             InlineKeyboardButton(text=TXT["btn_stalk_price"], callback_data="car_follow"),
-            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data="car_details"),
+            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data=f"{domen}_{car_id}_research"),
+            InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def car_price_message_kb(url):
+    # меню удалить сообщение
+    url = url.split('/')
+    car_id = url[-1]
+    domen = url[2]
+    buttons = [
+        [
+            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data=f"{domen}_{car_id}_research"),
             InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
         ]
     ]
@@ -140,7 +162,6 @@ def delete_message_kb():
     # меню удалить сообщение
     buttons = [
         [
-            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data="car_details"),
             InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
         ]
     ]

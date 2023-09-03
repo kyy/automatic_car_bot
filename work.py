@@ -46,8 +46,9 @@ async def parse_cars_job(ctx):
 
 
 async def send_car(ctx, tel_id, car):
-    message = f'{car[0]}\n${car[1]}'
-    await bot.send_message(tel_id, message, reply_markup=car_message_kb())
+    url, price = car[0], car[1]
+    message = f'{url}\n${price}'
+    await bot.send_message(tel_id, message, reply_markup=car_message_kb(url))
 
 
 async def send_car_job(tel_id, result):
@@ -86,7 +87,7 @@ class Work:
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=False),
+             run_at_startup=True),
 
         # проверка цен
         cron(parse_prices_job,

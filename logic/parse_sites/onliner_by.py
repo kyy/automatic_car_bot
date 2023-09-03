@@ -26,7 +26,7 @@ def json_links_onliner(url, work):
         page_count = r["page"]["last"]
         limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
         if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
-            page_count = limit_page   # - - - - - - для отчета
+            page_count = limit_page  # - - - - - - для отчета
         links_to_json.append(url)
         i = 1
         while page_count > 1:
@@ -95,7 +95,6 @@ def json_parse_onliner(json_data, work):
             fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
 
-
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
                 car.append([str(url), str(price)])
         else:
@@ -123,10 +122,9 @@ def json_parse_onliner(json_data, work):
 
 
 # -------------follow-price
-def car_json_by_id(id_car):
+def onliner_json_by_id(id_car):
     url = f"https://ab.onliner.by/sdapi/ab.api/vehicles/{id_car}"
     try:
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        return int(r["price"]["converted"]["USD"]["amount"][:-3])
+        return requests.get(url, headers=HEADERS_JSON).json()
     except requests.exceptions.RequestException:
         return False

@@ -55,7 +55,7 @@ TXT = dict(
               '\n'
               '<i>Приглавшенных людей: <b>{ref}</b></i>\n'
               '\n'
-              '<code>https://t.me/automaticcarbot?={tel_id}</code>',
+              '<code>https://t.me/automaticcarbot?start={tel_id}</code>',
 
     btn_search='🔎 Автопоиск',
     btn_stalk='📉 Оследить цену',
@@ -75,7 +75,7 @@ TXT = dict(
     btn_add_stalk_url='+ Добавить машину',
     btn_page_left='<',
     btn_page_right='>',
-    btn_car_details='Подробности',
+    btn_car_details='Исследовать',
 
     msg_error='⚠ Произошла ошибка',
     msg_collect_data='⏳ Собираем данные',
