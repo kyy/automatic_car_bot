@@ -28,6 +28,7 @@ def json_parse_kufar(json_data, work):
     car = []
     for i in range(len(json_data["ads"])):
         r_t = json_data["ads"][i]
+        photo = 'https://via.placeholder.com/250x200'
         published = r_t["list_time"]
         price = int(float(r_t["price_usd"]) / 100)
         url = r_t["ad_link"]
@@ -69,7 +70,7 @@ def json_parse_kufar(json_data, work):
             fresh_minutes = datetime.now() - datetime.strptime(published[:-4], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + 180:
-                car.append([str(url), str(price)])
+                car.append([str(url), str(price), str(photo)])
         else:
             car.append(
                 [

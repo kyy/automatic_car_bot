@@ -42,14 +42,10 @@ def json_parse_av(json_data, work):
     car = []
     for i in range(len(json_data["adverts"])):
         r_t = json_data["adverts"][i]
+        photo = r_t["photos"][0]["big"]["url"]
         published = r_t["publishedAt"]
         price = r_t["price"]["usd"]["amount"]
         url = r_t["publicUrl"]
-
-        # try:
-        #     comments = r_t['description']
-        # except:
-        #     comments = ''
         days = r_t["originalDaysOnSale"]  # дни в продаже
         exchange = r_t["exchange"]["label"].casefold().replace("Обмен ", "").replace(" обмен", "")
         city = r_t["shortLocationName"]
@@ -85,7 +81,7 @@ def json_parse_av(json_data, work):
             fresh_minutes = datetime.now() - datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + 180:
-                car.append([str(url), str(price)])
+                car.append([str(url), str(price), str(photo)])
         else:
             car.append(
                 [
@@ -124,7 +120,10 @@ def av_research(id_car):
     days = j["originalDaysOnSale"]
     status = j["publicStatus"]["label"]
     price = j["price"]["usd"]["amount"]
-    descr = j["description"]
+    try:
+        descr = j["description"]
+    except:
+        descr = ''
     try:
         vin = j["metadata"]["vinInfo"]["vin"]
         vin_check = j["metadata"]["vinInfo"]["checked"]
@@ -161,26 +160,28 @@ def av_research(id_car):
         if r_t["name"] == "generation":
             generation = r_t["value"]
 
-        small_photo = j["photos"][0]["extrasmall"]["url"]
+    photo = j["photos"][0]["small"]["url"]
 
-
-    return (
+    text = (
+        f"{url}\n"
+        f"<i>${price}</i>\n"
         f"<b>{brand} {model} {generation} {year}</b>\n"
         f"\n"
-        f"<i>{motor} {dimension}л {km}км "
-        f"{transmission} {drive} привод "
+        f"<i>{motor} {dimension}л\n"
+        f"{km} км\n"
+        f"{transmission} {drive}привод\n"
         f"{color} {typec}</i>\n"
         f"\n"
         f"Статус: <i>{status}</i>\n"
-        f"Цена: <i>{price}$</i>\n"
         f"Дней в продаже: <i>{days}</i>\n"
         f"VIN: <code>{vin}</code>\n"
         f"VIN проверен: <i>{vin_check}</i>\n"
         f"Город: <i>{city}</i>\n"
         f"\n"
-        f"<i>{descr}</i>\n"
+        f"<i>{descr[:600]} ...</i>\n"
         f"\n"
-        f"{url}\n"
         .replace('True', '+')
         .replace('False', '-')
     )
+
+    return text, photo

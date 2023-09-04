@@ -8,8 +8,8 @@ from aiogram.types import CallbackQuery
 from classes import CreateCar
 from classes import bot
 from keyboards import (multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb,
-                       add_stalk_kb)
-from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM, REPORT_PARSE_LIMIT_PAGES)
+                       add_stalk_kb, car_message_kb, car_message_details_kb)
+from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM, REPORT_PARSE_LIMIT_PAGES, ROOT)
 from logic.cook_parse_cars import parse_main
 from logic.database.config import database
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
@@ -257,7 +257,7 @@ async def car_follow(callback: CallbackQuery):
     status_add_limit = await check_count_cars(tel_id, bot)
     status_is_active = await check_count_cars_active(tel_id)
     if status_add_limit:
-        message = callback.message.text.split('\n')
+        message = callback.message.caption.split('\n')
         async with database() as db:
 
             check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
@@ -501,5 +501,12 @@ async def car_details(callback: CallbackQuery):
         pass
     elif 'abw.by' in domen:
         pass
-    text = params if params else 'Не удалось ничего узнать'
-    await callback.message.edit_caption(photo='https://avcdn.av.by/advertextrasmall/0002/3719/6716.jpg', caption=text, parse_mode='HTML', disable_web_page_preview=True)
+
+    text, photo = params if params else 'Не удалось ничего узнать'
+    await callback.message.edit_caption(
+        photo=photo,
+        caption=text,
+        parse_mode='HTML',
+        disable_web_page_preview=True,
+        reply_markup=car_message_details_kb(),
+    )

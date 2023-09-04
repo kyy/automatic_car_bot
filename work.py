@@ -46,9 +46,9 @@ async def parse_cars_job(ctx):
 
 
 async def send_car(ctx, tel_id, car):
-    url, price = car[0], car[1]
+    url, price, photo = car[0], car[1], car[2]
     message = f'{url}\n${price}'
-    await bot.send_message(tel_id, message, reply_markup=car_message_kb(url))
+    await bot.send_photo(tel_id, caption=message, photo=photo, reply_markup=car_message_kb(url))
 
 
 async def send_car_job(tel_id, result):

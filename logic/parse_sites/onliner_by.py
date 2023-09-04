@@ -43,6 +43,7 @@ def json_parse_onliner(json_data, work):
     car = []
     for i in range(len(json_data["adverts"])):
         r_t = json_data["adverts"][i]
+        photo = 'https://via.placeholder.com/250x200'
         published = r_t["created_at"]
         price = r_t["price"]["converted"]["USD"]["amount"].split(".")[0]
         url = r_t["html_url"]
@@ -96,7 +97,7 @@ def json_parse_onliner(json_data, work):
             fresh_minutes = fresh_minutes.total_seconds() / 60
 
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60:
-                car.append([str(url), str(price)])
+                car.append([str(url), str(price), str(photo)])
         else:
             car.append(
                 [

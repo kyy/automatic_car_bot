@@ -144,6 +144,22 @@ def car_message_kb(url):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
+def car_message_details_kb():
+    # меню отследить или удалить сообщение
+    """
+    :param url: полная ссылка на объявление
+    :return:
+    """
+
+    buttons = [
+        [
+            InlineKeyboardButton(text=TXT["btn_stalk_price"], callback_data="car_follow"),
+            InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
 def car_price_message_kb(url):
     # меню удалить сообщение
     url = url.split('/')
