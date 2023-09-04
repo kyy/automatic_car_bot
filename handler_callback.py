@@ -487,12 +487,12 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data.endswith('_research'))
-async def car_details(callback: CallbackQuery, state: FSMContext):
-    tel_id = callback.from_user.id
+async def car_details(callback: CallbackQuery):
     data = callback.data.split('_')
     domen, car_id = data[0], data[1]
 
     params = False
+
     if 'av.by' in domen:
         params = av_research(car_id)
     elif 'onliner.by' in domen:
@@ -502,4 +502,4 @@ async def car_details(callback: CallbackQuery, state: FSMContext):
     elif 'abw.by' in domen:
         pass
     text = params if params else 'Не удалось ничего узнать'
-    await bot.send_message(tel_id, text=text)
+    await callback.message.edit_caption(photo='https://avcdn.av.by/advertextrasmall/0002/3719/6716.jpg', caption=text, parse_mode='HTML', disable_web_page_preview=True)

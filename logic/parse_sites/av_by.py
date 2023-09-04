@@ -3,8 +3,8 @@ from datetime import datetime
 
 import requests
 
-from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, ROOT
-from logic.decorators import timed_lru_cache, timeit
+from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES
+from logic.decorators import timed_lru_cache
 
 
 @timed_lru_cache(300)
@@ -125,11 +125,62 @@ def av_research(id_car):
     status = j["publicStatus"]["label"]
     price = j["price"]["usd"]["amount"]
     descr = j["description"]
-    exchange = j["exchange"]["label"]
-    vin = j["metadata"]["vinInfo"]["vin"]
-    vin_check = j["metadata"]["vinInfo"]["checked"]
+    try:
+        vin = j["metadata"]["vinInfo"]["vin"]
+        vin_check = j["metadata"]["vinInfo"]["checked"]
+    except:
+        vin = vin_check = ''
     city = j["locationName"]
     year = j["metadata"]["year"]
     url = j["publicUrl"]
-    idc = j["id"]
-    return f"Статус: {status}\n Дней в продаже: {days}\n Цена: {price}\n VIN: {vin}\n VIN проверен: {vin_check}"
+    generation = model = brand = motor = dimension = drive = color = transmission = typec = km = ''
+    for i in range(len(j["properties"])):
+        r_t = j["properties"][i]
+        if r_t["name"] == "brand":
+            brand = r_t["value"]
+        if r_t["name"] == "model":
+            model = r_t["value"]
+        if r_t["name"] == "generation":
+            generation = r_t["value"]
+        if r_t["name"] == "mileage_km":
+            km = r_t["value"]
+        if r_t["name"] == "engine_endurance":
+            dimension = r_t["value"]
+        if r_t["name"] == "engine_capacity":
+            dimension = r_t["value"]
+        if r_t["name"] == "engine_type":
+            motor = r_t["value"].replace("пропан-бутан", "пр-бут")
+        if r_t["name"] == "transmission_type":
+            transmission = r_t["value"]
+        if r_t["name"] == "color":
+            color = r_t["value"]
+        if r_t["name"] == "drive_type":
+            drive = r_t["value"].replace("привод", "")
+        if r_t["name"] == "body_type":
+            typec = r_t["value"].replace("5 дв.", "").replace('грузопассажирский', 'гр.-пасс.')
+        if r_t["name"] == "generation":
+            generation = r_t["value"]
+
+        small_photo = j["photos"][0]["extrasmall"]["url"]
+
+
+    return (
+        f"<b>{brand} {model} {generation} {year}</b>\n"
+        f"\n"
+        f"<i>{motor} {dimension}л {km}км "
+        f"{transmission} {drive} привод "
+        f"{color} {typec}</i>\n"
+        f"\n"
+        f"Статус: <i>{status}</i>\n"
+        f"Цена: <i>{price}$</i>\n"
+        f"Дней в продаже: <i>{days}</i>\n"
+        f"VIN: <code>{vin}</code>\n"
+        f"VIN проверен: <i>{vin_check}</i>\n"
+        f"Город: <i>{city}</i>\n"
+        f"\n"
+        f"<i>{descr}</i>\n"
+        f"\n"
+        f"{url}\n"
+        .replace('True', '+')
+        .replace('False', '-')
+    )

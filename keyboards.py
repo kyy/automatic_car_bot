@@ -230,7 +230,6 @@ def donate_kb():
                 text="сделать перевод",
                 web_app=WebAppInfo(url="https://yoomoney.ru/to/4100118330778097"),
             ),
-
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
