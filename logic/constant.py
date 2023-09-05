@@ -1,5 +1,7 @@
 from datetime import datetime
 
+LOGO = 'logic/static/logo.png'
+
 MM = dict(
     MIN_YEAR=2000,
     MAX_YEAR=datetime.now().year,

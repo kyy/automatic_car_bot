@@ -167,7 +167,7 @@ def car_price_message_kb(url):
     domen = url[2]
     buttons = [
         [
-            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data=f"{domen}_{car_id}_research"),
+            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data=f"{domen}_{car_id}_price_research"),
             InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
         ]
     ]

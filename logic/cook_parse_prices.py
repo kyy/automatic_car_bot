@@ -1,11 +1,12 @@
 import asyncio
 import logging
 
+from aiogram.types import FSInputFile
 from lxml import etree
 from aiohttp import ClientSession
 from classes import bot
 from keyboards import car_price_message_kb
-from .constant import HEADERS, API, ROOT
+from .constant import HEADERS, API, ROOT, LOGO
 from logic.database.config import database
 
 
@@ -130,6 +131,7 @@ async def run(json, html, result):
         await session.close()
 
 
+
 async def check_price(result):
     async with database() as db:
         data_cursor = await db.execute(f"""
@@ -140,13 +142,16 @@ async def check_price(result):
         for car in result:
             for row in (row for row in base_data if row[2] == car[1] and row[3] != car[0]):
                 if row[3] != 0:
-                    await bot.send_message(row[0],
-                                           f'Старая цена - {row[3]}$\n'
-                                           f'Текущая цена - {car[0]}$\n'
-                                           f'Разница - {abs(row[3] - car[0])}$\n'
-                                           f'{car[1]}',
-                                           reply_markup=car_price_message_kb(car[1]),
-                                           )
+                    await bot.send_photo(row[0],
+                                         caption=
+                                         f'Старая цена - {row[3]}$\n'
+                                         f'Текущая цена - {car[0]}$\n'
+                                         f'Разница - {abs(row[3] - car[0])}$\n'
+                                         f'{car[1]}',
+                                         reply_markup=car_price_message_kb(car[1]),
+                                         photo=FSInputFile(LOGO),
+                                         parse_mode='HTML',
+                                         )
                 await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
         await db.commit()
 
@@ -158,3 +163,6 @@ async def parse_main(ctx):
     loop.run_until_complete(future)
     await check_price(result)
     return result
+
+
+

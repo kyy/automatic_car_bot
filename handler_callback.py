@@ -3,13 +3,13 @@ from datetime import datetime as datatime_datatime
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, FSInputFile
 
 from classes import CreateCar
 from classes import bot
 from keyboards import (multi_row_kb, params_menu_kb, start_menu_kb, filter_menu_kb, bot_functions_kb, stalk_menu_kb,
-                       add_stalk_kb, car_message_kb, car_message_details_kb)
-from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM, REPORT_PARSE_LIMIT_PAGES, ROOT)
+                       add_stalk_kb, car_message_kb, car_message_details_kb, delete_message_kb)
+from logic.constant import (FSB, SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM, REPORT_PARSE_LIMIT_PAGES, ROOT, LOGO)
 from logic.cook_parse_cars import parse_main
 from logic.database.config import database
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
@@ -489,10 +489,8 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.endswith('_research'))
 async def car_details(callback: CallbackQuery):
     data = callback.data.split('_')
-    domen, car_id = data[0], data[1]
-
-    params = False
-
+    domen, car_id, is_price = data[0], data[1], data[2]
+    params = False, False
     if 'av.by' in domen:
         params = av_research(car_id)
     elif 'onliner.by' in domen:
@@ -501,12 +499,13 @@ async def car_details(callback: CallbackQuery):
         pass
     elif 'abw.by' in domen:
         pass
-
-    text, photo = params if params else 'Не удалось ничего узнать'
+    kb = delete_message_kb() if is_price == 'price' else car_message_details_kb()
+    text = params[0] if params[0] else 'Не удалось ничего узнать'
+    photo = params[1] if params[1] else FSInputFile(LOGO)
     await callback.message.edit_caption(
         photo=photo,
         caption=text,
         parse_mode='HTML',
         disable_web_page_preview=True,
-        reply_markup=car_message_details_kb(),
+        reply_markup=kb,
     )

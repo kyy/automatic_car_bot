@@ -178,10 +178,15 @@ def av_research(id_car):
         f"VIN проверен: <i>{vin_check}</i>\n"
         f"Город: <i>{city}</i>\n"
         f"\n"
-        f"<i>{descr[:600]} ...</i>\n"
+        f"<i>{descr[:700]} ...</i>\n"
         f"\n"
         .replace('True', '+')
         .replace('False', '-')
+        .replace('=>', '')
+        .replace('<=', '')
+        .replace('->', '')
+        .replace('<-', '')
     )
 
     return text, photo
+
