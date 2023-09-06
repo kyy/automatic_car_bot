@@ -2,15 +2,21 @@ import logging
 from datetime import datetime
 
 import requests
+from aiogram.types import FSInputFile
 
 from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, \
-    LEN_DESCRIPTION
+    LEN_DESCRIPTION, LOGO
 from logic.decorators import timed_lru_cache
 from logic.text import TEXT_DETAILS
 
 
 def jd_av(r_t):
-    photo = r_t["photos"][0]["big"]["url"]
+    try:
+        photo = r_t["photos"][0]["big"]["url"]
+    except:
+        photo = FSInputFile(LOGO)
+
+    status = r_t["publicStatus"]["label"]
     published = r_t["publishedAt"]
     price = r_t["price"]["usd"]["amount"]
     url = r_t["publicUrl"]
@@ -20,10 +26,17 @@ def jd_av(r_t):
     year = r_t["year"]
     brand = r_t["properties"][0]["value"]
     model = r_t["properties"][1]["value"]
+
+    try:
+        descr = r_t["description"]
+    except:
+        descr = ''
+
     try:
         vin = r_t["metadata"]["vinInfo"]["vin"]
+        vin_check = r_t["metadata"]["vinInfo"]["checked"]
     except:
-        vin = ""
+        vin = vin_check = ''
 
     return dict(
         photo=photo,
@@ -37,41 +50,10 @@ def jd_av(r_t):
         brand=brand,
         model=model,
         vin=vin,
+        vin_check=vin_check,
+        descr=descr,
+        satus=status,
     )
-
-def jd_av_deep(r_t):
-    generation = motor = dimension = transmission = km = typec = drive = color = ""
-    if r_t["name"] == "mileage_km":
-        km = r_t["value"]
-    if r_t["name"] == "engine_endurance":
-        dimension = r_t["value"]
-    if r_t["name"] == "engine_capacity":
-        dimension = r_t["value"]
-    if r_t["name"] == "engine_type":
-        motor = r_t["value"].replace("пропан-бутан", "пр-бут")
-    if r_t["name"] == "transmission_type":
-        transmission = r_t["value"]
-    if r_t["name"] == "color":
-        color = r_t["value"]
-    if r_t["name"] == "drive_type":
-        drive = r_t["value"].replace("привод", "")
-    if r_t["name"] == "body_type":
-        typec = r_t["value"].replace("5 дв.", "").replace('грузопассажирский', 'гр.-пасс.')
-    if r_t["name"] == "generation":
-        generation = r_t["value"]
-
-    return dict(
-        km=km,
-        generation=generation,
-        dimension=dimension,
-        motor=motor,
-        color=color,
-        typec=typec,
-        drive=drive,
-        transmission=transmission,
-    )
-
-
 
 
 @timed_lru_cache(300)
@@ -106,7 +88,6 @@ def json_links_av(url, work):
 
 
 def json_parse_av(json_data, work):
-
     car = []
     for i in range(len(json_data["adverts"])):
         r_t = json_data["adverts"][i]
@@ -129,15 +110,30 @@ def json_parse_av(json_data, work):
 
         for j in range(len(r_t["properties"])):
             r_t = json_data["adverts"][i]["properties"][j]
-            jd = jd_av_deep(r_t)
-            km = jd["km"]
-            dimension = jd["dimension"]
-            motor = jd["motor"]
-            transmission = jd["transmission"]
-            color = jd["color"]
-            drive = jd["drive"]
-            typec = jd["typec"]
-            generation = jd["generation"]
+            if r_t["name"] == "brand":
+                brand = r_t["value"]
+            if r_t["name"] == "model":
+                model = r_t["value"]
+            if r_t["name"] == "generation":
+                generation = r_t["value"]
+            if r_t["name"] == "mileage_km":
+                km = r_t["value"]
+            if r_t["name"] == "engine_endurance":
+                dimension = r_t["value"]
+            if r_t["name"] == "engine_capacity":
+                dimension = r_t["value"]
+            if r_t["name"] == "engine_type":
+                motor = r_t["value"].replace("пропан-бутан", "пр-бут")
+            if r_t["name"] == "transmission_type":
+                transmission = r_t["value"]
+            if r_t["name"] == "color":
+                color = r_t["value"]
+            if r_t["name"] == "drive_type":
+                drive = r_t["value"].replace("привод", "")
+            if r_t["name"] == "body_type":
+                typec = r_t["value"].replace("5 дв.", "").replace('грузопассажирский', 'гр.-пасс.')
+            if r_t["name"] == "generation":
+                generation = r_t["value"]
 
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M")
@@ -179,25 +175,22 @@ def av_json_by_id(id_car):
 
 
 def av_research(id_car):
-    j = av_json_by_id(id_car)
-    days = j["originalDaysOnSale"]
-    status = j["publicStatus"]["label"]
-    price = j["price"]["usd"]["amount"]
-    try:
-        descr = j["description"]
-    except:
-        descr = ''
-    try:
-        vin = j["metadata"]["vinInfo"]["vin"]
-        vin_check = j["metadata"]["vinInfo"]["checked"]
-    except:
-        vin = vin_check = ''
-    city = j["locationName"]
-    year = j["metadata"]["year"]
-    url = j["publicUrl"]
+    r_t = av_json_by_id(id_car)
+    jd = jd_av(r_t)
+    days = jd["days"]
+    status = jd["status"]
+    price = jd["price"]
+    city = jd["city"]
+    year = jd["year"]
+    url = jd["url"]
+    photo = jd["photo"]
+    descr = jd["descr"]
+    vin = jd["vin"]
+    vin_check = jd["vin_check"]
+
     generation = model = brand = motor = dimension = drive = color = transmission = typec = km = ''
-    for i in range(len(j["properties"])):
-        r_t = j["properties"][i]
+    for i in range(len(jd["properties"])):
+        r_t = jd["properties"][i]
         if r_t["name"] == "brand":
             brand = r_t["value"]
         if r_t["name"] == "model":
@@ -222,8 +215,6 @@ def av_research(id_car):
             typec = r_t["value"].replace("5 дв.", "").replace('грузопассажирский', 'гр.-пасс.')
         if r_t["name"] == "generation":
             generation = r_t["value"]
-
-    photo = j["photos"][0]["small"]["url"]
 
     text = TEXT_DETAILS.format(
         url=url, price=price, brand=brand, model=model, generation=generation, year=year, motor=motor,

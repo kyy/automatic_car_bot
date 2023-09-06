@@ -1,7 +1,10 @@
 import logging
 from datetime import datetime
 import requests
-from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES
+from aiogram.types import FSInputFile
+
+from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, LOGO, \
+    LEN_DESCRIPTION
 from logic.decorators import timed_lru_cache
 from logic.text import TEXT_DETAILS
 
@@ -9,14 +12,20 @@ from logic.text import TEXT_DETAILS
 def jd_onliner(r_t):
     try:
         status = r_t["closed_at"]
-        status = 'Активное' if status == "null" else 'Неактивное'
+        status = 'Активное' if status is None else 'Неактивное'
     except:
         status = ''
-    photo = r_t["images"][0]["800x800"]
+
+    try:
+        photo = r_t["images"][0]["800x800"]
+    except:
+        photo = FSInputFile(LOGO)
+
     try:
         description = r_t["description"]
     except:
         description = ''
+
     published = r_t["created_at"]
     price = r_t["price"]["converted"]["USD"]["amount"].split(".")[0]
     url = r_t["html_url"]
@@ -212,7 +221,7 @@ def onliner_research(id_car):
     text = TEXT_DETAILS.format(
         url=url, price=price, brand=brand_model_gen, model='', generation='', year=year, motor=motor,
         dimension=dimension, color=color, typec=typec, status=status, vin=vin, vin_check='', city=city,
-        descr=descr, days=days, transmission=transmission, drive=drive, km=km,
+        descr=descr[:LEN_DESCRIPTION], days=days, transmission=transmission, drive=drive, km=km,
     )
 
     return text, photo
