@@ -6,7 +6,7 @@
 #
 aiocache==0.12.2
     # via -r requirements.in
-aiofiles==23.2.1
+aiofiles==23.1.0
     # via aiogram
 aiogram==3.0.0
     # via -r requirements.in
@@ -90,12 +90,11 @@ pillow==10.0.0
     # via fpdf2
 pip-tools==7.3.0
     # via -r requirements.in
-pydantic[dotenv]==2.0.3
+pydantic==2.3.0
     # via
-    #   -r requirements.in
     #   aiogram
     #   pydantic-settings
-pydantic-core==2.3.0
+pydantic-core==2.6.3
     # via pydantic
 pydantic-settings==2.0.3
     # via -r requirements.in
@@ -123,6 +122,7 @@ tqdm==4.66.1
     # via -r requirements.in
 typing-extensions==4.7.1
     # via
+    #   aiogram
     #   arq
     #   pydantic
     #   pydantic-core
