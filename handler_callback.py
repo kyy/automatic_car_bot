@@ -14,8 +14,10 @@ from logic.cook_parse_cars import parse_main
 from logic.database.config import database
 from logic.func import (get_brands, decode_filter_short, code_filter_short, car_multidata, filter_import, get_models,
                         get_years, get_cost, get_dimension, valid_params_filter_on_save, check_count_filters,
-                        check_count_filters_active, check_count_cars, check_count_cars_active)
+                        check_count_filters_active, check_count_cars, check_count_cars_active, strip_html)
 from logic.parse_sites.av_by import av_research
+from logic.parse_sites.kufar_by import kufar_research
+from logic.parse_sites.onliner_by import onliner_research
 from logic.text import TXT
 from work import send_pdf_job
 
@@ -490,21 +492,25 @@ async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
 async def car_details(callback: CallbackQuery):
     data = callback.data.split('_')
     domen, car_id, is_price = data[0], data[1], data[2]
+
     params = False, False
+
     if 'av.by' in domen:
         params = av_research(car_id)
     elif 'onliner.by' in domen:
-        pass
+        params = onliner_research(car_id)
     elif 'kufar.by' in domen:
-        pass
+        params = kufar_research(car_id)
     elif 'abw.by' in domen:
         pass
+
     kb = delete_message_kb() if is_price == 'price' else car_message_details_kb()
     text = params[0] if params[0] else 'Не удалось ничего узнать'
     photo = params[1] if params[1] else FSInputFile(LOGO)
+
     await callback.message.edit_caption(
         photo=photo,
-        caption=text,
+        caption=strip_html(text),
         parse_mode='HTML',
         disable_web_page_preview=True,
         reply_markup=kb,

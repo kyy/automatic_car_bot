@@ -126,3 +126,23 @@ TXT = dict(
     fi_dimension_from='объем двигателя от',
     fi_dimension_to='объем двигателя до',
 )
+
+TEXT_DETAILS = (
+        "{url}\n"
+        "<i>${price}</i>\n"
+        "<b>{brand} {model} {generation} {year}</b>\n"
+        "\n"
+        "<i>{motor} {dimension}л\n"
+        "{km} км\n"
+        "{transmission} {drive} привод\n"
+        "{color} {typec}</i>\n"
+        "\n"
+        "Статус: <i>{status}</i>\n"
+        "Дней в продаже: <i>{days}</i>\n"
+        "VIN: <code>{vin}</code>\n"
+        "VIN проверен: <i>{vin_check}</i>\n"
+        "Город: <i>{city}</i>\n"
+        "\n"
+        "<i>{descr} ...</i>\n"
+        "\n"
+)

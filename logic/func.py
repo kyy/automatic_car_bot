@@ -342,3 +342,12 @@ async def check_count_filters_active(tel_id):
         vip = 0 if vip is None else vip
         status = True if vip == 1 and count < SUBS_FILTER_ADD_LIMIT_ACTIVE or vip == 0 and count < FILTER_ADD_LIMIT_ACTIVE else False
         return status
+
+
+def strip_html(text):
+    return (text.replace('True', '+')
+                .replace('False', '-')
+                .replace('=>', '')
+                .replace('<=', '')
+                .replace('->', '')
+                .replace('<-', ''))

@@ -3,8 +3,75 @@ from datetime import datetime
 
 import requests
 
-from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES
+from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, \
+    LEN_DESCRIPTION
 from logic.decorators import timed_lru_cache
+from logic.text import TEXT_DETAILS
+
+
+def jd_av(r_t):
+    photo = r_t["photos"][0]["big"]["url"]
+    published = r_t["publishedAt"]
+    price = r_t["price"]["usd"]["amount"]
+    url = r_t["publicUrl"]
+    days = r_t["originalDaysOnSale"]  # дни в продаже
+    exchange = r_t["exchange"]["label"].casefold().replace("Обмен ", "").replace(" обмен", "")
+    city = r_t["shortLocationName"]
+    year = r_t["year"]
+    brand = r_t["properties"][0]["value"]
+    model = r_t["properties"][1]["value"]
+    try:
+        vin = r_t["metadata"]["vinInfo"]["vin"]
+    except:
+        vin = ""
+
+    return dict(
+        photo=photo,
+        published=published,
+        price=price,
+        url=url,
+        days=days,
+        exchange=exchange,
+        city=city,
+        year=year,
+        brand=brand,
+        model=model,
+        vin=vin,
+    )
+
+def jd_av_deep(r_t):
+    generation = motor = dimension = transmission = km = typec = drive = color = ""
+    if r_t["name"] == "mileage_km":
+        km = r_t["value"]
+    if r_t["name"] == "engine_endurance":
+        dimension = r_t["value"]
+    if r_t["name"] == "engine_capacity":
+        dimension = r_t["value"]
+    if r_t["name"] == "engine_type":
+        motor = r_t["value"].replace("пропан-бутан", "пр-бут")
+    if r_t["name"] == "transmission_type":
+        transmission = r_t["value"]
+    if r_t["name"] == "color":
+        color = r_t["value"]
+    if r_t["name"] == "drive_type":
+        drive = r_t["value"].replace("привод", "")
+    if r_t["name"] == "body_type":
+        typec = r_t["value"].replace("5 дв.", "").replace('грузопассажирский', 'гр.-пасс.')
+    if r_t["name"] == "generation":
+        generation = r_t["value"]
+
+    return dict(
+        km=km,
+        generation=generation,
+        dimension=dimension,
+        motor=motor,
+        color=color,
+        typec=typec,
+        drive=drive,
+        transmission=transmission,
+    )
+
+
 
 
 @timed_lru_cache(300)
@@ -39,44 +106,39 @@ def json_links_av(url, work):
 
 
 def json_parse_av(json_data, work):
+
     car = []
     for i in range(len(json_data["adverts"])):
         r_t = json_data["adverts"][i]
-        photo = r_t["photos"][0]["big"]["url"]
-        published = r_t["publishedAt"]
-        price = r_t["price"]["usd"]["amount"]
-        url = r_t["publicUrl"]
-        days = r_t["originalDaysOnSale"]  # дни в продаже
-        exchange = r_t["exchange"]["label"].casefold().replace("Обмен ", "").replace(" обмен", "")
-        city = r_t["shortLocationName"]
-        year = r_t["year"]
-        brand = r_t["properties"][0]["value"]
-        model = r_t["properties"][1]["value"]
+        jd = jd_av(r_t)
+        photo = jd["photo"]
+        published = jd["published"]
+        price = jd["price"]
+        url = jd["url"]
+        days = jd["days"]
+        exchange = jd["exchange"]
+        city = jd["city"]
+        year = jd["year"]
+        brand = jd["brand"]
+        model = jd["model"]
         try:
-            vin = r_t["metadata"]["vinInfo"]["vin"]
+            vin = jd["vin"]
         except:
             vin = ""
         generation = motor = dimension = transmission = km = typec = drive = color = ""
+
         for j in range(len(r_t["properties"])):
             r_t = json_data["adverts"][i]["properties"][j]
-            if r_t["name"] == "mileage_km":
-                km = r_t["value"]
-            if r_t["name"] == "engine_endurance":
-                dimension = r_t["value"]
-            if r_t["name"] == "engine_capacity":
-                dimension = r_t["value"]
-            if r_t["name"] == "engine_type":
-                motor = r_t["value"].replace("пропан-бутан", "пр-бут")
-            if r_t["name"] == "transmission_type":
-                transmission = r_t["value"]
-            if r_t["name"] == "color":
-                color = r_t["value"]
-            if r_t["name"] == "drive_type":
-                drive = r_t["value"].replace("привод", "")
-            if r_t["name"] == "body_type":
-                typec = r_t["value"].replace("5 дв.", "").replace('грузопассажирский', 'гр.-пасс.')
-            if r_t["name"] == "generation":
-                generation = r_t["value"]
+            jd = jd_av_deep(r_t)
+            km = jd["km"]
+            dimension = jd["dimension"]
+            motor = jd["motor"]
+            transmission = jd["transmission"]
+            color = jd["color"]
+            drive = jd["drive"]
+            typec = jd["typec"]
+            generation = jd["generation"]
+
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
@@ -111,7 +173,8 @@ def av_json_by_id(id_car):
     url = f"https://api.av.by/offers/{id_car}"
     try:
         return requests.get(url, headers=HEADERS_JSON).json()
-    except requests.exceptions.RequestException:
+    except Exception as e:
+        logging.error(f'<av_by.av_json_by_id> {e}')
         return False
 
 
@@ -162,31 +225,10 @@ def av_research(id_car):
 
     photo = j["photos"][0]["small"]["url"]
 
-    text = (
-        f"{url}\n"
-        f"<i>${price}</i>\n"
-        f"<b>{brand} {model} {generation} {year}</b>\n"
-        f"\n"
-        f"<i>{motor} {dimension}л\n"
-        f"{km} км\n"
-        f"{transmission} {drive}привод\n"
-        f"{color} {typec}</i>\n"
-        f"\n"
-        f"Статус: <i>{status}</i>\n"
-        f"Дней в продаже: <i>{days}</i>\n"
-        f"VIN: <code>{vin}</code>\n"
-        f"VIN проверен: <i>{vin_check}</i>\n"
-        f"Город: <i>{city}</i>\n"
-        f"\n"
-        f"<i>{descr[:700]} ...</i>\n"
-        f"\n"
-        .replace('True', '+')
-        .replace('False', '-')
-        .replace('=>', '')
-        .replace('<=', '')
-        .replace('->', '')
-        .replace('<-', '')
+    text = TEXT_DETAILS.format(
+        url=url, price=price, brand=brand, model=model, generation=generation, year=year, motor=motor,
+        dimension=dimension, color=color, typec=typec, status=status, vin=vin, vin_check=vin_check, city=city,
+        descr=descr[:LEN_DESCRIPTION], days=days, transmission=transmission, drive=drive, km=km,
     )
 
     return text, photo
-

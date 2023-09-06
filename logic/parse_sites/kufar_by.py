@@ -1,8 +1,11 @@
 import logging
 from datetime import datetime
 import requests
-from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON, ROOT
+from lxml import etree
+
+from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON, ROOT, HEADERS
 from logic.decorators import timed_lru_cache
+from logic.text import TEXT_DETAILS
 
 
 @timed_lru_cache(300)
@@ -93,3 +96,28 @@ def json_parse_kufar(json_data, work):
                 ]
             )
     return car
+
+
+def get_car_html(id_car):
+    url = f'{ROOT["KUFAR"]}vi/{id_car}'
+    try:
+        response = requests.get(url, HEADERS)
+        page_content = response.text
+        return etree.HTML(str(page_content))
+    except Exception as e:
+        logging.error(f'<kufar_by.kufar_json_by_id> {e}')
+        return False
+
+
+def kufar_research(id_car):
+    dom = get_car_html(id_car)
+    price = dom.xpath('//*[@data-name="additional-price"]')[0].text
+    city = dom.xpath('//*[@data-name="ad_region_listing"]')[0].text
+
+
+    # text = TEXT_DETAILS.format(
+    #     url=url, price=price, brand=brand, model=model, generation=generation, year=year, motor=motor,
+    #     dimension=dimension, color=color, typec=typec, status=status, vin=vin, vin_check=vin_check, city=city,
+    #     descr=descr[:LEN_DESCRIPTION], days=days, transmission=transmission, drive=drive, km=km,
+    # )
+    return False, False

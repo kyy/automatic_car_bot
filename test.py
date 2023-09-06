@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from aiohttp import ClientSession
 from lxml import etree
 
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES, ROOT
 from logic.cook_url import abw_url_filter
 from logic.database.config import database
 import asyncio
@@ -32,17 +32,28 @@ import requests
 from logic.parse_sites.abw_by import html_links_abw, html_links_cars_abw
 
 
+def get_car_html(id_car):
+    url = f'{ROOT["KUFAR"]}vi/{id_car}'
+    try:
+        response = requests.get(url, HEADERS)
+        page_content = response.text
+        return etree.HTML(str(page_content))
+    except Exception as e:
+        return False
 
-params = 'a', 'b', 'c', 'd'
+
+id_car = 206938906
+
+dom = get_car_html(id_car)
+
+price = dom.xpath('//*[@data-name="additional-price"]')[0].text
+city = dom.xpath('//*[@data-name="ad_region_listing"]')[0].text
 
 
-
-
-
-
-
-
-
+print(
+    price,
+    city,
+)
 
 if __name__ == '__main__':
     pass
