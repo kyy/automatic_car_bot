@@ -16,7 +16,6 @@ def jd_av(r_t):
     except:
         photo = FSInputFile(LOGO)
 
-    status = r_t["publicStatus"]["label"]
     published = r_t["publishedAt"]
     price = r_t["price"]["usd"]["amount"]
     url = r_t["publicUrl"]
@@ -52,7 +51,6 @@ def jd_av(r_t):
         vin=vin,
         vin_check=vin_check,
         descr=descr,
-        satus=status,
     )
 
 
@@ -175,10 +173,10 @@ def av_json_by_id(id_car):
 
 
 def av_research(id_car):
-    r_t = av_json_by_id(id_car)
-    jd = jd_av(r_t)
+    j = av_json_by_id(id_car)
+    jd = jd_av(j)
     days = jd["days"]
-    status = jd["status"]
+    status = j["publicStatus"]["label"]
     price = jd["price"]
     city = jd["city"]
     year = jd["year"]
@@ -189,8 +187,8 @@ def av_research(id_car):
     vin_check = jd["vin_check"]
 
     generation = model = brand = motor = dimension = drive = color = transmission = typec = km = ''
-    for i in range(len(jd["properties"])):
-        r_t = jd["properties"][i]
+    for i in range(len(j["properties"])):
+        r_t = j["properties"][i]
         if r_t["name"] == "brand":
             brand = r_t["value"]
         if r_t["name"] == "model":
