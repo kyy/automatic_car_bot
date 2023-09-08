@@ -1,11 +1,9 @@
 import logging
 from datetime import datetime
-
 import requests
 from aiogram.types import FSInputFile
-
-from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, \
-    LEN_DESCRIPTION, LOGO
+from logic.constant import (WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES,
+                            LEN_DESCRIPTION, LOGO)
 from logic.decorators import timed_lru_cache
 from logic.text import TEXT_DETAILS
 

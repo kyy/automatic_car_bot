@@ -3,9 +3,9 @@ from aiogram.types import CallbackQuery, FSInputFile
 from keyboards import start_menu_kb, bot_functions_kb, car_message_details_kb, delete_message_kb
 from logic.constant import LOGO
 from logic.func import strip_html
-from logic.parse_sites.av_by import av_research
-from logic.parse_sites.kufar_by import kufar_research
-from logic.parse_sites.onliner_by import onliner_research
+from av.av_parse_json import av_research
+from kufar.kufar_by import kufar_research
+from onliner.onliner_by import onliner_research
 from logic.text import TXT
 
 

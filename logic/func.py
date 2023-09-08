@@ -8,10 +8,10 @@ from logic.constant import (SS, MOTOR_DICT, FSB, MM, SUBS_CARS_ADD_LIMIT, CARS_A
                             SUBS_FILTER_ADD_LIMIT_ACTIVE, FILTER_ADD_LIMIT_ACTIVE, SB)
 from logic.cook_url import all_json, all_html
 from logic.database.config import database
-from logic.parse_sites.abw_by import count_cars_abw
-from logic.parse_sites.av_by import count_cars_av
-from logic.parse_sites.kufar_by import count_cars_kufar
-from logic.parse_sites.onliner_by import count_cars_onliner
+from abw.abw_by import count_cars_abw
+from av.av_parse_json import count_cars_av
+from kufar.kufar_by import count_cars_kufar
+from onliner.onliner_by import count_cars_onliner
 from .text import TXT
 
 
@@ -351,3 +351,5 @@ def strip_html(text):
                 .replace('<=', '')
                 .replace('->', '')
                 .replace('<-', ''))
+
+
