@@ -11,7 +11,10 @@ from aiohttp import web
 
 import handler_callback
 import handler_common
-import handler_message
+import handler_create_filter
+import handler_edit_filter
+import handler_filters
+import handler_price_tracking
 from classes import config
 
 """
@@ -49,9 +52,14 @@ def main():
     bot = Bot(**bot_settings)
     dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.USER_IN_CHAT)  # FSM !
     dp.startup.register(on_startup)
+
     dp.include_router(handler_common.router)
-    dp.include_router(handler_message.router)
+    dp.include_router(handler_create_filter.router)
     dp.include_router(handler_callback.router)
+    dp.include_router(handler_filters.router)
+    dp.include_router(handler_price_tracking.router)
+    dp.include_router(handler_edit_filter.router)
+
     app = web.Application()
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=MAIN_BOT_PATH)
     setup_application(app, dp, bot=bot)

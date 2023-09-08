@@ -131,7 +131,6 @@ async def run(json, html, result):
         await session.close()
 
 
-
 async def check_price(result):
     async with database() as db:
         data_cursor = await db.execute(f"""
