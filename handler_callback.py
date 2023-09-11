@@ -55,8 +55,8 @@ async def car_details(callback: CallbackQuery):
         pass
 
     kb = delete_message_kb() if is_price == 'price' else car_message_details_kb()
-    text = params[0] if params[0] else 'Не удалось ничего узнать'
-    photo = params[1] if params[1] else FSInputFile(LOGO)
+    text = params[0] if params[0] else f'{callback.message.caption}\n Не удалось ничего узнать'
+    photo = FSInputFile(LOGO) if params[1] == '' else params[1]
 
     await callback.message.edit_caption(
         photo=photo,

@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 import requests
-from aiogram.types import FSInputFile
 from logic.constant import (WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES,
                             LEN_DESCRIPTION, LOGO)
 from logic.decorators import timed_lru_cache
@@ -12,7 +11,7 @@ def jd_av(r_t):
     try:
         photo = r_t["photos"][0]["big"]["url"]
     except:
-        photo = FSInputFile(LOGO)
+        photo = ''
 
     published = r_t["publishedAt"]
     price = r_t["price"]["usd"]["amount"]

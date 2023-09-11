@@ -6,7 +6,7 @@ from arq import create_pool, cron, run_worker
 from arq.connections import RedisSettings
 from classes import bot
 from keyboards import car_message_kb, delete_message_kb
-from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA
+from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA, LOGO
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
@@ -47,8 +47,13 @@ async def parse_cars_job(ctx):
 
 async def send_car(ctx, tel_id, car):
     url, price, photo = car[0], car[1], car[2]
+    photo = FSInputFile(LOGO) if photo == '' else photo
     message = f'{url}\n${price}'
-    await bot.send_photo(tel_id, caption=message, photo=photo, reply_markup=car_message_kb(url))
+    try:
+        await bot.send_photo(tel_id, caption=message, photo=photo, reply_markup=car_message_kb(url))
+    except Exception as e:
+        logging.error(f"<work.send_car> <url> {url} <photo> {photo} {e}")
+
 
 
 async def send_car_job(tel_id, result):

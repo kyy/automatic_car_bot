@@ -19,7 +19,7 @@ def jd_onliner(r_t):
     try:
         photo = r_t["images"][0]["800x800"]
     except:
-        photo = FSInputFile(LOGO)
+        photo = ''
 
     try:
         description = r_t["description"]

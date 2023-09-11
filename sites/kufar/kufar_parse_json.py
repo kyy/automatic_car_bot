@@ -5,7 +5,7 @@ from lxml import etree
 
 from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON, ROOT, HEADERS
 from logic.decorators import timed_lru_cache
-from logic.text import TEXT_DETAILS
+
 
 
 @timed_lru_cache(300)
@@ -31,7 +31,11 @@ def json_parse_kufar(json_data, work):
     car = []
     for i in range(len(json_data["ads"])):
         r_t = json_data["ads"][i]
-        photo = 'https://via.placeholder.com/250x200'
+        try:
+            photo = r_t["images"][0]["path"]
+            photo = f'https://rms.kufar.by/v1/gallery/{photo}'
+        except:
+            photo = ''
         published = r_t["list_time"]
         price = int(float(r_t["price_usd"]) / 100)
         url = r_t["ad_link"]
