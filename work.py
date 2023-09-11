@@ -10,7 +10,7 @@ from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
-from logic.cook_url import all_json
+from sites.cook_url import all_json
 from logic.database.config import database
 from logic.database.data_migrations import lenn, main as update
 from logic.database.main_parse import main_parse as up

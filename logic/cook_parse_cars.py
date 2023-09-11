@@ -6,10 +6,10 @@ import numpy as np
 
 from .constant import HEADERS, API
 
-from abw.abw_by import json_links_abw, json_parse_abw
-from av.av_parse_json import json_parse_av, json_links_av
-from kufar.kufar_by import json_links_kufar, json_parse_kufar
-from onliner.onliner_by import json_parse_onliner, json_links_onliner
+from sites.abw.abw_parse_json import json_links_abw, json_parse_abw
+from sites.av.av_parse_json import json_parse_av, json_links_av
+from sites.kufar.kufar_parse_json import json_links_kufar, json_parse_kufar
+from sites.onliner.onliner_parse_json import json_parse_onliner, json_links_onliner
 
 
 nest_asyncio.apply()
