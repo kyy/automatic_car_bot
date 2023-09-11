@@ -8,8 +8,9 @@ from logic.constant import FSB, SB, REPORT_PARSE_LIMIT_PAGES
 from logic.cook_parse_cars import parse_main
 from logic.database.config import database
 from logic.func import (code_filter_short, valid_params_filter_on_save, check_count_filters,
-                        check_count_filters_active, decode_filter_short, car_multidata, filter_import)
+                        check_count_filters_active, decode_filter_short, filter_import)
 from logic.text import TXT
+from sites.cook_url import car_multidata
 from work import send_pdf_job
 from datetime import datetime as datatime_datatime
 

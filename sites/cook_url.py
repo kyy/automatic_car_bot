@@ -1,10 +1,18 @@
 import asyncio
 
 from logic.database.config import database
-from sites.av.av_cooking_urls import get_url_av, av_url_filter
-from sites.kufar.kufar_cooking_urls import get_url_kufar, kufar_url_filter
+
 from sites.abw.abw_cooking_urls import get_url_abw, abw_url_filter
+from sites.abw.abw_parse_json import count_cars_abw
+
+from sites.av.av_cooking_urls import get_url_av, av_url_filter
+from sites.av.av_parse_json import count_cars_av
+
+from sites.kufar.kufar_cooking_urls import get_url_kufar, kufar_url_filter
+from sites.kufar.kufar_parse_json import count_cars_kufar
+
 from sites.onliner.onliner_cooking_urls import get_url_onliner, onliner_url_filter
+from sites.onliner.onliner_parse_json import count_cars_onliner
 
 
 async def all_json(link, work=False):
@@ -36,4 +44,30 @@ def all_html(filter, json):
         onliner_link=onliner_link,
         abw_link=abw_link,
         kufar_link=kufar_link,
+    )
+
+
+def get_count_cars(json):
+    # считаем сколько обявлений из json файлов
+    all_cars_av = count_cars_av(json['av_json'])
+    all_cars_abw = count_cars_abw(json['abw_json'])
+    all_cars_onliner = count_cars_onliner(json['onliner_json'])
+    all_cars_kufar = count_cars_kufar(json['kufar_json'])
+    return dict(
+        all_av=all_cars_av,
+        all_abw=all_cars_abw,
+        all_onliner=all_cars_onliner,
+        all_kufar=all_cars_kufar,
+    )
+
+
+async def car_multidata(cars):
+    # cars - фильтр-код
+    json = await all_json(cars)
+    count = get_count_cars(json)
+    link = all_html(cars, json)
+    return dict(
+        json=json,
+        count=count,
+        link=link,
     )

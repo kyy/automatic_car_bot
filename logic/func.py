@@ -6,27 +6,10 @@ from aiocache import cached, Cache
 from logic.constant import (SS, MOTOR_DICT, FSB, MM, SUBS_CARS_ADD_LIMIT, CARS_ADD_LIMIT, SUBS_FILTER_ADD_LIMIT,
                             FILTER_ADD_LIMIT, SUBS_CARS_ADD_LIMIT_ACTIVE, CARS_ADD_LIMIT_ACTIVE,
                             SUBS_FILTER_ADD_LIMIT_ACTIVE, FILTER_ADD_LIMIT_ACTIVE, SB)
-from sites.cook_url import all_json, all_html
+
 from logic.database.config import database
-from sites.abw.abw_parse_json import count_cars_abw
-from sites.av.av_parse_json import count_cars_av
-from sites.kufar.kufar_parse_json import count_cars_kufar
-from sites.onliner.onliner_parse_json import count_cars_onliner
+
 from .text import TXT
-
-
-def get_count_cars(json):
-    # считаем сколько обявлений из json файлов
-    all_cars_av = count_cars_av(json['av_json'])
-    all_cars_abw = count_cars_abw(json['abw_json'])
-    all_cars_onliner = count_cars_onliner(json['onliner_json'])
-    all_cars_kufar = count_cars_kufar(json['kufar_json'])
-    return dict(
-        all_av=all_cars_av,
-        all_abw=all_cars_abw,
-        all_onliner=all_cars_onliner,
-        all_kufar=all_cars_kufar,
-    )
 
 
 async def filter_import(callback, db):
@@ -43,16 +26,7 @@ async def filter_import(callback, db):
     return filter_id, filter_name[0], cars
 
 
-async def car_multidata(cars):
-    # cars - фильтр-код
-    json = await all_json(cars)
-    count = get_count_cars(json)
-    link = all_html(cars, json)
-    return dict(
-        json=json,
-        count=count,
-        link=link,
-    )
+
 
 
 @cached(ttl=300, cache=Cache.MEMORY, key='brands', namespace="get_brands")
