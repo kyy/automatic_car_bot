@@ -4,8 +4,9 @@ from classes import CreateCar
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
 from keyboards import multi_row_kb, result_menu_kb
-from logic.func import get_years, get_cost, get_dimension, get_brands, get_models, decode_filter_short
+from logic.codec_filter import decode_filter_short
 from logic.constant import (FSB, CF, COL, MOTOR, TRANSMISSION, SB, EB, DEFAULT)
+from logic.kb_fu import get_brands, get_models, get_years, get_cost, get_dimension
 from logic.text import TXT
 from itertools import chain
 

@@ -1,8 +1,10 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
 
+from logic.codec_filter import decode_filter_short
 from logic.constant import CF, PAGINATION
-from logic.func import decode_filter_short, pagination, check_count_cars_active, check_count_filters_active
+from logic.func import check_count_cars_active, check_count_filters_active
+from logic.kb_fu import pagination
 from logic.text import TXT
 
 

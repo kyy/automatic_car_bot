@@ -1,6 +1,7 @@
 from datetime import datetime
 
 LOGO = 'logic/static/logo.png'
+FOLDER_PARSE = 'logic/database/parse/'
 
 LEN_DESCRIPTION = 700
 

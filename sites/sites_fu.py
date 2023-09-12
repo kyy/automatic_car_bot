@@ -1,4 +1,5 @@
 from logic.constant import FSB, MM, SS
+import os.path
 
 
 def max_min_params(car_input):
@@ -16,3 +17,10 @@ def max_min_params(car_input):
     if car_input[9] == FSB:
         car_input[9] = str(MM["MAX_DIM"] * 1000)
     return car_input
+
+
+def create_folders():
+    if not os.path.exists('logic/database/parse'):
+        os.mkdir(os.path.join('logic/database/', 'parse'))
+    if not os.path.exists('logic/buffer'):
+        os.mkdir(os.path.join('logic/', 'buffer'))

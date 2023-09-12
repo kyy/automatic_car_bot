@@ -10,16 +10,16 @@ from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA, LOGO
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
-from sites.cook_url import all_json
+from sites.sites_get_data import all_json
 from logic.database.config import database
-from logic.database.data_migrations import lenn, main as update
-from logic.database.main_parse import main_parse as up
+from logic.database.data_migrations import main as update
+from sites.sites_get_update import parse_brand_models
 from logic.func import off_is_active
 
 
 async def update_database(ctx):
-    if up(lenn):
-        asyncio.run(update(database()))
+    parse_brand_models()
+    asyncio.run(update(database()))
 
 
 async def reset_subs(ctx):
@@ -92,13 +92,13 @@ class Work:
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # проверка цен
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,
@@ -112,9 +112,9 @@ class Work:
              weekday='sun',
              hour={2},
              minute={30},
-             max_tries=3,
-             timeout=900,
-             run_at_startup=False),
+             max_tries=1,
+             timeout=500,
+             run_at_startup=True),
     ]
 
 

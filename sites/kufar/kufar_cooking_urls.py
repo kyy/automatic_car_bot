@@ -2,7 +2,7 @@ import logging
 
 from logic.constant import FSB, REPORT_PARSE_LIMIT_PAGES, PARSE_LIMIT_PAGES, ROOT
 from logic.decorators import timed_lru_cache
-from sites.fu_sites import max_min_params
+from sites.sites_fu import max_min_params
 
 
 @timed_lru_cache(300)

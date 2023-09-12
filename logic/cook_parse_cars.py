@@ -4,7 +4,7 @@ from aiohttp import ClientSession
 
 import numpy as np
 
-from .constant import HEADERS, API
+from logic.constant import HEADERS, API
 
 from sites.abw.abw_parse_json import json_links_abw, json_parse_abw
 from sites.av.av_parse_json import json_parse_av, json_links_av
