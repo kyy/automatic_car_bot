@@ -13,13 +13,13 @@ from logic.cook_pdf import do_pdf
 from sites.sites_get_data import all_json
 from logic.database.config import database
 from logic.database.data_migrations import main as update
-from sites.sites_get_update import parse_brand_models
+from sites.sites_get_update import get_parse_brands_models
 from logic.func import off_is_active
 
 
 async def update_database(ctx):
-    parse_brand_models()
-    asyncio.run(update(database()))
+    await get_parse_brands_models()
+    # asyncio.run(update(database()))
 
 
 async def reset_subs(ctx):
@@ -53,7 +53,6 @@ async def send_car(ctx, tel_id, car):
         await bot.send_photo(tel_id, caption=message, photo=photo, reply_markup=car_message_kb(url))
     except Exception as e:
         logging.error(f"<work.send_car> <url> {url} <photo> {photo} {e}")
-
 
 
 async def send_car_job(tel_id, result):
