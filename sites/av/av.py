@@ -12,7 +12,7 @@ async def av_get_from_json_brands(session):
             url='https://api.av.by/home/filters/home/init',
             headers=HEADERS_JSON
     ) as resp:
-        r = await resp.json()
+        r = await resp.json(content_type=None)
         for car in tqdm(r['blocks'][0]['rows'][0]['propertyGroups'][0]['properties'][0]['value'][0][1]['options']):
             id = car['id']
             name = car['label']
@@ -20,7 +20,7 @@ async def av_get_from_json_brands(session):
                     url='https://api.av.by/offer-types/cars/landings/',
                     headers=HEADERS_JSON
             ) as resp2:
-                r2 = await resp2.json()
+                r2 = await resp2.json(content_type=None)
                 for ids in r2['seo']['links']:
                     if ids['label'] == name:
                         slug = ids['url'].split('/')[-1]
@@ -37,7 +37,7 @@ async def av_get_from_json_models(session):  # {Brand_name:{Model_name:[id, name
                 url=f'{url}{brands[item][1]}',
                 headers=HEADERS_JSON,
         ) as resp:
-            r = await resp.json()
+            r = await resp.json(content_type=None)
             for car in r['seo']['links']:
                 name = car['label']
                 slug = car['url'].split('/')[-1]
@@ -46,7 +46,7 @@ async def av_get_from_json_models(session):  # {Brand_name:{Model_name:[id, name
                             url=f'{url}{brands[item][1]}/{slug}',
                             headers=HEADERS_JSON
                     ) as resp2:
-                        r2 = await resp2.json()
+                        r2 = await resp2.json(content_type=None)
                         id = r2['metadata']['modelId']
                 except:
                     continue
