@@ -113,7 +113,7 @@ class Work:
              minute={30},
              max_tries=1,
              timeout=500,
-             run_at_startup=True),
+             run_at_startup=False),
     ]
 
 

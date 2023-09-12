@@ -4,48 +4,27 @@ from aiohttp import ClientSession
 
 import numpy as np
 
-from logic.constant import HEADERS, API
+from logic.constant import HEADERS, API_DOMEN
 
-from sites.abw.abw_parse_json import json_links_abw, json_parse_abw
-from sites.av.av_parse_json import json_parse_av, json_links_av
-from sites.kufar.kufar_parse_json import json_links_kufar, json_parse_kufar
-from sites.onliner.onliner_parse_json import json_parse_onliner, json_links_onliner
-
+from sites.abw.abw_parse_json import json_parse_abw
+from sites.av.av_parse_json import json_parse_av
+from sites.kufar.kufar_parse_json import json_parse_kufar
+from sites.onliner.onliner_parse_json import json_parse_onliner
+from sites.sites_get_data import urls_json
 
 nest_asyncio.apply()
 
 
-def urls_json(json, work):
-    av = json["av_json"]
-    onliner = json["onliner_json"]
-    kufar = json["kufar_json"]
-    abw = json["abw_json"]
-
-    cars = []
-
-    if av:
-        cars.extend([*json_links_av(av, work)])
-
-    if onliner:
-        cars.extend([*json_links_onliner(onliner, work)])
-
-    if kufar:
-        cars.extend([*json_links_kufar(kufar)])
-
-    if abw:
-        cars.extend([*json_links_abw(abw)])
-
-    return cars
-
-
 async def bound_fetch_json(semaphore, url, session, result, work):
     # try:
-        async with semaphore:
-            await get_one_json(url, session, result, work)
-    # except Exception as e:
-    #     logging.error(f'<cook_parse_cars.bound_fetch_json> {e}')
-    #     # Блокируем все таски на <> секунд в случае ошибки 429.
-    #     await asyncio.sleep(1)
+    async with semaphore:
+        await get_one_json(url, session, result, work)
+
+
+# except Exception as e:
+#     logging.error(f'<cook_parse_cars.bound_fetch_json> {e}')
+#     # Блокируем все таски на <> секунд в случае ошибки 429.
+#     await asyncio.sleep(1)
 
 
 async def get_one_json(url, session, result, work):
@@ -53,16 +32,16 @@ async def get_one_json(url, session, result, work):
 
         page_content = await response.json()
 
-        if url.split("/")[2] == API["AV"]:
+        if url.split("/")[2] == API_DOMEN["AV"]:
             item = json_parse_av(page_content, work)
 
-        elif url.split("/")[2] == API["ONLINER"]:
+        elif url.split("/")[2] == API_DOMEN["ONLINER"]:
             item = json_parse_onliner(page_content, work)
 
-        elif url.split("/")[2] == API["KUFAR"]:
+        elif url.split("/")[2] == API_DOMEN["KUFAR"]:
             item = json_parse_kufar(page_content, work)
 
-        elif url.split('/')[2] == API['ABW']:
+        elif url.split('/')[2] == API_DOMEN['ABW']:
             item = json_parse_abw(page_content, work)
 
         result += item
@@ -94,7 +73,7 @@ async def parse_main(json, tel_id, name, work=False, send_car_job=None):
     """
     result = []
 
-    json_links = urls_json(json, work)
+    json_links = await urls_json(json, work)
 
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(json_links, result, work))

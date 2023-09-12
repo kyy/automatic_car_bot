@@ -1,20 +1,24 @@
 import logging
 from datetime import datetime
-import requests
 from lxml import etree
 
-from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON, ROOT, HEADERS
+from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON, ROOT_URL, HEADERS
 from logic.decorators import timed_lru_cache
 
 
+def html_parse_price_kufar(dom, url):
+    price = dom.xpath('//*[@data-name="additional-price"]')[0].text
+    price = price.replace(' ', '').replace('$*', '')
+    return [[int(price), url]]
 
-@timed_lru_cache(300)
-def count_cars_kufar(url):
+
+async def count_cars_kufar(url, session):
     if url is None:
         return 0
     try:
-        r = requests.get(url.replace("rendered-paginated?", "count?"), headers=HEADERS_JSON).json()
-        return int(r["count"])
+        async with session.get(url=url.replace("rendered-paginated?", "count?"), headers=HEADERS_JSON) as resp:
+            r = await resp.json(content_type=None)
+            return int(r["count"])
     except Exception as e:
         logging.error(f'<count_cars_kufar> {e}')
         return 0
@@ -22,7 +26,7 @@ def count_cars_kufar(url):
 
 @timed_lru_cache(300)
 def json_links_kufar(url):
-    if url == ROOT['KUFAR']:
+    if url == ROOT_URL['KUFAR']:
         return False
     return [url, ] if url else False
 
@@ -102,22 +106,23 @@ def json_parse_kufar(json_data, work):
     return car
 
 
-def get_car_html(id_car):
-    url = f'{ROOT["KUFAR"]}vi/{id_car}'
+async def get_car_html(id_car, session):
     try:
-        response = requests.get(url, HEADERS)
-        page_content = response.text
-        return etree.HTML(str(page_content))
+        async with session.get(
+                url=f'{ROOT_URL["KUFAR"]}vi/{id_car}',
+                headers=HEADERS,
+        ) as resp:
+            r = await resp.text()
+            return etree.HTML(str(r))
     except Exception as e:
         logging.error(f'<kufar_by.kufar_json_by_id> {e}')
         return False
 
 
-def kufar_research(id_car):
-    dom = get_car_html(id_car)
+async def kufar_research(id_car, session):
+    dom = await get_car_html(id_car, session)
     price = dom.xpath('//*[@data-name="additional-price"]')[0].text
     city = dom.xpath('//*[@data-name="ad_region_listing"]')[0].text
-
 
     # text = TEXT_DETAILS.format(
     #     url=url, price=price, brand=brand, model=model, generation=generation, year=year, motor=motor,

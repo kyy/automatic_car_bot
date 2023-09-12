@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from logic.constant import FSB, ROOT
+from logic.constant import FSB, ROOT_URL
 from logic.decorators import timed_lru_cache
 
 import numpy as np
@@ -105,7 +105,7 @@ async def get_url_abw(car_input, db):
 
 @timed_lru_cache(300)
 def abw_url_filter(abw_link_json):
-    url = ROOT['ABW']
+    url = ROOT_URL['ABW']
     try:
         url = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
     except Exception as e:

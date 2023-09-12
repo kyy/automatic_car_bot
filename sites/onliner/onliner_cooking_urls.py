@@ -2,7 +2,7 @@ import logging
 
 import numpy as np
 
-from logic.constant import FSB, ROOT, SS
+from logic.constant import FSB, ROOT_URL, SS
 from logic.decorators import timed_lru_cache
 from sites.sites_fu import max_min_params
 
@@ -91,7 +91,7 @@ def onliner_url_filter(car_input, onliner_link_json):
     :return:
     """
     if onliner_link_json is None:
-        return ROOT['ONLINER']
+        return ROOT_URL['ONLINER']
     try:
         car = car_input.split(SS)
         brand, model = car[0:2]
@@ -108,4 +108,4 @@ def onliner_url_filter(car_input, onliner_link_json):
         return url
     except Exception as e:
         logging.error(f'<onliner_url_filter> {e}')
-        return ROOT['ONLINER']
+        return ROOT_URL['ONLINER']

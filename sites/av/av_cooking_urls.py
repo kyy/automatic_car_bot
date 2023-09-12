@@ -1,6 +1,6 @@
 import logging
 
-from logic.constant import FSB, ROOT
+from logic.constant import FSB, ROOT_URL
 from logic.decorators import timed_lru_cache
 from sites.sites_fu import max_min_params
 
@@ -71,7 +71,7 @@ async def get_url_av(car_input, db):
 
 @timed_lru_cache(300)
 def av_url_filter(av_link_json):
-    url = ROOT['AV']
+    url = ROOT_URL['AV']
     try:
         url = f"https://cars.av.by/filter?{av_link_json.split('?')[1]}"
         logging.info(f'<HTML> {url}')

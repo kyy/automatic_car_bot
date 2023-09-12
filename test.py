@@ -6,7 +6,7 @@ from aiohttp import ClientSession
 from lxml import etree
 from tqdm import tqdm
 
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES, ROOT, HEADERS_JSON
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES, ROOT_URL, HEADERS_JSON
 from logic.database.config import database
 import asyncio
 import aiosqlite

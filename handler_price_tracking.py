@@ -6,11 +6,10 @@ from aiogram.types import Message
 from classes import CreateCar
 from classes import bot
 from keyboards import stalk_menu_kb, add_stalk_kb
-from logic.constant import ROOT
+from logic.constant import ROOT_URL
 from logic.database.config import database
 from logic.func import check_count_cars, check_count_cars_active
 from logic.text import TXT
-
 
 router = Router()
 
@@ -139,13 +138,14 @@ async def add_stalk(message: Message):
             if url.type == 'url':
                 url = url.extract_from(mes)
                 url_valid = f"{'/'.join(url.split('/')[:3])}/"
-                if url_valid in [''.join(i) for i in ROOT.values()] and len(url.split('/')) >= 4:
+                if url_valid in [''.join(i) for i in ROOT_URL.values()] and len(url.split('/')) >= 4:
                     async with database() as db:
 
                         check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
                         check_id = await check_id_cursor.fetchone()
 
-                        check_url_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
+                        check_url_cursor = await db.execute(
+                            f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
                         check_url = await check_url_cursor.fetchall()
 
                         if url not in [i[0] for i in check_url]:

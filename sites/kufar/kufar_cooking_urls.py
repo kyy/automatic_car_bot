@@ -1,6 +1,6 @@
 import logging
 
-from logic.constant import FSB, REPORT_PARSE_LIMIT_PAGES, PARSE_LIMIT_PAGES, ROOT
+from logic.constant import FSB, REPORT_PARSE_LIMIT_PAGES, PARSE_LIMIT_PAGES, ROOT_URL
 from logic.decorators import timed_lru_cache
 from sites.sites_fu import max_min_params
 
@@ -39,7 +39,8 @@ async def get_url_kufar(car_input, db, work):
         car_input["crg="] = transmission[car_input["crg="]]
 
     dim_k = [i for i in range(1000, 4100, 100)]
-    dim_v = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,170,173,175,180,183,190,190,200,205,205,210,211,212,213,214,220]
+    dim_v = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 170, 173, 175, 180, 183, 190, 190, 200, 205, 205, 210,
+             211, 212, 213, 214, 220]
     dim = dict(zip(dim_k, dim_v))
 
     minimus_d = car_input["crca=r:"]
@@ -69,7 +70,7 @@ async def get_url_kufar(car_input, db, work):
 
 @timed_lru_cache(300)
 def kufar_url_filter(kufar_link_json):
-    kufar_link = ROOT['KUFAR']
+    kufar_link = ROOT_URL['KUFAR']
     try:
         if '=category_2010.mark_' in kufar_link_json:
             kuf = kufar_link_json.replace('&cmdl2', '').replace('&cbnd2', '').split('=category_2010.mark_')
@@ -83,6 +84,6 @@ def kufar_url_filter(kufar_link_json):
             kufar_link = f"https://auto.kufar.by/l/cars/{kufar_link1}?cur=USD{kuf}&{kufar_link2}"
     except Exception as e:
         logging.error(f'<kufar_url_filter> {e}')
-        return ROOT['KUFAR']
+        return ROOT_URL['KUFAR']
     logging.info(f'<HTML> {kufar_link}')
     return kufar_link

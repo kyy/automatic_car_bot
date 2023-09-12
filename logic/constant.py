@@ -44,18 +44,25 @@ COL = dict(MOTOR=3, YEARS=5, COST=5, DIMENSION=8)  # constants of columns:keyboa
 
 PAGINATION = 5
 
-ROOT = dict(
+ROOT_URL = dict(
     AV="https://cars.av.by/",
     ABW="https://abw.by/",
     ONLINER="https://ab.onliner.by/",
     KUFAR="https://auto.kufar.by/",
 )
 
-API = dict(
+API_DOMEN = dict(
     AV="api.av.by",
     ABW="b.abw.by",
     ONLINER="ab.onliner.by",
     KUFAR="api.kufar.by",
+)
+
+DOMEN = dict(
+    AV="av.by",
+    ABW="abw.by",
+    ONLINER="onliner.by",
+    KUFAR="kufar.by",
 )
 
 MOTOR_DICT = {
@@ -92,5 +99,3 @@ DEFAULT = dict(
     chosen_dimension_min=SB,
     chosen_dimension_max=SB,
 )
-
-"https://habr.com/ru/companies/vk/articles/528490/"

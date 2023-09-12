@@ -1,10 +1,12 @@
 import logging
 from datetime import datetime
-import requests
 from logic.constant import (WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES,
-                            LEN_DESCRIPTION, LOGO)
-from logic.decorators import timed_lru_cache
+                            LEN_DESCRIPTION)
 from logic.text import TEXT_DETAILS
+
+
+def json_parse_price_av(json):
+    return [[int(json['price']['usd']['amount']), str(json['publicUrl'])]]
 
 
 def jd_av(r_t):
@@ -51,32 +53,32 @@ def jd_av(r_t):
     )
 
 
-@timed_lru_cache(300)
-def count_cars_av(url):
+async def count_cars_av(url, session):
     try:
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        return int(r["count"])
+        async with session.get(url=url, headers=HEADERS_JSON) as resp:
+            r = await resp.json(content_type=None)
+            return int(r["count"])
     except Exception as e:
         logging.error(f'<count_cars_av> {e}')
         return 0
 
 
-@timed_lru_cache(300)
-def json_links_av(url, work):
+async def json_links_av(url, work, session):
     try:
         links_to_json = []
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        page_count = r["pageCount"]
-        limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
-        if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
-            page_count = limit_page  # - - - - - - для отчета
-        links_to_json.append(url)
-        i = 1
-        while page_count > 1:
-            i += 1
-            links_to_json.append(f"{url}&page={i}")
-            page_count -= 1
-        return links_to_json
+        async with session.get(url=url, headers=HEADERS_JSON) as resp:
+            r = await resp.json(content_type=None)
+            page_count = r["pageCount"]
+            limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
+            if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
+                page_count = limit_page  # - - - - - - для отчета
+            links_to_json.append(url)
+            i = 1
+            while page_count > 1:
+                i += 1
+                links_to_json.append(f"{url}&page={i}")
+                page_count -= 1
+            return links_to_json
     except Exception as e:
         logging.error(f'<json_links_av> {e}')
         return False
@@ -160,17 +162,20 @@ def json_parse_av(json_data, work):
 
 
 # -------------follow-price
-def av_json_by_id(id_car):
-    url = f"https://api.av.by/offers/{id_car}"
+async def av_json_by_id(id_car, session):
     try:
-        return requests.get(url, headers=HEADERS_JSON).json()
+        async with session.get(
+                url=f"https://api.av.by/offers/{id_car}",
+                headers=HEADERS_JSON,
+        ) as resp:
+            return await resp.json(content_type=None)
     except Exception as e:
         logging.error(f'<av_by.av_json_by_id> {e}')
         return False
 
 
-def av_research(id_car):
-    j = av_json_by_id(id_car)
+async def av_research(id_car, session):
+    j = await av_json_by_id(id_car, session)
     jd = jd_av(j)
     days = jd["days"]
     status = j["publicStatus"]["label"]

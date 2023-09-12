@@ -3,11 +3,8 @@ from aiogram.types import CallbackQuery, FSInputFile
 from keyboards import start_menu_kb, bot_functions_kb, car_message_details_kb, delete_message_kb
 from logic.constant import LOGO
 from logic.func import strip_html
-from sites.av.av_parse_json import av_research
-from sites.kufar.kufar_parse_json import kufar_research
-from sites.onliner.onliner_parse_json import onliner_research
 from logic.text import TXT
-
+from sites.sites_get_data import get_car_details
 
 router = Router()
 
@@ -39,20 +36,11 @@ async def message_delete(callback: CallbackQuery):
 
 @router.callback_query(F.data.endswith('_research'))
 async def car_details(callback: CallbackQuery):
-    # отображение дополнительной информации
+    # отображение дополнительной информации о машине
     data = callback.data.split('_')
     domen, car_id, is_price = data[0], data[1], data[2]
 
-    params = False, False
-
-    if 'av.by' in domen:
-        params = av_research(car_id)
-    elif 'onliner.by' in domen:
-        params = onliner_research(car_id)
-    elif 'kufar.by' in domen:
-        params = kufar_research(car_id)
-    elif 'abw.by' in domen:
-        pass
+    params = await get_car_details(car_id, domen)
 
     kb = delete_message_kb() if is_price == 'price' else car_message_details_kb()
     text = params[0] if params[0] else f'{callback.message.caption}\n Не удалось ничего узнать'

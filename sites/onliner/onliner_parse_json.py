@@ -1,12 +1,15 @@
 import logging
 from datetime import datetime
-import requests
-from aiogram.types import FSInputFile
 
-from logic.constant import WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, LOGO, \
-    LEN_DESCRIPTION
-from logic.decorators import timed_lru_cache
+from logic.constant import (
+    WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, LEN_DESCRIPTION,
+)
+
 from logic.text import TEXT_DETAILS
+
+
+def json_parse_price_onliner(json):
+    return [[int(json['price']['converted']['USD']['amount'][:-3]), str(json['html_url'])]]
 
 
 def jd_onliner(r_t):
@@ -101,35 +104,35 @@ def jd_onliner(r_t):
     )
 
 
-@timed_lru_cache(300)
-def count_cars_onliner(url):
+async def count_cars_onliner(url, session):
     if url is None:
         return 0
     try:
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        count = int(r["total"])
-        return count
+        async with session.get(url=url, headers=HEADERS_JSON) as resp:
+            r = await resp.json(content_type=None)
+            count = int(r["total"])
+            return count
     except Exception as e:
         logging.error(f'<count_cars_onliner> {e}')
         return 0
 
 
-@timed_lru_cache(300)
-def json_links_onliner(url, work):
+async def json_links_onliner(url, work, session):
     try:
         links_to_json = []
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        page_count = r["page"]["last"]
-        limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
-        if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
-            page_count = limit_page  # - - - - - - для отчета
-        links_to_json.append(url)
-        i = 1
-        while page_count > 1:
-            i += 1
-            links_to_json.append(f"{url}&page={i}")
-            page_count -= 1
-        return links_to_json
+        async with session.get(url=url, headers=HEADERS_JSON) as resp:
+            r = await resp.json(content_type=None)
+            page_count = r["page"]["last"]
+            limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
+            if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
+                page_count = limit_page  # - - - - - - для отчета
+            links_to_json.append(url)
+            i = 1
+            while page_count > 1:
+                i += 1
+                links_to_json.append(f"{url}&page={i}")
+                page_count -= 1
+            return links_to_json
     except Exception as e:
         logging.error(f'<json_links_onliner> {e}')
         return False
@@ -188,17 +191,20 @@ def json_parse_onliner(json_data, work):
 
 
 # -------------follow-price
-def onliner_json_by_id(id_car):
-    url = f"https://ab.onliner.by/sdapi/ab.api/vehicles/{id_car}"
+async def onliner_json_by_id(id_car, session):
     try:
-        return requests.get(url, headers=HEADERS_JSON).json()
+        async with session.get(
+                url=f"https://ab.onliner.by/sdapi/ab.api/vehicles/{id_car}",
+                headers=HEADERS_JSON
+        ) as resp:
+            return await resp.json(content_type=None)
     except Exception as e:
         logging.error(f'<onliner_by.onliner_json_by_id> {e}')
         return False
 
 
-def onliner_research(id_car):
-    r_t = onliner_json_by_id(id_car)
+async def onliner_research(id_car, session):
+    r_t = await onliner_json_by_id(id_car, session)
     jd = jd_onliner(r_t)
     photo = jd["photo"]
     url = jd["url"]

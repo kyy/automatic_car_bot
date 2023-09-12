@@ -1,12 +1,16 @@
 import asyncio
 import logging
 
-import requests
 from aiohttp import ClientSession
 from lxml import etree
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES, WORK_PARSE_CARS_DELTA
-from logic.decorators import timed_lru_cache, timeit, logger
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES
 from datetime import datetime, timedelta
+
+
+def html_parse_price_abw(dom, url):
+    price = dom.xpath('//*[@class="price-usd"]')[0].text
+    price = price.replace(' ', '').replace('USD', '')
+    return [[int(price), url]]
 
 
 def abw_data(data: str):
@@ -64,62 +68,62 @@ def abw_data(data: str):
     return d
 
 
-@timed_lru_cache(300)
-def count_cars_abw(url):
+async def count_cars_abw(url, session):
     if url is None:
         return 0
     try:
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        return int(r["pagination"]["total"])
+        async with session.get(url=url, headers=HEADERS_JSON) as resp:
+            r = await resp.json(content_type=None)
+            return int(r["pagination"]["total"])
     except Exception as e:
         logging.error(f'<count_cars_abw> {e}')
         return 0
 
 
-@timed_lru_cache(300)
-def json_links_abw(url):
+async def json_links_abw(url, session):
     try:
         links_to_json = []
-        r = requests.get(url, headers=HEADERS_JSON).json()
-        page_count = r["pagination"]["pages"]
-        links_to_json.append(url)
-        i = 1
-        if page_count >= REPORT_PARSE_LIMIT_PAGES:  # - - - - - - ограничение вывода страниц
-            page_count = REPORT_PARSE_LIMIT_PAGES  # - - - - - - ограничение вывода страниц
-            while page_count > 1:
-                i += 1
-                links_to_json.append(f"{url}?page={i}")
-                page_count -= 1
-        return links_to_json
+        async with session.get(url=url, headers=HEADERS_JSON) as resp:
+            r = await resp.json(content_type=None)
+            page_count = r["pagination"]["pages"]
+            links_to_json.append(url)
+            i = 1
+            if page_count >= REPORT_PARSE_LIMIT_PAGES:  # - - - - - - ограничение вывода страниц
+                page_count = REPORT_PARSE_LIMIT_PAGES  # - - - - - - ограничение вывода страниц
+                while page_count > 1:
+                    i += 1
+                    links_to_json.append(f"{url}?page={i}")
+                    page_count -= 1
+            return links_to_json
     except Exception as e:
         logging.error(f'<json_links_abw> {e}')
         return False
 
 
-def html_links_abw(html, work):
-    # try:
-    links_to_html = []
-    r = requests.get(html, headers=HEADERS).text
-    dom = etree.HTML(str(r))
+async def html_links_abw(html, work):
+    try:
+        links_to_html = []
+        async with ClientSession as session:
+            async with session.get(url=html, headers=HEADERS) as resp:
+                r = resp.text()
+                dom = etree.HTML(str(r))
 
-    cars = int(dom.xpath('//*[@class="list-proposal__quantity-bold"]/text()')[0].replace('\xa0', ''))
-    page_count = cars // 20 if cars % 20 == 0 else cars // 20 + 1
+                cars = int(dom.xpath('//*[@class="list-proposal__quantity-bold"]/text()')[0].replace('\xa0', ''))
+                page_count = cars // 20 if cars % 20 == 0 else cars // 20 + 1
 
-    links_to_html.append(html)
-    i = 1
-    limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
-    if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
-        page_count = limit_page  # - - - - - - ограничение вывода страниц
-        while page_count > 1:
-            i += 1
-            links_to_html.append(f"{html}?page={i}")
-            page_count -= 1
-    return links_to_html
-
-
-# except Exception as e:
-#     print(e, '[abw_by.html_links_abw]')
-#     return False
+                links_to_html.append(html)
+                i = 1
+                limit_page = PARSE_LIMIT_PAGES if work is True else REPORT_PARSE_LIMIT_PAGES
+                if page_count >= limit_page:  # - - - - - - ограничение вывода страниц
+                    page_count = limit_page  # - - - - - - ограничение вывода страниц
+                    while page_count > 1:
+                        i += 1
+                        links_to_html.append(f"{html}?page={i}")
+                        page_count -= 1
+            return links_to_html
+    except Exception as e:
+        print(e, '[abw_by.html_links_abw]')
+        return False
 
 
 def html_links_cars_abw(dom):

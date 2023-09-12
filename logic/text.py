@@ -1,4 +1,4 @@
-from logic.constant import ROOT
+from logic.constant import ROOT_URL
 
 TXT = dict(
     info_start_menu_help='<b>Несколько команд для начала:</b>\n'
@@ -22,7 +22,7 @@ TXT = dict(
              '- Формирование отчета с текущими обявлениями.\n'
              '\n'
              '<b>Cобираю информацию с сайтов:</b>\n'
-             + "- " + str("- ".join([i + " \n" for i in ROOT.values()])) +
+             + "- " + str("- ".join([i + " \n" for i in ROOT_URL.values()])) +
              + 46 * ' ' +
              '<a href="https://t.me/Xibolba"><i>@Xibolba</i></a>  💬\n'
              + 25 * ' ' +
@@ -87,7 +87,7 @@ TXT = dict(
     msg_stalking_url='{url}\n⚠ ссылка уже отслеживается',
 
     msg_error_url='⚠ Неверная ссылка.\n'
-                  f'На данный момент слежу за: {" | ".join([i for i in ROOT.values()])}.',
+                  f'На данный момент слежу за: {" | ".join([i for i in ROOT_URL.values()])}.',
     msg_last_filter='📌 Последний фильтр:\n {decode_filter_short}',
 
     msg_error_filter_input='⚠ Пожалуйста, выберите одно из значений из предложенного списка.',
@@ -128,21 +128,21 @@ TXT = dict(
 )
 
 TEXT_DETAILS = (
-        "{url}\n"
-        "<i>${price}</i>\n"
-        "<b>{brand} {model} {generation} {year}</b>\n"
-        "\n"
-        "<i>{motor} {dimension}л\n"
-        "{km} км\n"
-        "{transmission} {drive} привод\n"
-        "{color} {typec}</i>\n"
-        "\n"
-        "Статус: <i>{status}</i>\n"
-        "Дней в продаже: <i>{days}</i>\n"
-        "VIN: <code>{vin}</code>\n"
-        "VIN проверен: <i>{vin_check}</i>\n"
-        "Город: <i>{city}</i>\n"
-        "\n"
-        "<i>{descr} ...</i>\n"
-        "\n"
+    "{url}\n"
+    "<i>${price}</i>\n"
+    "<b>{brand} {model} {generation} {year}</b>\n"
+    "\n"
+    "<i>{motor} {dimension}л\n"
+    "{km} км\n"
+    "{transmission} {drive} привод\n"
+    "{color} {typec}</i>\n"
+    "\n"
+    "Статус: <i>{status}</i>\n"
+    "Дней в продаже: <i>{days}</i>\n"
+    "VIN: <code>{vin}</code>\n"
+    "VIN проверен: <i>{vin_check}</i>\n"
+    "Город: <i>{city}</i>\n"
+    "\n"
+    "<i>{descr} ...</i>\n"
+    "\n"
 )

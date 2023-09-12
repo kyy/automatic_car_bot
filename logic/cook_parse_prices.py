@@ -6,38 +6,13 @@ from lxml import etree
 from aiohttp import ClientSession
 from classes import bot
 from keyboards import car_price_message_kb
-from .constant import HEADERS, API, ROOT, LOGO
+from sites.abw.abw_parse_json import html_parse_price_abw
+from sites.av.av_parse_json import json_parse_price_av
+from sites.kufar.kufar_parse_json import html_parse_price_kufar
+from sites.onliner.onliner_parse_json import json_parse_price_onliner
+from sites.sites_fu import json_urls, html_urls
+from .constant import HEADERS, API_DOMEN, ROOT_URL, LOGO
 from logic.database.config import database
-
-
-async def json_urls():
-    async with database() as db:
-        av_urls_cursor = await db.execute(
-            f"""
-            SELECT url, id FROM ucars 
-            WHERE LOWER(url) LIKE 'https://cars.av.by/%' AND is_active = 1""")
-        av_urls = await av_urls_cursor.fetchall()
-        av_urls = [(f"https://api.av.by/offers/{i[0].split('/')[-1]}", i[1]) for i in av_urls]
-        onliner_urls_cursor = await db.execute(
-            f"""
-            SELECT url, id FROM ucars
-            WHERE LOWER(url) LIKE 'https://ab.onliner.by/%' AND is_active = 1""")
-        onliner_urls = await onliner_urls_cursor.fetchall()
-        onliner_urls = [(f"https://ab.onliner.by/sdapi/ab.api/vehicles/{i[0].split('/')[-1]}", i[1]) for i in
-                        onliner_urls]
-        return [*av_urls, *onliner_urls]
-
-
-async def html_urls():
-    async with database() as db:
-        kufar_abw_urls_cursor = await db.execute(
-            f"""
-            SELECT url, id FROM ucars
-            WHERE (LOWER(url) LIKE 'https://auto.kufar.by/vi/%' OR LOWER(url) LIKE 'https://abw.by/cars/detail/%')
-            AND is_active = 1""")
-        kufar_abw_urls = await kufar_abw_urls_cursor.fetchall()
-        kufar_abw_urls = [(i[0], i[1]) for i in kufar_abw_urls]
-        return [*kufar_abw_urls]
 
 
 async def bound_fetch_json(semaphore, url, session, result):
@@ -67,10 +42,10 @@ async def get_one_json(url, session, result):
                 await db.commit()
         else:
             page_content = await response.json()
-            if url.split('/')[2] == API['AV']:
-                item = json_parse_av(page_content)
-            if url.split('/')[2] == API['ONLINER']:
-                item = json_parse_onliner(page_content)
+            if url.split('/')[2] == API_DOMEN['AV']:
+                item = json_parse_price_av(page_content)
+            if url.split('/')[2] == API_DOMEN['ONLINER']:
+                item = json_parse_price_onliner(page_content)
             result += item
 
 
@@ -85,33 +60,13 @@ async def get_one_html(url, session, result):
             page_content = await response.text()
             page_content = etree.HTML(str(page_content))
 
-            if url.split('/')[2] == ROOT['ABW'].split('/')[2]:
-                item = html_parse_abw(page_content, url)
+            if url.split('/')[2] == ROOT_URL['ABW'].split('/')[2]:
+                item = html_parse_price_abw(page_content, url)
 
-            if url.split('/')[2] == ROOT['KUFAR'].split('/')[2]:
-                item = html_parse_kufar(page_content, url)
+            if url.split('/')[2] == ROOT_URL['KUFAR'].split('/')[2]:
+                item = html_parse_price_kufar(page_content, url)
 
             result += item
-
-
-def json_parse_av(json):
-    return [[int(json['price']['usd']['amount']), str(json['publicUrl'])]]
-
-
-def json_parse_onliner(json):
-    return [[int(json['price']['converted']['USD']['amount'][:-3]), str(json['html_url'])]]
-
-
-def html_parse_abw(dom, url):
-    price = dom.xpath('//*[@class="price-usd"]')[0].text
-    price = price.replace(' ', '').replace('USD', '')
-    return [[int(price), url]]
-
-
-def html_parse_kufar(dom, url):
-    price = dom.xpath('//*[@data-name="additional-price"]')[0].text
-    price = price.replace(' ', '').replace('$*', '')
-    return [[int(price), url]]
 
 
 async def run(json, html, result):
@@ -162,6 +117,3 @@ async def parse_main(ctx):
     loop.run_until_complete(future)
     await check_price(result)
     return result
-
-
-
