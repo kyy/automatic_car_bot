@@ -1,4 +1,6 @@
-from logic.constant import FSB, MM, SS
+import logging
+
+from logic.constant import FSB, MM, SS, FOLDER_PARSE
 import os.path
 
 from logic.database.config import database
@@ -22,10 +24,16 @@ def max_min_params(car_input):
 
 
 def create_folders():
-    if not os.path.exists('logic/database/parse'):
-        os.mkdir(os.path.join('logic/database/', 'parse'))
+    if not os.path.exists(FOLDER_PARSE):
+        try:
+            os.mkdir(os.path.join('logic/database/', 'parse'))
+        except Exception as e:
+            logging.info(f'<sites_fu.create_folders> <parse folder> {e}')
     if not os.path.exists('logic/buffer'):
-        os.mkdir(os.path.join('logic/', 'buffer'))
+        try:
+            os.mkdir(os.path.join('logic/', 'buffer'))
+        except Exception as e:
+            logging.info(f'<sites_fu.create_folders> <buffer folder> {e}')
 
 
 async def json_urls():

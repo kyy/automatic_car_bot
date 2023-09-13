@@ -171,12 +171,13 @@ async def report_search(callback: CallbackQuery):
     json_links = multidata['json']
     html_links = multidata['link']
     cars_count = multidata['count']
+
     try:
         await parse_main(json=json_links, tel_id=tel_id, name=name_time_stump)
     except Exception as e:
         logging.error(f'<handler_callback.report_search.parse_main> {e}')
-
         return await bot.send_message(tel_id, TXT['msg_error'])
+
     async with database() as db:
         await callback.message.edit_text(TXT['info_filter_menu'],
                                          reply_markup=await params_menu_kb(callback, db, True),

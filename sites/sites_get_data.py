@@ -1,4 +1,5 @@
-import asyncio
+import logging
+
 from aiohttp import ClientSession
 
 from logic.constant import DOMEN
@@ -17,10 +18,10 @@ from sites.onliner.onliner_parse_json import count_cars_onliner, json_links_onli
 async def all_json(link, work=False):
     async with database() as db:
         return dict(
-            av_json=asyncio.run(get_url_av(link, db)),
-            abw_json=asyncio.run(get_url_abw(link, db)),
-            onliner_json=asyncio.run(get_url_onliner(link, db)),
-            kufar_json=asyncio.run(get_url_kufar(link, db, work)),
+            av_json=await get_url_av(link, db),
+            abw_json=await get_url_abw(link, db),
+            onliner_json=await get_url_onliner(link, db),
+            kufar_json=await get_url_kufar(link, db, work),
         )
 
 
@@ -97,14 +98,20 @@ async def urls_json(json, work):
 
 
 async def get_car_details(car_id, domen):
-    async with ClientSession() as session:
-        if DOMEN["AV"] in domen:
-            params = await av_research(car_id, session)
-        elif DOMEN["ONLINER"] in domen:
-            params = await onliner_research(car_id, session)
-        elif DOMEN["KUFAR"] in domen:
-            params = await kufar_research(car_id, session)
-        elif DOMEN["ABW"] in domen:
-            pass
+    try:
+        async with ClientSession() as session:
+            if DOMEN["AV"] in domen:
+                params = await av_research(car_id, session)
+            elif DOMEN["ONLINER"] in domen:
+                params = await onliner_research(car_id, session)
+            elif DOMEN["KUFAR"] in domen:
+                params = await kufar_research(car_id, session)
+            elif DOMEN["ABW"] in domen:
+                pass
 
-        return params
+            return params
+
+    except Exception as e:
+        logging.error(f'<sites_get_data.get_car_details> {e}')
+        return False, False
+
