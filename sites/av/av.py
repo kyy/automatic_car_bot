@@ -4,10 +4,6 @@ import numpy as np
 from tqdm import tqdm
 
 from logic.constant import HEADERS_JSON, FOLDER_PARSE
-from aiologger.loggers.json import JsonLogger
-
-
-logger = JsonLogger.with_default_handlers(serializer_kwargs={'ensure_ascii': False})
 
 
 async def av_get_from_json_brands(session):
