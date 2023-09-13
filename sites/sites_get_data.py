@@ -56,6 +56,7 @@ async def car_multidata(cars):
     json = await all_json(cars)
     count = await get_count_cars(json)
     link = all_html(cars, json)
+
     return dict(
         json=json,
         count=count,

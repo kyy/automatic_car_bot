@@ -28,7 +28,7 @@ async def abw_get_from_json_brands(session):
 
 async def abw_get_from_json_models(session):  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://b.abw.by/api/adverts/cars/filters/'
-    brand_dict, models_dict = {}, {}
+    brand_dict = {}
     brands = np.load(f'{FOLDER_PARSE}abw_brands.npy', allow_pickle=True).item()
 
     for item in tqdm(brands):
@@ -36,6 +36,7 @@ async def abw_get_from_json_models(session):  # {Brand_name:{Model_name:[id, nam
                 url=f'{url}{brands[item][1]}',
                 headers=HEADERS_JSON,
         ) as resp:
+            models_dict = {}
             r = await resp.json(content_type=None)
             for car in r['filters']['3']['options']:
                 id = car['id']

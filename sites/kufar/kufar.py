@@ -4,7 +4,6 @@ import numpy as np
 from tqdm import tqdm
 
 from logic.constant import HEADERS_JSON, FOLDER_PARSE
-import json
 
 
 async def kufar_get_from_json_brands(session):

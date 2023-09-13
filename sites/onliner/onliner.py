@@ -24,12 +24,13 @@ async def onliner_get_from_json_brands(session):
 async def onliner_get_from_json_models(session):  # {Brand_name:{Model_name:[id, name, slug]}}
     url = 'https://ab.onliner.by/sdapi/ab.api/manufacturers/'
     brands = np.load(f'{FOLDER_PARSE}onliner_brands.npy', allow_pickle=True).item()
-    brand_dict, models_dict = {}, {}
+    brand_dict = {}
     for item in tqdm(brands):
         async with session.get(
                 url=f'{url}{brands[item][0]}',
                 headers=HEADERS_JSON,
         ) as resp:
+            models_dict = {}
             r = await resp.json(content_type=None)
             for car in r['models']:
                 id = car['id']

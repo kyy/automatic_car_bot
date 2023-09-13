@@ -1,3 +1,5 @@
+import logging
+
 from .config import database
 
 
@@ -28,9 +30,9 @@ async def create_tables(db):
             )
             """)
         await db.commit()
-        print('+ user, udata успешно созданы')
+        logging.info('tables user, udata, ucars are created')
     except Exception as e:
-        print(e, '---> user, udata уже существуют')
+        logging.info(f'{e}')
 
 
 async def main(db: database()):

@@ -19,7 +19,7 @@ from logic.func import off_is_active
 
 async def update_database(ctx):
     await get_parse_brands_models()
-    # asyncio.run(update(database()))
+    asyncio.run(update(database()))
 
 
 async def reset_subs(ctx):
@@ -113,7 +113,7 @@ class Work:
              minute={30},
              max_tries=1,
              timeout=500,
-             run_at_startup=False),
+             run_at_startup=True),
     ]
 
 

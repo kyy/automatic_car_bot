@@ -1,8 +1,11 @@
+import logging
+
 import aiosqlite
 import numpy as np
 from .config import database
 import asyncio
 from .user_data_migrations import main as user_data_migrations
+from ..constant import FOLDER_PARSE
 
 
 def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
@@ -16,7 +19,7 @@ def lenn(items):
 
 
 def car_data():
-    folder = 'logic/database/parse/'
+    folder = FOLDER_PARSE
     av_b = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
     abw_m = np.load(f'{folder}abw_models.npy', allow_pickle=True).item()
     av_m = np.load(f'{folder}av_models.npy', allow_pickle=True).item()
@@ -72,9 +75,9 @@ async def create_tables(db):
             kufar_by TEXT (0, 32)
             )""")
         await db.commit()
-        print('+ brands, models успешно созданы')
-    except aiosqlite.Error:
-        print('---> brands, models уже существуют')
+        logging.info('tables brands and models are created')
+    except aiosqlite.Error as e:
+        logging.error(f'{e}')
 
 
 async def av_brands(db, av_b, l_av_b):
@@ -91,9 +94,9 @@ async def av_brands(db, av_b, l_av_b):
             INSERT INTO brands([unique], av_by) 
             VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
         await db.commit()
-        print('+ brands - av_by')
+        logging.info('av <- brands is comitted')
     else:
-        print(f'---> брендов: БД/av.by  {l_av_bd}/{l_av_b}')
+        logging.info(f'av <- brands: {l_av_bd}/{l_av_b}')
         update = []
         update_insert = []
         for item in av_b:
@@ -113,10 +116,10 @@ async def av_brands(db, av_b, l_av_b):
             REPLACE INTO brands(id, [unique], av_by) 
             VALUES(?, ?, ?)""", update)      # обновляем все бренды
         await db.commit()
-        print('+ brands - av_by')
+        logging.info('av <- brands is comitted')
         await asyncio.sleep(0.1)
         if l_av_b != l_av_bd:
-            print(f'Добавлено - {l_av_b-l_av_bd}')
+            logging.info(f'av <- brands added: {l_av_b-l_av_bd}')
 
 
 async def av_models(db, av_m, l_av_m):
@@ -155,9 +158,9 @@ async def av_models(db, av_m, l_av_m):
             "INSERT INTO models(brand_id, [unique], av_by) "
             "VALUES(?, ?, ?);", models_list)
         await db.commit()
-        print('+ models - av_by')
+        logging.info('av <- models is comitted')
     else:
-        print(f'---> моделей: БД/av.by  {l_av_bd_m}/{l_av_m}')
+        logging.info(f'av <- models: {l_av_bd_m}/{l_av_m}')
 
         for brand_model in av_bd_bm:
             if brand_model[1] not in av_m[brand_model[0]]:
@@ -180,10 +183,10 @@ async def av_models(db, av_m, l_av_m):
             "REPLACE INTO models(id, brand_id, [unique], av_by) "
             "VALUES(?, ?, ?, ?);", models_list_update)    # обновляем модели моделей
         await db.commit()
-        print('+ models - av_by')
+        logging.info('av <- brands is comitted')
         await asyncio.sleep(0.1)
         if l_av_m != l_av_bd_m:
-            print(f'Добавлено - {l_av_m - l_av_bd_m}')
+            logging.info(f'av <- brands addied: {l_av_m - l_av_bd_m}')
 
 
 async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, index: int):
@@ -205,7 +208,7 @@ async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, i
                 WHERE [unique] = '{brand}';
                 """)
     await db.commit()
-    print(f'+ brands - {set_row}')
+    logging.info(f'{set_row} <- brands is comitted')
 
 
 async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], ], set_row: str, index: int):
@@ -231,7 +234,7 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
                     WHERE [unique] = "{model}";
                     ''')
     await db.commit()
-    print(f'+ models - {set_row}')
+    logging.info(f'{set_row} <- models is comitted')
 
 
 async def delete_dublicates(db, table: str):
@@ -254,6 +257,7 @@ async def delete_dublicates(db, table: str):
                 WHERE id={row[0]}
                 ORDER BY DATE 
             """)
+            logging.info(f'dublicate: {table}: {row}')
     await db.commit()
 
 
@@ -279,5 +283,5 @@ async def main(db: database()):
             await delete_dublicates(db, 'brands')
             await delete_dublicates(db, 'models')
         else:
-            print('Присутствуют пустые словари, '
-                  'возможна утеря данных в БД (data_migrations.py -> checking_null())')
+            logging.info('Присутствуют пустые словари в папке parse')
+
