@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import os
 from aiogram.types import FSInputFile
@@ -19,7 +18,7 @@ from logic.func import off_is_active
 
 async def update_database(ctx):
     await get_parse_brands_models()
-    asyncio.run(update(database()))
+    await update(database())
 
 
 async def reset_subs(ctx):
@@ -97,7 +96,7 @@ class Work:
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=False),
+             run_at_startup=True),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,
@@ -113,7 +112,7 @@ class Work:
              minute={30},
              max_tries=1,
              timeout=500,
-             run_at_startup=True),
+             run_at_startup=False),
     ]
 
 

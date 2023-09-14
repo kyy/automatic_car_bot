@@ -183,7 +183,6 @@ async def av_research(id_car, session):
     city = jd["city"]
     year = jd["year"]
     url = jd["url"]
-    photo = jd["photo"]
     descr = jd["descr"]
     vin = jd["vin"]
     vin_check = jd["vin_check"]
@@ -222,4 +221,10 @@ async def av_research(id_car, session):
         descr=descr[:LEN_DESCRIPTION], days=days, transmission=transmission, drive=drive, km=km,
     )
 
-    return text, photo
+    return text
+
+
+async def get_av_photo(id_car, session):
+    j = await av_json_by_id(id_car, session)
+    jd = jd_av(j)
+    return jd["photo"]

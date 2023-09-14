@@ -129,4 +129,10 @@ async def kufar_research(id_car, session):
     #     dimension=dimension, color=color, typec=typec, status=status, vin=vin, vin_check=vin_check, city=city,
     #     descr=descr[:LEN_DESCRIPTION], days=days, transmission=transmission, drive=drive, km=km,
     # )
-    return False, False
+    return False
+
+
+async def get_kufar_photo(id_car, session):
+    dom = await get_car_html(id_car, session)
+    photo = dom.xpath('//*[@class="swiper-zoom-container"]/img/@src')[0]
+    return photo

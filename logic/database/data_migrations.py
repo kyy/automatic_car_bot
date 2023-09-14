@@ -94,9 +94,9 @@ async def av_brands(db, av_b, l_av_b):
             INSERT INTO brands([unique], av_by) 
             VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
         await db.commit()
-        logging.info('av <- brands is comitted')
+        logging.info('av_by <- brands is comitted')
     else:
-        logging.info(f'av <- brands: {l_av_bd}/{l_av_b}')
+        logging.info(f'av_by <- brands: {l_av_bd}/{l_av_b}')
         update = []
         update_insert = []
         for item in av_b:
@@ -116,10 +116,10 @@ async def av_brands(db, av_b, l_av_b):
             REPLACE INTO brands(id, [unique], av_by) 
             VALUES(?, ?, ?)""", update)      # обновляем все бренды
         await db.commit()
-        logging.info('av <- brands is comitted')
+        logging.info('av_by <- brands is comitted')
         await asyncio.sleep(0.1)
         if l_av_b != l_av_bd:
-            logging.info(f'av <- brands added: {l_av_b-l_av_bd}')
+            logging.info(f'av_by <- brands result: {l_av_b-l_av_bd}')
 
 
 async def av_models(db, av_m, l_av_m):
@@ -158,9 +158,9 @@ async def av_models(db, av_m, l_av_m):
             "INSERT INTO models(brand_id, [unique], av_by) "
             "VALUES(?, ?, ?);", models_list)
         await db.commit()
-        logging.info('av <- models is comitted')
+        logging.info('av_by <- models is comitted')
     else:
-        logging.info(f'av <- models: {l_av_bd_m}/{l_av_m}')
+        logging.info(f'av_by <- models: {l_av_bd_m}/{l_av_m}')
 
         for brand_model in av_bd_bm:
             if brand_model[1] not in av_m[brand_model[0]]:
@@ -183,10 +183,10 @@ async def av_models(db, av_m, l_av_m):
             "REPLACE INTO models(id, brand_id, [unique], av_by) "
             "VALUES(?, ?, ?, ?);", models_list_update)    # обновляем модели моделей
         await db.commit()
-        logging.info('av <- brands is comitted')
+        logging.info('av_by <- models is comitted')
         await asyncio.sleep(0.1)
         if l_av_m != l_av_bd_m:
-            logging.info(f'av <- brands addied: {l_av_m - l_av_bd_m}')
+            logging.info(f'av_by <- models result: {l_av_m - l_av_bd_m}')
 
 
 async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, index: int):

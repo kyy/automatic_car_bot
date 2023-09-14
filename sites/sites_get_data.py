@@ -8,11 +8,11 @@ from logic.database.config import database
 from sites.abw.abw_cooking_urls import get_url_abw, abw_url_filter
 from sites.abw.abw_parse_json import count_cars_abw, json_links_abw
 from sites.av.av_cooking_urls import get_url_av, av_url_filter
-from sites.av.av_parse_json import count_cars_av, json_links_av, av_research
+from sites.av.av_parse_json import count_cars_av, json_links_av, av_research, get_av_photo
 from sites.kufar.kufar_cooking_urls import get_url_kufar, kufar_url_filter
-from sites.kufar.kufar_parse_json import count_cars_kufar, json_links_kufar, kufar_research
+from sites.kufar.kufar_parse_json import count_cars_kufar, json_links_kufar, kufar_research, get_kufar_photo
 from sites.onliner.onliner_cooking_urls import get_url_onliner, onliner_url_filter
-from sites.onliner.onliner_parse_json import count_cars_onliner, json_links_onliner, onliner_research
+from sites.onliner.onliner_parse_json import count_cars_onliner, json_links_onliner, onliner_research, get_onliner_photo
 
 
 async def all_json(link, work=False):
@@ -113,5 +113,23 @@ async def get_car_details(car_id, domen):
 
     except Exception as e:
         logging.error(f'<sites_get_data.get_car_details> {e}')
-        return False, False
+        return False
 
+
+async def get_photos(car_id, domen):
+    try:
+        async with ClientSession() as session:
+            if DOMEN["AV"] in domen:
+                params = await get_av_photo(car_id, session)
+            elif DOMEN["ONLINER"] in domen:
+                params = await get_onliner_photo(car_id, session)
+            elif DOMEN["KUFAR"] in domen:
+                params = await get_kufar_photo(car_id, session)
+            elif DOMEN["ABW"] in domen:
+                pass
+
+            return params
+
+    except Exception as e:
+        logging.error(f'<sites_get_data.get_photos> {e}')
+        return False

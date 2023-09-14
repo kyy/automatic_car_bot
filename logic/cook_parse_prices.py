@@ -11,6 +11,7 @@ from sites.av.av_parse_json import json_parse_price_av
 from sites.kufar.kufar_parse_json import html_parse_price_kufar
 from sites.onliner.onliner_parse_json import json_parse_price_onliner
 from sites.sites_fu import json_urls, html_urls
+from sites.sites_get_data import get_photos
 from .constant import HEADERS, API_DOMEN, ROOT_URL, LOGO
 from logic.database.config import database
 
@@ -88,24 +89,42 @@ async def run(json, html, result):
 
 async def check_price(result):
     async with database() as db:
+
         data_cursor = await db.execute(f"""
         SELECT user.tel_id, ucars.id, ucars.url, ucars.price FROM ucars
         INNER JOIN user on user.id = ucars.user_id
         ORDER BY ucars.url """)
         base_data = await data_cursor.fetchall()
         for car in result:
-            for row in (row for row in base_data if row[2] == car[1] and row[3] != car[0]):
+
+            current_price, url = car[0], car[1]
+            id_car = url.split('/')[-1]
+            domen = url.split('/')[2]
+
+            image = await get_photos(id_car, domen)
+
+            photo = FSInputFile(LOGO) if image is False else image
+
+            # tel_id=row[0] / db_id= row[1] / db_url=row[2] / db_price=row[3]
+            for row in (row for row in base_data if row[2] == url and row[3] != current_price):
+
+                db_price = row[3]
+
                 if row[3] != 0:
-                    await bot.send_photo(row[0],
-                                         caption=
-                                         f'Старая цена - {row[3]}$\n'
-                                         f'Текущая цена - {car[0]}$\n'
-                                         f'Разница - {abs(row[3] - car[0])}$\n'
-                                         f'{car[1]}',
-                                         reply_markup=car_price_message_kb(car[1]),
-                                         photo=FSInputFile(LOGO),
-                                         parse_mode='HTML',
-                                         )
+                    try:
+                        await bot.send_photo(row[0],
+                                             caption=
+                                             f'Старая цена - {db_price}$\n'
+                                             f'Текущая цена - {current_price}$\n'
+                                             f'Разница - {abs(db_price - current_price)}$\n'
+                                             f'{url}',
+                                             reply_markup=car_price_message_kb(url),
+                                             photo=photo,
+                                             parse_mode='HTML',
+                                             )
+                    except Exception as e:
+                        logging.error(f'<cook_parse_prices.check_price> {e}')
+
                 await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
         await db.commit()
 

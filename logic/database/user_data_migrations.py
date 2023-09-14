@@ -32,7 +32,7 @@ async def create_tables(db):
         await db.commit()
         logging.info('tables user, udata, ucars are created')
     except Exception as e:
-        logging.info(f'{e}')
+        logging.error(f'{e}')
 
 
 async def main(db: database()):

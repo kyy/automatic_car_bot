@@ -1,7 +1,6 @@
 from aiogram import F, Router
-from aiogram.types import CallbackQuery, FSInputFile
+from aiogram.types import CallbackQuery
 from keyboards import start_menu_kb, bot_functions_kb, car_message_details_kb, delete_message_kb
-from logic.constant import LOGO
 from logic.func import strip_html
 from logic.text import TXT
 from sites.sites_get_data import get_car_details
@@ -43,11 +42,11 @@ async def car_details(callback: CallbackQuery):
     params = await get_car_details(car_id, domen)
 
     kb = delete_message_kb() if is_price == 'price' else car_message_details_kb()
-    text = params[0] if params[0] else f'{callback.message.caption}\n Не удалось ничего узнать'
-    photo = FSInputFile(LOGO) if params[1] == '' else params[1]
+    text = params if params else f'{callback.message.caption}\n Не удалось ничего узнать'
+
+
 
     await callback.message.edit_caption(
-        photo=photo,
         caption=strip_html(text),
         parse_mode='HTML',
         disable_web_page_preview=True,

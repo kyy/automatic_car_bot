@@ -206,7 +206,6 @@ async def onliner_json_by_id(id_car, session):
 async def onliner_research(id_car, session):
     r_t = await onliner_json_by_id(id_car, session)
     jd = jd_onliner(r_t)
-    photo = jd["photo"]
     url = jd["url"]
     brand_model_gen = jd["fullname"]
     days = jd["days"]
@@ -230,4 +229,10 @@ async def onliner_research(id_car, session):
         descr=descr[:LEN_DESCRIPTION], days=days, transmission=transmission, drive=drive, km=km,
     )
 
-    return text, photo
+    return text
+
+
+async def get_onliner_photo(id_car, session):
+    r_t = await onliner_json_by_id(id_car, session)
+    jd = jd_onliner(r_t)
+    return jd["photo"]

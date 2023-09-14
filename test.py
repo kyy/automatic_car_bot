@@ -1,3 +1,4 @@
+import logging
 import random
 from datetime import datetime, timedelta
 
@@ -7,7 +8,7 @@ from aiohttp import ClientSession
 from lxml import etree
 from tqdm import tqdm
 
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES, ROOT_URL
 
 from logic.database.config import database
 import asyncio
@@ -60,14 +61,36 @@ import requests
 
 
 
-def lenn(items):
-    return sum([1 for item in items for sub_item in items[item]])   # noqa
+async def get_car_html(id_car, session):
+    try:
+        async with session.get(
+                url=f'{ROOT_URL["KUFAR"]}vi/{id_car}',
+                headers=HEADERS,
+        ) as resp:
+            r = await resp.text()
+            return etree.HTML(str(r))
+    except Exception as e:
+        logging.error(f'<kufar_by.kufar_json_by_id> {e}')
 
-folder = 'logic/database/parse/'
-
-av_m = np.load(f'{folder}av_models.npy', allow_pickle=True).item()
 
 
+async def get_kufar_photo(id_car, session):
+    dom = await get_car_html(id_car, session)
+    photo = dom.xpath('//*[@class="swiper-zoom-container"]/img/@src')[0]
+    return print(photo)
+
+
+async def main():
+    async with ClientSession() as session:
+        await get_kufar_photo(196165177, session)
+
+
+loop = asyncio.get_event_loop()
+future = asyncio.ensure_future(main())
+loop.run_until_complete(future)
+
+a = [1,2,3,4]
+b,c,d,e = a[0:4]
+print(b,c,d,e)
 if __name__ == '__main__':
-    print(len(av_m))
-    print(av_m["BMW"])
+    pass
