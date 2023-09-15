@@ -76,21 +76,21 @@ async def get_car_html(id_car, session):
 
 async def get_kufar_photo(id_car, session):
     dom = await get_car_html(id_car, session)
-    photo = dom.xpath('//*[@class="swiper-zoom-container"]/img/@src')[0]
-    return print(photo)
+
+
+
+    days = dom.xpath('//*[@data-name="av_right_sidebar"]/following-sibling::node()[1]/span/text()')
+    return print(days)
 
 
 async def main():
     async with ClientSession() as session:
-        await get_kufar_photo(196165177, session)
+        await get_kufar_photo(207826657, session)
 
 
 loop = asyncio.get_event_loop()
 future = asyncio.ensure_future(main())
 loop.run_until_complete(future)
 
-a = [1,2,3,4]
-b,c,d,e = a[0:4]
-print(b,c,d,e)
 if __name__ == '__main__':
     pass
