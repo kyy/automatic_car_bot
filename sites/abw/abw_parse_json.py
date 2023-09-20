@@ -7,12 +7,6 @@ from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARS
 from datetime import datetime, timedelta
 
 
-def html_parse_price_abw(dom, url):
-    price = dom.xpath('//*[@class="price-usd"]')[0].text
-    price = price.replace(' ', '').replace('USD', '')
-    return [[int(price), url]]
-
-
 def abw_data(data: str):
     mon = {
         'Сентября': 'Sep',
@@ -265,3 +259,38 @@ async def parse_pages_abw(html, work):
     future = asyncio.ensure_future(run(html_links, result))
     loop.run_until_complete(future)
     return result
+
+
+async def abw_html_by_url(url, session):
+    try:
+        async with session.get(url=url, headers=HEADERS) as response:
+            page_content = await response.text()
+            page_content = etree.HTML(str(page_content))
+        return page_content
+    except Exception as e:
+        logging.error(f'<abw_html_by_url> {e}')
+        return False
+
+
+def html_parse_price_abw(dom, url):
+    price = dom.xpath('//*[@class="price-usd"]')[0].text
+    price = price.replace(' ', '').replace('USD', '')
+    return [[int(price), url]]
+
+
+async def get_abw_photo(url, session):
+    dom = await abw_html_by_url(url, session)
+    image = dom.xpath('//*[@class="main-slide-img"]/@src')[0]
+    return image
+
+
+async def get_abw_stalk_name(url, session):
+    try:
+        dom = await abw_html_by_url(url, session)
+        price = dom.xpath('//*[@class="price-usd"]')[0].text.replace(' ', '').replace('USD', '')
+        brand_model = dom.xpath('//*[@class="header-title"]/text()')[0].split(', ')[0].replace('Продажа ', '')
+        return brand_model, int(price)
+
+    except Exception as e:
+        logging.error(f'<get_av_stalk_name> abw_url: {url} {e}')
+        return ' '.join(url.split('/')[-3:]), 0

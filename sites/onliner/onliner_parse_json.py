@@ -236,3 +236,16 @@ async def get_onliner_photo(id_car, session):
     r_t = await onliner_json_by_id(id_car, session)
     jd = jd_onliner(r_t)
     return jd["photo"]
+
+
+async def get_onliner_stalk_name(id_car, session):
+    r_t = await onliner_json_by_id(id_car, session)
+    try:
+        jd = jd_onliner(r_t)
+        brand_model_gen = jd["fullname"]
+        brand_model = " ".join(brand_model_gen.split(' ')[:-1])
+        price = jd["price"]
+        return brand_model, int(price)
+    except Exception as e:
+        logging.error(f'<get_onliner_stalk_name> onliner_id: {id_car} {e}')
+        return '', 0

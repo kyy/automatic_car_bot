@@ -26,7 +26,8 @@ async def create_tables(db):
             user_id INTEGER REFERENCES user (id) ON DELETE CASCADE,
             url TEXT (0, 128),
             price INTEGER (0, 16),
-            is_active INT DEFAULT 1
+            is_active INT DEFAULT 1,
+            name TEXT (0, 32)
             )
             """)
         await db.commit()

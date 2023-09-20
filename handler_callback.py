@@ -37,14 +37,14 @@ async def message_delete(callback: CallbackQuery):
 async def car_details(callback: CallbackQuery):
     # отображение дополнительной информации о машине
     data = callback.data.split('_')
-    domen, car_id, is_price = data[0], data[1], data[2]
+    url, is_price = data[0], data[1]
 
-    params = await get_car_details(car_id, domen)
+    url = f'https://{url}'
+
+    params = await get_car_details(url)
 
     kb = delete_message_kb() if is_price == 'price' else car_message_details_kb()
     text = params if params else f'{callback.message.caption}\n Не удалось ничего узнать'
-
-
 
     await callback.message.edit_caption(
         caption=strip_html(text),

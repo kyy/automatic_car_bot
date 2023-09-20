@@ -228,3 +228,23 @@ async def get_av_photo(id_car, session):
     j = await av_json_by_id(id_car, session)
     jd = jd_av(j)
     return jd["photo"]
+
+
+async def get_av_stalk_name(id_car, session):
+    j = await av_json_by_id(id_car, session)
+    try:
+        brand = model = ''
+        for i in range(len(j["properties"])):
+            r_t = j["properties"][i]
+            if r_t["name"] == "brand":
+                brand = r_t["value"]
+            if r_t["name"] == "model":
+                model = r_t["value"]
+        jd = jd_av(j)
+        price = jd["price"]
+
+        return f'{brand} {model}', price
+
+    except Exception as e:
+        logging.error(f'<get_av_stalk_name> av_id: {id_car} {e}')
+        return '', 0

@@ -1,9 +1,37 @@
 import logging
 
-from logic.constant import FSB, MM, SS, FOLDER_PARSE
+from aiohttp import ClientSession
+
+from logic.constant import FSB, MM, SS, FOLDER_PARSE, DOMEN
 import os.path
 
 from logic.database.config import database
+
+
+async def sort_domens(url,  **kwargs):
+    """
+    
+    :param url: 
+    :param kwargs: 
+    :return: 
+    car_id: id from url
+    """""
+
+    split_url = url.split('/')
+    domen = split_url[2]
+    car_id = split_url[-1]
+
+    async with ClientSession() as session:
+        if DOMEN["AV"] in domen:
+            params = await kwargs["av"](car_id, session)
+        elif DOMEN["ONLINER"] in domen:
+            params = await kwargs["onliner"](car_id, session)
+        elif DOMEN["KUFAR"] in domen:
+            params = await kwargs["kufar"](url, session)
+        elif DOMEN["ABW"] in domen:
+            params = await kwargs["abw"](url, session)
+
+        return params
 
 
 def max_min_params(car_input):

@@ -84,7 +84,6 @@ async def run(json, html, result):
                 tasks.append(task)
         # Ожидаем завершения всех наших задач.
         await asyncio.gather(*tasks)
-        await session.close()
 
 
 async def check_price(result):
@@ -98,19 +97,17 @@ async def check_price(result):
         for car in result:
 
             current_price, url = car[0], car[1]
-            id_car = url.split('/')[-1]
-            domen = url.split('/')[2]
 
-            image = await get_photos(id_car, domen)
+            image = await get_photos(url)
 
             photo = FSInputFile(LOGO) if image is False else image
 
-            # tel_id=row[0] / db_id= row[1] / db_url=row[2] / db_price=row[3]
+            # tel_id=row[0] / db_id=row[1] / db_url=row[2] / db_price=row[3]
             for row in (row for row in base_data if row[2] == url and row[3] != current_price):
 
-                db_price = row[3]
+                db_price, db_url = row[3], row[2]
 
-                if row[3] != 0:
+                if db_price != 0:
                     try:
                         await bot.send_photo(row[0],
                                              caption=
@@ -125,7 +122,7 @@ async def check_price(result):
                     except Exception as e:
                         logging.error(f'<cook_parse_prices.check_price> {e}')
 
-                await db.execute(f"""UPDATE ucars SET price='{car[0]}' WHERE url='{row[2]}'""")
+                await db.execute(f"""UPDATE ucars SET price='{current_price}' WHERE url='{db_url}'""")
         await db.commit()
 
 

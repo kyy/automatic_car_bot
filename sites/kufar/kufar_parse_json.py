@@ -107,10 +107,10 @@ def json_parse_kufar(json_data, work):
     return car
 
 
-async def get_car_html(id_car, session):
+async def get_car_html(url, session):
     try:
         async with session.get(
-                url=f'{ROOT_URL["KUFAR"]}vi/{id_car}',
+                url=url,
                 headers=HEADERS,
         ) as resp:
             r = await resp.text()
@@ -158,7 +158,20 @@ async def kufar_research(id_car, session):
     return text
 
 
-async def get_kufar_photo(id_car, session):
-    dom = await get_car_html(id_car, session)
+async def get_kufar_photo(url, session):
+    dom = await get_car_html(url, session)
     photo = dom.xpath('//*[@class="swiper-zoom-container"]/img/@src')[0]
     return photo
+
+
+async def get_kufar_stalk_name(url, session):
+    dom = await get_car_html(url, session)
+    try:
+        brand = dom.xpath('//*[@data-name="cars_brand_v2"]/following-sibling::node()[1]/span')[0].text
+        model = dom.xpath('//*[@data-name="cars_model_v2"]/following-sibling::node()[1]/span')[0].text
+        price = dom.xpath('//*[@data-name="additional-price"]')[0].text
+        price = price.replace(' ', '').replace('$*', '')
+        return f'{brand} {model}', int(price)
+    except Exception as e:
+        logging.error(f'<get_kufar_stalk_name> kufar_url: {url} {e}')
+        return ' '.join(url.split('/')[-3:]), 0

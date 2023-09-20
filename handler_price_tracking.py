@@ -10,6 +10,7 @@ from logic.constant import ROOT_URL
 from logic.database.config import database
 from logic.func import check_count_cars, check_count_cars_active
 from logic.text import TXT
+from sites.sites_get_data import get_br_mod_pr
 
 router = Router()
 
@@ -66,6 +67,9 @@ async def car_follow(callback: CallbackQuery):
     status_is_active = await check_count_cars_active(tel_id)
     if status_add_limit:
         message = callback.message.caption.split('\n')
+
+        url, price = message[0], int(message[1][1:])
+
         async with database() as db:
 
             check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
@@ -76,9 +80,10 @@ async def car_follow(callback: CallbackQuery):
 
             if message[0] not in [i[0] for i in check_url]:
                 is_active = 1 if status_is_active else 0
-
-                await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active) 
-                                     VALUES (?, ?, ?, ?)""", (check_id[0], message[0], int(message[1][1:]), is_active))
+                name, current_price = await get_br_mod_pr(url)
+                price = current_price if current_price != 0 else price
+                await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active, name) 
+                                     VALUES (?, ?, ?, ?, ?)""", (check_id[0], url, price, is_active, name))
                 await db.commit()
             await callback.message.delete()
 
@@ -151,8 +156,11 @@ async def add_stalk(message: Message):
                         if url not in [i[0] for i in check_url]:
                             status_is_active = await check_count_cars_active(tel_id)
                             is_active = 1 if status_is_active else 0
-                            await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active)
-                                                 VALUES (?, ?, ?, ?)""", (check_id[0], url, 0, is_active))
+
+                            name, price = await get_br_mod_pr(url)
+
+                            await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active, name)
+                                                 VALUES (?, ?, ?, ?, ?)""", (check_id[0], url, price, is_active, name))
                             await db.commit()
                             await bot.send_message(
                                 tel_id, TXT['msg_added_url'].format(url=url), disable_web_page_preview=True)

@@ -61,36 +61,30 @@ import requests
 
 
 
-async def get_car_html(id_car, session):
-    try:
-        async with session.get(
-                url=f'{ROOT_URL["KUFAR"]}vi/{id_car}',
-                headers=HEADERS,
-        ) as resp:
-            r = await resp.text()
-            return etree.HTML(str(r))
-    except Exception as e:
-        logging.error(f'<kufar_by.kufar_json_by_id> {e}')
+# async def get_car_html(url, session):
+#     async with session.get(url=url, headers=HEADERS) as response:
+#         page_content = await response.text()
+#         page_content = etree.HTML(str(page_content))
+#     return page_content
+#
+#
+#
+# async def get_kufar_photo(url, session):
+#     dom = await get_car_html(url, session)
+#     image = dom.xpath('//*[@class="main-slide-img"]/@src')[0]
+#     return print(image)
+#
+#
+# async def main():
+#     url = 'https://abw.by/cars/detail/citroen/c5/12251989'
+#     async with ClientSession() as session:
+#         await get_kufar_photo(url, session)
+#
+#
+# loop = asyncio.get_event_loop()
+# future = asyncio.ensure_future(main())
+# loop.run_until_complete(future)
 
-
-
-async def get_kufar_photo(id_car, session):
-    dom = await get_car_html(id_car, session)
-
-
-
-    days = dom.xpath('//*[@data-name="av_right_sidebar"]/following-sibling::node()[1]/span/text()')
-    return print(days)
-
-
-async def main():
-    async with ClientSession() as session:
-        await get_kufar_photo(207826657, session)
-
-
-loop = asyncio.get_event_loop()
-future = asyncio.ensure_future(main())
-loop.run_until_complete(future)
 
 if __name__ == '__main__':
     pass

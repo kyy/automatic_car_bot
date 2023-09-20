@@ -2,17 +2,23 @@ import logging
 
 from aiohttp import ClientSession
 
-from logic.constant import DOMEN
 from logic.database.config import database
 
 from sites.abw.abw_cooking_urls import get_url_abw, abw_url_filter
-from sites.abw.abw_parse_json import count_cars_abw, json_links_abw
+from sites.abw.abw_parse_json import count_cars_abw, json_links_abw, get_abw_stalk_name, get_abw_photo
+
 from sites.av.av_cooking_urls import get_url_av, av_url_filter
-from sites.av.av_parse_json import count_cars_av, json_links_av, av_research, get_av_photo
+from sites.av.av_parse_json import count_cars_av, json_links_av, av_research, get_av_photo, get_av_stalk_name
+
 from sites.kufar.kufar_cooking_urls import get_url_kufar, kufar_url_filter
-from sites.kufar.kufar_parse_json import count_cars_kufar, json_links_kufar, kufar_research, get_kufar_photo
+from sites.kufar.kufar_parse_json import (count_cars_kufar, json_links_kufar, kufar_research, get_kufar_photo,
+                                          get_kufar_stalk_name,
+                                          )
 from sites.onliner.onliner_cooking_urls import get_url_onliner, onliner_url_filter
-from sites.onliner.onliner_parse_json import count_cars_onliner, json_links_onliner, onliner_research, get_onliner_photo
+from sites.onliner.onliner_parse_json import (count_cars_onliner, json_links_onliner, onliner_research,
+                                              get_onliner_photo, get_onliner_stalk_name,
+                                              )
+from sites.sites_fu import sort_domens
 
 
 async def all_json(link, work=False):
@@ -97,39 +103,45 @@ async def urls_json(json, work):
     return cars
 
 
-async def get_car_details(car_id, domen):
+async def get_car_details(url, **kwargs):
     try:
-        async with ClientSession() as session:
-            if DOMEN["AV"] in domen:
-                params = await av_research(car_id, session)
-            elif DOMEN["ONLINER"] in domen:
-                params = await onliner_research(car_id, session)
-            elif DOMEN["KUFAR"] in domen:
-                params = await kufar_research(car_id, session)
-            elif DOMEN["ABW"] in domen:
-                pass
-
-            return params
-
+        params = await sort_domens(url,
+                                   av=av_research,
+                                   onliner=onliner_research,
+                                   kufar=kufar_research,
+                                   **kwargs,
+                                   )
+        return params
     except Exception as e:
         logging.error(f'<sites_get_data.get_car_details> {e}')
         return False
 
 
-async def get_photos(car_id, domen):
+async def get_photos(url, **kwargs):
     try:
-        async with ClientSession() as session:
-            if DOMEN["AV"] in domen:
-                params = await get_av_photo(car_id, session)
-            elif DOMEN["ONLINER"] in domen:
-                params = await get_onliner_photo(car_id, session)
-            elif DOMEN["KUFAR"] in domen:
-                params = await get_kufar_photo(car_id, session)
-            elif DOMEN["ABW"] in domen:
-                pass
-
-            return params
-
+        params = await sort_domens(url,
+                                   av=get_av_photo,
+                                   onliner=get_onliner_photo,
+                                   kufar=get_kufar_photo,
+                                   abw=get_abw_photo,
+                                   **kwargs,
+                                   )
+        return params
     except Exception as e:
         logging.error(f'<sites_get_data.get_photos> {e}')
+        return False
+
+
+async def get_br_mod_pr(url, **kwargs):
+    try:
+        params = await sort_domens(url,
+                                   av=get_av_stalk_name,
+                                   onliner=get_onliner_stalk_name,
+                                   kufar=get_kufar_stalk_name,
+                                   abw=get_abw_stalk_name,
+                                   **kwargs,
+                                   )
+        return params
+    except Exception as e:
+        logging.error(f'<sites_get_data.get_stalk_name> {e}')
         return False

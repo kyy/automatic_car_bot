@@ -127,19 +127,16 @@ def filter_menu_kb(callback, cars_count):
 
 
 def car_message_kb(url):
-    # меню отследить или удалить сообщение
+    # меню отследить, получить детали, удалить сообщение
     """
     :param url: полная ссылка на объявление
     :return:
     """
-    url = url.split('/')
-    car_id = url[-1]
-    domen = url[2]
-
+    url = url.replace('https://', '')
     buttons = [
         [
             InlineKeyboardButton(text=TXT["btn_stalk_price"], callback_data="car_follow"),
-            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data=f"{domen}_{car_id}_research"),
+            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data=f"{url}_research"),
             InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
         ]
     ]
@@ -148,10 +145,6 @@ def car_message_kb(url):
 
 def car_message_details_kb():
     # меню отследить или удалить сообщение
-    """
-    :param url: полная ссылка на объявление
-    :return:
-    """
 
     buttons = [
         [
@@ -164,12 +157,11 @@ def car_message_details_kb():
 
 def car_price_message_kb(url):
     # меню удалить сообщение
-    url = url.split('/')
-    car_id = url[-1]
-    domen = url[2]
+
+    url = url.replace('https://', '')
     buttons = [
         [
-            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data=f"{domen}_{car_id}_price_research"),
+            InlineKeyboardButton(text=TXT["btn_car_details"], callback_data=f"{url}_price_research"),
             InlineKeyboardButton(text=TXT["btn_delete"], callback_data="message_delete"),
         ]
     ]
@@ -196,7 +188,7 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     help_text = TXT["btn_show_help"] if help_flag is True else TXT["btn_hide_help"]
 
     search_params_cursor = await db.execute(
-        f"SELECT ucars.url, ucars.is_active, ucars.id FROM user "
+        f"SELECT ucars.url, ucars.is_active, ucars.id, ucars.name, ucars.price FROM user "
         f"INNER JOIN ucars on user.id = ucars.user_id "
         f"WHERE user.tel_id = {tel_id}"
     )
@@ -209,14 +201,21 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
             data=search_params, name="stalk", ikb=InlineKeyboardButton, per_page=PAGINATION, cur_page=cur_page
         )
 
+
         buttons = [
             [
-                InlineKeyboardButton(text=" ".join(i[0].split("/")[3:]), url=i[0], callback_data=f"s_{i[2]}_show"),
+                InlineKeyboardButton(
+                    text=f'{i[3]} {i[4]}',
+                    url=i[0],
+                    callback_data=f"s_{i[2]}_show"),
 
-                InlineKeyboardButton(text=str(i[1]).replace("1", TXT["btn_off"]).replace("0", TXT["btn_on"]),
-                                     callback_data=f"s_{i[2]}_{cur_page}_{status_cars_active}_{i[1]}"),
+                InlineKeyboardButton(
+                    text=str(i[1]).replace("1", TXT["btn_off"]).replace("0", TXT["btn_on"]),
+                    callback_data=f"s_{i[2]}_{cur_page}_{status_cars_active}_{i[1]}"),
 
-                InlineKeyboardButton(text=TXT["btn_delete"], callback_data=f"s_{i[2]}_{del_page}_del")
+                InlineKeyboardButton(
+                    text=TXT["btn_delete"],
+                    callback_data=f"s_{i[2]}_{del_page}_del")
             ]
             for i in search_params
         ]
