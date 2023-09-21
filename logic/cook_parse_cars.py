@@ -1,4 +1,6 @@
 import asyncio
+import logging
+
 import nest_asyncio
 from aiohttp import ClientSession
 
@@ -12,19 +14,18 @@ from sites.kufar.kufar_parse_json import json_parse_kufar
 from sites.onliner.onliner_parse_json import json_parse_onliner
 from sites.sites_get_data import urls_json
 
+
 nest_asyncio.apply()
 
 
 async def bound_fetch_json(semaphore, url, session, result, work):
-    # try:
-    async with semaphore:
-        await get_one_json(url, session, result, work)
-
-
-# except Exception as e:
-#     logging.error(f'<cook_parse_cars.bound_fetch_json> {e}')
-#     # Блокируем все таски на <> секунд в случае ошибки 429.
-#     await asyncio.sleep(1)
+    try:
+        async with semaphore:
+            await get_one_json(url, session, result, work)
+    except Exception as e:
+        logging.error(f'<cook_parse_cars.bound_fetch_json> {e}')
+        # Блокируем все таски на <> секунд в случае ошибки 429.
+        await asyncio.sleep(1)
 
 
 async def get_one_json(url, session, result, work):

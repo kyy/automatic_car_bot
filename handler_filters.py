@@ -46,10 +46,10 @@ async def save_search(callback: CallbackQuery, state: FSMContext):
         car_code = code_filter_short(c)
 
         async with database() as db:
-            user_id_cursor = await db.execute(f"SELECT id FROM user WHERE tel_id = '{tel_id}'")
+            user_id_cursor = await db.execute("SELECT id FROM user WHERE tel_id = $s", (tel_id,))
             id_user = await user_id_cursor.fetchone()
             id_user = id_user[0]
-            check_filter_cursor = await db.execute(f"SELECT search_param FROM udata WHERE user_id = '{id_user}'")
+            check_filter_cursor = await db.execute("SELECT search_param FROM udata WHERE user_id = $s", (id_user,))
             check_filter = await check_filter_cursor.fetchall()
 
             if car_code not in [i[0] for i in check_filter]:
@@ -82,7 +82,7 @@ async def edit_search(callback: CallbackQuery):
     # включение/отключение фильтров
     async with database() as db:
         tel_id = callback.from_user.id
-        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {tel_id}""")
+        select_id_cursor = await db.execute("""SELECT id FROM user WHERE tel_id = $s""", (tel_id,))
         check_id = await select_id_cursor.fetchone()
         user_id = check_id[0]
 
@@ -96,8 +96,8 @@ async def edit_search(callback: CallbackQuery):
         status_set = 0 if is_active == 1 else 1
         message = TXT['msg_limit']
         if status_car_active == 'True' or status_car_active == 'False' and is_active == 1:
-            await db.execute(f"""UPDATE udata SET is_active = '{status_set}'                     
-                                 WHERE id='{params_id}' AND user_id = '{user_id}'""")
+            await db.execute("""UPDATE udata SET is_active = $status_set                     
+                                 WHERE id=$params_id AND user_id = $user_id""", (status_set, params_id, user_id,))
             message = TXT['info_filter_menu']
             await db.commit()
         try:
@@ -108,19 +108,18 @@ async def edit_search(callback: CallbackQuery):
             logging.info(f'<handler_callback_filters.edit_search> {e}')
 
 
-
 @router.callback_query((F.data.startswith('f_')) & (F.data.endswith('_del')))
 async def delete_search(callback: CallbackQuery):
     #   удаление фильтра
     async with database() as db:
         user_id = callback.from_user.id
-        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {user_id}""")
+        select_id_cursor = await db.execute("""SELECT id FROM user WHERE tel_id = $s""", (user_id,))
         check_id = await select_id_cursor.fetchone()
         cd = callback.data.split('_')
         params_id = cd[1]
         page = int(cd[2])
-        await db.execute(f"""DELETE FROM udata 
-                             WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
+        await db.execute("""DELETE FROM udata 
+                             WHERE id=$params_id AND user_id = $check_id""", (params_id, check_id[0],))
         await db.commit()
         await callback.message.edit_text(
             TXT['info_filter_menu'],

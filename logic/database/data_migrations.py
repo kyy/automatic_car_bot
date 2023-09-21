@@ -83,6 +83,8 @@ async def create_tables(db):
 async def av_brands(db, av_b, l_av_b):
     """
     Заполняем или обновляем таблицу brands: id, [unique], av_by,
+    :param l_av_b:
+    :param av_b:
     :param db: инструкция к БД
     :return: None
     """
@@ -91,8 +93,7 @@ async def av_brands(db, av_b, l_av_b):
     l_av_bd = len(av_bd)
     if l_av_bd == 0:
         await db.executemany("""
-            INSERT INTO brands([unique], av_by) 
-            VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
+            INSERT INTO brands([unique], av_by) VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
         await db.commit()
         logging.info('av_by <- brands is comitted')
     else:
@@ -103,18 +104,14 @@ async def av_brands(db, av_b, l_av_b):
             if item not in [i[0] for i in av_bd]:
                 update_insert.append((item, av_b[item][0]))
         await db.executemany("""
-            REPLACE INTO brands([unique], av_by) 
-            VALUES(?, ?)""", update_insert)     # вставляем новые бренды
+            REPLACE INTO brands([unique], av_by) VALUES(?, ?)""", update_insert)     # вставляем новые бренды
         for item in av_bd:
             if item[0] in av_b:
                 update.append((item[1], item[0], av_b[item[0]][0]))
             else:
-                await db.execute(f"""
-                    DELETE FROM brands 
-                    WHERE id={item[1]}""")    # удаляем неактуальные бренды
+                await db.execute("""DELETE FROM brands WHERE id=$s""", (item[1],), )    # удаляем неактуальные бренды
         await db.executemany("""
-            REPLACE INTO brands(id, [unique], av_by) 
-            VALUES(?, ?, ?)""", update)      # обновляем все бренды
+            REPLACE INTO brands(id, [unique], av_by) VALUES(?, ?, ?)""", update)      # обновляем все бренды
         await db.commit()
         logging.info('av_by <- brands is comitted')
         await asyncio.sleep(0.1)
@@ -125,6 +122,8 @@ async def av_brands(db, av_b, l_av_b):
 async def av_models(db, av_m, l_av_m):
     """
     Заполняем или обновляем таблицу models: id, brand_id, [unique], av_by,
+    :param l_av_m:
+    :param av_m:
     :param db: инструкция к БД
     :return: None
     """
@@ -164,24 +163,22 @@ async def av_models(db, av_m, l_av_m):
 
         for brand_model in av_bd_bm:
             if brand_model[1] not in av_m[brand_model[0]]:
-                await db.execute(f"""
-                DELETE FROM models
-                WHERE id={brand_model[2]}
-                """)    # чистим базу от неактуальных моделей
+                # чистим базу от неактуальных моделей
+                await db.execute("""DELETE FROM models WHERE id=$s""", (brand_model[2],))
         for brand in av_m:
             for model in av_m[brand]:
                 if (brand, model) not in [i[0:2] for i in av_bd_bm]:
-                    models_list_insert.append((brand_dict[brand], model, av_m[brand][model][0]))
+                    models_list_insert.append((brand_dict[brand], model, av_m[brand][model][0],))
                 else:
                     for item in av_bd_m:
                         if item[1:3] == (model, brand_dict[brand]):
                             models_list_update.append((item[0], brand_dict[brand], model, av_m[brand][model][0]))
+        # записываем новые модели
         await db.executemany(
-            "INSERT INTO models(brand_id, [unique], av_by) "
-            "VALUES(?, ?, ?);", models_list_insert)   # записываем новые модели
+            "INSERT INTO models(brand_id, [unique], av_by) VALUES(?, ?, ?);", models_list_insert)
+        # обновляем модели моделей
         await db.executemany(
-            "REPLACE INTO models(id, brand_id, [unique], av_by) "
-            "VALUES(?, ?, ?, ?);", models_list_update)    # обновляем модели моделей
+            "REPLACE INTO models(id, brand_id, [unique], av_by) VALUES(?, ?, ?, ?);", models_list_update)
         await db.commit()
         logging.info('av_by <- models is comitted')
         await asyncio.sleep(0.1)
@@ -202,11 +199,9 @@ async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, i
     av_bd_b = await cursor_av_b.fetchall()
     for brand in brand_data:
         if brand in [item[1] for item in av_bd_b]:
-            await db.execute(f"""
-                UPDATE brands
-                SET {set_row} = '{brand_data[brand][index]}' 
-                WHERE [unique] = '{brand}';
-                """)
+            await db.execute(
+                """UPDATE brands SET %(set_row)s = $brand_data WHERE [unique]=$brand""" % {"set_row": set_row},
+                (brand_data[brand][index], brand,))
     await db.commit()
     logging.info(f'{set_row} <- brands is comitted')
 
@@ -220,7 +215,7 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
         :param index: id=0, name=1, slug=2
         :return: None
         """
-    cursor_av_m = await db.execute(f"""
+    cursor_av_m = await db.execute("""
             select brands.[unique], models.[unique] from brands 
             inner join models on brands.id = models.brand_id 
         """)
@@ -228,11 +223,9 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
     for brand in model_data:
         for model in model_data[brand]:
             if (brand, model) in av_bd_m:
-                await db.execute(f'''
-                    UPDATE models 
-                    SET {set_row} = '{model_data[brand][model][index]}' 
-                    WHERE [unique] = "{model}";
-                    ''')
+                await db.execute(
+                    """UPDATE models SET %(set_row)s = $model_data WHERE [unique]=$model""" % {"set_row": set_row},
+                    (model_data[brand][model][index], model,))
     await db.commit()
     logging.info(f'{set_row} <- models is comitted')
 
@@ -244,7 +237,7 @@ async def delete_dublicates(db, table: str):
     :param table: имя таблицы
     :return: None
     """
-    cursor = await db.execute(f"""SELECT * FROM {table}""")
+    cursor = await db.execute("""SELECT * FROM %(table)s""" % {"table": table})
     rows = await cursor.fetchall()
     unique_list = []
 
@@ -252,11 +245,7 @@ async def delete_dublicates(db, table: str):
         if row[1::] not in [i[1::] for i in unique_list]:
             unique_list.append(row)
         else:
-            await db.execute(f"""
-                DELETE FROM {table}
-                WHERE id={row[0]}
-                ORDER BY DATE 
-            """)
+            await db.execute("""DELETE FROM $table WHERE id=$row ORDER BY DATE""", (table, row[0],))
             logging.info(f'dublicate: {table}: {row}')
     await db.commit()
 
@@ -284,4 +273,3 @@ async def main(db: database()):
             await delete_dublicates(db, 'models')
         else:
             logging.info('Присутствуют пустые словари в папке parse')
-

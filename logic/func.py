@@ -17,7 +17,7 @@ async def filter_import(callback, db):
     """
     filter_id = callback.data.split('_')[1]  # id фильтра
     async with db:
-        select_filter_cursor = await db.execute(f"""SELECT search_param FROM udata WHERE id = {filter_id}""")
+        select_filter_cursor = await db.execute("""SELECT search_param FROM udata WHERE id = $s""", (filter_id, ))
         filter_name = await select_filter_cursor.fetchone()  # фильтр-код ('filter=...',)
         cars = filter_name[0][7:]
     return filter_id, filter_name[0], cars
@@ -54,7 +54,7 @@ async def check_subs(user_id: int) -> bool:
     :return: True if subs is active
     """
     async with database() as db:
-        subscription_data_cursor = await db.execute(f"""SELECT subs from user WHERE tel_id = '{user_id}'""")
+        subscription_data_cursor = await db.execute("""SELECT subs from user WHERE tel_id = $s""", (user_id,))
         subscription_data = await subscription_data_cursor.fetchone()[0]
         subscription_data = datetime.strptime(subscription_data, "%Y-%m-%d").date()
         data_now = datetime.today().date()
@@ -82,7 +82,7 @@ async def off_is_active() -> None:
                     INNER JOIN user on user.id = ucars.user_id
                     WHERE  ucars.is_active = 1 AND vip = 0
                 )
-        WHERE RowNum > {CARS_ADD_LIMIT_ACTIVE}
+        WHERE RowNum > $s
         );
         
         UPDATE udata SET is_active = 0
@@ -99,22 +99,23 @@ async def off_is_active() -> None:
                     INNER JOIN user on user.id = udata.user_id
                     WHERE  udata.is_active = 1 AND vip = 0
                 )
-        WHERE RowNum > {FILTER_ADD_LIMIT_ACTIVE}
+        WHERE RowNum > $s
         ) 
-        """)
+        """, (CARS_ADD_LIMIT_ACTIVE, CARS_ADD_LIMIT,))
         await db.commit()
 
 
 async def check_count_cars(tel_id, bot):
     """
     Подсчитываем кол-во ссылок пользвателя в отслеживании цен проверяем лимиты
+    :param bot:
     :param tel_id: телеграм id
     :return: True если можно сохранить
     """
     async with database() as db:
-        user_cursor = await db.execute(f"""SELECT COUNT(ucars.id), user.vip FROM ucars
+        user_cursor = await db.execute("""SELECT COUNT(ucars.id), user.vip FROM ucars
                                             INNER JOIN user on user.id = ucars.user_id
-                                            WHERE user.tel_id = {tel_id}""")
+                                            WHERE user.tel_id = $s""", (tel_id,))
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
@@ -129,13 +130,14 @@ async def check_count_cars(tel_id, bot):
 async def check_count_filters(tel_id, bot):
     """
     Подсчитываем кол-во фильтров пользвателя проверяем лимиты
+    :param bot:
     :param tel_id: телеграм id
     :return: True если можно сохранить
     """
     async with database() as db:
-        user_cursor = await db.execute(f"""SELECT COUNT(udata.id), user.vip FROM udata
+        user_cursor = await db.execute("""SELECT COUNT(udata.id), user.vip FROM udata
                                             INNER JOIN user on user.id = udata.user_id
-                                            WHERE user.tel_id = {tel_id}""")
+                                            WHERE user.tel_id = $s""", (tel_id,))
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
@@ -154,14 +156,15 @@ async def check_count_cars_active(tel_id):
     :return: True если можно сохранить
     """
     async with database() as db:
-        user_cursor = await db.execute(f"""SELECT COUNT(ucars.id), user.vip FROM ucars
+        user_cursor = await db.execute("""SELECT COUNT(ucars.id), user.vip FROM ucars
                                             INNER JOIN user on user.id = ucars.user_id
-                                            WHERE user.tel_id = {tel_id} AND ucars.is_active = 1""")
+                                            WHERE user.tel_id = $s AND ucars.is_active = 1""", (tel_id,))
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
         vip = 0 if vip is None else vip
-        status = True if vip == 1 and count < SUBS_CARS_ADD_LIMIT_ACTIVE or vip == 0 and count < CARS_ADD_LIMIT_ACTIVE else False
+        status = True if (vip == 1 and count < SUBS_CARS_ADD_LIMIT_ACTIVE) or \
+                         (vip == 0 and count < CARS_ADD_LIMIT_ACTIVE) else False
         return status
 
 
@@ -172,14 +175,15 @@ async def check_count_filters_active(tel_id):
     :return: True если можно сохранить
     """
     async with database() as db:
-        user_cursor = await db.execute(f"""SELECT COUNT(udata.id), user.vip FROM udata
+        user_cursor = await db.execute("""SELECT COUNT(udata.id), user.vip FROM udata
                                             INNER JOIN user on user.id = udata.user_id
-                                            WHERE user.tel_id = {tel_id} AND udata.is_active = 1""")
+                                            WHERE user.tel_id = $s AND udata.is_active = 1""", (tel_id,))
         user = await user_cursor.fetchone()
         count = user[0]
         vip = user[1]
         vip = 0 if vip is None else vip
-        status = True if vip == 1 and count < SUBS_FILTER_ADD_LIMIT_ACTIVE or vip == 0 and count < FILTER_ADD_LIMIT_ACTIVE else False
+        status = True if (vip == 1 and count < SUBS_FILTER_ADD_LIMIT_ACTIVE) or\
+                         (vip == 0 and count < FILTER_ADD_LIMIT_ACTIVE) else False
         return status
 
 
@@ -190,5 +194,3 @@ def strip_html(text):
                 .replace('<=', '')
                 .replace('->', '')
                 .replace('<-', ''))
-
-

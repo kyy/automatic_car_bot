@@ -54,7 +54,7 @@ def pagination(data: iter, name: str, ikb, per_page=3, cur_page=1):
 @cached(ttl=300, cache=Cache.MEMORY, key='brands', namespace="get_brands")
 async def get_brands() -> list[str]:
     async with database() as db:
-        cursor = await db.execute(f"SELECT [unique] FROM brands ORDER BY [unique]")
+        cursor = await db.execute("SELECT [unique] FROM brands ORDER BY [unique]")
         rows = await cursor.fetchall()
         brands = []
         for brand in rows:
@@ -65,9 +65,9 @@ async def get_brands() -> list[str]:
 @cached(ttl=300, cache=Cache.MEMORY, namespace="get_models")
 async def get_models(brand: str) -> list[str]:
     async with database() as db:
-        cursor = await db.execute(f"SELECT models.[unique] FROM models "
-                                  f"INNER JOIN brands on brands.id =  models.brand_id "
-                                  f"WHERE brands.[unique] = '{brand}'")
+        cursor = await db.execute("SELECT models.[unique] FROM models "
+                                  "INNER JOIN brands on brands.id= models.brand_id "
+                                  "WHERE brands.[unique]=$s", (brand,))
         rows = await cursor.fetchall()
         models = []
         for brand in rows:

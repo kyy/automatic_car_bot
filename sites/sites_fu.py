@@ -67,13 +67,13 @@ def create_folders():
 async def json_urls():
     async with database() as db:
         av_urls_cursor = await db.execute(
-            f"""
+            """
             SELECT url, id FROM ucars 
             WHERE LOWER(url) LIKE 'https://cars.av.by/%' AND is_active = 1""")
         av_urls = await av_urls_cursor.fetchall()
         av_urls = [(f"https://api.av.by/offers/{i[0].split('/')[-1]}", i[1]) for i in av_urls]
         onliner_urls_cursor = await db.execute(
-            f"""
+            """
             SELECT url, id FROM ucars
             WHERE LOWER(url) LIKE 'https://ab.onliner.by/%' AND is_active = 1""")
         onliner_urls = await onliner_urls_cursor.fetchall()
@@ -85,7 +85,7 @@ async def json_urls():
 async def html_urls():
     async with database() as db:
         kufar_abw_urls_cursor = await db.execute(
-            f"""
+            """
             SELECT url, id FROM ucars
             WHERE (LOWER(url) LIKE 'https://auto.kufar.by/vi/%' OR LOWER(url) LIKE 'https://abw.by/cars/detail/%')
             AND is_active = 1""")

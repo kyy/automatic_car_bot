@@ -26,14 +26,14 @@ async def cmd_start(message: Message, state: FSMContext):
     tel_id = message.from_user.id
 
     async with database() as db:
-        check_id_cursor = await db.execute(f"SELECT tel_id FROM user WHERE tel_id = '{tel_id}'")
+        check_id_cursor = await db.execute("SELECT tel_id FROM user WHERE tel_id = $s", (tel_id,))
         check_id = await check_id_cursor.fetchone()
         if check_id is None:
             await db.execute(
-                f"INSERT INTO user (tel_id) VALUES ({tel_id})")
+                "INSERT INTO user (tel_id) VALUES ($s)", (tel_id,))
             logging.info("Added new user %r", tel_id)
         elif ref_id:
-            await db.execute(f"UPDATE user SET ref = ref + 1 WHERE tel_id = {ref_id}")
+            await db.execute("UPDATE user SET ref = ref + 1 WHERE tel_id = $s", (ref_id,))
             logging.info("Reffered by %r", ref_id)
 
         await db.commit()
@@ -62,7 +62,7 @@ async def cmd_help(message: Message):
 async def cmd_help(message: Message):
     tel_id = message.from_user.id
     async with database() as db:
-        ref_cursor = await db.execute(f"""SELECT ref FROM user WHERE tel_id = {tel_id}""")
+        ref_cursor = await db.execute("""SELECT ref FROM user WHERE tel_id = $s""", (tel_id,))
         ref = await ref_cursor.fetchone()
         ref = ref[0]
     await message.answer(

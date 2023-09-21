@@ -17,7 +17,7 @@ from logic.func import off_is_active
 
 
 async def update_database(ctx):
-    await get_parse_brands_models()
+    # await get_parse_brands_models()
     await update(database())
 
 
@@ -35,10 +35,10 @@ async def parse_cars_job(ctx):
     redis = await create_pool(RedisSettings())
     async with database() as db:
         select_filters_cursor = await db.execute(
-            f"SELECT user.tel_id, udata.search_param, udata.id FROM udata "  # noqa  
-            f"INNER JOIN user on user.id = udata.user_id "
-            f"WHERE udata.is_active = 1 "
-            f"ORDER BY udata.id ")
+            "SELECT user.tel_id, udata.search_param, udata.id FROM udata "  # noqa  
+            "INNER JOIN user on user.id = udata.user_id "
+            "WHERE udata.is_active = 1 "
+            "ORDER BY udata.id ")
         select_filters = await select_filters_cursor.fetchall()
         for item in select_filters:
             await redis.enqueue_job('parse_cars', item, True)
@@ -90,13 +90,13 @@ class Work:
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # проверка цен
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,
@@ -112,7 +112,7 @@ class Work:
              minute={30},
              max_tries=1,
              timeout=500,
-             run_at_startup=False),
+             run_at_startup=True),
     ]
 
 

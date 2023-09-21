@@ -78,9 +78,9 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     help_text = TXT["btn_show_help"] if help_flag is True else TXT["btn_hide_help"]
 
     search_params_cursor = await db.execute(
-        f"SELECT udata.search_param, udata.is_active, udata.id FROM user "
-        f"INNER JOIN udata on user.id = udata.user_id "
-        f"WHERE user.tel_id = {tel_id}"
+        "SELECT udata.search_param, udata.is_active, udata.id FROM user "
+        "INNER JOIN udata on user.id = udata.user_id "
+        "WHERE user.tel_id = $s", (tel_id, )
     )
     search_params = await search_params_cursor.fetchall()
     buttons = []
@@ -188,9 +188,9 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
     help_text = TXT["btn_show_help"] if help_flag is True else TXT["btn_hide_help"]
 
     search_params_cursor = await db.execute(
-        f"SELECT ucars.url, ucars.is_active, ucars.id, ucars.name, ucars.price FROM user "
-        f"INNER JOIN ucars on user.id = ucars.user_id "
-        f"WHERE user.tel_id = {tel_id}"
+        "SELECT ucars.url, ucars.is_active, ucars.id, ucars.name, ucars.price FROM user "
+        "INNER JOIN ucars on user.id = ucars.user_id "
+        "WHERE user.tel_id = $s", (tel_id,)
     )
     search_params = await search_params_cursor.fetchall()
     buttons = []
@@ -200,7 +200,6 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
         search_params, pagination_buttons, del_page = pagination(
             data=search_params, name="stalk", ikb=InlineKeyboardButton, per_page=PAGINATION, cur_page=cur_page
         )
-
 
         buttons = [
             [
@@ -219,6 +218,7 @@ async def stalk_menu_kb(callback, db, help_flag=False, cur_page=1):
             ]
             for i in search_params
         ]
+
         buttons.append(pagination_buttons)
 
     buttons.append([InlineKeyboardButton(text=TXT["btn_add_stalk_url"], callback_data="add_stalk")])

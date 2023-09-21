@@ -45,18 +45,18 @@ async def get_url_onliner(car_input, db):
     model = car_input["car[0][model]="]
     if model != FSB:
         cursor = await db.execute(
-            f"select brands.onliner_by, models.onliner_by  from brands "
-            f"inner join models on brands.id = models.brand_id "
-            f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'"
+            "select brands.onliner_by, models.onliner_by  from brands "
+            "inner join models on brands.id = models.brand_id "
+            "where brands.[unique] = $brand and models.[unique] = $model", (brand, model,)
         )
         rows = await cursor.fetchall()
         car_input["car[0][manufacturer]="] = rows[0][0]
         car_input["car[0][model]="] = rows[0][1]
     else:
         cursor = await db.execute(
-            f"select brands.onliner_by, models.onliner_by  from brands "
-            f"inner join models on brands.id = models.brand_id "
-            f"where brands.[unique] = '{brand}'"
+            "select brands.onliner_by, models.onliner_by  from brands "
+            "inner join models on brands.id = models.brand_id "
+            "where brands.[unique] = $s", (brand,)
         )
         rows = await cursor.fetchall()
         car_input["car[0][model]="] = FSB

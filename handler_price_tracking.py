@@ -12,6 +12,7 @@ from logic.func import check_count_cars, check_count_cars_active
 from logic.text import TXT
 from sites.sites_get_data import get_br_mod_pr
 
+
 router = Router()
 
 
@@ -32,7 +33,7 @@ async def edit_stalk(callback: CallbackQuery):
     # включение/отключение слежки
     tel_id = callback.from_user.id
     async with database() as db:
-        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {tel_id}""")
+        select_id_cursor = await db.execute("""SELECT id FROM user WHERE tel_id=$s""", (tel_id,))
         check_id = await select_id_cursor.fetchone()
         user_id = check_id[0]
 
@@ -46,8 +47,8 @@ async def edit_stalk(callback: CallbackQuery):
         status_set = 0 if is_active == 1 else 1
         message = TXT['msg_limit']
         if status_car_active == 'True' or status_car_active == 'False' and is_active == 1:
-            await db.execute(f"""UPDATE ucars SET is_active = '{status_set}'                     
-                                     WHERE id='{params_id}' AND user_id = '{user_id}'""")
+            await db.execute("""UPDATE ucars SET is_active=$status_set                     
+                                WHERE id=$params_id AND user_id=$user_id""", (status_set, params_id, user_id,))
             message = TXT['info_stalk_menu']
             await db.commit()
         try:
@@ -72,17 +73,17 @@ async def car_follow(callback: CallbackQuery):
 
         async with database() as db:
 
-            check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
+            check_id_cursor = await db.execute("""SELECT id FROM user WHERE tel_id=$s""", (tel_id,))
             check_id = await check_id_cursor.fetchone()
 
-            check_url_cursor = await db.execute(f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
+            check_url_cursor = await db.execute("""SELECT url FROM ucars WHERE user_id=$s""", (check_id[0],))
             check_url = await check_url_cursor.fetchall()
 
             if message[0] not in [i[0] for i in check_url]:
                 is_active = 1 if status_is_active else 0
                 name, current_price = await get_br_mod_pr(url)
                 price = current_price if current_price != 0 else price
-                await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active, name) 
+                await db.execute("""INSERT INTO ucars (user_id, url, price, is_active, name) 
                                      VALUES (?, ?, ?, ?, ?)""", (check_id[0], url, price, is_active, name))
                 await db.commit()
             await callback.message.delete()
@@ -110,13 +111,12 @@ async def delete_stulk(callback: CallbackQuery):
     # удаление из слежки
     async with database() as db:
         tel_id = callback.from_user.id
-        select_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = {tel_id}""")
+        select_id_cursor = await db.execute("""SELECT id FROM user WHERE tel_id = $s""", (tel_id, ))
         check_id = await select_id_cursor.fetchone()
         cd = callback.data.split('_')
         params_id = cd[1]
         page = int(cd[2])
-        await db.execute(f"""DELETE FROM ucars
-                             WHERE id='{params_id}' AND user_id = '{check_id[0]}'""")
+        await db.execute("""DELETE FROM ucars WHERE id=$params_id AND user_id=$check_id""", (params_id, check_id[0],))
         await db.commit()
         await callback.message.edit_text(
             TXT['info_stalk_menu'], reply_markup=await stalk_menu_kb(callback, db, True, page))
@@ -146,11 +146,12 @@ async def add_stalk(message: Message):
                 if url_valid in [''.join(i) for i in ROOT_URL.values()] and len(url.split('/')) >= 4:
                     async with database() as db:
 
-                        check_id_cursor = await db.execute(f"""SELECT id FROM user WHERE tel_id = '{tel_id}'""")
+                        check_id_cursor = await db.execute("""SELECT id FROM user WHERE tel_id=$s""",
+                                                           (tel_id,))
                         check_id = await check_id_cursor.fetchone()
 
-                        check_url_cursor = await db.execute(
-                            f"""SELECT url FROM ucars WHERE user_id = '{check_id[0]}'""")
+                        check_url_cursor = await db.execute("""SELECT url FROM ucars WHERE user_id=$s""",
+                                                            (check_id[0],))
                         check_url = await check_url_cursor.fetchall()
 
                         if url not in [i[0] for i in check_url]:
@@ -159,8 +160,9 @@ async def add_stalk(message: Message):
 
                             name, price = await get_br_mod_pr(url)
 
-                            await db.execute(f"""INSERT INTO ucars (user_id, url, price, is_active, name)
+                            await db.execute("""INSERT INTO ucars (user_id, url, price, is_active, name)
                                                  VALUES (?, ?, ?, ?, ?)""", (check_id[0], url, price, is_active, name))
+
                             await db.commit()
                             await bot.send_message(
                                 tel_id, TXT['msg_added_url'].format(url=url), disable_web_page_preview=True)

@@ -16,18 +16,18 @@ async def get_url_kufar(car_input, db, work):
     model = car_input["cmdl2="]
     if model != FSB:
         cursor = await db.execute(
-            f"select brands.kufar_by, models.kufar_by  from brands "
-            f"inner join models on brands.id = models.brand_id "
-            f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'"
+            "select brands.kufar_by, models.kufar_by  from brands "
+            "inner join models on brands.id = models.brand_id "
+            "where brands.[unique] = $brand and models.[unique] = $model", (brand, model,)
         )
         rows = await cursor.fetchall()
         car_input["cbnd2="] = rows[0][0]
         car_input["cmdl2="] = rows[0][1]
     else:
         cursor = await db.execute(
-            f"select brands.kufar_by, models.kufar_by  from brands "
-            f"inner join models on brands.id = models.brand_id "
-            f"where brands.[unique] = '{brand}'"
+            "select brands.kufar_by, models.kufar_by  from brands "
+            "inner join models on brands.id = models.brand_id "
+            "where brands.[unique] = $s", (brand,)
         )
         rows = await cursor.fetchall()
         car_input["cmdl2="] = FSB

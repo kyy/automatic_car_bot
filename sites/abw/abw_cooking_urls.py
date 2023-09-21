@@ -51,9 +51,9 @@ async def get_url_abw(car_input, db):
     maximus = int(car_input["price_max"])
     if (minimus or maximus) not in cost_selection:
         for i in range(len(cost_selection) - 1):
-            if int(cost_selection[i]) < minimus and int(cost_selection[i + 1]) > minimus:
+            if int(cost_selection[i]) < minimus < int(cost_selection[i + 1]):
                 car_input["price_"] = cost_selection[i]
-            if int(cost_selection[i]) < maximus and int(cost_selection[i + 1]) > maximus:
+            if int(cost_selection[i]) < maximus < int(cost_selection[i + 1]):
                 car_input["price_max"] = cost_selection[i + 1]
 
     brand = car_input["brand_"]
@@ -61,18 +61,18 @@ async def get_url_abw(car_input, db):
 
     if model != FSB:
         cursor = await db.execute(
-            f"select brands.abw_by, models.abw_by  from brands "
-            f"inner join models on brands.id = models.brand_id "
-            f"where brands.[unique] = '{brand}' and models.[unique] = '{model}'"
+            "select brands.abw_by, models.abw_by  from brands "
+            "inner join models on brands.id = models.brand_id "
+            "where brands.[unique] = $brand and models.[unique] = $model", (brand, model)
         )
         rows = await cursor.fetchall()
         car_input["brand_"] = rows[0][0]
         car_input["model_"] = rows[0][1]
     else:
         cursor = await db.execute(
-            f"select brands.abw_by, models.abw_by  from brands "
-            f"inner join models on brands.id = models.brand_id "
-            f"where brands.[unique] = '{brand}'"
+            "select brands.abw_by, models.abw_by  from brands "
+            "inner join models on brands.id = models.brand_id "
+            "where brands.[unique] = $s", (brand,)
         )
         rows = await cursor.fetchall()
         car_input["model_"] = FSB

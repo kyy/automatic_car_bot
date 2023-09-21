@@ -48,12 +48,15 @@ colorama==0.4.6
     # via
     #   build
     #   click
+    #   pytest
     #   qrcode
     #   tqdm
 defusedxml==0.7.1
     # via fpdf2
 et-xmlfile==1.1.0
     # via openpyxl
+exceptiongroup==1.1.3
+    # via pytest
 fonttools==4.42.1
     # via fpdf2
 fpdf2==2.7.5
@@ -70,6 +73,8 @@ idna==3.4
     #   yarl
 importlib-metadata==6.8.0
     # via build
+iniconfig==2.0.0
+    # via pytest
 magic-filter==1.0.11
     # via aiogram
 multidict==6.0.4
@@ -87,13 +92,17 @@ openpyxl==3.1.2
 outcome==1.2.0
     # via -r requirements.in
 packaging==23.1
-    # via build
+    # via
+    #   build
+    #   pytest
 pandas==2.1.0
     # via -r requirements.in
 pillow==10.0.0
     # via fpdf2
 pip-tools==7.3.0
     # via -r requirements.in
+pluggy==1.3.0
+    # via pytest
 pydantic==2.3.0
     # via
     #   aiogram
@@ -106,6 +115,12 @@ pypng==0.20220715.0
     # via qrcode
 pyproject-hooks==1.0.0
     # via build
+pytest==7.4.2
+    # via
+    #   -r requirements.in
+    #   pytest-asyncio
+pytest-asyncio==0.21.1
+    # via -r requirements.in
 python-dateutil==2.8.2
     # via pandas
 python-dotenv==1.0.0
@@ -127,6 +142,7 @@ tomli==2.0.1
     #   build
     #   pip-tools
     #   pyproject-hooks
+    #   pytest
 tqdm==4.66.1
     # via -r requirements.in
 typing-extensions==4.7.1

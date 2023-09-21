@@ -39,7 +39,7 @@ async def get_one_json(url, session, result):
     async with session.get(url) as response:
         if response.status == 404:
             async with database() as db:
-                await db.execute(f"""DELETE FROM ucars WHERE id={id_car}""")
+                await db.execute(f"""DELETE FROM ucars WHERE id=$s""", (id_car,))
                 await db.commit()
         else:
             page_content = await response.json()
@@ -55,7 +55,7 @@ async def get_one_html(url, session, result):
     async with session.get(url) as response:
         if response.status == 404:
             async with database() as db:
-                await db.execute(f"""DELETE FROM ucars WHERE id={id_car}""")
+                await db.execute("""DELETE FROM ucars WHERE id=$s""", (id_car,))
                 await db.commit()
         else:
             page_content = await response.text()
@@ -89,7 +89,7 @@ async def run(json, html, result):
 async def check_price(result):
     async with database() as db:
 
-        data_cursor = await db.execute(f"""
+        data_cursor = await db.execute("""
         SELECT user.tel_id, ucars.id, ucars.url, ucars.price FROM ucars
         INNER JOIN user on user.id = ucars.user_id
         ORDER BY ucars.url """)
@@ -122,7 +122,8 @@ async def check_price(result):
                     except Exception as e:
                         logging.error(f'<cook_parse_prices.check_price> {e}')
 
-                await db.execute(f"""UPDATE ucars SET price='{current_price}' WHERE url='{db_url}'""")
+                await db.execute("""UPDATE ucars SET price=$current_price WHERE url=$db_url""",
+                                 (current_price, db_url,))
         await db.commit()
 
 

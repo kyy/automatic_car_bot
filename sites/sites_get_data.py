@@ -11,13 +11,13 @@ from sites.av.av_cooking_urls import get_url_av, av_url_filter
 from sites.av.av_parse_json import count_cars_av, json_links_av, av_research, get_av_photo, get_av_stalk_name
 
 from sites.kufar.kufar_cooking_urls import get_url_kufar, kufar_url_filter
-from sites.kufar.kufar_parse_json import (count_cars_kufar, json_links_kufar, kufar_research, get_kufar_photo,
-                                          get_kufar_stalk_name,
-                                          )
+from sites.kufar.kufar_parse_json import (
+    count_cars_kufar, json_links_kufar, kufar_research, get_kufar_photo, get_kufar_stalk_name,
+)
 from sites.onliner.onliner_cooking_urls import get_url_onliner, onliner_url_filter
-from sites.onliner.onliner_parse_json import (count_cars_onliner, json_links_onliner, onliner_research,
-                                              get_onliner_photo, get_onliner_stalk_name,
-                                              )
+from sites.onliner.onliner_parse_json import (
+    count_cars_onliner, json_links_onliner, onliner_research, get_onliner_photo, get_onliner_stalk_name,
+)
 from sites.sites_fu import sort_domens
 
 
@@ -31,17 +31,17 @@ async def all_json(link, work=False):
         )
 
 
-def all_html(filter, json):
+def all_html(filt, json):
     """
     Получаем ссылки на человекочитаемые страницы
-    :param filter: фильтр код из бд
+    :param filt: фильтр код из бд
     :param json: словарь с ссылками на json
     :return:
     """
     # сслыки на страницы с фильтром поиска
     return dict(
         av_link=av_url_filter(json['av_json']),
-        onliner_link=onliner_url_filter(filter, json['onliner_json']),
+        onliner_link=onliner_url_filter(filt, json['onliner_json']),
         abw_link=abw_url_filter(json['abw_json']),
         kufar_link=kufar_url_filter(json['kufar_json']),
     )
