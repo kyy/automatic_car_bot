@@ -6,6 +6,30 @@ from .config import database
 async def create_tables(db):
     try:
         await db.executescript("""
+            CREATE TABLE brands(
+            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
+            [unique] TEXT (0, 32) NOT NULL, 
+            av_by TEXT (0, 32), 
+            abw_by TEXT (0, 32), 
+            onliner_by TEXT (0, 32),
+            kufar_by TEXT (0, 32)
+            );
+            CREATE TABLE models(
+            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
+            brand_id INTEGER REFERENCES brands (id) ON DELETE CASCADE, 
+            [unique] TEXT (0, 32) NOT NULL, 
+            av_by TEXT (0, 32), 
+            abw_by TEXT (0, 32), 
+            onliner_by TEXT (0, 32),
+            kufar_by TEXT (0, 32)
+            )""")
+        await db.commit()
+        logging.info('tables brands and models are created')
+    except Exception as e:
+        logging.error(f'{e}')
+
+    try:
+        await db.executescript("""
             CREATE TABLE user(
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
             tel_id TEXT (0, 128),
@@ -36,5 +60,5 @@ async def create_tables(db):
         logging.error(f'{e}')
 
 
-async def main(db: database()):
+async def create(db: database()):
     await create_tables(db)

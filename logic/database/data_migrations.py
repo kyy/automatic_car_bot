@@ -1,10 +1,8 @@
 import logging
-
-import aiosqlite
 import numpy as np
 from .config import database
 import asyncio
-from .user_data_migrations import main as user_data_migrations
+from .user_data_migrations import create
 from ..constant import FOLDER_PARSE
 
 
@@ -19,65 +17,43 @@ def lenn(items):
 
 
 def car_data():
-    folder = FOLDER_PARSE
-    av_b = np.load(f'{folder}av_brands.npy', allow_pickle=True).item()
-    abw_m = np.load(f'{folder}abw_models.npy', allow_pickle=True).item()
-    av_m = np.load(f'{folder}av_models.npy', allow_pickle=True).item()
-    onliner_m = np.load(f'{folder}onliner_models.npy', allow_pickle=True).item()
-    abw_b = np.load(f'{folder}abw_brands.npy', allow_pickle=True).item()
-    onliner_b = np.load(f'{folder}onliner_brands.npy', allow_pickle=True).item()
-    kufar_b = np.load(f'{folder}kufar_brands.npy', allow_pickle=True).item()
-    kufar_m = np.load(f'{folder}kufar_models.npy', allow_pickle=True).item()
-    return av_b, abw_m, av_m, onliner_m, abw_b, onliner_b, kufar_b, kufar_m
+    def o(name: str):
+        folder = FOLDER_PARSE
+        return np.load(f'{folder}{name}.npy', allow_pickle=True).item()
+
+    av_b = o('av_brands')
+    abw_m = o('abw_models')
+    av_m = o('av_models')
+    onliner_m = o('onliner_models')
+    abw_b = o('abw_brands')
+    onliner_b = o('onliner_brands')
+    kufar_b = o('kufar_brands')
+    kufar_m = o('kufar_models')
+
+    return dict(
+        av_b=av_b, abw_m=abw_m, av_m=av_m, onliner_m=onliner_m, abw_b=abw_b,
+        onliner_b=onliner_b, kufar_b=kufar_b, kufar_m=kufar_m,
+    )
 
 
-def l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b, kufar_b, kufar_m):
-    l_av_b = len(av_b) # noqa
-    l_av_m = lenn(av_m)  # noqa
-    l_abw_b = len(abw_b) # noqa
-    l_abw_m = lenn(abw_m)  # noqa
-    l_onliner_b = len(onliner_b) # noqa
-    l_onliner_m = lenn(onliner_m) # noqa
-    l_kufar_b = len(kufar_b)  # noqa
-    l_kufar_m = lenn(kufar_m)  # noqa
-    return l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m, l_kufar_m, l_kufar_b
+def l_car_data(**kwargs):
+    l_av_b = len(kwargs["av_b"])
+    l_av_m = lenn(kwargs["av_m"])
+    l_abw_b = len(kwargs["abw_b"])
+    l_abw_m = lenn(kwargs["abw_m"])
+    l_onliner_b = len(kwargs["onliner_b"])
+    l_onliner_m = lenn(kwargs["onliner_m"])
+    l_kufar_b = len(kwargs["kufar_b"])
+    l_kufar_m = lenn(kwargs["kufar_m"])
+    return dict(
+        l_av_b=l_av_b, l_abw_b=l_abw_b, l_onliner_b=l_onliner_b, l_av_m=l_av_m, l_abw_m=l_abw_m,
+        l_onliner_m=l_onliner_m, l_kufar_m=l_kufar_m, l_kufar_b=l_kufar_b,
+    )
 
 
-def checking_null(*args):   # проверяем все ли файлы с данными
-    xxx = [*args]
+def checking_null(**kwargs):   # проверяем все ли файлы с данными
+    xxx = [i for i in kwargs.values()]
     return all([x > 0 for x in xxx])
-
-
-async def create_tables(db):
-    """
-    Создаем 2 таблицы brands и models
-    + с av.by принимаем как эталонные
-    :param db: инструкция к БД
-    :return: None
-    """
-    try:
-        await db.executescript("""
-            CREATE TABLE brands(
-            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
-            [unique] TEXT (0, 32) NOT NULL, 
-            av_by TEXT (0, 32), 
-            abw_by TEXT (0, 32), 
-            onliner_by TEXT (0, 32),
-            kufar_by TEXT (0, 32)
-            );
-            CREATE TABLE models(
-            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
-            brand_id INTEGER REFERENCES brands (id) ON DELETE CASCADE, 
-            [unique] TEXT (0, 32) NOT NULL, 
-            av_by TEXT (0, 32), 
-            abw_by TEXT (0, 32), 
-            onliner_by TEXT (0, 32),
-            kufar_by TEXT (0, 32)
-            )""")
-        await db.commit()
-        logging.info('tables brands and models are created')
-    except aiosqlite.Error as e:
-        logging.error(f'{e}')
 
 
 async def av_brands(db, av_b, l_av_b):
@@ -119,7 +95,7 @@ async def av_brands(db, av_b, l_av_b):
             logging.info(f'av_by <- brands result: {l_av_b-l_av_bd}')
 
 
-async def av_models(db, av_m, l_av_m):
+async def av_models(db, av_m: dict, l_av_m: int):
     """
     Заполняем или обновляем таблицу models: id, brand_id, [unique], av_by,
     :param l_av_m:
@@ -127,14 +103,11 @@ async def av_models(db, av_m, l_av_m):
     :param db: инструкция к БД
     :return: None
     """
-    cursor_av_b = await db.execute("""
-        SELECT id, [unique] FROM brands;""")
-    cursor_av_m = await db.execute("""
-        SELECT id, [unique], brand_id FROM models;""")
-    cursor_av_bm = await db.execute("""
-        SELECT brands.[unique], models.[unique], models.id FROM brands
-        INNER JOIN models ON brands.id = models.brand_id
-                """)
+    cursor_av_b = await db.execute("""SELECT id, [unique] FROM brands;""")
+    cursor_av_m = await db.execute("""SELECT id, [unique], brand_id FROM models;""")
+    cursor_av_bm = await db.execute(
+        """SELECT brands.[unique], models.[unique], models.id 
+        FROM brands INNER JOIN models ON brands.id = models.brand_id""")
     av_bd_b = await cursor_av_b.fetchall()
     av_bd_m = await cursor_av_m.fetchall()
     av_bd_bm = await cursor_av_bm.fetchall()
@@ -183,7 +156,7 @@ async def av_models(db, av_m, l_av_m):
         logging.info('av_by <- models is comitted')
         await asyncio.sleep(0.1)
         if l_av_m != l_av_bd_m:
-            logging.info(f'av_by <- models result: {l_av_m - l_av_bd_m}')
+            logging.info(f'av_by <- models result: {abs(l_av_m - l_av_bd_m)}')
 
 
 async def add_brand(db, brand_data: dict[str: list[str, str], ], set_row: str, index: int):
@@ -255,20 +228,19 @@ async def main(db: database()):
     Выполняем сценарий по созданию и наполнению БД
     :return: None
     """
-    av_b, abw_m, av_m, onliner_m, abw_b, onliner_b, kufar_b, kufar_m = car_data()
-    l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m, l_kufar_m, l_kufar_b = l_car_data(av_b, abw_m, av_m, onliner_m, abw_b, onliner_b, kufar_b, kufar_m)
+    b_m: dict = car_data()
+    l_b_m = l_car_data(**b_m)
     async with db:
-        if checking_null(l_av_b, l_abw_b, l_onliner_b, l_av_m, l_abw_m, l_onliner_m, l_kufar_m, l_kufar_b):
-            await create_tables(db)
-            await user_data_migrations(db)
-            await av_brands(db, av_b, l_av_b),
-            await av_models(db, av_m, l_av_m),
-            await add_brand(db, abw_b, 'abw_by', 1),
-            await add_brand(db, onliner_b, 'onliner_by', 0),
-            await add_brand(db, kufar_b, 'kufar_by', 0),
-            await add_model(db, abw_m, 'abw_by', 2),
-            await add_model(db, onliner_m, 'onliner_by', 0),
-            await add_model(db, kufar_m, 'kufar_by', 0),
+        if checking_null(**l_b_m):
+            await create(db)
+            await av_brands(db, b_m["av_b"], l_b_m["l_av_b"]),
+            await av_models(db, b_m["av_m"], l_b_m["l_av_m"]),
+            await add_brand(db, b_m["abw_b"], 'abw_by', 1),
+            await add_brand(db, b_m["onliner_b"], 'onliner_by', 0),
+            await add_brand(db, b_m["kufar_b"], 'kufar_by', 0),
+            await add_model(db, b_m["abw_m"], 'abw_by', 2),
+            await add_model(db, b_m["onliner_m"], 'onliner_by', 0),
+            await add_model(db, b_m["kufar_m"], 'kufar_by', 0),
             await delete_dublicates(db, 'brands')
             await delete_dublicates(db, 'models')
         else:
