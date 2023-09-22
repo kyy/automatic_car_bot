@@ -4,20 +4,11 @@ from aiohttp import ClientSession
 
 from logic.database.config import database
 
-from sites.abw.abw_cooking_urls import get_url_abw, abw_url_filter
-from sites.abw.abw_parse_json import count_cars_abw, json_links_abw, get_abw_stalk_name, get_abw_photo
+from sites.abw import *
+from sites.av import *
+from sites.kufar import *
+from sites.onliner import *
 
-from sites.av.av_cooking_urls import get_url_av, av_url_filter
-from sites.av.av_parse_json import count_cars_av, json_links_av, av_research, get_av_photo, get_av_stalk_name
-
-from sites.kufar.kufar_cooking_urls import get_url_kufar, kufar_url_filter
-from sites.kufar.kufar_parse_json import (
-    count_cars_kufar, json_links_kufar, kufar_research, get_kufar_photo, get_kufar_stalk_name,
-)
-from sites.onliner.onliner_cooking_urls import get_url_onliner, onliner_url_filter
-from sites.onliner.onliner_parse_json import (
-    count_cars_onliner, json_links_onliner, onliner_research, get_onliner_photo, get_onliner_stalk_name,
-)
 from sites.sites_fu import sort_domens
 
 

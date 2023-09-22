@@ -3,13 +3,7 @@ import logging
 from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
-import handler_callback
-import handler_common
-import handler_filters
-import handler_edit_filter
-import handler_price_tracking
-import handler_create_filter
-import handler_admin
+from handlers import *
 from classes import bot
 from commands import commands
 

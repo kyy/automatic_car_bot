@@ -9,13 +9,7 @@ from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
 
-import handler_admin
-import handler_callback
-import handler_common
-import handler_create_filter
-import handler_edit_filter
-import handler_filters
-import handler_price_tracking
+from handlers import *
 
 from classes import config
 
