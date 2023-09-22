@@ -21,8 +21,11 @@ def multi_row_kb(items: list[str], columns: int = 4, del_sb=False, **kwargs) -> 
     return ReplyKeyboardMarkup(**kwargs, keyboard=kb_control, resize_keyboard=False)
 
 
-def start_menu_kb(help_flag):
+async def start_menu_kb(help_flag, callback):
     # главное меню
+
+    tel_id = callback.from_user.id
+
     help_callback = f"start_menu_help_show" if help_flag is True else "start_menu_help_hide"
     help_text = TXT["btn_show_help"] if help_flag is True else TXT["btn_hide_help"]
     buttons = [
@@ -33,6 +36,13 @@ def start_menu_kb(help_flag):
             InlineKeyboardButton(text=help_text, callback_data=help_callback),
         ],
     ]
+
+    if 514390056 == tel_id:
+        buttons.append(
+            [
+                InlineKeyboardButton(text=TXT["btn_admin"], callback_data="admin"),
+            ],
+        )
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
@@ -62,8 +72,8 @@ def result_menu_kb(fsm):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-bot_functions_kb = InlineKeyboardMarkup(
-    # меню функций бота
+back_to_start_menu_kb = InlineKeyboardMarkup(
+    # меню вернуться на стартовую странму
     inline_keyboard=[[InlineKeyboardButton(text=TXT["btn_back"], callback_data="start_menu_help_hide")]]
 )
 
@@ -156,7 +166,7 @@ def car_message_details_kb():
 
 
 def car_price_message_kb(url):
-    # меню удалить сообщение
+    # меню получить детали удалить сообщение
 
     url = url.replace('https://', '')
     buttons = [

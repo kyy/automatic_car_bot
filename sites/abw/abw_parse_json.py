@@ -293,4 +293,4 @@ async def get_abw_stalk_name(url, session):
 
     except Exception as e:
         logging.error(f'<get_av_stalk_name> abw_url: {url} {e}')
-        return ' '.join(url.split('/')[-3:]), 0
+        return ' '.join(url.split('/')[-2:]), 0

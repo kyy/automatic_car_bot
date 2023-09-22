@@ -19,7 +19,7 @@ async def cmd_start(message: Message, state: FSMContext):
     current_state = await state.get_state()
     await state.clear()
     logging.info("Cancelling state %r", current_state)
-    await message.answer(TXT["info_start_menu"], reply_markup=start_menu_kb(True))
+    await message.answer(TXT["info_start_menu"], reply_markup=await start_menu_kb(True, message))
 
     text = message.text
     ref_id = int(message.text.split(' ')[1]) if len(text.split()) > 1 else None

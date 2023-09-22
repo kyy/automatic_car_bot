@@ -1,23 +1,27 @@
 import logging
 import os
+
 from aiogram.types import FSInputFile
+
 from arq import create_pool, cron, run_worker
 from arq.connections import RedisSettings
+
 from classes import bot
 from keyboards import car_message_kb, delete_message_kb
+
 from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA, LOGO
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
-from sites.sites_get_data import all_json
 from logic.database.config import database
 from logic.database.data_migrations import main as update
-from sites.sites_get_update import get_parse_brands_models
 from logic.func import off_is_active
+from sites.sites_get_data import all_json
+from sites.sites_get_update import get_parse_brands_models
 
 
 async def update_database(ctx):
-    # await get_parse_brands_models()
+    await get_parse_brands_models()
     await update(database())
 
 
@@ -26,8 +30,8 @@ async def reset_subs(ctx):
 
 
 async def parse_cars(ctx, item, work):
-    filter, tel_id, name = item[1][7:], item[0], item[2]
-    json = await all_json(filter, work)
+    filt, tel_id, name = item[1][7:], item[0], item[2]
+    json = await all_json(filt, work)
     await cars(json, tel_id, name, work, send_car_job)
 
 

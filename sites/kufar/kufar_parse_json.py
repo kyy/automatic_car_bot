@@ -174,4 +174,4 @@ async def get_kufar_stalk_name(url, session):
         return f'{brand} {model}', int(price)
     except Exception as e:
         logging.error(f'<get_kufar_stalk_name> kufar_url: {url} {e}')
-        return ' '.join(url.split('/')[-3:]), 0
+        return ' '.join(url.split('/')[-2:]), 0

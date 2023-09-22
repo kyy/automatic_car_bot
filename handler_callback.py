@@ -1,6 +1,6 @@
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
-from keyboards import start_menu_kb, bot_functions_kb, car_message_details_kb, delete_message_kb
+from keyboards import start_menu_kb, back_to_start_menu_kb, car_message_details_kb, delete_message_kb
 from logic.func import strip_html
 from logic.text import TXT
 from sites.sites_get_data import get_car_details
@@ -15,14 +15,14 @@ async def help_show_start_menu(callback: CallbackQuery):
     text_false = TXT['info_start_menu_help']
     text_true = TXT['info_start_menu']
     help_flag, text = (False, text_false) if cd[3] == 'show' else (True, text_true)
-    await callback.message.edit_text(text, reply_markup=start_menu_kb(help_flag), parse_mode='HTML')
+    await callback.message.edit_text(text, reply_markup=await start_menu_kb(help_flag, callback), parse_mode='HTML')
 
 
 @router.callback_query(F.data == 'bot_functions')
 async def bot_functions(callback: CallbackQuery):
     #   описание бота
     await callback.message.edit_text(TXT['info_bot'],
-                                     reply_markup=bot_functions_kb,
+                                     reply_markup=back_to_start_menu_kb,
                                      disable_web_page_preview=True,
                                      parse_mode="HTML", )
 

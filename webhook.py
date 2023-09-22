@@ -9,6 +9,7 @@ from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
 
+import handler_admin
 import handler_callback
 import handler_common
 import handler_create_filter
@@ -60,6 +61,7 @@ def main():
     dp.include_router(handler_filters.router)
     dp.include_router(handler_price_tracking.router)
     dp.include_router(handler_edit_filter.router)
+    dp.include_router(handler_admin.router)
 
     app = web.Application()
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=MAIN_BOT_PATH)

@@ -123,7 +123,7 @@ async def delete_stulk(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'add_stalk')
-async def add_stulk_from_message(callback: CallbackQuery, state: FSMContext):
+async def add_stalk_from_message(callback: CallbackQuery, state: FSMContext):
     # добавление слежки вручную
     await state.set_state(CreateCar.add_url_stalk)
     await callback.message.edit_text(

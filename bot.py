@@ -9,6 +9,7 @@ import handler_filters
 import handler_edit_filter
 import handler_price_tracking
 import handler_create_filter
+import handler_admin
 from classes import bot
 from commands import commands
 
@@ -27,6 +28,7 @@ async def main():
     dp.include_router(handler_filters.router)
     dp.include_router(handler_price_tracking.router)
     dp.include_router(handler_edit_filter.router)
+    dp.include_router(handler_admin.router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
