@@ -13,7 +13,7 @@ from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA, LOGO
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as parse_prices_job
 from logic.cook_pdf import do_pdf
-from logic.database.config import database
+from logic.database.config import database, backup_db
 from logic.database.data_migrations import main as update
 from logic.func import off_is_active
 from sites.sites_get_data import all_json
@@ -21,6 +21,7 @@ from sites.sites_get_update import get_parse_brands_models
 
 
 async def update_database(ctx):
+    await backup_db()
     await get_parse_brands_models()
     await update(database())
 
@@ -109,7 +110,7 @@ class Work:
              max_tries=3,
              run_at_startup=False),
 
-        # обновление БД
+        # обновление БД и бекап
         cron(update_database,
              weekday='sun',
              hour={2},
