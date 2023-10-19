@@ -16,3 +16,4 @@ pip-tools
 aiocache
 pytest
 pytest-asyncio
+lxml
