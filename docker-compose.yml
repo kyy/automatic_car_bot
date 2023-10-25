@@ -1,0 +1,31 @@
+version: '3'
+services:
+
+  redis:
+    image: redislabs/redismod
+    container_name: redis
+    ports:
+      - '6379:6379'
+
+  arq:
+    container_name: arq
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/appINFO
+    command: python work.py
+    restart: always
+    depends_on:
+      - redis
+
+  aiogram3:
+    container_name: aiogram3
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/appINFO
+    command: python bot.py
+    restart: always
+    depends_on:
+      - arq
+      - redis
