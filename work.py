@@ -20,6 +20,9 @@ from sites.sites_get_data import all_json
 from sites.sites_get_update import get_parse_brands_models
 
 
+rs = RedisSettings()
+
+
 async def update_database(ctx):
     await backup_db()
     await get_parse_brands_models()
@@ -37,7 +40,7 @@ async def parse_cars(ctx, item, work):
 
 
 async def parse_cars_job(ctx):
-    redis = await create_pool(RedisSettings())
+    redis = await create_pool(rs)
     async with database() as db:
         select_filters_cursor = await db.execute(
             "SELECT user.tel_id, udata.search_param, udata.id FROM udata "  # noqa  
@@ -60,7 +63,7 @@ async def send_car(ctx, tel_id, car):
 
 
 async def send_car_job(tel_id, result):
-    redis = await create_pool(RedisSettings())
+    redis = await create_pool(rs)
     for car in result:
         await redis.enqueue_job('send_car', tel_id, car)
 
@@ -83,7 +86,7 @@ async def send_pdf(ctx, user_id, link_count, name_time_stump, decode_f_s, filter
 
 
 async def send_pdf_job(*args):
-    redis = await create_pool(RedisSettings())
+    redis = await create_pool(rs)
     await redis.enqueue_job('send_pdf', *args)
 
 

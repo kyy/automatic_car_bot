@@ -2,30 +2,37 @@ version: '3'
 services:
 
   redis:
-    image: redislabs/redismod
+    image: redis:alpine
+    networks:
+      host: {}
+    restart: always
     container_name: redis
     ports:
       - '6379:6379'
 
   arq:
+    networks:
+      host: {}
     container_name: arq
     build:
-      context: ./backend
-    volumes:
-      - ./backend:/appINFO
-    command: python work.py
+      context: .
+    command: sh -c "python work.py"
     restart: always
     depends_on:
       - redis
 
   aiogram3:
+    networks:
+      host: {}
     container_name: aiogram3
     build:
-      context: ./backend
-    volumes:
-      - ./backend:/appINFO
-    command: python bot.py
+      context: .
+    command: sh -c "python bot.py"
     restart: always
     depends_on:
       - arq
-      - redis
+
+networks:
+  host:
+    external: true
+
