@@ -1,10 +1,9 @@
 import logging
 import os
 
-import arq.connections
 from aiogram.types import FSInputFile
 
-from arq import create_pool, cron, run_worker
+from arq import create_pool, cron, run_worker, Worker
 from arq.connections import RedisSettings
 
 from classes import bot
@@ -20,7 +19,8 @@ from logic.func import off_is_active
 from sites.sites_get_data import all_json
 from sites.sites_get_update import get_parse_brands_models
 
-rs = RedisSettings()
+
+rs = RedisSettings(host='redis', port=6379)
 
 
 async def update_database(ctx):
@@ -90,7 +90,8 @@ async def send_pdf_job(*args):
     await redis.enqueue_job('send_pdf', *args)
 
 
-class Work:
+class Work(Worker):
+    redis_settings = rs
     functions = [parse_cars, send_car, send_pdf]
     cron_jobs = [
 
@@ -120,7 +121,7 @@ class Work:
              minute={30},
              max_tries=1,
              timeout=500,
-             run_at_startup=True),
+             run_at_startup=False),
     ]
 
 

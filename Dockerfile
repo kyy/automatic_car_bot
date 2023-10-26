@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # обновления
-RUN apt-get update && apt-get install -y --no-install-recommends gcc
+RUN apt-get update && apt-get install -y --no-install-recommends gcc && apt-get install -y supervisor
 
 # создаем и запускаем изолированную среду
 RUN python -m venv /opt/venv
@@ -31,6 +31,10 @@ COPY --from=builder . .
 WORKDIR /app
 
 ENV PATH="/opt/venv/bin:$PATH"
+
+COPY supervisord.conf /app/supervisord.conf
+
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]
 
 # разрешение на чтение, запись и выполнение
 #RUN chmod -R 777 .

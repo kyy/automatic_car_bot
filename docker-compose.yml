@@ -14,28 +14,18 @@ services:
     ports:
       - '6379:6379'
 
-
-  arq:
+  app:
     networks:
       - bot
-    container_name: arq
+    container_name: app
     build:
       context: .
-    command: sh -c "python work.py"
+    volumes:
+      - ./auto_db:/app/auto_db
+      - ./backup_auto_db:/app/backup_auto_db
     restart: always
     depends_on:
       - redis
-
-  aiogram3:
-    networks:
-      - bot
-    container_name: aiogram3
-    build:
-      context: .
-    command: sh -c "python bot.py"
-    restart: always
-    depends_on:
-      - arq
 
 networks:
   bot:
