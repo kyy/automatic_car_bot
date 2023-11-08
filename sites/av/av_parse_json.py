@@ -1,7 +1,12 @@
 import logging
 from datetime import datetime
-from logic.constant import (WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES,
-                            LEN_DESCRIPTION)
+from logic.constant import (
+    WORK_PARSE_CARS_DELTA,
+    REPORT_PARSE_LIMIT_PAGES,
+    HEADERS_JSON, PARSE_LIMIT_PAGES,
+    LEN_DESCRIPTION,
+    AV_WORK_PARSE_PRICE_DELTA_CORRECTION
+)
 from logic.text import TEXT_DETAILS
 
 
@@ -135,7 +140,7 @@ def json_parse_av(json_data, work):
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-8], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
-            if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + 180:
+            if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + AV_WORK_PARSE_PRICE_DELTA_CORRECTION:
                 car.append([str(url), str(price), str(photo)])
         else:
             car.append(

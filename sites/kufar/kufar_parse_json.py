@@ -2,7 +2,14 @@ import logging
 from datetime import datetime
 from lxml import etree
 
-from logic.constant import WORK_PARSE_CARS_DELTA, HEADERS_JSON, ROOT_URL, HEADERS, LEN_DESCRIPTION
+from logic.constant import (
+    WORK_PARSE_CARS_DELTA,
+    HEADERS_JSON,
+    ROOT_URL,
+    HEADERS,
+    LEN_DESCRIPTION,
+    KUFAR_WORK_PARSE_PRICE_DELTA_CORRECTION,
+)
 from logic.decorators import timed_lru_cache
 from logic.text import TEXT_DETAILS
 
@@ -81,7 +88,7 @@ def json_parse_kufar(json_data, work):
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-4], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
-            if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + 180:
+            if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + KUFAR_WORK_PARSE_PRICE_DELTA_CORRECTION:
                 car.append([str(url), str(price), str(photo)])
         else:
             car.append(
