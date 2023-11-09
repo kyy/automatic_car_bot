@@ -198,13 +198,11 @@ async def do_pdf(
 
         link = link_count["link"]
         pdf.av_link = link["av_link"]
-        pdf.abw_link = link["abw_link"]
         pdf.onliner_link = link["onliner_link"]
         pdf.kufar_link = link["kufar_link"]
 
         count = link_count["count"]
         pdf.av_count = count["all_av"]
-        pdf.abw_count = count["all_abw"]
         pdf.onliner_count = count["all_onliner"]
         pdf.kufar_count = count["all_kufar"]
 

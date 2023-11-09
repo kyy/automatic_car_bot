@@ -6,7 +6,6 @@ from lxml import etree
 from aiohttp import ClientSession
 from classes import bot
 from keyboards import car_price_message_kb
-from sites.abw.abw_parse_json import html_parse_price_abw
 from sites.av.av_parse_json import json_parse_price_av
 from sites.kufar.kufar_parse_json import html_parse_price_kufar
 from sites.onliner.onliner_parse_json import json_parse_price_onliner
@@ -60,9 +59,6 @@ async def get_one_html(url, session, result):
         else:
             page_content = await response.text()
             page_content = etree.HTML(str(page_content))
-
-            if url.split('/')[2] == ROOT_URL['ABW'].split('/')[2]:
-                item = html_parse_price_abw(page_content, url)
 
             if url.split('/')[2] == ROOT_URL['KUFAR'].split('/')[2]:
                 item = html_parse_price_kufar(page_content, url)

@@ -33,7 +33,6 @@ TXT = dict(
                 "📊 Доступные объявления:\n"
                 "\n"
                 "<a href='{av_l}'>av.by</a> - {all_av}.\n"
-                "<a href='{abw_l}'>abw.by</a> - {all_abw}.\n"
                 "<a href='{onliner_l}'>onliner.by</a> - {all_onliner}.\n"
                 "<a href='{kufar_l}'>kufar.by</a> - {all_kufar}.\n"
                 "\n"

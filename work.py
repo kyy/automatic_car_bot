@@ -20,7 +20,10 @@ from sites.sites_get_data import all_json
 from sites.sites_get_update import get_parse_brands_models
 
 
-rs = RedisSettings(host='redis', port=6379)
+LOCAL_HOST = '127.0.0.1'
+DOCKER_HOST = 'redis'
+
+rs = RedisSettings(host=DOCKER_HOST, port=6379)
 
 
 async def update_database(ctx):
