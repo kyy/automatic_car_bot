@@ -151,7 +151,7 @@ async def kufar_research(id_car, session):
     except: color = ''
     description = dom.xpath('//*[@itemprop="description"]/text()')
     descr = ' '.join(description)
-    url = f'https://auto.kufar.by/vi/{id_car}'
+    url = id_car
     vin = ''
     vin_check = ''
     status = ''
