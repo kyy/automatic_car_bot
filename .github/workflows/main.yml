@@ -8,8 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: automatic_car_bot:0.1
     steps:
       -
         name: Checkout
