@@ -19,7 +19,7 @@ MM = dict(
 WORK_PARSE_CARS_DELTA = 1  # частота проверки новых объявллений в часах
 WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часах
 
-AV_WORK_PARSE_PRICE_DELTA_CORRECTION = 120  # поправка на часовой пояс в минутах
+AV_WORK_PARSE_PRICE_DELTA_CORRECTION = 0  # поправка на часовой пояс в минутах
 KUFAR_WORK_PARSE_PRICE_DELTA_CORRECTION = 0
 ONLINER_WORK_PARSE_PRICE_DELTA_CORRECTION = 0
 
