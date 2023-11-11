@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: automatic-car-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: automatic-car-bot
+  template:
+    metadata:
+      labels:
+        app: automatic-car-bot
+    spec:
+      containers:
+      - name: automatic-car-bot
+        image: xibolba/automatic_car_bot
+        ports:
+        - containerPort: 8080
