@@ -17,3 +17,4 @@ aiocache
 pytest
 pytest-asyncio
 lxml
+aiohttp-jinja2
