@@ -3,6 +3,7 @@ services:
 
   redis:
     image: redis:alpine
+    container_name: redis
     command: redis-server /data/redis.conf
     volumes:
       - ./redis.conf:/data/redis.conf
@@ -10,7 +11,6 @@ services:
     networks:
       - bot
     restart: always
-    container_name: redis
     ports:
       - '6379:6379'
 

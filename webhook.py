@@ -7,11 +7,10 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
 from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-from aiohttp import web
 
 from handlers import *
 
-from classes import config
+from classes import token
 
 """
 https://localtunnel.github.io/www/
@@ -22,10 +21,8 @@ fast test:
 4. run webhook.py
 """
 
-BASE_URL = "https://new-trees-glow.loca.lt"
-MAIN_BOT_TOKEN = config.BOT_TOKEN
-WEB_SERVER_HOST = "::"
-WEB_SERVER_PORT = 8350
+BASE_URL = "https://dry-pets-film.loca.lt"
+MAIN_BOT_TOKEN = token
 MAIN_BOT_PATH = ""
 logging.basicConfig(level=logging.INFO)
 
@@ -42,7 +39,7 @@ async def on_startup(bot: Bot):
     await bot.set_webhook(f"{BASE_URL}{MAIN_BOT_PATH}")
 
 
-def main():
+def webhook(app):
     session = AiohttpSession()
     bot_settings = {"token": MAIN_BOT_TOKEN, "session": session, "parse_mode": "Markdown"}
     bot = Bot(**bot_settings)
@@ -57,11 +54,5 @@ def main():
     dp.include_router(handler_edit_filter.router)
     dp.include_router(handler_admin.router)
 
-    app = web.Application()
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=MAIN_BOT_PATH)
     setup_application(app, dp, bot=bot)
-    web.run_app(app, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
-
-
-if __name__ == "__main__":
-    main()

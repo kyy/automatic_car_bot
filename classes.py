@@ -1,4 +1,3 @@
-import os
 from aiogram import Bot
 from aiogram.fsm.state import StatesGroup, State
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -11,13 +10,7 @@ class Settings(BaseSettings):
 
 config = Settings()
 
-environment = os.environ.get("ENVIRONMENT")
-
-
-if environment == "production":
-    token = os.environ.get("BOT_TOKEN")
-else:
-    token = config.BOT_TOKEN
+token = config.BOT_TOKEN
 
 bot = Bot(token=token)
 
