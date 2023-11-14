@@ -133,6 +133,8 @@ def worker():
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
+        filename='arq.log',
+        filemode='w'
     )
     run_worker(Work)
 
