@@ -18,3 +18,5 @@ pytest
 pytest-asyncio
 lxml
 aiohttp-jinja2
+aiohttp_debugtoolbar
+aiohttp-devtools
