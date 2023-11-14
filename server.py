@@ -2,12 +2,10 @@ from aiohttp import web
 from webhook import webhook
 import aiohttp_jinja2
 import jinja2
-import aiohttp_debugtoolbar
-
 
 WEB_SERVER_HOST = "127.0.0.1"
 WEB_SERVER_PORT = 8350
-
+STATIC = 'server/static'
 
 routes = web.RouteTableDef()
 
@@ -23,15 +21,15 @@ async def index(request):
 
 
 app = web.Application()
-app.router.add_static('/static/', path='server/static', name='static')
-app.add_routes(routes)
-app['static_root_url'] = 'server/static'
 
-aiohttp_debugtoolbar.setup(app)
-aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('server/templates'))
+app.add_routes(routes)
+
+app.router.add_static(f'/{STATIC}', path=STATIC, name='static')
+app['static_root_url'] = STATIC
+
+aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('./server/templates'))
 
 webhook(app)
-
 
 if __name__ == '__main__':
     try:
