@@ -3,6 +3,7 @@ from aiogram.types import CallbackQuery
 from keyboards import start_menu_kb, back_to_start_menu_kb, car_message_details_kb, delete_message_kb
 from logic.func import strip_html
 from logic.text import TXT
+from logic.constant import BOT
 from sites.sites_get_data import get_car_details
 
 router = Router()
@@ -21,10 +22,13 @@ async def help_show_start_menu(callback: CallbackQuery):
 @router.callback_query(F.data == 'bot_functions')
 async def bot_functions(callback: CallbackQuery):
     #   описание бота
-    await callback.message.edit_text(TXT['info_bot'],
-                                     reply_markup=back_to_start_menu_kb,
-                                     disable_web_page_preview=True,
-                                     parse_mode="HTML", )
+
+    await callback.message.edit_text(
+        text=TXT['info_bot'].format(telegram=BOT['telegram'], telegram_name=BOT['telegram_name'], email=BOT['email']),
+        reply_markup=back_to_start_menu_kb,
+        disable_web_page_preview=True,
+        parse_mode="HTML",
+    )
 
 
 @router.callback_query(F.data == 'message_delete')

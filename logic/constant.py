@@ -100,3 +100,11 @@ DEFAULT = dict(
     chosen_dimension_min=SB,
     chosen_dimension_max=SB,
 )
+
+BOT = {
+    'url': 'https://t.me/automaticcarbot',
+    'name': 'AUTOMATIC//CAR//BOT',
+    'email': 'automaticcarbot@mail.ru',
+    'telegram': 'https://t.me/xibolba',
+    'telegram_name': '@xibolba',
+}
