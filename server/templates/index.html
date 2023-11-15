@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>{{ bot_name }}</title>
+    <title>{{ bot.name }}</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -27,13 +27,6 @@
     <!-- Template Main CSS File -->
     <link href="{{ static('assets/css/style.css') }}" rel="stylesheet">
 
-    <!-- =======================================================
-    * Template Name: TheEvent
-    * Updated: Sep 18 2023 with Bootstrap v5.3.2
-    * Template URL: https://bootstrapmade.com/theevent-conference-event-bootstrap-template/
-    * Author: BootstrapMade.com
-    * License: https://bootstrapmade.com/license/
-    ======================================================== -->
 </head>
 
 <body>
@@ -43,20 +36,19 @@
     <div class="container-fluid container-xxl d-flex align-items-center">
 
         <div id="logo" class="me-auto">
-            <!-- Uncomment below if you prefer to use a text logo -->
-            <!-- <h1><a href="index.html">The<span>Event</span></a></h1>-->
-            <h1 class="pb-0"><a href="{{ bot_url }}"><span>A</span>utomatic <span>C</span>ar <span>Bot</span></a></h1>
+            <h4 class="pt-3 text-uppercase"><a href="{{ bot.url }}"><b>{{ bot.name }}</b></a></h4>
         </div>
 
         <nav id="navbar" class="navbar order-last order-lg-0">
             <ul>
-                <li><a class="nav-link scrollto active" href="#hero">1</a></li>
-                <li><a class="nav-link scrollto" href="#faq">2</a></li>
-                <li><a class="nav-link scrollto" href="#contact">3</a></li>
+                <li><a class="nav-link scrollto active" href="#hero">ОБО МНЕ</a></li>
+                <li><a class="nav-link scrollto" href="#about">ВОЗМОЖНОСТИ</a></li>
+                <li><a class="nav-link scrollto" href="#faq">ВОПРОСЫ</a></li>
+                <li><a class="nav-link scrollto" href="#contact">КОНТАКТЫ</a></li>
             </ul>
             <i class="bi bi-list mobile-nav-toggle"></i>
         </nav><!-- .navbar -->
-        <a class="buy-tickets scrollto" href="{{ bot_url }}">перейти к боту</a>
+        <a class="buy-tickets scrollto" href="{{ bot.url }}">перейти к боту</a>
 
     </div>
 </header><!-- End Header -->
@@ -65,8 +57,10 @@
 <section id="hero">
     <div class="hero-container" data-aos="zoom-in" data-aos-delay="100">
         <h1 class="mb-4 pb-0">
-            Привет! Я телеграм-бот <a href="{{ bot_url }}"><span>AC-Bot</span></a><br>
-            Помощник в подборе автомобилей
+            Привет!<br>
+            Я телеграм-бот<br>
+            Помощник в подборе<br>
+            автомобилей
         </h1>
         <p class="mb-4 pb-0">СЛЕЖУ ЗА ОБЪЯВЛЕНИЯМИ НА КРУПНЕЙШИХ ИНТЕРНЕТ-ПЛОЩАДКАХ БЕЛАРУСИ</p>
         <a href="https://www.youtube.com/watch?v=jDDaplaOz7Q" class="glightbox play-btn mb-4"></a>
@@ -81,26 +75,34 @@
         <div class="container position-relative" data-aos="fade-up">
             <div class="row">
                 <div class="col-lg-6">
-                    <h2>ЧТО Я УМЕЮ?</h2>
-                    <p>
-                        - Расскажи мне параметры авто, и я начну пирсылать тебе свежие объявления с крупнейших сайтов Беларуси<br>
-                        - Прослежу за изменением цены и незамедлительно уведомлю<br>
-                        - Сформирую удобный отчет с текущими обявлениями
-                    </p>
+                    <h2>
+                        ЧТО Я УМЕЮ?
+                    </h2>
+                    <ul>
+                        <li><p>Расскажи мне параметры авто, и я начну присылать тебе свежие объявления с крупнейших
+                            сайтов Беларуси</p></li>
+                        <li><p>Прослежу за изменением цены и незамедлительно уведомлю</p></li>
+                        <li><p>Сформирую удобный отчет с текущими объявлениями</p></li>
+                    </ul>
+
                 </div>
                 <div class="col-lg-3">
-                    <h3>ПОЧЕМУ Я?</h3>
-                    <p>
-                        - Я не сплю<br>
-                        - Меня не надо устанавливать<br>
-                        - Я не требую денег,<br>
-                        но не откажусь от благодарности)<br>
-                        - Поиск по всем сайтам в одном месте
-                    </p>
+                    <h3>
+                        ПОЧЕМУ Я?
+                    </h3>
+
+                    <ul>
+                        <li><p>У меня нет выходных</p></li>
+                        <li><p>Меня не надо устанавливать</p></li>
+                        <li><p>Я не требую оплаты</p></li>
+                        <li><p>Никаких регистраций</p></li>
+                        <li><p>Поиск по всем сайтам</p></li>
+                    </ul>
+
                 </div>
                 <div class="col-lg-3">
                     <h3>ГДЕ Я?</h3>
-                    <p><a href="{{ bot_url }}">t.me/AutomaticCarBot</a></p>
+                    <p><a href="{{ bot.url }}">{{ bot.url }}</a></p>
                 </div>
             </div>
         </div>
@@ -109,16 +111,10 @@
 
     <!-- =======  F.A.Q Section ======= -->
     <section id="faq">
-
         <div class="container" data-aos="fade-up">
-
             <div class="section-header">
-                <h2>ХОТЕЛИ СПРОСИТЬ </h2>
+                <h2>ОСТАЛИСЬ ВОПРОСЫ?</h2>
             </div>
-
-
-
-
             <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="100">
                 <div class="col-lg-9">
 
@@ -127,11 +123,10 @@
                         {% for faq in faqs %}
                         <li>
                             <div data-bs-toggle="collapse" class="collapsed question" href="#faq{{ loop.index }}">
-
                                 {{ faq.0 }}
-
-                                <i class="bi bi-chevron-down icon-show"></i><i
-                                        class="bi bi-chevron-up icon-close"></i></div>
+                                <i class="bi bi-chevron-down icon-show"></i>
+                                <i class="bi bi-chevron-up icon-close"></i>
+                            </div>
                             <div id="faq{{ loop.index }}" class="collapse" data-bs-parent=".faq-list">
                                 <p>
                                     {{ faq.1 }}
@@ -139,83 +134,69 @@
                             </div>
                         </li>
                         {% endfor %}
-
                     </ul>
-
                 </div>
             </div>
-
         </div>
-
     </section><!-- End  F.A.Q Section -->
-
 
 
     <!-- ======= Contact Section ======= -->
     <section id="contact" class="section-bg">
-
         <div class="container" data-aos="fade-up">
-
             <div class="section-header">
-                <h2>Contact Us</h2>
-                <p>Nihil officia ut sint molestiae tenetur.</p>
+                <h2>
+                    СВЯЗАТЬСЯ С СОЗДАТЕЛЕМ
+                </h2>
+                <p>ОТВЕЧУ НА ЛЮБЫЕ ВОПРОСЫ.</p>
             </div>
 
             <div class="row contact-info">
 
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="contact-address">
-                        <i class="bi bi-geo-alt"></i>
-                        <h3>Address</h3>
-                        <address>A108 Adam Street, NY 535022, USA</address>
+                        <p><a href="{{ bot.telegram }}"><i class="bi bi-telegram"></i></a></p>
+                        <h3>Telegram</h3>
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="contact-phone">
-                        <i class="bi bi-phone"></i>
-                        <h3>Phone Number</h3>
-                        <p><a href="tel:+155895548855">+1 5589 55488 55</a></p>
-                    </div>
-                </div>
 
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="contact-email">
-                        <i class="bi bi-envelope"></i>
+                        <p><a href="mailto:{{ bot.email }}"><i class="bi bi-envelope-fill"></i></a></p>
                         <h3>Email</h3>
-                        <p><a href="mailto:info@example.com">info@example.com</a></p>
                     </div>
                 </div>
 
             </div>
 
             <div class="form">
-                <form action="{{ static('forms/contact.php') }}" method="post" role="form" class="php-email-form">
+                <form action="" method="post" role="form" class="php-email-form">
                     <div class="row">
                         <div class="form-group col-md-6">
-                            <input type="text" name="name" class="form-control" id="name" placeholder="Your Name"
+                            <input type="text" name="name" class="form-control" id="name" placeholder="Имя"
                                    required>
                         </div>
                         <div class="form-group col-md-6 mt-3 mt-md-0">
-                            <input type="email" class="form-control" name="email" id="email" placeholder="Your Email"
+                            <input type="email" class="form-control" name="email" id="email" placeholder="Email"
                                    required>
                         </div>
                     </div>
                     <div class="form-group mt-3">
-                        <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject"
+                        <input type="text" class="form-control" name="subject" id="subject" placeholder="Заголовок"
                                required>
                     </div>
                     <div class="form-group mt-3">
-                        <textarea class="form-control" name="message" rows="5" placeholder="Message"
+                        <textarea class="form-control" name="message" rows="5" placeholder="Собщение"
                                   required></textarea>
                     </div>
                     <div class="my-3">
                         <div class="loading">Loading</div>
                         <div class="error-message"></div>
-                        <div class="sent-message">Your message has been sent. Thank you!</div>
+                        <div class="sent-message">Сообщение отправлено. Спасибо!</div>
                     </div>
                     <div class="text-center">
-                        <button type="submit">Send Message</button>
+                        <button type="submit">Отправить</button>
                     </div>
                 </form>
             </div>
@@ -231,52 +212,33 @@
         <div class="container">
             <div class="row">
 
-                <div class="col-lg-3 col-md-6 footer-info">
-                    <img src="{{ static('assets/img/logo.png') }}" alt="TheEvenet">
-                    <p>In alias aperiam. Placeat tempore facere. Officiis voluptate ipsam vel eveniet est dolor et totam
-                        porro. Perspiciatis ad omnis fugit molestiae recusandae possimus. Aut consectetur id quis. In
-                        inventore consequatur ad voluptate cupiditate debitis accusamus repellat cumque.</p>
-                </div>
-
-                <div class="col-lg-3 col-md-6 footer-links">
-                    <h4>Useful Links</h4>
+                <div class="col-lg-4 col-md-6 footer-info">
+                    <h4>{{ bot.name }}</h4>
                     <ul>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">About us</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Services</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Terms of service</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Privacy policy</a></li>
+                        <li><p>Телеграм-бот для поиска обяъвлений автомобилей</p></li>
+                        <li><p>Использование сервиса означает согласие с Пользовательским соглашением и Политикой
+                            конфиденциальности</p></li>
                     </ul>
                 </div>
 
-                <div class="col-lg-3 col-md-6 footer-links">
-                    <h4>Useful Links</h4>
+                <div class="col-lg-4 col-md-6 footer-links">
+                    <h4>НАВИГАЦИЯ</h4>
                     <ul>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">About us</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Services</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Terms of service</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Privacy policy</a></li>
+                        <li><i class="bi bi-chevron-right"></i> <a href="#hero">Обо мне</a></li>
+                        <li><i class="bi bi-chevron-right"></i> <a href="#about">Мои возможности</a></li>
+                        <li><i class="bi bi-chevron-right"></i> <a href="#faq">Частые вопросы</a></li>
+                        <li><i class="bi bi-chevron-right"></i> <a href="#">Пользовательское соглашение</a></li>
+                        <li><i class="bi bi-chevron-right"></i> <a href="#">Политика конфиденциальности</a></li>
                     </ul>
                 </div>
 
-                <div class="col-lg-3 col-md-6 footer-contact">
-                    <h4>Contact Us</h4>
+                <div class="col-lg-4 col-md-6 footer-contact">
+                    <h4>КОНТАКТЫ</h4>
                     <p>
-                        A108 Adam Street <br>
-                        New York, NY 535022<br>
-                        United States <br>
-                        <strong>Phone:</strong> +1 5589 55488 55<br>
-                        <strong>Email:</strong> info@example.com<br>
+                        <strong>Telegram:</strong> <a href="{{ bot.telegram }}">{{ bot.telegram }}</a><br>
+                        <strong>Email:</strong> <a href="mailto:{{ bot.email }}">{{ bot.email }}</a><br>
+                        <strong>Bot:</strong> <a href="{{ bot.url }}">{{ bot.name }}</a><br>
                     </p>
-
-                    <div class="social-links">
-                        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="google-plus"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
-                    </div>
 
                 </div>
 
@@ -285,17 +247,8 @@
     </div>
 
     <div class="container">
-        <div class="copyright">
-            &copy; Copyright <strong>TheEvent</strong>. All Rights Reserved
-        </div>
-        <div class="credits">
-            <!--
-            All the links in the footer should remain intact.
-            You can delete the links only if you purchased the pro version.
-            Licensing information: https://bootstrapmade.com/license/
-            Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=TheEvent
-          -->
-            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        <div class="pt-4 credits">
+            © {{ bot.name }} {{ bot.year }} <br>
         </div>
     </div>
 </footer><!-- End  Footer -->
