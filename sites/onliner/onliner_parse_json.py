@@ -3,6 +3,7 @@ from datetime import datetime
 
 from logic.constant import (
     WORK_PARSE_CARS_DELTA, REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, PARSE_LIMIT_PAGES, LEN_DESCRIPTION,
+    ONLINER_WORK_PARSE_PRICE_DELTA_CORRECTION,
 )
 
 from logic.text import TEXT_DETAILS

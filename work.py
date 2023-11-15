@@ -134,7 +134,7 @@ def worker():
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
         filename='arq.log',
-        filemode='w'
+        filemode='a'
     )
     run_worker(Work)
 

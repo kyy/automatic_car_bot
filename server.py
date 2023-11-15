@@ -2,6 +2,10 @@ from aiohttp import web
 from webhook import webhook
 import aiohttp_jinja2
 import jinja2
+from server_fu import FAQ
+
+"""     autoreload: 'adev runserver server.py'    """
+
 
 WEB_SERVER_HOST = "127.0.0.1"
 WEB_SERVER_PORT = 8350
@@ -17,6 +21,7 @@ async def index(request):
         'bot_url': 'https://t.me/AutomaticCarBot',
         'bot_name': 'automatic-car-bot',
         'app': request.app,
+        'faqs': FAQ,
     }
 
 
@@ -29,7 +34,7 @@ app['static_root_url'] = STATIC
 
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('./server/templates'))
 
-webhook(app)
+#webhook(app)
 
 if __name__ == '__main__':
     try:
