@@ -140,7 +140,6 @@
         </div>
     </section><!-- End  F.A.Q Section -->
 
-
     <!-- ======= Contact Section ======= -->
     <section id="contact" class="section-bg">
         <div class="container" data-aos="fade-up">
@@ -171,7 +170,9 @@
             </div>
 
             <div class="form">
-                <form action="" method="post" role="form" class="php-email-form">
+
+                <form id="post-form" method="post" class="php-email-form" accept-charset="utf-8"
+                      enctype="application/x-www-form-urlencoded">
                     <div class="row">
                         <div class="form-group col-md-6">
                             <input type="text" name="name" class="form-control" id="name" placeholder="Имя"
@@ -193,7 +194,7 @@
                     <div class="my-3">
                         <div class="loading">Loading</div>
                         <div class="error-message"></div>
-                        <div class="sent-message">Сообщение отправлено. Спасибо!</div>
+                        <div id="result" class="sent-message">Сообщение отправлено. Спасибо!</div>
                     </div>
                     <div class="text-center">
                         <button type="submit">Отправить</button>
@@ -202,6 +203,8 @@
             </div>
 
         </div>
+
+
     </section><!-- End Contact Section -->
 
 </main><!-- End #main -->
@@ -263,8 +266,8 @@
         crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.4/swiper-bundle.min.js"></script>
-
-<!-- Template Main JS File -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="{{ static('assets/js/post_message_form.js') }}"></script>
 <script src="{{ static('assets/js/main.js') }}"></script>
 
 </body>

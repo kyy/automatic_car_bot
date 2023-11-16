@@ -12,10 +12,18 @@ STATIC = 'server/static'
 
 routes = web.RouteTableDef()
 
+@web.middleware
+async def cache_control(request: web.Request, handler):
+    response: web.Response = await handler(request)
+    resource_name = request.match_info.route.name
+    if resource_name and resource_name.startswith('static'):
+        response.headers.setdefault('Cache-Control', 'no-cache')
+    return response
+
 
 @routes.get('/')
 @aiohttp_jinja2.template('index.html')
-async def index(request):
+async def index_page(request):
     return {
         'bot': BOT,
         'app': request.app,
@@ -23,7 +31,19 @@ async def index(request):
     }
 
 
-app = web.Application()
+@routes.post('/submit_message')
+async def message_form(request):
+    data = await request.post()
+    name = data['name']
+    email = data['email']
+    subject = data['subject']
+    message = data['message']
+    print(name, message, email, subject)
+    return 'Form submitted!'
+
+
+app = web.Application(middlewares=[cache_control])
+
 
 app.add_routes(routes)
 
