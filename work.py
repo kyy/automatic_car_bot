@@ -23,6 +23,7 @@ from sites.sites_get_update import get_parse_brands_models
 LOCAL_HOST = '127.0.0.1'
 DOCKER_HOST = 'redis'
 
+
 rs = RedisSettings(host=DOCKER_HOST, port=6379)
 
 
@@ -34,6 +35,7 @@ async def update_database(ctx):
 
 async def reset_subs(ctx):
     await off_is_active()
+    logging.info('RESET ACTIVE STATUS')
 
 
 async def parse_cars(ctx, item, work):
@@ -108,7 +110,7 @@ class Work(Worker):
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,

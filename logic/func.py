@@ -82,7 +82,7 @@ async def off_is_active() -> None:
                     INNER JOIN user on user.id = ucars.user_id
                     WHERE  ucars.is_active = 1 AND vip = 0
                 )
-        WHERE RowNum > $s
+        WHERE RowNum > {CARS_ADD_LIMIT_ACTIVE}
         );
         
         UPDATE udata SET is_active = 0
@@ -99,9 +99,9 @@ async def off_is_active() -> None:
                     INNER JOIN user on user.id = udata.user_id
                     WHERE  udata.is_active = 1 AND vip = 0
                 )
-        WHERE RowNum > $s
+        WHERE RowNum > {FILTER_ADD_LIMIT_ACTIVE}
         ) 
-        """, (CARS_ADD_LIMIT_ACTIVE, CARS_ADD_LIMIT,))
+        """)
         await db.commit()
 
 
