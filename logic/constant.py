@@ -107,4 +107,5 @@ BOT = {
     'email': 'automaticcarbot@mail.ru',
     'telegram': 'https://t.me/xibolba',
     'telegram_name': '@xibolba',
+    'id': 514390056,
 }
