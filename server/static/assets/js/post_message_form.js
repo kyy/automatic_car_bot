@@ -1,15 +1,40 @@
-$(document).ready(function() {
-  $('#post-form').submit(function(e){
-    e.preventDefault();
-    var serializedData = $(this).serialize();
+(function ($) {
+    'use strict';
+    var form = $('#post-form'),
+        message = $('#result'),
+        button = $('#button'),
+        form_data;
 
-    $.ajax({
-      type:"POST",
-      url: "/submit_message",
-      data:  serializedData,
-      success: function(data){
-        $("#result").text(data["result"]);
-      },
+    // success function
+    function done_func(response) {
+        message.fadeIn().removeClass('alert-danger').addClass('alert-success');
+        message.text(response);
+        setTimeout(function () {
+            message.fadeOut();
+        }, 2000);
+
+    }
+
+    // fail function
+    function fail_func(data) {
+        message.fadeIn().removeClass('alert-success').addClass('alert-success');
+        message.text(data.responseText);
+        setTimeout(function () {
+            message.fadeOut();
+        }, 2000);
+    }
+
+    form.submit(function (e) {
+        e.preventDefault();
+        form_data = $(this).serialize();
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form_data
+        })
+        .done(done_func, form[0].reset())
+        .fail(fail_func);
     });
-  })
-});
+})(jQuery);
+
+

@@ -12,6 +12,7 @@ STATIC = 'server/static'
 
 routes = web.RouteTableDef()
 
+
 @web.middleware
 async def cache_control(request: web.Request, handler):
     response: web.Response = await handler(request)
