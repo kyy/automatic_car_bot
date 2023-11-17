@@ -94,7 +94,7 @@ async def get_car_details(url, **kwargs):
                                    )
         return params
     except Exception as e:
-        logging.error(f'<sites_get_data.get_car_details> {e}')
+        logging.error(f'<sites_get_data.get_car_details> {url} {e}')
         return False
 
 
@@ -108,7 +108,7 @@ async def get_photos(url, **kwargs):
                                    )
         return params
     except Exception as e:
-        logging.error(f'<sites_get_data.get_photos> {e}')
+        logging.error(f'<sites_get_data.get_photos> {url} {e}')
         return False
 
 
@@ -122,5 +122,5 @@ async def get_br_mod_pr(url, **kwargs):
                                    )
         return params
     except Exception as e:
-        logging.error(f'<sites_get_data.get_stalk_name> {e}')
+        logging.error(f'<sites_get_data.get_stalk_name> {url} {e}')
         return False

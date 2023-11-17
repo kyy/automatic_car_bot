@@ -136,8 +136,7 @@ async def kufar_research(id_car, session):
     model = dom.xpath('//*[@data-name="cars_model_v2"]/following-sibling::node()[1]/span')[0].text
     try:
         generation = dom.xpath('//*[@data-name="cars_gen_v2"]/following-sibling::node()[1]/span')[0].text
-    except:
-        generation = ''
+    except: generation = ''
     year = dom.xpath('//*[@data-name="regdate"]/following-sibling::node()[1]/span')[0].text
     km = dom.xpath('//*[@data-name="mileage"]/following-sibling::node()[1]/span')[0].text
     motor = dom.xpath('//*[@data-name="cars_engine"]/following-sibling::node()[1]/span')[0].text
@@ -145,7 +144,10 @@ async def kufar_research(id_car, session):
     dimension = dimension.replace('л', '')
     transmission = dom.xpath('//*[@data-name="cars_gearbox"]/following-sibling::node()[1]/span')[0].text
     typec = dom.xpath('//*[@data-name="cars_type"]/following-sibling::node()[1]/span')[0].text
-    drive = dom.xpath('//*[@data-name="cars_drive"]/following-sibling::node()[1]/span')[0].text
+    try:
+        drive = dom.xpath('//*[@data-name="cars_drive"]/following-sibling::node()[1]/span')[0].text
+    except:
+        drive = ''
     try:
         color = dom.xpath('//*[@data-name="cars_color"]/following-sibling::node()[1]/span')[0].text
     except: color = ''

@@ -17,24 +17,27 @@ def jd_onliner(r_t):
     try:
         status = r_t["closed_at"]
         status = 'Активное' if status is None else 'Неактивное'
-    except:
-        status = ''
+    except: status = ''
 
     try:
         photo = r_t["images"][0]["800x800"]
-    except:
-        photo = ''
+    except: photo = ''
 
     try:
         description = r_t["description"]
-    except:
-        description = ''
+    except: description = ''
 
-    published = r_t["created_at"]
+    try:
+        published = r_t["created_at"]
+    except: published = ''
+
     price = r_t["price"]["converted"]["USD"]["amount"].split(".")[0]
     url = r_t["html_url"]
     brand_model_gen = r_t["title"]
-    days = (datetime.now().date() - datetime.strptime(r_t["created_at"].split("T")[0], "%Y-%m-%d").date()).days
+    if published != '':
+        days = (datetime.now().date() - datetime.strptime(published.split("T")[0], "%Y-%m-%d").date()).days
+    else:
+        days = 1
     days = 1 if days == 0 else days
     city = r_t["location"]["city"]["name"]
     vin = ""
