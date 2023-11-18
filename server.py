@@ -5,13 +5,11 @@ import jinja2
 from server_fu import FAQ, BOT
 from classes import bot
 
-
 """     autoreload: 'adev runserver server.py'    """
 
 WEB_SERVER_HOST = "127.0.0.1"
 WEB_SERVER_PORT = 8350
 STATIC = 'server/static'
-
 
 routes = web.RouteTableDef()
 
@@ -38,12 +36,11 @@ async def index_page(request):
 @routes.post('/submit_message')
 async def message_form(request):
     data = await request.post()
-    name, email, subject, message = data['name'], data['email'], data['subject'], data['message']
-    await bot.send_message(BOT['id'], text=f'{name}\n{email}\n{subject}\n{message}')
+    email, message = data['email'], data['message']
+    await bot.send_message(BOT['id'], text=f'{email}\n{message}')
 
 
 app = web.Application(middlewares=[cache_control])
-
 
 app.add_routes(routes)
 

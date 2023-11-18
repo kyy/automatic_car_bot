@@ -103,7 +103,7 @@ DEFAULT = dict(
 
 BOT = {
     'url': 'https://t.me/automaticcarbot',
-    'name': 'AUTOMATIC//CAR//BOT',
+    'name': '//ACB',
     'email': 'automaticcarbot@mail.ru',
     'telegram': 'https://t.me/xibolba',
     'telegram_name': '@xibolba',
