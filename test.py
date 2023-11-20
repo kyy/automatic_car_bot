@@ -45,7 +45,7 @@ async def kufar_research(id_car, session):
 
 async def main():
     async with ClientSession() as session:
-        await kufar_research('https://auto.kufar.by/vi/214806452', session)
+        await kufar_research('https://auto.kufar.by/vi/215133901', session)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())

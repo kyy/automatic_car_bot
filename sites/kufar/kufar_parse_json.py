@@ -133,7 +133,9 @@ async def kufar_research(id_car, session):
     price = price.replace(' ', '').replace('$*', '')
     city = dom.xpath('//*[@data-name="ad_region_listing"]')[0].text
     brand = dom.xpath('//*[@data-name="cars_brand_v2"]/following-sibling::node()[1]/span')[0].text
-    model = dom.xpath('//*[@data-name="cars_model_v2"]/following-sibling::node()[1]/span')[0].text
+    try:
+        model = dom.xpath('//*[@data-name="cars_model_v2"]/following-sibling::node()[1]/span')[0].text
+    except: model = ''
     try:
         generation = dom.xpath('//*[@data-name="cars_gen_v2"]/following-sibling::node()[1]/span')[0].text
     except: generation = ''

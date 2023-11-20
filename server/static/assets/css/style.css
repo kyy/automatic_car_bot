@@ -1,10 +1,8 @@
 
 :root {
-    --hero_bg: linear-gradient(-71deg, #4f46e4 25%, transparent 26%, transparent 74%, #4f46e4 75%);
-    --hero_bg_color: #050505;
-    --hero_bg_size: 5em 5em;
-    --hero_bg_opacity: 1;
-
+    --bg_color: #050505;
+    --main_color: #016e15;
+    --mainf_color: #195e05;
 }
 
 body {
@@ -14,7 +12,7 @@ body {
 }
 
 a {
-    color: #f82249;
+    color: var(--main_color);
     text-decoration: none;
     transition: 0.1s;
 }
@@ -22,7 +20,7 @@ a {
 a:hover,
 a:active,
 a:focus {
-    color: #f8234a;
+    color: var(--mainf_color);
     outline: none;
     text-decoration: none;
 }
@@ -49,17 +47,6 @@ h6 {
     margin-top: 70px;
 }
 
-/* Prelaoder */
-#preloader {
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 999;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    background: #fff url("../img/loader.svg") no-repeat center center;
-}
 
 /*--------------------------------------------------------------
 # Back to top button
@@ -71,7 +58,7 @@ h6 {
     right: 15px;
     bottom: 15px;
     z-index: 996;
-    background: #f82249;
+    background: var(--main_color);
     width: 40px;
     height: 40px;
     border-radius: 50px;
@@ -87,7 +74,7 @@ h6 {
 }
 
 .back-to-top:hover {
-    background: #f94a6a;
+    background: var(--mainf_color);
     color: #fff;
 }
 
@@ -110,7 +97,7 @@ h6 {
     display: block;
     width: 60px;
     height: 5px;
-    background: #f82249;
+    background: var(--main_color);
     bottom: 0;
     left: calc(50% - 25px);
 }
@@ -177,11 +164,11 @@ h6 {
 --------------------------------------------------------------*/
 .buy-tickets {
     color: #fff;
-    background: #f82249;
+    background: var(--main_color);
     padding: 7px 22px;
     margin: 0 0 0 15px;
     border-radius: 50px;
-    border: 2px solid #f82249;
+    border: 2px solid var(--main_color);
     transition: all ease-in-out 0.3s;
     font-weight: 500;
     line-height: 1;
@@ -260,7 +247,7 @@ h6 {
     height: 2px;
     bottom: -6px;
     left: 0;
-    background-color: #f82249;
+    background-color: var(--main_color);
     visibility: hidden;
     transition: all 0.3s ease-in-out 0s;
 }
@@ -312,7 +299,7 @@ h6 {
 .navbar .dropdown ul a:hover,
 .navbar .dropdown ul .active:hover,
 .navbar .dropdown ul li:hover > a {
-    color: #f82249;
+    color: var(--main_color);
 }
 
 .navbar .dropdown:hover > ul {
@@ -417,7 +404,7 @@ h6 {
 .navbar-mobile a:hover,
 .navbar-mobile .active,
 .navbar-mobile li:hover > a {
-    color: #f82249;
+    color: var(--main_color);
 }
 
 .navbar-mobile .getstarted,
@@ -452,7 +439,7 @@ h6 {
 .navbar-mobile .dropdown ul a:hover,
 .navbar-mobile .dropdown ul .active:hover,
 .navbar-mobile .dropdown ul li:hover > a {
-    color: #f82249;
+    color: var(--main_color);
 }
 
 .navbar-mobile .dropdown > .dropdown-active {
@@ -465,10 +452,7 @@ h6 {
 #hero {
     width: 100%;
     height: 100vh;
-    background: var(--hero_bg);
-    background-size: var(--hero_bg_size);
-    background-color: var(--hero_bg_color);
-    opacity: var(--hero_bg_opacity);
+    background-color: var(--bg_color);
     overflow: hidden;
     position: relative;
 }
@@ -518,7 +502,7 @@ h6 {
 }
 
 #hero h1 span {
-    color: #f82249;
+    color: var(--main_color);
 }
 
 @media (max-width: 991px) {
@@ -542,7 +526,7 @@ h6 {
 #hero .play-btn {
     width: 94px;
     height: 94px;
-    background: radial-gradient(#f82249 50%, rgba(101, 111, 150, 0.15) 52%);
+    background: radial-gradient(var(--main_color) 50%, rgba(101, 111, 150, 0.15) 52%);
     border-radius: 50%;
     display: block;
     position: relative;
@@ -582,7 +566,7 @@ h6 {
 }
 
 #hero .play-btn:hover::after {
-    border-left: 15px solid #f82249;
+    border-left: 15px solid var(--main_color);
     transform: scale(20);
 }
 
@@ -616,11 +600,11 @@ h6 {
     margin: 10px;
     color: #fff;
     animation-delay: 0.2s;
-    border: 2px solid #f82249;
+    border: 2px solid var(--main_color);
 }
 
 #hero .about-btn:hover {
-    background: #f82249;
+    background: var(--main_color);
     color: #fff;
 }
 
@@ -717,7 +701,7 @@ h6 {
     font-weight: 400;
     padding-left: 25px;
     cursor: pointer;
-    color: #e0072f;
+    color: var(--main_color);
     transition: 0.05s;
 }
 
@@ -742,7 +726,7 @@ h6 {
 }
 
 #faq .faq-list .collapsed:hover {
-    color: #f82249;
+    color: var(--main_color);
 }
 
 #faq .faq-list .collapsed .icon-show {
@@ -776,7 +760,7 @@ h6 {
     font-size: 48px;
     display: inline-block;
     margin-bottom: 10px;
-    color: #f82249;
+    color: var(--main_color);
     width: 200px;
     height: 100px;
 }
@@ -800,7 +784,7 @@ h6 {
 }
 
 #contact .contact-info a:hover {
-    color: #f82249;
+    color: var(--main_color);
 }
 
 #contact .contact-address,
@@ -820,7 +804,7 @@ h6 {
 #contact .php-email-form .error-message {
     display: none;
     color: #fff;
-    background: #ed3c0d;
+    background: var(--main_color);
     text-align: left;
     padding: 15px;
     font-weight: 600;
@@ -868,7 +852,7 @@ h6 {
 
 #contact .php-email-form input:focus,
 #contact .php-email-form textarea:focus {
-    border-color: #f82249;
+    border-color: var(--main_color);
 }
 
 #contact .php-email-form input {
@@ -880,7 +864,7 @@ h6 {
 }
 
 #contact .php-email-form button[type=submit] {
-    background: #f82249;
+    background: var(--main_color);
     border: 0;
     padding: 10px 40px;
     color: #fff;
@@ -890,7 +874,7 @@ h6 {
 }
 
 #contact .php-email-form button[type=submit]:hover {
-    background: #e0072f;
+    background: var(--mainf_color);
 }
 
 @keyframes animate-loading {
@@ -965,7 +949,7 @@ h6 {
 }
 
 #footer .footer-top .social-links a:hover {
-    background: #f82249;
+    background: var(--main_color);
     color: #fff;
 }
 
@@ -976,7 +960,7 @@ h6 {
     text-transform: uppercase;
     position: relative;
     padding-bottom: 12px;
-    border-bottom: 2px solid #f82249;
+    border-bottom: 2px solid var(--main_color);
 }
 
 #footer .footer-top .footer-links {
@@ -991,7 +975,7 @@ h6 {
 
 #footer .footer-top .footer-links ul i {
     padding-right: 5px;
-    color: #f82249;
+    color: var(--main_color);
     font-size: 18px;
 }
 
@@ -1009,7 +993,7 @@ h6 {
 }
 
 #footer .footer-top .footer-links ul a:hover {
-    color: #f82249;
+    color: var(--main_color);
 }
 
 #footer .footer-top .footer-contact {
@@ -1031,7 +1015,7 @@ h6 {
 }
 
 #footer .footer-top .footer-newsletter input[type=submit] {
-    background: #f82249;
+    background: var(--main_color);
     border: 0;
     width: 35%;
     padding: 6px 0;
@@ -1042,7 +1026,7 @@ h6 {
 }
 
 #footer .footer-top .footer-newsletter input[type=submit]:hover {
-    background: #e0072f;
+    background: var(--main_color);
 }
 
 #footer .copyright {
