@@ -2,7 +2,7 @@ import logging
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from classes import bot
+from bot_config import bot
 from keyboards import params_menu_kb, filter_menu_kb
 from logic.codec_filter import code_filter_short, decode_filter_short
 from logic.constant import FSB, SB, REPORT_PARSE_LIMIT_PAGES
@@ -13,7 +13,6 @@ from logic.text import TXT
 from sites.sites_get_data import car_multidata
 from work import send_pdf_job
 from datetime import datetime as datatime_datatime
-
 
 router = Router()
 
