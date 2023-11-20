@@ -10,7 +10,7 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_applicati
 
 from handlers import *
 
-from classes import token
+from bot_config import token
 
 """
 https://localtunnel.github.io/www/

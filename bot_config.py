@@ -1,16 +1,12 @@
+import os
+
 from aiogram import Bot
 from aiogram.fsm.state import StatesGroup, State
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
 
+load_dotenv('.env')
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
-    BOT_TOKEN: str
-
-
-config = Settings()
-
-token = config.BOT_TOKEN
+token = os.getenv('BOT_TOKEN')
 
 bot = Bot(token=token)
 

@@ -6,7 +6,7 @@ from aiogram.types import FSInputFile
 from arq import create_pool, cron, run_worker, Worker
 from arq.connections import RedisSettings
 
-from classes import bot
+from bot_config import bot
 from keyboards import car_message_kb, delete_message_kb
 
 from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA, LOGO
@@ -19,10 +19,8 @@ from logic.func import off_is_active
 from sites.sites_get_data import all_json
 from sites.sites_get_update import get_parse_brands_models
 
-
 LOCAL_HOST = '127.0.0.1'
 DOCKER_HOST = 'redis'
-
 
 rs = RedisSettings(host=DOCKER_HOST, port=6379)
 

@@ -3,7 +3,7 @@ from webhook import webhook
 import aiohttp_jinja2
 import jinja2
 from server_fu import FAQ, BOT
-from classes import bot
+from bot_config import bot
 
 """     autoreload: 'adev runserver server.py'    """
 
@@ -53,6 +53,6 @@ aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('./server/templates'))
 
 if __name__ == '__main__':
     try:
-        web.run_app(app, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
+        web.run_app(app, port=WEB_SERVER_PORT, host=WEB_SERVER_HOST)
     except (KeyboardInterrupt, SystemExit):
         print("Server stopped")

@@ -4,7 +4,7 @@ from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
 from handlers import *
-from classes import bot
+from bot_config import bot
 from commands import commands
 
 

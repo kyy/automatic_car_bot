@@ -3,15 +3,13 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
-from classes import CreateCar
-from classes import bot
+from bot_config import CreateCar, bot
 from keyboards import stalk_menu_kb, add_stalk_kb
 from logic.constant import ROOT_URL
 from logic.database.config import database
 from logic.func import check_count_cars, check_count_cars_active
 from logic.text import TXT
 from sites.sites_get_data import get_br_mod_pr
-
 
 router = Router()
 
@@ -111,7 +109,7 @@ async def delete_stulk(callback: CallbackQuery):
     # удаление из слежки
     async with database() as db:
         tel_id = callback.from_user.id
-        select_id_cursor = await db.execute("""SELECT id FROM user WHERE tel_id = $s""", (tel_id, ))
+        select_id_cursor = await db.execute("""SELECT id FROM user WHERE tel_id = $s""", (tel_id,))
         check_id = await select_id_cursor.fetchone()
         cd = callback.data.split('_')
         params_id = cd[1]

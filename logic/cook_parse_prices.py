@@ -4,7 +4,7 @@ import logging
 from aiogram.types import FSInputFile
 from lxml import etree
 from aiohttp import ClientSession
-from classes import bot
+from bot_config import bot
 from keyboards import car_price_message_kb
 from sites.av.av_parse_json import json_parse_price_av
 from sites.kufar.kufar_parse_json import html_parse_price_kufar

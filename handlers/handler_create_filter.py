@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from classes import CreateCar
+from bot_config import CreateCar
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command
 from keyboards import multi_row_kb, result_menu_kb
@@ -9,7 +9,6 @@ from logic.constant import (FSB, CF, COL, MOTOR, TRANSMISSION, SB, EB, DEFAULT)
 from logic.kb_fu import get_brands, get_models, get_years, get_cost, get_dimension
 from logic.text import TXT
 from itertools import chain
-
 
 router = Router()
 
@@ -80,7 +79,7 @@ async def motor_chosen(message: Message, state: FSMContext):
             reply_markup=multi_row_kb(
                 MOTOR,
                 input_field_placeholder=TXT['fi_motor'],
-                columns=COL['MOTOR'],))
+                columns=COL['MOTOR'], ))
     else:
         await message.answer(
             text=TXT['msg_error_filter_input'],
