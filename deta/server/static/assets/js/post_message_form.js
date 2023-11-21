@@ -11,16 +11,16 @@
         message.text(response);
         setTimeout(function () {
             message.fadeOut();
-        }, 2000);
+        }, 5000);
     }
 
     // fail function
-    function fail_func(data) {
-        message.fadeIn().removeClass('alert-success').addClass('alert-success');
-        message.text(data.responseText);
+    function fail_func(response) {
+        message.fadeIn().removeClass('alert-success').addClass('alert-danger');
+        message.text(response);
         setTimeout(function () {
             message.fadeOut();
-        }, 2000);
+        }, 5000);
     }
 
     form.submit(function (e) {
@@ -29,10 +29,11 @@
         $.ajax({
             type: 'POST',
             url: form.attr('action'),
-            data: form_data,
-            dataType: 'False'
+            data: form_data
         })
             .done(done_func, form[0].reset())
             .fail(fail_func);
     });
 })(jQuery);
+
+

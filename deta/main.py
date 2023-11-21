@@ -32,8 +32,11 @@ async def index_page(request):
 async def message_form(request):
     data = await request.post()
     email, message = data['email'], data['message']
-    await asyncio.sleep(1)
-    await bot.send_message(BOT['id'], text=f'{email}\n{message}')
+    try:
+        await bot.send_message(BOT['id'], text=f'{email}\n{message}')
+        return web.Response(text="Сообщение отправлено")
+    except:
+        return web.Response(text="Повторите попытку")
 
 
 app = web.Application()

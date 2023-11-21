@@ -1,5 +1,5 @@
+# from webhook import webhook
 from aiohttp import web
-from webhook import webhook
 import aiohttp_jinja2
 import jinja2
 from server_fu import FAQ, BOT
@@ -37,7 +37,11 @@ async def index_page(request):
 async def message_form(request):
     data = await request.post()
     email, message = data['email'], data['message']
-    await bot.send_message(BOT['id'], text=f'{email}\n{message}')
+    try:
+        await bot.send_message(BOT['idd'], text=f'{email}\n{message}')
+        return web.Response(text="Сообщение отправлено")
+    except Exception as e:
+        return web.Response(text="Повторите попытку")
 
 
 app = web.Application(middlewares=[cache_control])
