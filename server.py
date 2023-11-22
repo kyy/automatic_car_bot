@@ -2,6 +2,7 @@
 from aiohttp import web
 import aiohttp_jinja2
 import jinja2
+from aiohttplimiter import default_keyfunc, Limiter, RateLimitExceeded
 from server_fu import FAQ, BOT
 from bot_config import bot
 import logging
@@ -18,6 +19,15 @@ logging.basicConfig(
 WEB_SERVER_HOST = "127.0.0.1"
 WEB_SERVER_PORT = 8350
 STATIC = 'server/static'
+
+
+def handler_limit_response(request: web.Request, exc: RateLimitExceeded):
+    # If for some reason you want to allow the request, return aiohttplimitertest.Allow().
+    logging.warning('spam')
+    return web.json_response(data={'success': False, 'message': "429. Слишком частые запросы"})
+
+
+limiter = Limiter(keyfunc=default_keyfunc, error_handler=handler_limit_response)
 
 routes = web.RouteTableDef()
 
@@ -42,6 +52,7 @@ async def index_page(request):
 
 
 @routes.post('/submit_message')
+@limiter.limit("5/minute")
 async def message_form(request):
     try:
         data = await request.post()
