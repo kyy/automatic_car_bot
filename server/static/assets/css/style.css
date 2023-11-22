@@ -794,14 +794,13 @@ h6 {
 
 @media (min-width: 768px) {
 
-    #contact .contact-address,
     #contact .contact-email {
         padding: 20px 0;
     }
 }
 
 
-#contact .php-email-form .error-message {
+#contact .email-form .error-message {
     display: none;
     color: #fff;
     background: var(--main_color);
@@ -810,28 +809,24 @@ h6 {
     font-weight: 600;
 }
 
-#contact .php-email-form .error-message br + br {
-    margin-top: 25px;
-}
 
-#contact .php-email-form .sent-message {
+#contact .sent-message {
     display: none;
-    color: #fff;
-    background: #18d26e;
+    color: var(--mainf_color);
     text-align: center;
     padding: 15px;
     font-weight: 600;
 
 }
 
-#contact .php-email-form .loading {
+#contact .email-form .loading {
     display: none;
     background: #fff;
     text-align: center;
     padding: 15px;
 }
 
-#contact .php-email-form .loading:before {
+#contact .email-form .loading:before {
     content: "";
     display: inline-block;
     border-radius: 50%;
@@ -843,27 +838,27 @@ h6 {
     animation: animate-loading 1s linear infinite;
 }
 
-#contact .php-email-form input,
-#contact .php-email-form textarea {
+#contact .email-form input,
+#contact .email-form textarea {
     border-radius: 0;
     box-shadow: none;
     font-size: 14px;
 }
 
-#contact .php-email-form input:focus,
-#contact .php-email-form textarea:focus {
+#contact .email-form input:focus,
+#contact .email-form textarea:focus {
     border-color: var(--main_color);
 }
 
-#contact .php-email-form input {
+#contact .email-form input {
     padding: 10px 15px;
 }
 
-#contact .php-email-form textarea {
+#contact .email-form textarea {
     padding: 12px 15px;
 }
 
-#contact .php-email-form button[type=submit] {
+#contact .email-form button[type=submit] {
     background: var(--main_color);
     border: 0;
     padding: 10px 40px;
@@ -873,7 +868,7 @@ h6 {
     cursor: pointer;
 }
 
-#contact .php-email-form button[type=submit]:hover {
+#contact .email-form button[type=submit]:hover {
     background: var(--mainf_color);
 }
 

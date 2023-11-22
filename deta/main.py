@@ -1,4 +1,4 @@
-import asyncio
+import logging
 import os
 from aiohttp import web
 import aiohttp_jinja2
@@ -30,13 +30,15 @@ async def index_page(request):
 
 @routes.post('/submit_message')
 async def message_form(request):
-    data = await request.post()
-    email, message = data['email'], data['message']
     try:
+        data = await request.post()
+        email, message = data['email'], data['message']
         await bot.send_message(BOT['id'], text=f'{email}\n{message}')
-        return web.Response(text="Сообщение отправлено")
-    except:
-        return web.Response(text="Повторите попытку")
+        logging.info(f'send message to bot >> {email}')
+        return web.json_response(data={'success': True, 'message': "Сообщение отправлено"})
+    except Exception as e:
+        logging.error(f'<message_form> -> {e}')
+        return web.json_response(data={'success': False, 'message': "Ошибка. Повторите попытку"})
 
 
 app = web.Application()
