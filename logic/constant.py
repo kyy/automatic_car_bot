@@ -16,7 +16,7 @@ MM = dict(
     STEP_COST=2500,
 )
 
-WORK_PARSE_CARS_DELTA = 1  # частота проверки новых объявллений в часах
+WORK_PARSE_CARS_DELTA = 2  # частота проверки новых объявллений в часах
 WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часах
 
 AV_WORK_PARSE_PRICE_DELTA_CORRECTION = 0  # поправка на часовой пояс в минутах

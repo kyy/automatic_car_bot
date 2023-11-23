@@ -22,7 +22,7 @@ from sites.sites_get_update import get_parse_brands_models
 LOCAL_HOST = '127.0.0.1'
 DOCKER_HOST = 'redis'
 
-rs = RedisSettings(host=DOCKER_HOST, port=6379)
+rs = RedisSettings(host=LOCAL_HOST, port=6379)
 
 
 async def update_database(ctx):
@@ -102,7 +102,7 @@ class Work(Worker):
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=False),
+             run_at_startup=True),
 
         # проверка цен
         cron(parse_prices_job,
@@ -133,8 +133,8 @@ def worker():
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
-        filename='arq.log',
-        filemode='a'
+        # filename='arq.log',
+        # filemode='a'
     )
     run_worker(Work)
 

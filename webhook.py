@@ -21,7 +21,7 @@ fast test:
 4. run webhook.py
 """
 
-BASE_URL = "https://dry-pets-film.loca.lt"
+BASE_URL = "http://127.0.0.1:8350"
 MAIN_BOT_TOKEN = token
 MAIN_BOT_PATH = ""
 logging.basicConfig(level=logging.INFO)

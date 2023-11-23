@@ -1,6 +1,5 @@
 import asyncio
 import logging
-
 from aiogram.types import FSInputFile
 from lxml import etree
 from aiohttp import ClientSession
@@ -38,7 +37,7 @@ async def get_one_json(url, session, result):
     async with session.get(url) as response:
         if response.status == 404:
             async with database() as db:
-                await db.execute(f"""DELETE FROM ucars WHERE id=$s""", (id_car,))
+                await db.execute("""DELETE FROM ucars WHERE id=$s""", (id_car,))
                 await db.commit()
         else:
             page_content = await response.json()
@@ -68,7 +67,9 @@ async def get_one_html(url, session, result):
 
 async def run(json, html, result):
     tasks = []
+
     semaphore = asyncio.Semaphore(20)
+
     async with ClientSession(headers=HEADERS) as session:
         if json:
             for url in json:
@@ -78,8 +79,7 @@ async def run(json, html, result):
             for url in html:
                 task = asyncio.ensure_future(bound_fetch_html(semaphore, url, session, result))
                 tasks.append(task)
-        # Ожидаем завершения всех наших задач.
-        await asyncio.gather(*tasks)
+        await asyncio.gather(*tasks, return_exceptions=True)
 
 
 async def check_price(result):

@@ -12,8 +12,8 @@ async def main():
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
-        filename='app.log',
-        filemode='a'
+        # filename='app.log',
+        # filemode='a'
     )
     dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.USER_IN_CHAT)  # FSM !
     await bot.set_my_commands(commands=commands)

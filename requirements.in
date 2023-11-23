@@ -1,6 +1,5 @@
 aiogram
 fpdf2
-pydantic-settings
 beautifulsoup4
 numpy
 outcome
