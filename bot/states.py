@@ -1,14 +1,4 @@
-import os
-
-from aiogram import Bot
 from aiogram.fsm.state import StatesGroup, State
-from dotenv import load_dotenv
-
-load_dotenv('.env')
-
-token = os.getenv('BOT_TOKEN')
-
-bot = Bot(token=token)
 
 
 class CreateCar(StatesGroup):

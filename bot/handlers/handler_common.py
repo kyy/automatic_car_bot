@@ -1,13 +1,15 @@
 import logging
+
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from commands import commands
-from keyboards import start_menu_kb, donate_kb, asky_kb
+
+from bot.commands import commands
+from bot.keyboards import start_menu_kb, donate_kb, asky_kb
+
 from logic.database.config import database
 from logic.text import TXT
-
 
 router = Router()
 

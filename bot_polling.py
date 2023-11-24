@@ -3,17 +3,18 @@ import logging
 from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
-from handlers import *
-from bot_config import bot
-from commands import commands
+
+from bot.handlers import *
+from load_env import bot
+from bot.commands import commands
 
 
 async def main():
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
-        # filename='app.log',
-        # filemode='a'
+        filename='logs/polling.log',
+        filemode='a'
     )
     dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.USER_IN_CHAT)  # FSM !
     await bot.set_my_commands(commands=commands)

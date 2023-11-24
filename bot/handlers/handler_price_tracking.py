@@ -1,14 +1,20 @@
 import logging
+
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
-from bot_config import CreateCar, bot
-from keyboards import stalk_menu_kb, add_stalk_kb
+
+from bot.states import CreateCar
+from bot.keyboards import stalk_menu_kb, add_stalk_kb
+
+from load_env import bot
+
 from logic.constant import ROOT_URL
 from logic.database.config import database
 from logic.func import check_count_cars, check_count_cars_active
 from logic.text import TXT
+
 from sites.sites_get_data import get_br_mod_pr
 
 router = Router()

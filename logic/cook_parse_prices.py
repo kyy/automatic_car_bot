@@ -3,13 +3,16 @@ import logging
 from aiogram.types import FSInputFile
 from lxml import etree
 from aiohttp import ClientSession
-from bot_config import bot
-from keyboards import car_price_message_kb
+
+from load_env import bot
+from bot.keyboards import car_price_message_kb
+
 from sites.av.av_parse_json import json_parse_price_av
 from sites.kufar.kufar_parse_json import html_parse_price_kufar
 from sites.onliner.onliner_parse_json import json_parse_price_onliner
 from sites.sites_fu import json_urls, html_urls
 from sites.sites_get_data import get_photos
+
 from .constant import HEADERS, API_DOMEN, ROOT_URL, LOGO
 from logic.database.config import database
 

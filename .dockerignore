@@ -1,5 +1,5 @@
 /venv
 .idea
-/logic/buffer
+/logic/buffer/*
 *.log
 /.space

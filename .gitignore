@@ -1,6 +1,5 @@
 /.idea
 /venv
-/.space
-/logic/buffer
-*.log
+/server_deta_space
+/server_aiohttp
 .env

@@ -1,8 +1,10 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from bot_config import CreateCar
-from keyboards import multi_row_kb
+
+from bot.states import CreateCar
+from bot.keyboards import multi_row_kb
+
 from logic.constant import SB, MOTOR, TRANSMISSION, COL, DEFAULT, MM
 from logic.kb_fu import get_brands, get_models, get_years, get_cost, get_dimension
 from logic.text import TXT

@@ -1,6 +1,8 @@
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
-from keyboards import back_to_start_menu_kb
+
+from bot.keyboards import back_to_start_menu_kb
+
 from logic.database.config import database
 
 router = Router()

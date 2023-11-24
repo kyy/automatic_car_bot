@@ -6,8 +6,8 @@ from aiogram.types import FSInputFile
 from arq import create_pool, cron, run_worker, Worker
 from arq.connections import RedisSettings
 
-from bot_config import bot
-from keyboards import car_message_kb, delete_message_kb
+from load_env import bot
+from bot.keyboards import car_message_kb, delete_message_kb
 
 from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA, LOGO
 from logic.cook_parse_cars import parse_main as cars
@@ -16,13 +16,14 @@ from logic.cook_pdf import do_pdf
 from logic.database.config import database, backup_db
 from logic.database.data_migrations import main as update
 from logic.func import off_is_active
+
 from sites.sites_get_data import all_json
 from sites.sites_get_update import get_parse_brands_models
 
 LOCAL_HOST = '127.0.0.1'
 DOCKER_HOST = 'redis'
 
-rs = RedisSettings(host=LOCAL_HOST, port=6379)
+rs = RedisSettings(host=DOCKER_HOST, port=6379)
 
 
 async def update_database(ctx):
@@ -133,8 +134,8 @@ def worker():
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
-        # filename='arq.log',
-        # filemode='a'
+        filename='logs/worker.log',
+        filemode='a'
     )
     run_worker(Work)
 

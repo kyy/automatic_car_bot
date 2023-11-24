@@ -19,3 +19,4 @@ lxml
 aiohttp-jinja2
 aiohttp-devtools
 aiohttp-ratelimiter
+python-dotenv

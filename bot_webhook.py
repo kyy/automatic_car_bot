@@ -8,9 +8,8 @@ from aiogram.fsm.strategy import FSMStrategy
 from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
-from handlers import *
-
-from bot_config import token
+from bot.handlers import *
+from bot.config import token
 
 """
 https://localtunnel.github.io/www/

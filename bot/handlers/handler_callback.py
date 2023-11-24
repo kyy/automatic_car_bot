@@ -1,9 +1,12 @@
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
-from keyboards import start_menu_kb, back_to_start_menu_kb, car_message_details_kb, delete_message_kb
+
+from bot.keyboards import start_menu_kb, back_to_start_menu_kb, car_message_details_kb, delete_message_kb
+
 from logic.func import strip_html
 from logic.text import TXT
 from logic.constant import BOT
+
 from sites.sites_get_data import get_car_details
 
 router = Router()
