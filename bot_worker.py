@@ -1,5 +1,12 @@
-import logging
 import os
+
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
+import logging
 
 from aiogram.types import FSInputFile
 
@@ -23,7 +30,7 @@ from sites.sites_get_update import get_parse_brands_models
 LOCAL_HOST = '127.0.0.1'
 DOCKER_HOST = 'redis'
 
-rs = RedisSettings(host=DOCKER_HOST, port=6379)
+rs = RedisSettings(host=LOCAL_HOST, port=6379)
 
 
 async def update_database(ctx):

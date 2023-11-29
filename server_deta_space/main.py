@@ -87,4 +87,4 @@ aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('./templates'))
 
 if __name__ == '__main__':
     web.run_app(app)
-    web.run_app(app, ho)
+

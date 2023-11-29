@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # обновления
-RUN apt-get update && apt-get install -y --no-install-recommends gcc && apt-get install -y supervisor
+RUN apt-get update && apt-get install -y --no-install-recommends gcc
 
 # создаем и запускаем изолированную среду
 RUN python -m venv /opt/venv

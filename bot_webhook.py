@@ -9,7 +9,7 @@ from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
 from bot.handlers import *
-from bot.config import token
+from load_env import token
 
 """
 https://localtunnel.github.io/www/
