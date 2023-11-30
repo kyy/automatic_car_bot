@@ -1,4 +1,4 @@
 deployment:
   tasks:
     export DEPLOYPATH=/home/mydomenb/repositories/automatic_car_bot/
-    - / -R $DEPLOYPATH
+    - /bin/cp -r * $DEPLOYPATH
