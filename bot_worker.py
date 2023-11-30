@@ -1,3 +1,7 @@
+from logic.fix_num import fix_num
+
+fix_num()
+
 import os
 import logging
 
