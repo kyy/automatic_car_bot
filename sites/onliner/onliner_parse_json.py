@@ -17,19 +17,23 @@ def jd_onliner(r_t):
     try:
         status = r_t["closed_at"]
         status = 'Активное' if status is None else 'Неактивное'
-    except: status = ''
+    except:
+        status = ''
 
     try:
         photo = r_t["images"][0]["800x800"]
-    except: photo = ''
+    except:
+        photo = ''
 
     try:
         description = r_t["description"]
-    except: description = ''
+    except:
+        description = ''
 
     try:
         published = r_t["created_at"]
-    except: published = ''
+    except:
+        published = ''
 
     price = r_t["price"]["converted"]["USD"]["amount"].split(".")[0]
     url = r_t["html_url"]
@@ -167,7 +171,7 @@ def json_parse_onliner(json_data, work):
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
-
+            print(fresh_minutes, datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M"), url)
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + ONLINER_WORK_PARSE_PRICE_DELTA_CORRECTION:
                 car.append([str(url), str(price), str(photo)])
         else:

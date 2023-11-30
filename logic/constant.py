@@ -19,8 +19,8 @@ MM = dict(
 WORK_PARSE_CARS_DELTA = 2  # частота проверки новых объявллений в часах
 WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часах
 
-AV_WORK_PARSE_PRICE_DELTA_CORRECTION = 0  # поправка на часовой пояс в минутах
-KUFAR_WORK_PARSE_PRICE_DELTA_CORRECTION = 0
+AV_WORK_PARSE_PRICE_DELTA_CORRECTION = 240  # поправка на часовой пояс в минутах
+KUFAR_WORK_PARSE_PRICE_DELTA_CORRECTION = 180
 ONLINER_WORK_PARSE_PRICE_DELTA_CORRECTION = 0
 
 REPORT_PARSE_LIMIT_PAGES = 2  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)

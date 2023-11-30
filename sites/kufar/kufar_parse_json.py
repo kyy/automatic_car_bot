@@ -135,10 +135,12 @@ async def kufar_research(id_car, session):
     brand = dom.xpath('//*[@data-name="cars_brand_v2"]/following-sibling::node()[1]/span')[0].text
     try:
         model = dom.xpath('//*[@data-name="cars_model_v2"]/following-sibling::node()[1]/span')[0].text
-    except: model = ''
+    except:
+        model = ''
     try:
         generation = dom.xpath('//*[@data-name="cars_gen_v2"]/following-sibling::node()[1]/span')[0].text
-    except: generation = ''
+    except:
+        generation = ''
     year = dom.xpath('//*[@data-name="regdate"]/following-sibling::node()[1]/span')[0].text
     km = dom.xpath('//*[@data-name="mileage"]/following-sibling::node()[1]/span')[0].text
     motor = dom.xpath('//*[@data-name="cars_engine"]/following-sibling::node()[1]/span')[0].text
@@ -152,7 +154,8 @@ async def kufar_research(id_car, session):
         drive = ''
     try:
         color = dom.xpath('//*[@data-name="cars_color"]/following-sibling::node()[1]/span')[0].text
-    except: color = ''
+    except:
+        color = ''
     description = dom.xpath('//*[@itemprop="description"]/text()')
     descr = ' '.join(description)
     url = id_car
