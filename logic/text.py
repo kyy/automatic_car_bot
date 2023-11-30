@@ -36,7 +36,6 @@ TXT = dict(
                 "<a href='{onliner_l}'>onliner.by</a> - {all_onliner}.\n"
                 "<a href='{kufar_l}'>kufar.by</a> - {all_kufar}.\n"
                 "\n"
-                "⚠ Действует ограничение: до {size} объявлений с 1 ресурса."
                 " Сформируйте, как можно уже поисковый фильтр.\n",
 
     info_start_menu='Главное меню\n',
