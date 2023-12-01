@@ -10,6 +10,7 @@ async def create_tables(db):
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
             [unique] TEXT (0, 32) NOT NULL, 
             av_by TEXT (0, 32), 
+            abw_by TEXT (0, 32), 
             onliner_by TEXT (0, 32),
             kufar_by TEXT (0, 32)
             );
@@ -18,6 +19,7 @@ async def create_tables(db):
             brand_id INTEGER REFERENCES brands (id) ON DELETE CASCADE, 
             [unique] TEXT (0, 32) NOT NULL, 
             av_by TEXT (0, 32), 
+            abw_by TEXT (0, 32), 
             onliner_by TEXT (0, 32),
             kufar_by TEXT (0, 32)
             )""")

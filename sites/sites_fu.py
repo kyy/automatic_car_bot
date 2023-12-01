@@ -28,6 +28,8 @@ async def sort_domens(url,  **kwargs):
             params = await kwargs["onliner"](car_id, session)
         elif DOMEN["KUFAR"] in domen:
             params = await kwargs["kufar"](url, session)
+        elif DOMEN["ABW"] in domen:
+            params = await kwargs["abw"](url, session)
 
         return params
 
@@ -85,8 +87,8 @@ async def html_urls():
         kufar_abw_urls_cursor = await db.execute(
             """
             SELECT url, id FROM ucars
-            WHERE (LOWER(url) LIKE 'https://auto.kufar.by/vi/%')
+            WHERE (LOWER(url) LIKE 'https://auto.kufar.by/vi/%' OR LOWER(url) LIKE 'https://abw.by/cars/detail/%')
             AND is_active = 1""")
-        kufar_urls = await kufar_abw_urls_cursor.fetchall()
-        kufar_urls = [(i[0], i[1]) for i in kufar_urls]
-        return [*kufar_urls]
+        kufar_abw_urls = await kufar_abw_urls_cursor.fetchall()
+        kufar_abw_urls = [(i[0], i[1]) for i in kufar_abw_urls]
+        return [*kufar_abw_urls]

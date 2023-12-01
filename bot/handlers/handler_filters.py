@@ -151,6 +151,8 @@ async def options_search(callback: CallbackQuery):
             decode_filter_short=decode_filter_short(cars),
             av_l=link['av_link'],
             all_av=count['all_av'],
+            abw_l=link['abw_link'],
+            all_abw=count['all_abw'],
             onliner_l=link['onliner_link'],
             all_onliner=count['all_onliner'],
             kufar_l=link['kufar_link'],

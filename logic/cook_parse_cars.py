@@ -8,6 +8,7 @@ import numpy as np
 
 from logic.constant import HEADERS, API_DOMEN
 
+from sites.abw.abw_parse_json import json_parse_abw
 from sites.av.av_parse_json import json_parse_av
 from sites.kufar.kufar_parse_json import json_parse_kufar
 from sites.onliner.onliner_parse_json import json_parse_onliner
@@ -40,6 +41,9 @@ async def get_one_json(url, session, result, work):
 
         elif url.split("/")[2] == API_DOMEN["KUFAR"]:
             item = json_parse_kufar(page_content, work)
+
+        elif url.split('/')[2] == API_DOMEN['ABW']:
+            item = json_parse_abw(page_content, work)
 
         result += item
 

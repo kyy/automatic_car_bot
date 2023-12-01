@@ -4,6 +4,7 @@ from aiohttp import ClientSession
 
 from logic.database.config import database
 
+from sites.abw import *
 from sites.av import *
 from sites.kufar import *
 from sites.onliner import *
@@ -15,6 +16,7 @@ async def all_json(link, work=False):
     async with database() as db:
         return dict(
             av_json=await get_url_av(link, db),
+            abw_json=await get_url_abw(link, db),
             onliner_json=await get_url_onliner(link, db),
             kufar_json=await get_url_kufar(link, db, work),
         )
@@ -31,6 +33,7 @@ def all_html(filt, json):
     return dict(
         av_link=av_url_filter(json['av_json']),
         onliner_link=onliner_url_filter(filt, json['onliner_json']),
+        abw_link=abw_url_filter(json['abw_json']),
         kufar_link=kufar_url_filter(json['kufar_json']),
     )
 
@@ -40,6 +43,7 @@ async def get_count_cars(json):
     async with ClientSession() as session:
         return dict(
             all_av=await count_cars_av(json['av_json'], session),
+            all_abw=await count_cars_abw(json['abw_json'], session),
             all_onliner=await count_cars_onliner(json['onliner_json'], session),
             all_kufar=await count_cars_kufar(json['kufar_json'], session),
         )
@@ -62,6 +66,7 @@ async def urls_json(json, work):
     av = json["av_json"]
     onliner = json["onliner_json"]
     kufar = json["kufar_json"]
+    abw = json["abw_json"]
 
     cars = []
 
@@ -80,6 +85,11 @@ async def urls_json(json, work):
             links_kufar = json_links_kufar(kufar)
             if links_kufar:
                 cars.extend([*links_kufar])
+
+        if abw:
+            links_abw = await json_links_abw(abw, session)
+            if links_abw:
+                cars.extend([*links_abw])
 
     return cars
 
@@ -104,6 +114,7 @@ async def get_photos(url, **kwargs):
                                    av=get_av_photo,
                                    onliner=get_onliner_photo,
                                    kufar=get_kufar_photo,
+                                   abw=get_abw_photo,
                                    **kwargs,
                                    )
         return params
@@ -118,6 +129,7 @@ async def get_br_mod_pr(url, **kwargs):
                                    av=get_av_stalk_name,
                                    onliner=get_onliner_stalk_name,
                                    kufar=get_kufar_stalk_name,
+                                   abw=get_abw_stalk_name,
                                    **kwargs,
                                    )
         return params

@@ -50,18 +50,21 @@ PAGINATION = 5
 
 ROOT_URL = dict(
     AV="https://cars.av.by/",
+    ABW="https://abw.by/",
     ONLINER="https://ab.onliner.by/",
     KUFAR="https://auto.kufar.by/",
 )
 
 API_DOMEN = dict(
     AV="api.av.by",
+    ABW="b.abw.by",
     ONLINER="ab.onliner.by",
     KUFAR="api.kufar.by",
 )
 
 DOMEN = dict(
     AV="av.by",
+    ABW="abw.by",
     ONLINER="onliner.by",
     KUFAR="kufar.by",
 )

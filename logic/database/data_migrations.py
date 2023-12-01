@@ -22,14 +22,16 @@ def car_data():
         return np.load(f'{folder}{name}.npy', allow_pickle=True).item()
 
     av_b = o('av_brands')
+    abw_m = o('abw_models')
     av_m = o('av_models')
     onliner_m = o('onliner_models')
+    abw_b = o('abw_brands')
     onliner_b = o('onliner_brands')
     kufar_b = o('kufar_brands')
     kufar_m = o('kufar_models')
 
     return dict(
-        av_b=av_b, av_m=av_m, onliner_m=onliner_m,
+        av_b=av_b, abw_m=abw_m, av_m=av_m, onliner_m=onliner_m, abw_b=abw_b,
         onliner_b=onliner_b, kufar_b=kufar_b, kufar_m=kufar_m,
     )
 
@@ -37,12 +39,14 @@ def car_data():
 def l_car_data(**kwargs):
     l_av_b = len(kwargs["av_b"])
     l_av_m = lenn(kwargs["av_m"])
+    l_abw_b = len(kwargs["abw_b"])
+    l_abw_m = lenn(kwargs["abw_m"])
     l_onliner_b = len(kwargs["onliner_b"])
     l_onliner_m = lenn(kwargs["onliner_m"])
     l_kufar_b = len(kwargs["kufar_b"])
     l_kufar_m = lenn(kwargs["kufar_m"])
     return dict(
-        l_av_b=l_av_b, l_onliner_b=l_onliner_b, l_av_m=l_av_m,
+        l_av_b=l_av_b, l_abw_b=l_abw_b, l_onliner_b=l_onliner_b, l_av_m=l_av_m, l_abw_m=l_abw_m,
         l_onliner_m=l_onliner_m, l_kufar_m=l_kufar_m, l_kufar_b=l_kufar_b,
     )
 
@@ -231,8 +235,10 @@ async def main(db: database()):
             await create(db)
             await av_brands(db, b_m["av_b"], l_b_m["l_av_b"]),
             await av_models(db, b_m["av_m"], l_b_m["l_av_m"]),
+            await add_brand(db, b_m["abw_b"], 'abw_by', 1),
             await add_brand(db, b_m["onliner_b"], 'onliner_by', 0),
             await add_brand(db, b_m["kufar_b"], 'kufar_by', 0),
+            await add_model(db, b_m["abw_m"], 'abw_by', 2),
             await add_model(db, b_m["onliner_m"], 'onliner_by', 0),
             await add_model(db, b_m["kufar_m"], 'kufar_by', 0),
             await delete_dublicates(db, 'brands')
