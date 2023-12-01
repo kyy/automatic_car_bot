@@ -13,7 +13,7 @@ def br_to_tuple(dictionary: dict[str: [str, str]]) -> list[(str, str)]:
 
 
 def lenn(items):
-    return sum([1 for item in items for sub_item in items[item]])   # noqa
+    return sum([1 for item in items for sub_item in items[item]])  # noqa
 
 
 def car_data():
@@ -51,7 +51,7 @@ def l_car_data(**kwargs):
     )
 
 
-def checking_null(**kwargs):   # проверяем все ли файлы с данными
+def checking_null(**kwargs):  # проверяем все ли файлы с данными
     xxx = [i for i in kwargs.values()]
     return all([x > 0 for x in xxx])
 
@@ -69,7 +69,7 @@ async def av_brands(db, av_b, l_av_b):
     l_av_bd = len(av_bd)
     if l_av_bd == 0:
         await db.executemany("""
-            INSERT INTO brands([unique], av_by) VALUES(?, ?)""", br_to_tuple(av_b))    # noqa заполняем пустую таблицу
+            INSERT INTO brands([unique], av_by) VALUES(?, ?)""", br_to_tuple(av_b))  # noqa заполняем пустую таблицу
         await db.commit()
         logging.info('av_by <- brands is comitted')
     else:
@@ -80,19 +80,19 @@ async def av_brands(db, av_b, l_av_b):
             if item not in [i[0] for i in av_bd]:
                 update_insert.append((item, av_b[item][0]))
         await db.executemany("""
-            REPLACE INTO brands([unique], av_by) VALUES(?, ?)""", update_insert)     # вставляем новые бренды
+            REPLACE INTO brands([unique], av_by) VALUES(?, ?)""", update_insert)  # вставляем новые бренды
         for item in av_bd:
             if item[0] in av_b:
                 update.append((item[1], item[0], av_b[item[0]][0]))
             else:
-                await db.execute("""DELETE FROM brands WHERE id=$s""", (item[1],), )    # удаляем неактуальные бренды
+                await db.execute("""DELETE FROM brands WHERE id=$s""", (item[1],), )  # удаляем неактуальные бренды
         await db.executemany("""
-            REPLACE INTO brands(id, [unique], av_by) VALUES(?, ?, ?)""", update)      # обновляем все бренды
+            REPLACE INTO brands(id, [unique], av_by) VALUES(?, ?, ?)""", update)  # обновляем все бренды
         await db.commit()
         logging.info('av_by <- brands is comitted')
         await asyncio.sleep(0.1)
         if l_av_b != l_av_bd:
-            logging.info(f'av_by <- brands result: {l_av_b-l_av_bd}')
+            logging.info(f'av_by <- brands result: {l_av_b - l_av_bd}')
 
 
 async def av_models(db, av_m: dict, l_av_m: int):
@@ -121,7 +121,7 @@ async def av_models(db, av_m: dict, l_av_m: int):
         brand_dict.update({brand[1]: brand[0]})
 
     for item in av_bd_b:
-        models = av_m[item[1]]          # noqa
+        models = av_m[item[1]]  # noqa
         for model in models:
             models_list.append((item[0], model, models[model][0]))
 
@@ -244,4 +244,4 @@ async def main(db: database()):
             await delete_dublicates(db, 'brands')
             await delete_dublicates(db, 'models')
         else:
-            logging.info('Присутствуют пустые словари в папке parse')
+            logging.warning('Присутствуют пустые словари в папке parse')
