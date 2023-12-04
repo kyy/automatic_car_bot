@@ -2,7 +2,8 @@ import asyncio
 import logging
 
 import nest_asyncio
-from aiohttp import ClientSession
+from aiohttp import ClientSession, TCPConnector
+from aiolimiter import AsyncLimiter
 
 import numpy as np
 
@@ -14,14 +15,18 @@ from sites.kufar.kufar_parse_json import json_parse_kufar
 from sites.onliner.onliner_parse_json import json_parse_onliner
 from sites.sites_get_data import urls_json
 
+MAX_CONCURRENT = 4
 
 nest_asyncio.apply()
+
+rate_limit = AsyncLimiter(4, 1.0)
 
 
 async def bound_fetch_json(semaphore, url, session, result, work):
     try:
         async with semaphore:
-            await get_one_json(url, session, result, work)
+            async with rate_limit:
+                await get_one_json(url, session, result, work)
     except Exception as e:
         logging.error(f'<cook_parse_cars.bound_fetch_json> {e}')
         # Блокируем все таски на <> секунд в случае ошибки 429.
@@ -29,31 +34,32 @@ async def bound_fetch_json(semaphore, url, session, result, work):
 
 
 async def get_one_json(url, session, result, work):
-    async with session.get(url) as response:
+    item = None
+    response = await session.get(url)
 
-        page_content = await response.json()
+    page_content = await response.json()
 
-        if url.split("/")[2] == API_DOMEN["AV"]:
-            item = json_parse_av(page_content, work)
+    if url.split("/")[2] == API_DOMEN["AV"]:
+        item = json_parse_av(page_content, work)
 
-        elif url.split("/")[2] == API_DOMEN["ONLINER"]:
-            item = json_parse_onliner(page_content, work)
+    elif url.split("/")[2] == API_DOMEN["ONLINER"]:
+        item = json_parse_onliner(page_content, work)
 
-        elif url.split("/")[2] == API_DOMEN["KUFAR"]:
-            item = json_parse_kufar(page_content, work)
+    elif url.split("/")[2] == API_DOMEN["KUFAR"]:
+        item = json_parse_kufar(page_content, work)
 
-        elif url.split('/')[2] == API_DOMEN['ABW']:
-            item = json_parse_abw(page_content, work)
+    elif url.split('/')[2] == API_DOMEN['ABW']:
+        item = json_parse_abw(page_content, work)
 
-        result += item
+    result += item
 
 
 async def run(json, result, work):
     tasks = []
 
     semaphore = asyncio.Semaphore(20)
-
-    async with ClientSession(headers=HEADERS) as session:
+    connector = TCPConnector(limit=MAX_CONCURRENT)
+    async with ClientSession(headers=HEADERS, connector=connector) as session:
 
         if json:
             for url in json:

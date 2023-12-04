@@ -19,5 +19,6 @@ lxml
 aiohttp-jinja2
 aiohttp-devtools
 aiohttp-ratelimiter
+aiolimiter
 python-dotenv
 supervisor
