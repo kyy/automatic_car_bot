@@ -30,18 +30,21 @@ DOCKER_HOST = 'redis'
 rs = RedisSettings(host=LOCAL_HOST, port=6379)
 
 
-async def update_database(ctx):
+async def update_database(ctx) -> None:
+    """Бекап БД, парсимнг брендов моделей, бновление БД."""
     await backup_db()
     await get_parse_brands_models()
     await update(database())
 
 
-async def reset_subs(ctx):
+async def reset_subs(ctx) -> None:
+    """Сброс активных поисков до установленного кол-ва при окончании подписки"""
     await off_is_active()
     logging.info('RESET ACTIVE STATUS')
 
 
-async def parse_cars(ctx, item, work):
+async def parse_cars(ctx, item, work) -> None:
+    """Парсинг объявлений машин :param work:  Флаг True: отчет"""
     filt, tel_id, name = item[1][7:], item[0], item[2]
     json = await all_json(filt, work)
     await cars(json, tel_id, name, work, send_car_job)
@@ -61,6 +64,7 @@ async def parse_cars_job(ctx):
 
 
 async def send_car(ctx, tel_id, car):
+    """Отправка объявлений"""
     url, price, photo = car[0], car[1], car[2]
     photo = FSInputFile(LOGO) if photo == '' else photo
     message = f'{url}\n${price}'
@@ -77,6 +81,7 @@ async def send_car_job(tel_id, result):
 
 
 async def send_pdf(ctx, user_id, link_count, name_time_stump, decode_f_s, filter_name):
+    """Отправка отчета"""
     await do_pdf(user_id, link_count, name_time_stump, decode_f_s, filter_name)
     bf = f'logic/buffer/{name_time_stump}'
     os.remove(f'{bf}.npy')

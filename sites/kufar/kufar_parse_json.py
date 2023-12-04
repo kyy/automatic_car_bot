@@ -143,6 +143,7 @@ async def kufar_research(id_car, session):
         generation = ''
     year = dom.xpath('//*[@data-name="regdate"]/following-sibling::node()[1]/span')[0].text
     km = dom.xpath('//*[@data-name="mileage"]/following-sibling::node()[1]/span')[0].text
+    km = km.replace('км', '')
     motor = dom.xpath('//*[@data-name="cars_engine"]/following-sibling::node()[1]/span')[0].text
     dimension = dom.xpath('//*[@data-name="cars_capacity"]/following-sibling::node()[1]/span')[0].text
     dimension = dimension.replace('л', '')
