@@ -26,17 +26,15 @@ ONLINER_WORK_PARSE_PRICE_DELTA_CORRECTION = 0
 REPORT_PARSE_LIMIT_PAGES = 2  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)
 PARSE_LIMIT_PAGES = 4  # лимит страниц парсиинга (1стр = 20 или 25 машин)
 
-CARS_ADD_LIMIT = 15
-FILTER_ADD_LIMIT = 15
+CARS_ADD_LIMIT = 15  # лимит добавления машин для обычных ползователей
+FILTER_ADD_LIMIT = 15  # лимит добавления фильтров для обычных ползователей
+FILTER_ADD_LIMIT_ACTIVE = 10  # лимит активных фильтров для обычных ползователей
+CARS_ADD_LIMIT_ACTIVE = 10  # лимит активных машин для обычных ползователей
 
-FILTER_ADD_LIMIT_ACTIVE = 5
-CARS_ADD_LIMIT_ACTIVE = 5
-
-SUBS_CARS_ADD_LIMIT = 50
-SUBS_FILTER_ADD_LIMIT = 50
-
-SUBS_FILTER_ADD_LIMIT_ACTIVE = 15
-SUBS_CARS_ADD_LIMIT_ACTIVE = 15
+SUBS_CARS_ADD_LIMIT = 50  # лимит добавления машин для подписчиков
+SUBS_FILTER_ADD_LIMIT = 50  # лимит добавления фильтров для подписчиков
+SUBS_FILTER_ADD_LIMIT_ACTIVE = 20  # лимит активных фильтров для подписчиков
+SUBS_CARS_ADD_LIMIT_ACTIVE = 20  # лимит активных машин для подписчиков
 
 SS = "+"  # split symbol in filter
 SB = "✅ выбрать все"  # skip button on keyboards
