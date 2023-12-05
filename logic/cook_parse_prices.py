@@ -106,20 +106,20 @@ async def check_price(result):
 
                 db_price, db_url = row[3], row[2]
 
-                if db_price != 0:
-                    try:
-                        await bot.send_photo(row[0],
-                                             caption=
-                                             f'Старая цена - {db_price}$\n'
-                                             f'Текущая цена - {current_price}$\n'
-                                             f'Разница - {abs(db_price - current_price)}$\n'
-                                             f'{url}',
-                                             reply_markup=car_price_message_kb(url),
-                                             photo=photo,
-                                             parse_mode='HTML',
-                                             )
-                    except Exception as e:
-                        logging.error(f'<cook_parse_prices.check_price> {e}')
+                try:
+                    await bot.send_photo(row[0],
+                                         caption=
+                                         f'Старая цена - {db_price}$\n'
+                                         f'Текущая цена - {current_price}$\n'
+                                         f'Разница - {abs(db_price - current_price)}$\n'
+                                         f'{url}',
+                                         reply_markup=car_price_message_kb(url),
+                                         photo=photo,
+                                         parse_mode='HTML',
+                                         )
+                    logging.info(f'send new price -> {row[0]} <- {row[2]}')
+                except Exception as e:
+                    logging.error(f'<cook_parse_prices.check_price> {e} {row[0]} {row[2]} id={row[1]}')
 
                 await db.execute("""UPDATE ucars SET price=$current_price WHERE url=$db_url""",
                                  (current_price, db_url,))

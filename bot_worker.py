@@ -70,6 +70,7 @@ async def send_car(ctx, tel_id, car):
     message = f'{url}\n${price}'
     try:
         await bot.send_photo(tel_id, caption=message, photo=photo, reply_markup=car_message_kb(url))
+        logging.info(f"send car -> {tel_id} <- {url}")
     except Exception as e:
         logging.error(f"<work.send_car> <url> {url} <photo> {photo} {e}")
 
@@ -118,7 +119,7 @@ class Work(Worker):
         cron(parse_prices_job,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=False),
+             run_at_startup=True),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,
