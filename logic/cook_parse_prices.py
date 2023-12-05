@@ -85,48 +85,7 @@ async def run(json, html, result):
         await asyncio.gather(*tasks, return_exceptions=True)
 
 
-async def check_price(result):
-    async with database() as db:
-
-        data_cursor = await db.execute("""
-        SELECT user.tel_id, ucars.id, ucars.url, ucars.price FROM ucars
-        INNER JOIN user on user.id = ucars.user_id
-        ORDER BY ucars.url """)
-        base_data = await data_cursor.fetchall()
-        for car in result:
-
-            current_price, url = car[0], car[1]
-
-            image = await get_photos(url)
-
-            photo = FSInputFile(LOGO) if image is False else image
-
-            # tel_id=row[0] / db_id=row[1] / db_url=row[2] / db_price=row[3]
-            for row in (row for row in base_data if row[2] == url and row[3] != current_price):
-
-                db_price, db_url = row[3], row[2]
-
-                try:
-                    await bot.send_photo(row[0],
-                                         caption=
-                                         f'Старая цена - {db_price}$\n'
-                                         f'Текущая цена - {current_price}$\n'
-                                         f'Разница - {abs(db_price - current_price)}$\n'
-                                         f'{url}',
-                                         reply_markup=car_price_message_kb(url),
-                                         photo=photo,
-                                         parse_mode='HTML',
-                                         )
-                    logging.info(f'send new price -> {row[0]} <- {row[2]}')
-                except Exception as e:
-                    logging.error(f'<cook_parse_prices.check_price> {e} {row[0]} {row[2]} id={row[1]}')
-
-                await db.execute("""UPDATE ucars SET price=$current_price WHERE url=$db_url""",
-                                 (current_price, db_url,))
-        await db.commit()
-
-
-async def parse_main(ctx):
+async def parse_main(check_price=None):
     result = []
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(run(await json_urls(), await html_urls(), result=result))
