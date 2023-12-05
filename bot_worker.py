@@ -23,20 +23,20 @@ class Work(Worker):
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # проверка цен
         cron(parse_price,
              hour={i for i in range(1, 24, WORK_PARSE_PRICE_DELTA)},
              minute={00},
-             run_at_startup=True),
+             run_at_startup=False),
 
         # сброс активных параметров, если кончилась подписка
         cron(reset_subs,
              hour={00},
              minute={1},
              max_tries=3,
-             run_at_startup=True),
+             run_at_startup=False),
 
         # обновление БД и бекап
         cron(update_database,
