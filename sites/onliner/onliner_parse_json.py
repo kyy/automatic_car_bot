@@ -171,7 +171,6 @@ def json_parse_onliner(json_data, work):
         if work is True:
             fresh_minutes = datetime.now() - datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M")
             fresh_minutes = fresh_minutes.total_seconds() / 60
-            print(fresh_minutes, datetime.strptime(published[:-9], "%Y-%m-%dT%H:%M"), url)
             if fresh_minutes <= WORK_PARSE_CARS_DELTA * 60 + ONLINER_WORK_PARSE_PRICE_DELTA_CORRECTION:
                 car.append([str(url), str(price), str(photo)])
         else:
