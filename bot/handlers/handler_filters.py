@@ -13,9 +13,9 @@ from logic.cook_parse_cars import parse_main
 from logic.database.config import database
 from logic.func import valid_params_filter_on_save, check_count_filters, check_count_filters_active, filter_import
 from logic.text import TXT
+from logic.worker import send_pdf_job
 
 from sites.sites_get_data import car_multidata
-from bot_worker import send_pdf_job
 from datetime import datetime as datatime_datatime
 
 router = Router()
