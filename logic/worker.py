@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from logic.constant import LOGO
@@ -103,6 +104,7 @@ async def send_new_price(ctx, row, photo, url, current_price):
         await db.execute("""UPDATE ucars SET price=$current_price WHERE url=$db_url""",
                          (current_price, row[2],))
         await db.commit()
+        await asyncio.sleep(0.205)
 
 
 async def send_new_price_job(result):
