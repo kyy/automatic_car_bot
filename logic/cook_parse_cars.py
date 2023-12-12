@@ -2,7 +2,8 @@ import asyncio
 import logging
 
 import nest_asyncio
-from aiohttp import ClientSession
+from aiohttp import ClientSession, TCPConnector
+from aiolimiter import AsyncLimiter
 
 import numpy as np
 
@@ -16,11 +17,16 @@ from sites.sites_get_data import urls_json
 
 nest_asyncio.apply()
 
+MAX_CONCURRENT = 4
+
+rate_limit = AsyncLimiter(4, 1.0)
+
 
 async def bound_fetch_json(semaphore, url, session, result, work):
     try:
         async with semaphore:
-            await get_one_json(url, session, result, work)
+            async with rate_limit:
+                await get_one_json(url, session, result, work)
     except Exception as e:
         logging.error(f'<cook_parse_cars.bound_fetch_json> {e}')
         # Блокируем все таски на <> секунд в случае ошибки 429.
@@ -52,7 +58,8 @@ async def run(json, result, work):
     tasks = []
 
     semaphore = asyncio.Semaphore(20)
-    async with ClientSession(headers=HEADERS) as session:
+    connector = TCPConnector(limit=MAX_CONCURRENT)
+    async with ClientSession(headers=HEADERS, connector=connector) as session:
 
         if json:
             for url in json:
