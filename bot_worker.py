@@ -5,7 +5,7 @@ fix_num()
 from logic.worker import (
     rs,
     parse_cars, send_car, send_pdf, send_new_price,
-    parse_cars_job, parse_price, update_database, reset_subs
+    parse_cars_job, parse_price, update_database, reset_subs,
 )
 from logic.constant import WORK_PARSE_CARS_DELTA, WORK_PARSE_PRICE_DELTA
 
@@ -16,14 +16,21 @@ from arq import cron, run_worker, Worker
 
 class Work(Worker):
     redis_settings = rs
-    functions = [parse_cars, send_car, send_pdf, send_new_price]
+
+    functions = [
+        parse_cars,
+        send_car,
+        send_pdf,
+        send_new_price
+    ]
+
     cron_jobs = [
 
         # парсинг новых объявлений
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=False),
+             run_at_startup=True),
 
         # проверка цен
         cron(parse_price,
@@ -54,8 +61,8 @@ def worker():
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
-        filename='logs/worker.log',
-        filemode='a'
+        # filename='logs/worker.log',
+        # filemode='a'
     )
     run_worker(Work)
 

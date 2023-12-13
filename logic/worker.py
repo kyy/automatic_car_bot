@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import logging
 
 from logic.constant import LOGO
@@ -28,7 +29,7 @@ rs = RedisSettings(host=LOCAL_HOST, port=6379)
 
 
 async def update_database(ctx) -> None:
-    """Бекап БД, парсимнг брендов моделей, бновление БД."""
+    """Бекап БД, парсинг брендов моделей, бновление БД."""
     await backup_db()
     await get_parse_brands_models()
     await update(database())
@@ -58,6 +59,7 @@ async def parse_cars_job(ctx):
             "ORDER BY udata.id ")
         select_filters = await select_filters_cursor.fetchall()
         for item in select_filters:
+            await asyncio.sleep(0.105)
             await redis.enqueue_job('parse_cars', item, True)
 
 
@@ -77,6 +79,7 @@ async def send_car_job(tel_id, result):
     """Создаем очередь отправки объявлений"""
     redis = await create_pool(rs)
     for car in result:
+        await asyncio.sleep(0.205)
         await redis.enqueue_job('send_car', tel_id, car)
 
 
@@ -144,7 +147,7 @@ async def send_pdf(ctx, user_id, link_count, name_time_stump, decode_f_s, filter
                                 parse_mode='HTML')
         os.remove(f'{bf}.pdf')
     else:
-        print(f'{name_time_stump}.pdf не найден')
+        logging.warning(f'{name_time_stump}.pdf не найден')
         await bot.send_message(user_id, 'отчет не удалось отправить')
 
 
