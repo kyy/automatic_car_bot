@@ -21,11 +21,11 @@ class CacheCarData:
     def __init__(self, tel_id, max_len_data=3):
         self.max_len_data = max_len_data  # число используемых элементов
         self.tel_id = str(tel_id)  # id телеграм пользователя
-        self.s = '_|_'
+        self.s = '_|_'  # символ разделения
         self.data_name = self.tel_id + self.s
         self.count_name = self.tel_id + self.s + 'count'
 
-    def count(self):
+    def _count(self):
         try:
             count = int(r.get(self.count_name))
         except TypeError:
@@ -34,29 +34,15 @@ class CacheCarData:
         return count
 
     def push(self, val: list):
-        count = self.count()
+        count = self._count()
         count += 1
         r.set(self.count_name, count)
-        print(count)
         return r.set(self.data_name + str(count), self.s.join(str(i) for i in val))
 
     def render(self):
         data = []
         for i in range(1, self.max_len_data + 1):
             item = r.get(self.tel_id + self.s + str(i)).decode('UTF-8').split(self.s)
-            data.append(item)
+            if item is not None:
+                data.append(item)
         return data
-
-
-rem = CacheCarData(123456)
-
-if __name__ == '__main__':
-    print(rem.render())
-    # while True:
-    #     for i in range(100):
-    #         rem.push([f'{i}_http:/www.av.by/1232341', f'{i}_http:/image.png/', f'{i}_115546'])
-    #
-    #         print('1:', r.get('123456_|_1'))
-    #         print('2:', r.get('123456_|_2'))
-    #         print('3:', r.get('123456_|_3'))
-    #         time.sleep(0.35)
