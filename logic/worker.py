@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import logging
 
 from logic.constant import LOGO
@@ -9,6 +8,7 @@ from logic.cook_pdf import do_pdf
 from logic.database.config import database, backup_db
 from logic.database.data_migrations import main as update
 from logic.func import off_is_active
+from logic.image_comparison import check_dublicate, CacheCarData
 
 from sites.sites_get_data import all_json, get_photos
 from sites.sites_get_update import get_parse_brands_models
@@ -70,6 +70,8 @@ async def send_car(ctx, tel_id, car):
     message = f'{url}\n${price}'
     try:
         await bot.send_photo(tel_id, caption=message, photo=photo, reply_markup=car_message_kb(url))
+        ccd = CacheCarData(tel_id, 25)
+        ccd.push([url, price])
         logging.info(f"send car -> {tel_id} <- {url}")
     except Exception as e:
         logging.error(f"<work.send_car> <url> {url} <photo> {photo} {e}")
@@ -78,9 +80,12 @@ async def send_car(ctx, tel_id, car):
 async def send_car_job(tel_id, result):
     """Создаем очередь отправки объявлений"""
     redis = await create_pool(rs)
+    ccd = CacheCarData(tel_id, 25)
+
     for car in result:
-        await asyncio.sleep(0.205)
-        await redis.enqueue_job('send_car', tel_id, car)
+        if not check_dublicate(photo=car[2], url=car[0], ccd=ccd):
+            await asyncio.sleep(0.205)
+            await redis.enqueue_job('send_car', tel_id, car)
 
 
 async def parse_price(ctx):
