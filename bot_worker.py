@@ -30,7 +30,7 @@ class Work(Worker):
         cron(parse_cars_job,
              hour={i for i in range(1, 24, WORK_PARSE_CARS_DELTA)},
              minute={00},
-             run_at_startup=False),
+             run_at_startup=True),
 
         # проверка цен
         cron(parse_price,
@@ -61,8 +61,8 @@ def worker():
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
-        filename='logs/worker.log',
-        filemode='a'
+        # filename='logs/worker.log',
+        # filemode='a'
     )
     run_worker(Work)
 

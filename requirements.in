@@ -22,3 +22,5 @@ aiohttp-ratelimiter
 aiolimiter
 python-dotenv
 supervisor
+django
+arq-django-admin
