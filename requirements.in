@@ -24,3 +24,8 @@ python-dotenv
 supervisor
 django
 arq-django-admin
+whitenoise
+django-extensions
+django-browser-reload
+django-debug-toolbar
+django-ratelimit

@@ -16,7 +16,7 @@ aiohttp==3.9.1
     #   aiohttp-devtools
     #   aiohttp-jinja2
     #   aiohttp-ratelimiter
-aiohttp-devtools==1.1.1
+aiohttp-devtools==1.1.2
     # via -r requirements.in
 aiohttp-jinja2==1.6
     # via -r requirements.in
@@ -30,10 +30,18 @@ aiosqlite==0.19.0
     # via -r requirements.in
 annotated-types==0.6.0
     # via pydantic
-anyio==4.1.0
+anyio==4.2.0
     # via watchfiles
 arq==0.25.0
+    # via
+    #   -r requirements.in
+    #   arq-django-admin
+arq-django-admin==0.3.2
     # via -r requirements.in
+asgiref==3.7.2
+    # via
+    #   django
+    #   django-browser-reload
 asttokens==2.4.1
     # via devtools
 async-timeout==4.0.3
@@ -72,6 +80,21 @@ deprecated==1.2.14
     # via limits
 devtools==0.12.2
     # via aiohttp-devtools
+django==4.2.8
+    # via
+    #   -r requirements.in
+    #   arq-django-admin
+    #   django-browser-reload
+    #   django-debug-toolbar
+    #   django-extensions
+django-browser-reload==1.12.1
+    # via -r requirements.in
+django-debug-toolbar==4.2.0
+    # via -r requirements.in
+django-extensions==3.2.3
+    # via -r requirements.in
+django-ratelimit==4.1.0
+    # via -r requirements.in
 et-xmlfile==1.1.0
     # via openpyxl
 exceptiongroup==1.2.0
@@ -80,22 +103,22 @@ exceptiongroup==1.2.0
     #   pytest
 executing==2.0.1
     # via devtools
-fonttools==4.45.1
+fonttools==4.47.0
     # via fpdf2
-fpdf2==2.7.6
+fpdf2==2.7.7
     # via -r requirements.in
-frozenlist==1.4.0
+frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-hiredis==2.2.3
+hiredis==2.3.2
     # via redis
 idna==3.6
     # via
     #   anyio
     #   requests
     #   yarl
-importlib-metadata==7.0.0
+importlib-metadata==7.0.1
     # via build
 importlib-resources==6.1.1
     # via limits
@@ -105,7 +128,7 @@ jinja2==3.1.2
     # via aiohttp-jinja2
 limits==3.7.0
     # via aiohttp-ratelimiter
-lxml==4.9.3
+lxml==4.9.4
     # via -r requirements.in
 magic-filter==1.0.12
     # via aiogram
@@ -130,7 +153,7 @@ packaging==23.2
     #   build
     #   limits
     #   pytest
-pandas==2.1.3
+pandas==2.1.4
     # via -r requirements.in
 pillow==10.1.0
     # via fpdf2
@@ -138,9 +161,9 @@ pip-tools==7.3.0
     # via -r requirements.in
 pluggy==1.3.0
     # via pytest
-pydantic==2.5.2
+pydantic==2.5.3
     # via aiogram
-pydantic-core==2.14.5
+pydantic-core==2.14.6
     # via pydantic
 pygments==2.17.2
     # via
@@ -154,7 +177,7 @@ pytest==7.4.3
     # via
     #   -r requirements.in
     #   pytest-asyncio
-pytest-asyncio==0.21.1
+pytest-asyncio==0.23.2
     # via -r requirements.in
 python-dateutil==2.8.2
     # via pandas
@@ -178,6 +201,10 @@ sniffio==1.3.0
     # via anyio
 soupsieve==2.5
     # via beautifulsoup4
+sqlparse==0.4.4
+    # via
+    #   django
+    #   django-debug-toolbar
 supervisor==4.2.5
     # via -r requirements.in
 tomli==2.0.1
@@ -188,25 +215,31 @@ tomli==2.0.1
     #   pytest
 tqdm==4.66.1
     # via -r requirements.in
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   aiogram
+    #   anyio
     #   arq
+    #   asgiref
     #   limits
     #   pydantic
     #   pydantic-core
     #   qrcode
 tzdata==2023.3
-    # via pandas
+    # via
+    #   django
+    #   pandas
 urllib3==2.1.0
     # via requests
 watchfiles==0.21.0
     # via aiohttp-devtools
 wheel==0.42.0
     # via pip-tools
+whitenoise==6.6.0
+    # via -r requirements.in
 wrapt==1.16.0
     # via deprecated
-yarl==1.9.3
+yarl==1.9.4
     # via aiohttp
 zipp==3.17.0
     # via
