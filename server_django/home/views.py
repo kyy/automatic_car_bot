@@ -1,5 +1,7 @@
 import logging
 
+from django_ratelimit.decorators import ratelimit
+
 from django.http import JsonResponse
 from django.shortcuts import render
 from .logic.const import BOT, FAQ
@@ -15,10 +17,11 @@ def index(request):
     return render(request, 'home/index.html', context)
 
 
+@ratelimit(key='ip', rate='3/m', method=['POST'], block=True)
 def message_form(request):
     msg_succes, msg_error = ("Сообщение отправлено", "Ошибка. Повторите попытку")
     try:
-  
+
         email, message = request.POST['email'], request.POST['message']
 
         message = f'{email}\n{message}'.replace('\n', '%0A')

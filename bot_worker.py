@@ -61,8 +61,8 @@ def worker():
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] [%(lineno)d] [%(name)s] [%(message)s]",
-        # filename='logs/worker.log',
-        # filemode='a'
+        filename='logs/worker.log',
+        filemode='a'
     )
     run_worker(Work)
 
