@@ -11,7 +11,7 @@ DEBUG = False
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: define the correct hosts in production!
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['mush.by', 'www.mush.by']
 
 # correct collecting staticfiles
 MIDDLEWARE += [
@@ -20,10 +20,8 @@ MIDDLEWARE += [
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # define the correct URLs:
-STATIC_URL = "server_django/static/"
-MEDIA_URL = "server_django/media/"
-STATIC_ROOT = '/home/mydomenb/repositories/automatic_car_bot/server_django/static/'
-MEDIA_ROOT = '/home/mydomenb/repositories/automatic_car_bot/server_django/media/'
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
 
 try:
     from .local import *

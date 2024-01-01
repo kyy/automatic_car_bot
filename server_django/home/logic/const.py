@@ -1,16 +1,14 @@
 from datetime import datetime
 
-from logic.constant import (
-    CARS_ADD_LIMIT_ACTIVE, FILTER_ADD_LIMIT_ACTIVE, BOT
-)
+
 
 FAQ = [
     (
         'Сколько стоят мои услуги? ',
         'Бесплано предоставляется создание поисковых фильтров и отслеживание цен конкретных объявлений, '
         'но есть ограничениене по одновременной работе: '
-        f'не более {FILTER_ADD_LIMIT_ACTIVE} фильтров и '
-        f'не более {CARS_ADD_LIMIT_ACTIVE} отслеживаний. '
+        f'не более 10 фильтров и '
+        f'не более 10 отслеживаний. '
         'Для расширения лимитов планируется введение платной подписки. '
     ),
     (
@@ -25,8 +23,13 @@ FAQ = [
     ),
 ]
 
-BOT.update(
-    {
-        'year': datetime.now().year,
-    }
-)
+
+BOT = {
+    'url': 'https://t.me/automaticcarbot',
+    'name': '//ACB',
+    'email': 'miko@mush.by',
+    'telegram': 'https://t.me/xibolba',
+    'telegram_name': '@xibolba',
+    'id': 514390056,
+    'year': datetime.now().year,
+}
