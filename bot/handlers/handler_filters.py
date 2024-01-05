@@ -23,7 +23,7 @@ router = Router()
 
 @router.callback_query(F.data.startswith('params_menu_help'))
 async def help_show_params_menu(callback: CallbackQuery):
-    #   показать/скрыть  помощь списка фильтров
+    #   показать/скрыть помощь списка фильтров
     async with database() as db:
         cd = callback.data.split('_')
         page = int(cd[4])

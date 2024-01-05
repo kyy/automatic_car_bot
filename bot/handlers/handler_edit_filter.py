@@ -27,7 +27,6 @@ async def create_filter(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'edit_search')
 async def brand_chosen(callback: CallbackQuery, state: FSMContext):
     # изменить бренд
-    await callback.message.delete()
     await state.update_data(chosen_model=SB)  # сбрасываем модель при смене бренда
     await callback.message.answer(
         text=TXT['f_brand'],
@@ -39,7 +38,6 @@ async def brand_chosen(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_model')
 async def edit_model(callback: CallbackQuery, state: FSMContext):
     # изменить модель
-    await callback.message.delete()
     data = await state.get_data()
     brand = data['chosen_brand']
     await callback.message.answer(
@@ -53,7 +51,6 @@ async def edit_model(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_motor')
 async def edit_motor(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
-    await callback.message.delete()
     await callback.message.answer(
         text=TXT['f_motor'],
         reply_markup=multi_row_kb(
@@ -66,7 +63,6 @@ async def edit_motor(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_transmission')
 async def edit_transmission(callback: CallbackQuery, state: FSMContext):
     # изменить двигатель
-    await callback.message.delete()
     await callback.message.answer(
         text=TXT['f_transmission'],
         reply_markup=multi_row_kb(
@@ -78,7 +74,6 @@ async def edit_transmission(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_year_from')
 async def edit_year_from(callback: CallbackQuery, state: FSMContext):
     # изменить год от
-    await callback.message.delete()
     data = await state.get_data()
     year = data['chosen_year_to']
     year = get_years()[-1] if year == SB else year
@@ -94,7 +89,6 @@ async def edit_year_from(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_year_to')
 async def edit_year_to(callback: CallbackQuery, state: FSMContext):
     # изменить год до
-    await callback.message.delete()
     data = await state.get_data()
     year = data['chosen_year_from']
     year = get_years()[1] if year == SB else year
@@ -110,7 +104,6 @@ async def edit_year_to(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_price_from')
 async def edit_price_from(callback: CallbackQuery, state: FSMContext):
     # изменить цена от
-    await callback.message.delete()
     data = await state.get_data()
     cost = data['chosen_cost_max']
     cost = get_cost()[-1] if cost == SB else cost
@@ -126,7 +119,6 @@ async def edit_price_from(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_price_to')
 async def edit_price_to(callback: CallbackQuery, state: FSMContext):
     # изменить цена до
-    await callback.message.delete()
     data = await state.get_data()
     cost = data['chosen_cost_min']
     cost = get_cost()[0] if cost == SB else cost
@@ -142,7 +134,6 @@ async def edit_price_to(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_dimension_from')
 async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
     # изменить объем от
-    await callback.message.delete()
     data = await state.get_data()
     dimension = data['chosen_dimension_max']
     dimension = get_dimension()[-1] if dimension == SB else dimension
@@ -158,7 +149,6 @@ async def edit_dimension_from(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cb_dimension_to')
 async def edit_dimension_to(callback: CallbackQuery, state: FSMContext):
     # изменить объем до
-    await callback.message.delete()
     data = await state.get_data()
     dimension = data['chosen_dimension_min']
     if dimension == SB:

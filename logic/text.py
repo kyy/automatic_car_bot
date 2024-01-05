@@ -25,7 +25,7 @@ TXT = dict(
              + "- " + str("- ".join([i + " \n" for i in ROOT_URL.values()])) +
              + 46 * ' ' +
              '<a href="{telegram}"><i>{telegram_name}</i></a>  💬\n'
-             + 25 * ' ' +
+             + 35 * ' ' +
              '<i>{email}</i>  ✉\n',
 
     info_filter="📌 {decode_filter_short}\n"

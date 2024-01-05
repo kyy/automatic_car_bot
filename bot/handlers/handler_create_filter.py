@@ -53,7 +53,6 @@ async def brand_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.brand_choosing)
 async def model_chosen(message: Message, state: FSMContext):
-    await message.delete()
     if message.text in await get_brands():
         await state.update_data(chosen_brand=message.text)
         await message.answer(
@@ -73,7 +72,6 @@ async def model_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.model_choosing)
 async def motor_chosen(message: Message, state: FSMContext):
-    await message.delete()
     data = await state.get_data()
     if message.text in await get_models(data['chosen_brand']) or message.text in CF:
         await state.update_data(chosen_model=message.text)
@@ -95,7 +93,6 @@ async def motor_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.motor_choosing)
 async def transmission_chosen(message: Message, state: FSMContext):
-    await message.delete()
     if message.text in chain(MOTOR, CF):
         await state.update_data(chosen_motor=message.text)
         await message.answer(
@@ -116,7 +113,6 @@ async def transmission_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.transmission_choosing)
 async def from_year_chosen(message: Message, state: FSMContext):
-    await message.delete()
     if message.text in chain(TRANSMISSION, CF):
         data = await state.get_data()
         year = data['chosen_year_to']
@@ -140,7 +136,6 @@ async def from_year_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.year_choosing)
 async def to_year_chosen(message: Message, state: FSMContext):
-    await message.delete()
     year = get_years()[0] if message.text == SB else message.text
     if year in chain(list(get_years()), CF):
         await state.update_data(chosen_year_from=year)
@@ -166,7 +161,6 @@ async def to_year_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.yearm_choosing)
 async def min_cost_chosen(message: Message, state: FSMContext):
-    await message.delete()
     data = await state.get_data()
     year = data['chosen_year_from']
     year = get_years()[0] if SB == year else year
@@ -193,7 +187,6 @@ async def min_cost_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.cost_choosing)
 async def max_cost_chosen(message: Message, state: FSMContext):
-    await message.delete()
     if message.text in chain(get_cost(), CF):
         cost = get_cost()[0] if message.text == SB else message.text
         await state.update_data(chosen_cost_min=message.text)
@@ -219,7 +212,6 @@ async def max_cost_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.costm_choosing)
 async def min_dimension_chosen(message: Message, state: FSMContext):
-    await message.delete()
     data = await state.get_data()
     cost = get_cost()[0] if SB == data['chosen_cost_min'] else data['chosen_cost_min']
     if message.text in chain(get_cost(from_cost=int(cost)), CF):
@@ -245,7 +237,6 @@ async def min_dimension_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.dimension_choosing)
 async def max_dimension_chosen(message: Message, state: FSMContext):
-    await message.delete()
     dimension = get_dimension()[0] if message.text == SB else message.text
     if dimension in chain(get_dimension(), CF):
         await state.update_data(chosen_dimension_min=dimension)
@@ -271,7 +262,6 @@ async def max_dimension_chosen(message: Message, state: FSMContext):
 
 @router.message(CreateCar.dimensionm_choosing)
 async def finish_chosen(message: Message, state: FSMContext):
-    await message.delete()
     data = await state.get_data()
     dimension = data['chosen_dimension_min']
     dimension = get_dimension()[0] if SB == dimension else dimension
