@@ -1,5 +1,3 @@
-
-
 from pathlib import Path
 
 from arq.connections import RedisSettings
@@ -16,8 +14,6 @@ STATICFILES_DIRS = (
 SECRET_KEY = 'django-insecure-w6nd)%-_98i)ty#=g5b_mhr1rytf(sd^_mmc(#w8m=k*#h(abw'
 
 ALLOWED_HOSTS = []
-
-
 
 INSTALLED_APPS = [
     'arq_admin',
@@ -61,16 +57,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'server_django.wsgi.application'
 
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'django_server.sqlite3',
     }
 }
-
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -87,8 +79,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Europe/Moscow'
@@ -97,15 +87,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-
 STATIC_URL = 'static/'
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ARQ_QUEUES = {
-    'ЗАДАЧИ': RedisSettings(
+    'tasks': RedisSettings(
         host='127.0.0.1',
         port=6379,
         database=0,

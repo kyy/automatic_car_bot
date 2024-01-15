@@ -2,7 +2,7 @@ import logging
 
 from django_ratelimit.decorators import ratelimit
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from .logic.const import BOT, FAQ
 import requests
@@ -15,6 +15,10 @@ def index(request):
         'faqs': FAQ,
     }
     return render(request, 'home/index.html', context)
+
+
+def web_hook(request):
+    return HttpResponse("ok")
 
 
 @ratelimit(key='ip', rate='3/m', method=['POST'], block=True)
