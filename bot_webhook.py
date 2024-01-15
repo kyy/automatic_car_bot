@@ -32,7 +32,7 @@ BASE_URL = "https://mush.by"
 MAIN_BOT_TOKEN = token
 WEB_SERVER_HOST = "::"
 WEB_SERVER_PORT = 8443
-MAIN_BOT_PATH = "/web_hook"
+MAIN_BOT_PATH = f"/{token}"
 
 
 def is_bot_token(value: str) -> Union[bool, Dict[str, Any]]:
