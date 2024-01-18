@@ -8,9 +8,8 @@ from aiogram.fsm.strategy import FSMStrategy
 from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
-
 from bot.handlers import *
-from load_env import token
+from load_env import token, BASE_URL, WEB_SERVER_PORT, WEB_SERVER_HOST, MAIN_BOT_PATH
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,11 +27,11 @@ fast test:
 4. run webhook.py
 """
 
-BASE_URL = "https://mush.by"
+BASE_URL = BASE_URL
 MAIN_BOT_TOKEN = token
-WEB_SERVER_HOST = "::"
-WEB_SERVER_PORT = 8443
-MAIN_BOT_PATH = f"/{token}"
+WEB_SERVER_HOST = WEB_SERVER_HOST
+WEB_SERVER_PORT = int(WEB_SERVER_PORT)
+MAIN_BOT_PATH = MAIN_BOT_PATH
 
 
 def is_bot_token(value: str) -> Union[bool, Dict[str, Any]]:
