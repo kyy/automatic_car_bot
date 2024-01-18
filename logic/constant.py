@@ -103,9 +103,9 @@ DEFAULT = dict(
 )
 
 BOT = {
-    'url': 'https://t.me/automaticcarbot',
-    'name': '//ACB',
-    'email': 'miko@mush.by',
+    'url': 'https://t.me/giromitra_bot',
+    'name': 'giromitra',
+    'email': 'giromitra@mush.by',
     'telegram': 'https://t.me/xibolba',
     'telegram_name': '@xibolba',
     'id': 514390056,

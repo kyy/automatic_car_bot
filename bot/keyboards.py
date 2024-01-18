@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton
 
 from logic.codec_filter import decode_filter_short
-from logic.constant import CF, PAGINATION
+from logic.constant import CF, PAGINATION, BOT
 from logic.func import check_count_cars_active, check_count_filters_active
 from logic.kb_fu import pagination
 from logic.text import TXT
@@ -90,7 +90,7 @@ async def params_menu_kb(callback, db, help_flag=False, cur_page=1):
     search_params_cursor = await db.execute(
         "SELECT udata.search_param, udata.is_active, udata.id FROM user "
         "INNER JOIN udata on user.id = udata.user_id "
-        "WHERE user.tel_id = $s", (tel_id, )
+        "WHERE user.tel_id = $s", (tel_id,)
     )
     search_params = await search_params_cursor.fetchall()
     buttons = []
@@ -268,12 +268,12 @@ def asky_kb(tel_id):
         [
             InlineKeyboardButton(
                 text="Поделится в Telegram",
-                url=f"https://t.me/share/url?url=https://t.me/Automaticcarbot?start={tel_id}")
+                url=f"https://t.me/share/url?url={BOT['url']}?start={tel_id}")
         ],
         [
             InlineKeyboardButton(
                 text="Поделится в Vkontakte",
-                url=f"https://vk.com/share.php?url=https://t.me/Automaticcarbot?start={tel_id}")
+                url=f"https://vk.com/share.php?url={BOT['url']}?start={tel_id}")
         ],
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)

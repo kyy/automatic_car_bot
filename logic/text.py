@@ -1,4 +1,4 @@
-from logic.constant import ROOT_URL
+from logic.constant import ROOT_URL, BOT
 
 TXT = dict(
     info_start_menu_help='<b>Несколько команд для начала:</b>\n'
@@ -53,7 +53,7 @@ TXT = dict(
               '\n'
               '<i>Приглавшенных людей: <b>{ref}</b></i>\n'
               '\n'
-              '<code>https://t.me/automaticcarbot?start={tel_id}</code>',
+              f'<code>{BOT["url"]}' + '?start={tel_id}</code>',
 
     btn_search='🔎 Автопоиск',
     btn_stalk='📉 Оследить цену',

@@ -9,6 +9,7 @@ from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
 from bot.handlers import *
+from bot.commands import commands
 from load_env import token, BASE_URL, WEB_SERVER_PORT, WEB_SERVER_HOST, MAIN_BOT_PATH
 
 logging.basicConfig(
@@ -44,6 +45,7 @@ def is_bot_token(value: str) -> Union[bool, Dict[str, Any]]:
 
 async def on_startup(bot: Bot):
     await bot.set_webhook(f"{BASE_URL}{MAIN_BOT_PATH}")
+    await bot.set_my_commands(commands=commands)
 
 
 def webhook():

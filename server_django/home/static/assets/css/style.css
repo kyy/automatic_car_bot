@@ -1,10 +1,4 @@
 
-:root {
-    --bg_color: #050505;
-    --main_color: #016e15;
-    --mainf_color: #195e05;
-}
-
 body {
     background: #fff;
     color: #2f3138;
@@ -12,7 +6,7 @@ body {
 }
 
 a {
-    color: var(--main_color);
+    color: #72afd3;
     text-decoration: none;
     transition: 0.1s;
 }
@@ -20,7 +14,7 @@ a {
 a:hover,
 a:active,
 a:focus {
-    color: var(--mainf_color);
+    color: #537f9a;
     outline: none;
     text-decoration: none;
 }
@@ -40,7 +34,7 @@ h6 {
     font-weight: 400;
     margin: 0 0 20px 0;
     padding: 0;
-    color: #0e1b4d;
+    color: #72afd3;
 }
 
 .main-page {
@@ -58,7 +52,7 @@ h6 {
     right: 15px;
     bottom: 15px;
     z-index: 996;
-    background: var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     width: 40px;
     height: 40px;
     border-radius: 50px;
@@ -67,15 +61,15 @@ h6 {
 
 .back-to-top svg {
     font-size: 28px;
-    color: #fff;
+    color: #ffffff;
     line-height: 0;
     width: 40px;
     height: 40px;
 }
 
 .back-to-top:hover {
-    background: var(--mainf_color);
-    color: #fff;
+    background: linear-gradient(45deg, #2fcba0, #5d8fad);
+    color: #ffffff;
 }
 
 .back-to-top.active {
@@ -97,7 +91,7 @@ h6 {
     display: block;
     width: 60px;
     height: 5px;
-    background: var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     bottom: 0;
     left: calc(50% - 25px);
 }
@@ -116,7 +110,7 @@ h6 {
     margin: 0;
     font-size: 18px;
     font-weight: 500;
-    color: #9195a2;
+    color: #e1e1e1;
 }
 
 .section-with-bg {
@@ -139,7 +133,11 @@ h6 {
 #header.header-scrolled,
 #header.header-inner {
     height: 45px;
-    background-color: #040919;
+    background: #2f3139;
+
+}
+
+#header #logo {
 
 }
 
@@ -150,12 +148,18 @@ h6 {
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
+    color: #f6f7fd;
 }
 
+#header #logo h4 a {
+    color: #f6f7fd;
+    text-shadow: 1px 1px 2px black;
+}
 
 #header #logo h1 a,
 #header #logo h1 a:hover {
     color: #fff;
+
 }
 
 
@@ -163,12 +167,13 @@ h6 {
 # Buy Tickets
 --------------------------------------------------------------*/
 .buy-tickets {
-    color: #fff;
-    background: var(--main_color);
+    color: #ffffff;
+    background: linear-gradient(45deg, #37ecba, #72afd3);
+
     padding: 7px 22px;
     margin: 0 0 0 15px;
     border-radius: 50px;
-    border: 2px solid var(--main_color);
+
     transition: all ease-in-out 0.3s;
     font-weight: 500;
     line-height: 1;
@@ -177,12 +182,12 @@ h6 {
 }
 
 .buy-tickets:hover {
-    background: none;
-    color: #fff;
+    color: #000000;
+    background: #ffffff;
 }
 
 .buy-tickets:focus {
-    color: #fff;
+    color: #000000;
 }
 
 @media (max-width: 992px) {
@@ -247,7 +252,7 @@ h6 {
     height: 2px;
     bottom: -6px;
     left: 0;
-    background-color: var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     visibility: hidden;
     transition: all 0.3s ease-in-out 0s;
 }
@@ -299,7 +304,7 @@ h6 {
 .navbar .dropdown ul a:hover,
 .navbar .dropdown ul .active:hover,
 .navbar .dropdown ul li:hover > a {
-    color: var(--main_color);
+    color: #18d26e;
 }
 
 .navbar .dropdown:hover > ul {
@@ -360,7 +365,7 @@ h6 {
     right: 0;
     left: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     transition: 0.15s;
     z-index: 999;
 }
@@ -404,7 +409,7 @@ h6 {
 .navbar-mobile a:hover,
 .navbar-mobile .active,
 .navbar-mobile li:hover > a {
-    color: var(--main_color);
+    color: #37ecba;
 }
 
 .navbar-mobile .getstarted,
@@ -420,7 +425,7 @@ h6 {
     z-index: 99;
     opacity: 1;
     visibility: visible;
-    background: #fff;
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     box-shadow: 0 0 30px rgba(127, 137, 161, 0.25);
 }
 
@@ -439,7 +444,7 @@ h6 {
 .navbar-mobile .dropdown ul a:hover,
 .navbar-mobile .dropdown ul .active:hover,
 .navbar-mobile .dropdown ul li:hover > a {
-    color: var(--main_color);
+    color: #37ecba;
 }
 
 .navbar-mobile .dropdown > .dropdown-active {
@@ -452,7 +457,6 @@ h6 {
 #hero {
     width: 100%;
     height: 100vh;
-    background-color: var(--bg_color);
     overflow: hidden;
     position: relative;
 }
@@ -465,7 +469,7 @@ h6 {
 
 #hero:before {
     content: "";
-    background: rgba(6, 12, 34, 0.8);
+    background: linear-gradient(45deg, #13547a, #80d0c7);
     position: absolute;
     bottom: 0;
     top: 0;
@@ -502,7 +506,7 @@ h6 {
 }
 
 #hero h1 span {
-    color: var(--main_color);
+    color: #72afd3;
 }
 
 @media (max-width: 991px) {
@@ -526,7 +530,7 @@ h6 {
 #hero .play-btn {
     width: 94px;
     height: 94px;
-    background: radial-gradient(var(--main_color) 50%, rgba(101, 111, 150, 0.15) 52%);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     border-radius: 50%;
     display: block;
     position: relative;
@@ -559,14 +563,14 @@ h6 {
     animation-iteration-count: infinite;
     opacity: 1;
     border-radius: 50%;
-    border: 2px solid rgba(163, 163, 163, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.4);
     top: -15%;
     left: -15%;
     background: rgba(198, 16, 0, 0);
 }
 
 #hero .play-btn:hover::after {
-    border-left: 15px solid var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     transform: scale(20);
 }
 
@@ -600,12 +604,12 @@ h6 {
     margin: 10px;
     color: #fff;
     animation-delay: 0.2s;
-    border: 2px solid var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
 }
 
 #hero .about-btn:hover {
-    background: var(--main_color);
-    color: #fff;
+    background: linear-gradient(45deg, #37ecba, #72afd3);
+    color: #70acd0;
 }
 
 @keyframes pulsate-btn {
@@ -624,7 +628,9 @@ h6 {
 # About Section
 --------------------------------------------------------------*/
 #about {
-    background-color: #000000;
+    background: #2f3138;
+
+
     overflow: hidden;
     position: relative;
     color: #fff;
@@ -639,7 +645,6 @@ h6 {
 
 #about:before {
     content: "";
-    background: rgba(13, 20, 41, 0.8);
     position: absolute;
     bottom: 0;
     top: 0;
@@ -701,7 +706,7 @@ h6 {
     font-weight: 400;
     padding-left: 25px;
     cursor: pointer;
-    color: var(--main_color);
+    color: #3e5e72;
     transition: 0.05s;
 }
 
@@ -726,7 +731,7 @@ h6 {
 }
 
 #faq .faq-list .collapsed:hover {
-    color: var(--main_color);
+    color: #486e85;
 }
 
 #faq .faq-list .collapsed .icon-show {
@@ -760,7 +765,7 @@ h6 {
     font-size: 48px;
     display: inline-block;
     margin-bottom: 10px;
-    color: var(--main_color);
+    color: #72afd3;
     width: 200px;
     height: 100px;
 }
@@ -784,7 +789,7 @@ h6 {
 }
 
 #contact .contact-info a:hover {
-    color: var(--main_color);
+    color: #72afd3;
 }
 
 #contact .contact-address,
@@ -802,8 +807,8 @@ h6 {
 
 #contact .email-form .error-message {
     display: none;
-    color: #fff;
-    background: var(--main_color);
+    color: #72afd3;
+    background: lightpink;
     text-align: left;
     padding: 15px;
     font-weight: 600;
@@ -812,7 +817,7 @@ h6 {
 
 #contact .sent-message {
     display: none;
-    color: var(--mainf_color);
+    color: #72afd3;
     text-align: center;
     padding: 15px;
     font-weight: 600;
@@ -847,7 +852,7 @@ h6 {
 
 #contact .email-form input:focus,
 #contact .email-form textarea:focus {
-    border-color: var(--main_color);
+    border-color: #72afd3;
 }
 
 #contact .email-form input {
@@ -859,7 +864,7 @@ h6 {
 }
 
 #contact .email-form button[type=submit] {
-    background: var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     border: 0;
     padding: 10px 40px;
     color: #fff;
@@ -869,7 +874,7 @@ h6 {
 }
 
 #contact .email-form button[type=submit]:hover {
-    background: var(--mainf_color);
+    background: linear-gradient(45deg, #2dc59c, #55829d);
 }
 
 @keyframes animate-loading {
@@ -886,7 +891,7 @@ h6 {
 # Footer
 --------------------------------------------------------------*/
 #footer {
-    background: #101522;
+    background: linear-gradient(45deg, #13547a, #80d0c7);
     padding: 0 0 25px 0;
     color: #eee;
     font-size: 14px;
@@ -944,7 +949,7 @@ h6 {
 }
 
 #footer .footer-top .social-links a:hover {
-    background: var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     color: #fff;
 }
 
@@ -955,7 +960,7 @@ h6 {
     text-transform: uppercase;
     position: relative;
     padding-bottom: 12px;
-    border-bottom: 2px solid var(--main_color);
+    border-bottom: 2px solid #72afd3;
 }
 
 #footer .footer-top .footer-links {
@@ -970,7 +975,7 @@ h6 {
 
 #footer .footer-top .footer-links ul i {
     padding-right: 5px;
-    color: var(--main_color);
+    color: #2f3138;
     font-size: 18px;
 }
 
@@ -988,7 +993,7 @@ h6 {
 }
 
 #footer .footer-top .footer-links ul a:hover {
-    color: var(--main_color);
+    color: #37ecba;
 }
 
 #footer .footer-top .footer-contact {
@@ -1010,7 +1015,7 @@ h6 {
 }
 
 #footer .footer-top .footer-newsletter input[type=submit] {
-    background: var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
     border: 0;
     width: 35%;
     padding: 6px 0;
@@ -1021,7 +1026,7 @@ h6 {
 }
 
 #footer .footer-top .footer-newsletter input[type=submit]:hover {
-    background: var(--main_color);
+    background: linear-gradient(45deg, #37ecba, #72afd3);
 }
 
 #footer .copyright {
