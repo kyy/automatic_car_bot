@@ -110,7 +110,7 @@ h6 {
     margin: 0;
     font-size: 18px;
     font-weight: 500;
-    color: #e1e1e1;
+    color: #8a8a8a;
 }
 
 .section-with-bg {
@@ -182,12 +182,12 @@ h6 {
 }
 
 .buy-tickets:hover {
-    color: #000000;
-    background: #ffffff;
+    color: #37ecba;
+    background: #72afd3;
 }
 
 .buy-tickets:focus {
-    color: #000000;
+    color: #37ecba;
 }
 
 @media (max-width: 992px) {
@@ -547,7 +547,7 @@ h6 {
     height: 0;
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
-    border-left: 15px solid #fff;
+    border-left: 15px solid #72afd3;
     z-index: 100;
     transition: all 400ms cubic-bezier(0.55, 0.055, 0.675, 0.19);
 }
@@ -599,18 +599,20 @@ h6 {
     display: inline-block;
     padding: 12px 32px;
     border-radius: 50px;
-    transition: 0.25s;
+    transition: 0.7s;
     line-height: 1;
     margin: 10px;
     color: #fff;
     animation-delay: 0.2s;
     background: linear-gradient(45deg, #37ecba, #72afd3);
+
 }
 
 #hero .about-btn:hover {
-    background: linear-gradient(45deg, #37ecba, #72afd3);
-    color: #70acd0;
+    color: #37ecba;
+    background: #72afd3;
 }
+
 
 @keyframes pulsate-btn {
     0% {
@@ -765,9 +767,14 @@ h6 {
     font-size: 48px;
     display: inline-block;
     margin-bottom: 10px;
-    color: #72afd3;
+    color: #4dd3c3;
     width: 200px;
     height: 100px;
+}
+
+#contact .contact-info svg:hover {
+    color: #71aed2;
+    transition: 0.7s;
 }
 
 #contact .contact-info address,
@@ -795,13 +802,6 @@ h6 {
 #contact .contact-address,
 #contact .contact-email {
     margin-bottom: 20px;
-}
-
-@media (min-width: 768px) {
-
-    #contact .contact-email {
-        padding: 20px 0;
-    }
 }
 
 
@@ -868,13 +868,13 @@ h6 {
     border: 0;
     padding: 10px 40px;
     color: #fff;
-    transition: 0.1s;
     border-radius: 50px;
     cursor: pointer;
 }
 
 #contact .email-form button[type=submit]:hover {
-    background: linear-gradient(45deg, #2dc59c, #55829d);
+    color: #37ecba;
+    background: #72afd3;
 }
 
 @keyframes animate-loading {

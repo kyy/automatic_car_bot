@@ -23,10 +23,10 @@ TXT = dict(
              '\n'
              '<b>Cобираю информацию с сайтов:</b>\n'
              + "- " + str("- ".join([i + " \n" for i in ROOT_URL.values()])) +
-             + 46 * ' ' +
+             '\n'
              '<a href="{telegram}"><i>{telegram_name}</i></a>  💬\n'
-             + 35 * ' ' +
-             '<i>{email}</i>  ✉\n',
+             '<i>{email}</i>  ✉\n'
+             '<i>{site}</i>  🌐\n',
 
     info_filter="📌 {decode_filter_short}\n"
                 "\n"

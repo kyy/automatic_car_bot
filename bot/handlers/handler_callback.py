@@ -27,7 +27,12 @@ async def bot_functions(callback: CallbackQuery):
     #   описание бота
 
     await callback.message.edit_text(
-        text=TXT['info_bot'].format(telegram=BOT['telegram'], telegram_name=BOT['telegram_name'], email=BOT['email']),
+        text=TXT['info_bot'].format(
+            telegram=BOT['telegram'],
+            telegram_name=BOT['telegram_name'],
+            email=BOT['email'],
+            site=BOT['site'],
+        ),
         reply_markup=back_to_start_menu_kb,
         disable_web_page_preview=True,
         parse_mode="HTML",

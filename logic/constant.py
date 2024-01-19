@@ -16,20 +16,20 @@ MM = dict(
     STEP_COST=2500,
 )
 
-WORK_PARSE_CARS_DELTA = 2  # частота проверки новых объявллений в часах
+WORK_PARSE_CARS_DELTA = 2  # частота проверки новых объявлений в часах
 WORK_PARSE_PRICE_DELTA = 3  # частота проверки цен в часах
 
 AV_WORK_PARSE_PRICE_DELTA_CORRECTION = 240  # поправка на часовой пояс в минутах
 KUFAR_WORK_PARSE_PRICE_DELTA_CORRECTION = 180
 ONLINER_WORK_PARSE_PRICE_DELTA_CORRECTION = 0
 
-REPORT_PARSE_LIMIT_PAGES = 2  # лимит страниц парсиинга для отчета PDF (1стр = 25 машин)
-PARSE_LIMIT_PAGES = 4  # лимит страниц парсиинга (1стр = 20 или 25 машин)
+REPORT_PARSE_LIMIT_PAGES = 2  # лимит страниц парсинга для отчета PDF (1стр = 25 машин)
+PARSE_LIMIT_PAGES = 4  # лимит страниц парсинга (1стр = 20 или 25 машин)
 
-CARS_ADD_LIMIT = 15  # лимит добавления машин для обычных ползователей
-FILTER_ADD_LIMIT = 15  # лимит добавления фильтров для обычных ползователей
-FILTER_ADD_LIMIT_ACTIVE = 10  # лимит активных фильтров для обычных ползователей
-CARS_ADD_LIMIT_ACTIVE = 10  # лимит активных машин для обычных ползователей
+CARS_ADD_LIMIT = 15  # лимит добавления машин для обычных пользователей
+FILTER_ADD_LIMIT = 15  # лимит добавления фильтров для обычных пользователей
+FILTER_ADD_LIMIT_ACTIVE = 3  # лимит активных фильтров для обычных пользователей
+CARS_ADD_LIMIT_ACTIVE = 3  # лимит активных машин для обычных пользователей
 
 SUBS_CARS_ADD_LIMIT = 50  # лимит добавления машин для подписчиков
 SUBS_FILTER_ADD_LIMIT = 50  # лимит добавления фильтров для подписчиков
@@ -109,4 +109,5 @@ BOT = {
     'telegram': 'https://t.me/xibolba',
     'telegram_name': '@xibolba',
     'id': 514390056,
+    'site': 'https://www.mush.by',
 }
