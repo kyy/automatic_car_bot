@@ -34,9 +34,12 @@ async def cmd_start(message: Message, state: FSMContext):
             await db.execute(
                 "INSERT INTO user (tel_id) VALUES ($s)", (tel_id,))
             logging.info("Added new user %r", tel_id)
-        elif ref_id:
-            await db.execute("UPDATE user SET ref = ref + 1 WHERE tel_id = $s", (ref_id,))
-            logging.info("Reffered by %r", ref_id)
+            if ref_id:
+                try:
+                    await db.execute("UPDATE user SET ref = ref + 1 WHERE tel_id = $s", (ref_id,))
+                    logging.info("Reffered by %r", ref_id)
+                except Exception as e:
+                    logging.warning(f'scam reffer link <cmd_start> {e}')
 
         await db.commit()
 
