@@ -134,10 +134,10 @@ async def av_models(db, av_m: dict, l_av_m: int):
     else:
         logging.info(f'av_by <- models: {l_av_bd_m}/{l_av_m}')
 
-        for brand_model in av_bd_bm:
-            if brand_model[1] not in av_m[brand_model[0]]:
-                # чистим базу от неактуальных моделей
-                await db.execute("""DELETE FROM models WHERE id=$s""", (brand_model[2],))
+        # чистим базу от неактуальных моделей
+        # for brand_model in av_bd_bm:
+        #     if brand_model[1] not in av_m[brand_model[0]]:
+        #         await db.execute("""DELETE FROM models WHERE id=$s""", (brand_model[2],))
         for brand in av_m:
             for model in av_m[brand]:
                 if (brand, model) not in [i[0:2] for i in av_bd_bm]:
@@ -196,9 +196,12 @@ async def add_model(db, model_data: dict[str: dict[str: list[str, str, str], ], 
     for brand in model_data:
         for model in model_data[brand]:
             if (brand, model) in av_bd_m:
+                brand_id_cursor = await db.execute("""SELECT id FROM brands WHERE [unique] = $s""", (brand,))
+                brand_id = await brand_id_cursor.fetchone()
                 await db.execute(
-                    """UPDATE models SET %(set_row)s = $model_data WHERE [unique]=$model""" % {"set_row": set_row},
-                    (model_data[brand][model][index], model,))
+                    """UPDATE models SET %(set_row)s = $model_data 
+                    WHERE [unique]=$model and brand_id = $brand_id""" % {"set_row": set_row},
+                    (model_data[brand][model][index], model, brand_id[0]))
     await db.commit()
     logging.info(f'{set_row} <- models is comitted')
 
@@ -241,7 +244,7 @@ async def main(db: database()):
             await add_model(db, b_m["abw_m"], 'abw_by', 2),
             await add_model(db, b_m["onliner_m"], 'onliner_by', 0),
             await add_model(db, b_m["kufar_m"], 'kufar_by', 0),
-            await delete_dublicates(db, 'brands')
-            await delete_dublicates(db, 'models')
+            # await delete_dublicates(db, 'brands')
+            # await delete_dublicates(db, 'models')
         else:
             logging.warning('Присутствуют пустые словари в папке parse')
