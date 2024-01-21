@@ -29,3 +29,4 @@ django-extensions
 django-browser-reload
 django-debug-toolbar
 django-ratelimit
+jsl_django_sitemap
