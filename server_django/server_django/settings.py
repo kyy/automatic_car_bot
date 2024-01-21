@@ -103,7 +103,14 @@ ARQ_QUEUES = {
 
 JSL_DJANGO_SITEMAP_SETTINGS = {
     "ENABLE": True,
-    "FETCH_URL_FROM": "pattern",
-    "INCLUDE_APPS": ("home",),
-    "IGNORE_URL_PATTERNS": (".*/api/v1.*",)
+    "FETCH_URL_FROM": "name",
+    "INCLUDE_APPS": ("ALL",),
+    "IGNORE_URL_PATTERNS": (
+        ".*/api/v1.*",
+        ".*auth.*",
+        ".*admin.*",
+        ".*arq.*",
+        ".*__debug__.*",
+        ".*__reload__.*",
+    )
 }

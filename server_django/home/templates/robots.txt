@@ -1,7 +1,5 @@
 User-agent: *
-Disallow: /django-admin/
-Disallow: /admin/
-Disallow: /auth/
+Disallow: /submit_message/
 Allow: /
 
-Sitemap: /sitemap.xml
+Sitemap: https://www.mush.by/sitemap.xml
