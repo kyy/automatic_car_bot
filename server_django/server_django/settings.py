@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [
@@ -98,4 +99,11 @@ ARQ_QUEUES = {
         database=0,
     ),
     #    'arq:another_queue_name': RedisSettings(),
+}
+
+JSL_DJANGO_SITEMAP_SETTINGS = {
+    "ENABLE": True,
+    "FETCH_URL_FROM": "pattern",
+    "INCLUDE_APPS": ("home",),
+    "IGNORE_URL_PATTERNS": (".*/api/v1.*",)
 }
