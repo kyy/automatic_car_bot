@@ -255,9 +255,13 @@ def donate_kb():
         [
             InlineKeyboardButton(
                 text="сделать перевод",
-                web_app=WebAppInfo(url="https://yoomoney.ru/to/4100118330778097"),
-            ),
-        ]
+                web_app=WebAppInfo(url="https://yoomoney.ru/to/4100118330778097")),
+        ],
+        [
+            InlineKeyboardButton(
+                text=TXT["btn_start_menu"],
+                callback_data="start_menu_help_hide")
+        ],
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -274,6 +278,11 @@ def asky_kb(tel_id):
             InlineKeyboardButton(
                 text="Поделится в Vkontakte",
                 url=f"https://vk.com/share.php?url={BOT['url']}?start={tel_id}")
+        ],
+        [
+            InlineKeyboardButton(
+                text=TXT["btn_start_menu"],
+                callback_data="start_menu_help_hide")
         ],
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
