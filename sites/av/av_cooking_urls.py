@@ -62,7 +62,7 @@ async def get_url_av(car_input, db):
     for key in car_input:
         if car_input[key] != FSB:
             new_part.append(str(key) + str(car_input[key]))
-    new_part.append('&sort=4')
+    new_part.append('sort=4')
     new_part_url = "&".join(new_part)
     full_url = f"https://api.av.by/offer-types/cars/filters/main/init?{new_part_url}"
     logging.info(f'<JSON> {full_url}')
