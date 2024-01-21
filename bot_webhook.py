@@ -18,7 +18,7 @@ logging.basicConfig(
     filename='logs/webhook.log',
     filemode='a'
 )
-logging.info('start')
+
 """
 https://localtunnel.github.io/www/
 fast test:
