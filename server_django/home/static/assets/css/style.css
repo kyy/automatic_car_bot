@@ -1,10 +1,7 @@
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Raleway:300,400,500,700,800');
-
-
 body {
     background: #fff;
     color: #2f3138;
-    font-family: "Open Sans", sans-serif;
+    font-family: "Raleway", sans-serif;
 }
 
 a {
@@ -33,7 +30,7 @@ h4,
 h5,
 h6 {
     font-family: "Raleway", sans-serif;
-    font-weight: 400;
+    font-weight: 500;
     margin: 0 0 20px 0;
     padding: 0;
     color: #72afd3;
@@ -99,14 +96,16 @@ h6 {
 }
 
 .section-header h2 {
+    font-family: "Raleway", sans-serif;
     font-size: 36px;
     text-transform: uppercase;
     text-align: center;
-    font-weight: 700;
+    font-weight: 600;
     margin-bottom: 10px;
 }
 
 .section-header p {
+    font-family: "Raleway", sans-serif;
     text-align: center;
     padding: 0;
     margin: 0;
@@ -147,7 +146,7 @@ h6 {
     font-size: 36px;
     margin: 0;
     font-family: "Raleway", sans-serif;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: #f6f7fd;
@@ -155,8 +154,8 @@ h6 {
 
 #header #logo h4 a {
     color: #f6f7fd;
-    text-shadow: 1px 1px 2px black;
 }
+
 
 #header #logo h1 a,
 #header #logo h1 a:hover {
@@ -502,7 +501,7 @@ h6 {
 #hero h1 {
     color: #fff;
     font-family: "Raleway", sans-serif;
-    font-size: 56px;
+    font-size: 48px;
     font-weight: 600;
     text-transform: uppercase;
 }
@@ -519,8 +518,14 @@ h6 {
 
 #hero p {
     color: #ebebeb;
-    font-weight: 700;
-    font-size: 20px;
+    font-weight: 600;
+    font-size: 22px;
+}
+
+#hero h2 {
+    color: #ebebeb;
+    font-weight: 600;
+    font-size: 14px;
 }
 
 @media (max-width: 991px) {
@@ -707,7 +712,7 @@ h6 {
     position: relative;
     font-size: 18px;
     line-height: 24px;
-    font-weight: 400;
+    font-weight: 500;
     padding-left: 25px;
     cursor: pointer;
     color: #3e5e72;
@@ -914,7 +919,7 @@ h6 {
     padding: 2px 0 2px 0;
     line-height: 1;
     font-family: "Raleway", sans-serif;
-    font-weight: 700;
+    font-weight: 600;
     color: #fff;
 }
 
