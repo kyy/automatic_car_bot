@@ -81,10 +81,20 @@ async def send_car_job(tel_id, result):
     redis = await create_pool(rs)
     ccd = CacheCarData(tel_id, 50)
 
-    for car in result:
-        if not check_dublicate(url=car[0].split('/')[-1], ccd=ccd):
+    all_prices = []
+    # av.by всегда первая, смысл сортировки
+    sorted_result = sorted(result, key=lambda x: x[0], reverse=True)
+
+    for car in sorted_result:
+        url = car[0]
+        price = car[1]
+        # проверяем на совпадение id и цен в пачке результата
+        if not check_dublicate(url=car[0].split('/')[-1], ccd=ccd) and price not in all_prices:
             await asyncio.sleep(0.205)
             await redis.enqueue_job('send_car', tel_id, car, ccd)
+            all_prices.append(price)
+        else:
+            logging.warning(f'the price is the same, maybe they are duplicates -> {url}::{price}')
 
 
 async def parse_price(ctx):
