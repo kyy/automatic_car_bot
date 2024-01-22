@@ -2,4 +2,4 @@ User-agent: *
 Disallow: /submit_message/
 Allow: /
 
-Sitemap: https://www.mush.by/sitemap.xml
+Sitemap: https://mush.by/sitemap.xml

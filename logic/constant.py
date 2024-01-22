@@ -109,5 +109,5 @@ BOT = {
     'telegram': 'https://t.me/xibolba',
     'telegram_name': '@xibolba',
     'id': 514390056,
-    'site': 'https://www.mush.by',
+    'site': 'https://mush.by',
 }

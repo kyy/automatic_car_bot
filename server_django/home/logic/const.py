@@ -29,4 +29,5 @@ BOT = {
     'telegram_name': '@xibolba',
     'id': 514390056,
     'year': datetime.now().year,
+    'site': 'https://mush.by'
 }
