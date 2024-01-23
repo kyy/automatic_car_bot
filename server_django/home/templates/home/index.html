@@ -46,9 +46,7 @@
 
     <!-- Template Main CSS File -->
     <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
-
 </head>
-
 
 <body>
 
@@ -59,9 +57,7 @@
     <div class="container-fluid container-xxl d-flex align-items-center">
 
         <div id="logo" class="me-auto">
-
             <h4 class="pt-3 text-uppercase">
-
                 <a href="/">
                     <img width="35"
                          height="35"
@@ -72,7 +68,7 @@
                 </a>
             </h4>
         </div>
-
+        <!-- .navbar -->
         <nav id="navbar" class="navbar order-last order-lg-0">
             <ul>
                 <li><a class="nav-link scrollto active" href="#hero">ОБО МНЕ</a></li>
@@ -87,11 +83,13 @@
                 <path fill-rule="evenodd"
                       d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
             </svg>
-        </nav><!-- .navbar -->
+        </nav>
+        <!--End .navbar -->
         <a class="buy-tickets scrollto" href="{{ bot.url }}">перейти к боту</a>
 
     </div>
-</header><!-- End Header -->
+</header>
+<!-- End Header -->
 
 <!-- ======= Hero Section ======= -->
 <section id="hero">
@@ -150,7 +148,6 @@
         </div>
     </section><!-- End About Section -->
 
-
     <!-- =======  F.A.Q Section ======= -->
     <section id="faq">
         <div class="container">
@@ -177,6 +174,7 @@
                                 </div>
                             </li>
                         {% endfor %}
+
                     </ul>
                 </div>
             </div>
@@ -207,7 +205,6 @@
                     </div>
                 </div>
 
-
                 <div class="col-md-6">
                     <div class="contact-email">
                         <p><a href="mailto:{{ bot.email }}" aria-label="Электронная почта автора">
@@ -220,7 +217,6 @@
                     </div>
                 </div>
             </div>
-
 
             <div id="result" class="sent-message alert"></div>
 
@@ -240,8 +236,8 @@
                         <label for="message"></label>
                         <textarea class="form-control" name="message" rows="5" id="message" placeholder="Собщение"
                                   required autocomplete="off"></textarea>
-
                     </div>
+
                     <div class="my-3">
                         <div class="error-message">Ошибка. Повторите попытку</div>
                         <button id="button" type="submit"
@@ -251,7 +247,6 @@
                 </form>
             </div>
         </div>
-
 
     </section><!-- End Contact Section -->
 
@@ -313,7 +308,6 @@
 </script>
 <!-- /Google tag (gtag.js) -->
 
-
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
@@ -352,5 +346,4 @@
 <!-- /Yandex.Metrika counter -->
 
 </body>
-
 </html>

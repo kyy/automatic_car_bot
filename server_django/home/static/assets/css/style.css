@@ -813,6 +813,13 @@ h6 {
     margin-bottom: 20px;
 }
 
+@media (min-width: 768px) {
+
+    #contact .contact-email {
+        padding: 20px 0;
+    }
+}
+
 
 #contact .email-form .error-message {
     display: none;
