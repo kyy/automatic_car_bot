@@ -739,10 +739,12 @@ h6 {
 
 #faq .faq-list .collapsed {
     color: black;
+    font-weight: 600;
 }
 
 #faq .faq-list .collapsed:hover {
-    color: #486e85;
+    color: #75acc5;
+    
 }
 
 #faq .faq-list .collapsed .icon-show {
