@@ -1,5 +1,5 @@
 User-agent: *
 Disallow: /submit_message/
-Allow: /
 
+Host: https://mush.by
 Sitemap: https://mush.by/sitemap.xml
