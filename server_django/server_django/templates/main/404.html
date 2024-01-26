@@ -5,17 +5,17 @@
 <body>
 {% block content %}
     <div class="container-fluid container-xxl d-flex align-items-center">
-        <div class="wrap">
-            <div class="logo">
+
+        <div class="card" style="width: 18rem;">
+            <img src="{% static "main/images/404_background.png" %}" class="rounded float-start" alt="error 404">
+            <div class="card-body">
+                <h5 class="card-title"><span id="timer"></span></h5>
                 <p>Упс, вы не должы были это увидеть!</p>
-                <div class="sub">
-                    <span id="timer"></span>
-                    <p><a href="#">Вернуться на главную</a></p>
-                </div>
+                <a href="#">Вернуться на главную</a>
             </div>
         </div>
-        <img src="{% static "main/images/404_background.png" %}" class="rounded float-start">
     </div>
+
     {% block extra_css %}
         <link href='//fonts.googleapis.com/css?family=Capriola' rel='stylesheet' type='text/css'>
     {% endblock %}
@@ -26,7 +26,7 @@
             function time() {
                 document.getElementById("timer").innerHTML = i;
                 i--;
-                if (i === 2) location.href = "/";
+                if (i < 1) location.href = "/";
             }
 
             time();
