@@ -2,41 +2,36 @@
 {% load static %}
 
 
-<head>
-    {% block title %}
-        Free Funky 404 for Website Template | Home :: w3layouts
-    {% endblock %}
-
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link href='//fonts.googleapis.com/css?family=Capriola' rel='stylesheet' type='text/css'>
-</head>
-
 <body>
 {% block content %}
-    <p>До перехода осталось <b><span id="timer"></span></b> сек.</p>
-    <div class="wrap">
-        <div class="logo">
-            <h1>404</h1>
-            <p> Sorry - File not Found!</p>
-            <div class="sub">
-                <p><a href="#">Вернуться на главную</a></p>
+    <div class="container-fluid container-xxl d-flex align-items-center">
+        <div class="wrap">
+            <div class="logo">
+                <p>Упс, вы не должы были это увидеть!</p>
+                <div class="sub">
+                    <span id="timer"></span>
+                    <p><a href="#">Вернуться на главную</a></p>
+                </div>
             </div>
         </div>
+        <img src="{% static "main/images/404_background.png" %}" class="rounded float-start">
     </div>
-    </body>
+    {% block extra_css %}
+        <link href='//fonts.googleapis.com/css?family=Capriola' rel='stylesheet' type='text/css'>
+    {% endblock %}
+    {% block extra_js %}
+        <script type="text/javascript">
+            let i = 8;
 
-    <script type="text/javascript">
-        let i = 5;
+            function time() {
+                document.getElementById("timer").innerHTML = i;
+                i--;
+                if (i === 2) location.href = "/";
+            }
 
-        function time() {
-            document.getElementById("timer").innerHTML = i;
-            i--;
-            if (i < 0) location.href = "/";
-        }
-
-        time();
-        setInterval(time, 1000);
-    </script>
-
-    <img src="{% static "main/images/404_background.png" %}">
+            time();
+            setInterval(time, 1000);
+        </script>
+    {% endblock %}
 {% endblock %}
+</body>
