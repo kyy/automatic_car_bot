@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from logic.constant import LOGO
+from logic.constant import LOGO, CACHE_CAR_IDS
 from logic.cook_parse_cars import parse_main as cars
 from logic.cook_parse_prices import parse_main as prices
 from logic.cook_pdf import do_pdf
@@ -79,7 +79,7 @@ async def send_car(ctx, tel_id, car, ccd):
 async def send_car_job(tel_id, result):
     """Создаем очередь отправки объявлений"""
     redis = await create_pool(rs)
-    ccd = CacheCarData(tel_id, 50)
+    ccd = CacheCarData(tel_id, CACHE_CAR_IDS)
 
     all_prices = []
     # av.by всегда первая, смысл сортировки
