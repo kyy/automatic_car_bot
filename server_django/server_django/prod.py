@@ -1,5 +1,3 @@
-import os
-
 from .settings import *
 from load_env import load_dotenv
 

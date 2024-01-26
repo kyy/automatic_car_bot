@@ -1,0 +1,42 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+
+<head>
+    {% block title %}
+        Free Funky 404 for Website Template | Home :: w3layouts
+    {% endblock %}
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href='//fonts.googleapis.com/css?family=Capriola' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+{% block content %}
+    <p>До перехода осталось <b><span id="timer"></span></b> сек.</p>
+    <div class="wrap">
+        <div class="logo">
+            <h1>404</h1>
+            <p> Sorry - File not Found!</p>
+            <div class="sub">
+                <p><a href="#">Вернуться на главную</a></p>
+            </div>
+        </div>
+    </div>
+    </body>
+
+    <script type="text/javascript">
+        let i = 5;
+
+        function time() {
+            document.getElementById("timer").innerHTML = i;
+            i--;
+            if (i < 0) location.href = "/";
+        }
+
+        time();
+        setInterval(time, 1000);
+    </script>
+
+    <img src="{% static "main/images/404_background.png" %}">
+{% endblock %}

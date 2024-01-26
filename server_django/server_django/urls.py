@@ -29,6 +29,8 @@ urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
 
+handler404 = "server_django.views.page_404"
+
 if settings.DEBUG:
     import debug_toolbar
     from django.conf.urls.static import static

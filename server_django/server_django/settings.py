@@ -11,13 +11,10 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-SECRET_KEY = 'django-insecure-w6nd)%-_98i)ty#=g5b_mhr1rytf(sd^_mmc(#w8m=k*#h(abw'
-
-ALLOWED_HOSTS = []
-
 INSTALLED_APPS = [
     'arq_admin',
     'home',
+    'server_django',
 
     'django.contrib.admin',
     'django.contrib.auth',
