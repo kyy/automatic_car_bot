@@ -6,10 +6,11 @@ from redis import Redis
 def check_dublicate(url, ccd):
     """Проверка на дублирующее объявление, возвращает True если попался дубль"""
     ccd_cache = ccd.render()
+    logging.info(f'{ccd_cache=}')
     if ccd_cache:
         for i in ccd_cache:
             if url in i:
-                logging.warning(f'Найден дубль {url}')
+                logging.warning(f'Dublicate {url}')
                 return True
     return False
 
