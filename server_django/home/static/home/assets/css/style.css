@@ -527,7 +527,7 @@ h6 {
 #hero h2 {
     color: #ebebeb;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 17px;
 }
 
 @media (max-width: 991px) {
@@ -744,7 +744,7 @@ h6 {
 
 #faq .faq-list .collapsed:hover {
     color: #75acc5;
-    
+
 }
 
 #faq .faq-list .collapsed .icon-show {
