@@ -109,7 +109,7 @@ def abw_url_filter(abw_link_json):
     try:
         url = f"https://abw.by/cars{abw_link_json.split('list')[1]}"
     except Exception as e:
-        logging.error(f'<abw_url_filter> {e}')
+        logging.error(f'<abw_url_filter> {abw_link_json=} {e}')
         return url
     logging.info(f'<HTML> {url}')
     return url
