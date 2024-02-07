@@ -12,10 +12,6 @@ STATICFILES_DIRS = (
 )
 
 INSTALLED_APPS = [
-    'arq_admin',
-    'home',
-    'server_django',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -23,6 +19,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
+
+    'arq_admin',
+    'home',
+    'server_django',
 ]
 
 MIDDLEWARE = [
@@ -103,11 +103,11 @@ JSL_DJANGO_SITEMAP_SETTINGS = {
     "FETCH_URL_FROM": "name",
     "INCLUDE_APPS": ("ALL",),
     "IGNORE_URL_PATTERNS": (
-        ".*/api/v1.*",
-        ".*auth.*",
-        ".*admin.*",
-        ".*arq.*",
-        ".*__debug__.*",
-        ".*__reload__.*",
+        "auth",
+        "admin",
+        "arq",
+        "__debug__",
+        "__reload__",
+        "sitemap",
     )
 }
