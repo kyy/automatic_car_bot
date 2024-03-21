@@ -139,11 +139,11 @@ def html_parse_abw(dom, work):
     km = dom.xpath('//*[@class="description"]/text()[1]')[0].replace(' км', '')
     info = dom.xpath('//*[@class="description"]/text()[2]')[0].split(' / ')
 
-    year = info[0].replace(' ', '').replace('г.', '')
-    dimension = info[1].split(' ')[0].replace('дизель', '').replace('бензин', '')
-    drive = info[-2]
-    transmission = info[-3]
-    motor = info[-4]
+    dimension = info[1].replace(' л', '')
+    drive = info[-1]
+    transmission = info[-2]
+    motor = info[3]
+    year = ''
 
     id_car = dom.xpath('//*[@class="controls"]/button[1]/@id')[0]
     url = f'https://abw.by/cars/detail/{id_car}'
@@ -194,17 +194,19 @@ def json_parse_abw(json_data, work):
         url = f"https://abw.by{r_t['link']}"
         if work is False:
             brand = r_t["title"].split(",")[0]
+            year = r_t["title"].split(",")[1].replace(" ", "")
             price = r_t["price"]["usd"].replace("USD", "").replace(" ", "")
             city = r_t["city"]
             description = r_t["description"].split("/")
+
             km = description[0].replace(" <br", "").replace(" км", "")
-            year = description[1].replace("г.", "").replace(">", "").replace(" ", "")
-            dimension = description[2].split(" ")[1]
-            motor = description[-4].replace(" ", "")
-            transmission = description[-3].replace(" ", "")
+            dimension = description[1].split(" ")[1]
+            motor = description[3].replace(" ", "")
+            transmission = description[3].replace(" ", "")
             drive = description[-2].replace(" ", "")
-            typec = description[-1]
+            typec = description[-1].replace(" 5 дв.", "")
             color = vin = exchange = days = ""
+
             car.append(
                 [
                     str(url),
