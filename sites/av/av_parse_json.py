@@ -99,7 +99,7 @@ def json_parse_av(json_data, work):
         price = jd["price"]
         url = jd["url"]
         days = jd["days"]
-        exchange = jd["exchange"]
+        exchange = jd["exchange"].replace(" с вашей доплатой", "")
         city = jd["city"]
         year = jd["year"]
         brand = jd["brand"]
