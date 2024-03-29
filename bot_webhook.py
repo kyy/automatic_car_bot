@@ -7,6 +7,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.strategy import FSMStrategy
 from aiogram.utils.token import TokenValidationError, validate_token
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiogram.client.bot import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiohttp import web
 from bot.handlers import *
 from bot.commands import commands
@@ -51,7 +53,12 @@ async def on_startup(bot: Bot):
 def webhook():
     app = web.Application()
     session = AiohttpSession()
-    bot_settings = {"token": MAIN_BOT_TOKEN, "session": session, "parse_mode": "Markdown"}
+    bot_settings = {
+        "token": MAIN_BOT_TOKEN, "session": session,
+        "default": DefaultBotProperties(
+            parse_mode=ParseMode.HTML,
+        )
+    }
     bot = Bot(**bot_settings)
     dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.USER_IN_CHAT)  # FSM !
     dp.startup.register(on_startup)
