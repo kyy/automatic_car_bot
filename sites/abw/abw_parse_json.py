@@ -66,7 +66,7 @@ async def count_cars_abw(url, session):
     if url is None:
         return 0
     try:
-        async with session.get(url=url, headers=HEADERS_JSON) as resp:
+        async with session.get(url=url, headers=HEADERS) as resp:
             r = await resp.json(content_type=None)
             return int(r["pagination"]["total"])
     except Exception as e:

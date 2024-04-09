@@ -3,14 +3,14 @@ import logging
 import numpy as np
 from tqdm import tqdm
 
-from logic.constant import HEADERS_JSON, FOLDER_PARSE
+from logic.constant import HEADERS, FOLDER_PARSE
 
 
 async def abw_get_from_json_brands(session):
     brands, price_list = {}, []
     async with session.get(
             url='https://b.abw.by/api/adverts/cars/filters',
-            headers=HEADERS_JSON,
+            headers=HEADERS,
     ) as resp:
         r = await resp.json(content_type=None)
 
@@ -40,12 +40,10 @@ async def abw_get_from_json_models(session):  # {Brand_name:{Model_name:[id, nam
     brand_dict = {}
     brands = np.load(f'{FOLDER_PARSE}abw_brands.npy', allow_pickle=True).item()
 
-
-
     for item in tqdm(brands):
         async with session.get(
                 url=f'{url}{brands[item][1]}',
-                headers=HEADERS_JSON,
+                headers=HEADERS,
         ) as resp:
             models_dict = {}
             r = await resp.json(content_type=None)
