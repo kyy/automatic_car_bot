@@ -3,7 +3,7 @@ import logging
 
 from aiohttp import ClientSession
 from lxml import etree
-from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS_JSON, HEADERS, PARSE_LIMIT_PAGES
+from logic.constant import REPORT_PARSE_LIMIT_PAGES, HEADERS, PARSE_LIMIT_PAGES
 from datetime import datetime, timedelta
 
 
@@ -77,7 +77,7 @@ async def count_cars_abw(url, session):
 async def json_links_abw(url, session):
     try:
         links_to_json = []
-        async with session.get(url=url, headers=HEADERS_JSON) as resp:
+        async with session.get(url=url, headers=HEADERS) as resp:
             r = await resp.json(content_type=None)
             page_count = r["pagination"]["pages"]
             links_to_json.append(url)
